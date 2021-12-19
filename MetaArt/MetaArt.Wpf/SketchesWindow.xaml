@@ -1,0 +1,25 @@
+﻿<Window x:Class="MetaArt.Wpf.SketchesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MetaArt.Wpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="1000">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2">
+            <Button x:Name="btn" Click="Button_Click" Content="Run"/>
+        </StackPanel>
+        <ListBox x:Name="list" Grid.Row="1" Width="200"/>
+        <local:SketchPresenter x:Name="img" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1" Grid.Column="1"/>
+        <!--<skia:SKElement Name="AUView" Grid.Row="1" PaintSurface="AUView_PaintSurface"/>-->
+    </Grid>
+</Window>

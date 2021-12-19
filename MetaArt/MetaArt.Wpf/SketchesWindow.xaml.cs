@@ -1,9 +1,11 @@
 ﻿using SkiaSharp;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,24 +16,34 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
-namespace MetaArt.Wpf.App {
+namespace MetaArt.Wpf {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window {
-        public MainWindow() {
+    public partial class SketchesWindow : Window {
+        Type[] types = System.Reflection.Assembly.GetEntryAssembly()!.GetTypes().Where(x => typeof(SketchBase).IsAssignableFrom(x)).ToArray();
+        public SketchesWindow() {
             InitializeComponent();
+            btn.Focus();
+            Closed+= (o, e) => img.Stop();
+            list.ItemsSource = types;
+            list.SelectedIndex = 0;
         }
-        int count = 0;
+        void Button_Click(object sender, RoutedEventArgs e) {
+            img.Run((Type)list.SelectedItem);
+        }
+    }
+    /*
+     int count = 0;
         double lastTime = 0;
         SKPaint paint = new SKPaint() { Color = new SKColor(0, 0, 0), TextSize = 100 };
         SKPaint paint1 = new SKPaint(new SKFont(SKTypeface.FromFamilyName("Microsoft YaHei UI"))) {
             Color = new SKColor(0, 0, 0),
             TextSize = 20
         };
-
-        private void AUView_PaintSurface(object sender, SkiaSharp.Views.Desktop.SKPaintSurfaceEventArgs e) {
+        void AUView_PaintSurface(object sender, SkiaSharp.Views.Desktop.SKPaintSurfaceEventArgs e) {
             var sw = new Stopwatch();
             sw.Start();
             var surface = e.Surface;
@@ -44,10 +56,5 @@ namespace MetaArt.Wpf.App {
             sw.Stop();
             lastTime = ((double)sw.ElapsedTicks/Stopwatch.Frequency) * 1000;
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e) {
-            //count++;
-            AUView.InvalidateVisual();
-        }
-    }
+     */
 }

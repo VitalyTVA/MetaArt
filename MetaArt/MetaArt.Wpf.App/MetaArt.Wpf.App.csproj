@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SkiaSharp.Views.WPF" Version="2.80.3" />
+    <PackageReference Include="SkiaSharp" Version="2.88.0-preview.179" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MetaArt.Wpf\MetaArt.Wpf.csproj" />
+    <ProjectReference Include="..\MetaArt\MetaArt.csproj" />
   </ItemGroup>
 
 </Project>
