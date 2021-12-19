@@ -10,19 +10,35 @@ namespace MetaArt {
 
         protected SKCanvas Canvas => Painter.Canvas;
 
-
+        protected int width => Painter.Width;
+        protected int height => Painter.Height;
 
 
         protected void size(int width, int height) {
             Painter.SetSize(width, height);
         }
         protected void background(byte color) {
-            Canvas.Clear(new SKColor(color, color, color));
+            background(new SKColor(color));
+        }
+        protected void background(SKColor color) {
+            Canvas.Clear(color);
+        }
+        protected int min(int valu1, int value2) => Math.Min(valu1, value2);
+
+        SKPaint fillPaint = new SKPaint() { Style = SKPaintStyle.Fill, IsAntialias = true };
+        SKPaint strokePaint = new SKPaint() { Style = SKPaintStyle.Stroke, IsAntialias = true };
+
+        protected void fill(SKColor color) {
+            fillPaint.Color = color;
         }
 
+        protected void noStroke() {
+            strokePaint.StrokeWidth = 0;
+        }
 
-        public virtual void setup() { }
-        public virtual void draw() { }
-
+        protected void circle(float x, float y, float extent) {
+            Canvas.DrawCircle(new SKPoint(x, y), extent / 2, fillPaint);
+            Canvas.DrawCircle(new SKPoint(x, y), extent / 2, strokePaint);
+        }
     }
 }

@@ -5,7 +5,7 @@ class FPS : SketchBase {
 
 
 
-    public override void setup() {
+    void setup() {
         size(200, 200);
         background(150);
     }
@@ -13,7 +13,7 @@ class FPS : SketchBase {
 
     int Call = 0;
     Stopwatch Stopwatch = new Stopwatch();
-    public override void draw() {
+    void draw() {
         int x = 30;
         var paint = new SKPaint() { Color = new SKColor(0, 0, 0), TextSize = 20 };
         background(150);

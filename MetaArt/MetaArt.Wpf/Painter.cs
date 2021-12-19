@@ -36,14 +36,8 @@ namespace MetaArt.Wpf {
             }
         }
 
-        int width = 100;
-        int height = 100;
-
         public Painter(SketchBase sketch) : base(sketch) {
         }
-
-        public int Width { get => width; }
-        public int Height { get => height; }
 
         void ClearSurface() {
             if(surface != null) {
@@ -54,14 +48,14 @@ namespace MetaArt.Wpf {
         }
 
         public void Setup() {
-            sketch.setup();
+            SetupCore();
             var bmp = Bitmap;
             Bitmap.AddDirtyRect(new Int32Rect(0, 0, Width, Height));
             Bitmap.Unlock();
             ClearSurface();
         }
         public void Draw() {
-            sketch.draw();
+            DrawCore();
             ClearSurface();
         }
 
@@ -69,8 +63,7 @@ namespace MetaArt.Wpf {
         public override void SetSize(int width, int height) {
             if(bitmap != null)
                 throw new InvalidOperationException();
-            this.width = width;
-            this.height = height;
+            base.SetSize(width, height);
         }
     }
 }
