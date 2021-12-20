@@ -54,7 +54,6 @@ namespace MetaArt.Wpf {
             Bitmap.Unlock();
             ClearSurface();
         }
-
         public void Draw() {
             DrawCore();
             ClearSurface();
