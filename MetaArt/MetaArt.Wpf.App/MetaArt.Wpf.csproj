@@ -11,8 +11,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MetaArt.Wpf\MetaArt.Wpf.csproj" />
+    <ProjectReference Include="..\MetaArt.Sketches\MetaArt.Sketches.csproj" />
     <ProjectReference Include="..\MetaArt\MetaArt.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="SketchesWindow.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>

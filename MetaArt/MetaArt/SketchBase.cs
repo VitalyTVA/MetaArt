@@ -18,7 +18,7 @@ namespace MetaArt {
             Painter.SetSize(width, height);
         }
         protected void background(byte color) {
-            background(new SKColor(color));
+            background(new SKColor(color, color, color));
         }
         protected void background(SKColor color) {
             Canvas.Clear(color);
