@@ -15,7 +15,12 @@ namespace MetaArt.Wpf {
         }
         public void Stop() => scheduler.Complete();
         SingleThreadTaskScheduler scheduler = new();
+
+        DispatcherTimer? timer;
+
         public async void Run(Type skecthType) {
+            timer?.Stop();
+
             var factory = new TaskFactory(
                 CancellationToken.None, TaskCreationOptions.DenyChildAttach,
                 TaskContinuationOptions.None, scheduler);
@@ -37,7 +42,7 @@ namespace MetaArt.Wpf {
 
 
 
-            var timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(30) };
+            timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(30) };
 
 
 
@@ -50,6 +55,9 @@ namespace MetaArt.Wpf {
                 });
                 bitmap.AddDirtyRect(new Int32Rect(0, 0, painter.Width, painter.Height));
                 bitmap.Unlock();
+                
+                if(painter.NoLoop)
+                    timer.Stop();
             };
             timer.Start();
         }

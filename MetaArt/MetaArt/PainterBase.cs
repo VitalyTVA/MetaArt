@@ -19,6 +19,8 @@ namespace MetaArt {
 
         public readonly SketchBase sketch;
 
+        public bool NoLoop { get; set; }
+
         MethodInfo? drawMethod;
         MethodInfo? setupwMethod;
 

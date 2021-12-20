@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 
 namespace MetaArt {
+    //TODO make sketch interface skia-independent
     public class SketchBase {
         PainterBase? painter;
         internal PainterBase Painter { get => painter!; set => painter = value; }
@@ -10,35 +11,107 @@ namespace MetaArt {
 
         protected SKCanvas Canvas => Painter.Canvas;
 
-        protected int width => Painter.Width;
-        protected int height => Painter.Height;
+        protected float width => Painter.Width;
+        protected float height => Painter.Height;
 
 
         protected void size(int width, int height) {
             Painter.SetSize(width, height);
         }
+        protected void noLoop() => Painter.NoLoop = true;
         protected void background(byte color) {
             background(new SKColor(color, color, color));
         }
         protected void background(SKColor color) {
             Canvas.Clear(color);
         }
-        protected int min(int valu1, int value2) => Math.Min(valu1, value2);
+        protected float min(float value1, float value2) => Math.Min(value1, value2);
+
+
+        protected static SKStrokeJoin ROUND => SKStrokeJoin.Round;
+        protected static SKStrokeJoin MITER => SKStrokeJoin.Miter;
+        protected static SKStrokeJoin BEVEL => SKStrokeJoin.Bevel;
+        SKPaint strokePaint = new SKPaint() { Style = SKPaintStyle.Stroke, StrokeWidth = 4, IsAntialias = true };
+        bool _noStroke = false;
+        protected void noStroke() {
+            _noStroke = true;
+        }
+        protected void stroke(SKColor color) {
+            _noStroke = false;
+            strokePaint.Color = color;
+        }
+        protected void strokeWeight(float weight) {
+            _noStroke = false;
+            strokePaint.StrokeWidth = weight;
+        }
+        protected void strokeJoin(SKStrokeJoin join) {
+            strokePaint.StrokeJoin = join;
+        }
 
         SKPaint fillPaint = new SKPaint() { Style = SKPaintStyle.Fill, IsAntialias = true };
-        SKPaint strokePaint = new SKPaint() { Style = SKPaintStyle.Stroke, IsAntialias = true };
-
+        bool _noFill = false;
         protected void fill(SKColor color) {
+            _noFill = false;
             fillPaint.Color = color;
         }
-
-        protected void noStroke() {
-            strokePaint.StrokeWidth = 0;
+        protected void noFill() {
+            _noFill = true;
         }
+
+        RectMode _rectMode = CORNER;
+        protected static RectMode CORNER = RectMode.CORNER;
+        protected static RectMode CORNERS = RectMode.CORNERS;
+        protected static RectMode RADIUS = RectMode.RADIUS;
+        protected static RectMode CENTER = RectMode.CENTER;
+        protected void rectMode(RectMode mode) {
+            _rectMode = mode;
+        }
+        protected void rect(float a, float b, float c, float d) {
+            var rect = _rectMode switch {
+                RectMode.CENTER => new SKRect(a - c / 2, b - d / 2, a + c / 2, b + d / 2),
+                _ => throw new InvalidOperationException()
+            };
+            if(!_noFill)
+                Canvas.DrawRect(rect, fillPaint);
+            if(!_noStroke)
+                Canvas.DrawRect(rect, strokePaint);
+        }
+
 
         protected void circle(float x, float y, float extent) {
-            Canvas.DrawCircle(new SKPoint(x, y), extent / 2, fillPaint);
-            Canvas.DrawCircle(new SKPoint(x, y), extent / 2, strokePaint);
+            var point = new SKPoint(x, y);
+            if(!_noFill)
+                Canvas.DrawCircle(point, extent / 2, fillPaint);
+            if(!_noStroke)
+                Canvas.DrawCircle(point, extent / 2, strokePaint);
         }
+
+        protected void ellipse(float x, float y, float width, float height) {
+            var point = new SKPoint(x, y);
+            var size = new SKSize(width / 2, height / 2);
+            if(!_noFill)
+                Canvas.DrawOval(point, size, fillPaint);
+            if(!_noStroke)
+                Canvas.DrawOval(point, size, strokePaint);
+        }
+
+        protected void triangle(float x1, float y1, float x2, float y2, float x3, float y3) {
+            var path = new SKPath { FillType = SKPathFillType.EvenOdd }; //TODO reuse triangle path??
+            path.MoveTo(x1, y1);
+            path.LineTo(x2, y2);
+            path.LineTo(x3, y3);
+            path.Close();
+            if(!_noFill)
+                Canvas.DrawPath(path, fillPaint);
+            if(!_noStroke)
+                Canvas.DrawPath(path, strokePaint);
+        }
+    }
+    //https://p5js.org/reference/#/p5/rectMode
+    public enum RectMode {
+        CORNER,
+        CORNERS,
+        CENTER,
+        RADIUS
     }
 }
