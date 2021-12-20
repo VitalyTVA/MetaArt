@@ -58,6 +58,23 @@ namespace MetaArt {
             _noFill = true;
         }
 
+        protected static SKBlendMode BLEND => SKBlendMode.SrcOver;
+        protected static SKBlendMode DIFFERENCE => SKBlendMode.Difference;
+        protected void blendMode(SKBlendMode blendMode) {
+            fillPaint.BlendMode = blendMode;
+            strokePaint.BlendMode = blendMode;
+        }
+
+        protected void push() {
+            Canvas.Save();
+        }
+        protected void pop() {
+            Canvas.Restore();
+        }
+        protected void translate(float x, float y) { 
+            Canvas.Translate(x, y);
+        }
+
         RectMode _rectMode = CORNER;
         protected static RectMode CORNER = RectMode.CORNER;
         protected static RectMode CORNERS = RectMode.CORNERS;
