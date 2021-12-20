@@ -1,7 +1,8 @@
 ﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-shape
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-class Xor : SketchBase {
+/// <summary>Using transform and blend mode.</summary>
+class TransformAndBlend : SketchBase {
     // Set canvas size
     void setup() {
         size(400, 400);

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -25,18 +26,41 @@ namespace MetaArt.Wpf {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class SketchesWindow : Window {
-        Type[] types = Assembly.LoadFile(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "MetaArt.Sketches.dll")).GetTypes().Where(x => typeof(SketchBase).IsAssignableFrom(x)).ToArray();
         public SketchesWindow() {
             InitializeComponent();
+
+            var path = @"c:\Work\github\MetaArt\MetaArt\MetaArt.Sketches\";
+            var files = Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories)
+                .Select(x => x.Replace(path, null))
+                .ToArray();
+
+            var types = Assembly.LoadFile(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "MetaArt.Sketches.dll"))
+                .GetTypes()
+                .Where(x => typeof(SketchBase).IsAssignableFrom(x))
+                .Select(x => {
+                    var path = files.FirstOrDefault(file => file.ToLower().EndsWith(x.Name.ToLower() + ".cs"));
+                    var category = path != null 
+                        ? path.Split(System.IO.Path.DirectorySeparatorChar)[0] 
+                        : "Misc";
+                    return new SketchInfo(x, category);
+                })
+                .ToArray();
+
+
             btn.Focus();
             Closed+= (o, e) => img.Stop();
-            list.ItemsSource = types;
+
+            ICollectionView view = CollectionViewSource.GetDefaultView(types);
+            view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(SketchInfo.Category)));
+
+            list.ItemsSource = view;
             list.SelectedIndex = 0;
         }
         void Button_Click(object sender, RoutedEventArgs e) {
-            img.Run((Type)list.SelectedItem);
+            img.Run(((SketchInfo)list.SelectedItem).Type);
         }
     }
+    record SketchInfo(Type Type, string Category);
     /*
      int count = 0;
         double lastTime = 0;

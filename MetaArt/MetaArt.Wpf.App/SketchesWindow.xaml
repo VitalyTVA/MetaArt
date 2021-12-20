@@ -18,7 +18,16 @@
         <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2">
             <Button x:Name="btn" Click="Button_Click" Content="Run"/>
         </StackPanel>
-        <ListBox x:Name="list" Grid.Row="1" Width="200"/>
+        <ListBox x:Name="list" Grid.Row="1" Width="200" DisplayMemberPath="Type">
+            <ListBox.GroupStyle>
+                <GroupStyle />
+            </ListBox.GroupStyle>
+            <!--<ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>-->
+        </ListBox>
         <local:SketchPresenter x:Name="img" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1" Grid.Column="1"/>
         <!--<skia:SKElement Name="AUView" Grid.Row="1" PaintSurface="AUView_PaintSurface"/>-->
     </Grid>

@@ -1,6 +1,7 @@
 ﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-circle
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
+/// <summary>A simple circle.</summary>
 class Circle : SketchBase {
     // Set canvas size
     void setup() {

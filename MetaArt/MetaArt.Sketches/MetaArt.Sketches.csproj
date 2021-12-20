@@ -11,5 +11,5 @@
   <ItemGroup>
     <ProjectReference Include="..\MetaArt\MetaArt.csproj" />
   </ItemGroup>
-
+	
 </Project>
