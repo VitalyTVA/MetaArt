@@ -36,10 +36,18 @@ namespace MetaArt {
         protected static SKStrokeJoin ROUND => SKStrokeJoin.Round;
         protected static SKStrokeJoin MITER => SKStrokeJoin.Miter;
         protected static SKStrokeJoin BEVEL => SKStrokeJoin.Bevel;
-        SKPaint strokePaint = new SKPaint() { Style = SKPaintStyle.Stroke, StrokeWidth = 4, IsAntialias = true };
+        SKPaint strokePaint = new SKPaint() { 
+            Style = SKPaintStyle.Stroke, 
+            StrokeWidth = 4, 
+            IsAntialias = true, 
+            //Color = SKColors.White 
+        };
         bool _noStroke = false;
         protected void noStroke() {
             _noStroke = true;
+        }
+        protected void stroke(byte color) {
+            stroke(new SKColor(color, color, color));
         }
         protected void stroke(SKColor color) {
             _noStroke = false;
@@ -55,6 +63,9 @@ namespace MetaArt {
 
         SKPaint fillPaint = new SKPaint() { Style = SKPaintStyle.Fill, IsAntialias = true };
         bool _noFill = false;
+        protected void fill(byte color) {
+            fill(new SKColor(color, color, color));
+        }
         protected void fill(SKColor color) {
             _noFill = false;
             fillPaint.Color = color;
@@ -78,6 +89,9 @@ namespace MetaArt {
         }
         protected void translate(float x, float y) { 
             Canvas.Translate(x, y);
+        }
+        protected void rotate(float angle) {
+            Canvas.RotateRadians(angle);
         }
 
         RectMode _rectMode = CORNER;
