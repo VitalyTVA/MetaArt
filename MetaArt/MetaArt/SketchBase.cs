@@ -146,6 +146,7 @@ namespace MetaArt {
         protected static float sin(float angle) => (float)Math.Sin(angle);
         protected static float cos(float angle) => (float)Math.Cos(angle);
         protected static float PI => (float)Math.PI;
+        protected static float lerp(float start, float stop, float amt) => start * (1 - amt) + stop * amt;
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {
