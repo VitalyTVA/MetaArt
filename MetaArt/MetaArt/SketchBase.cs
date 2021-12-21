@@ -24,11 +24,11 @@ namespace MetaArt {
             Painter.SetSize(width, height);
         }
         protected void noLoop() => Painter.NoLoop = true;
-        protected void background(byte color) {
-            background(new SKColor(color, color, color));
+        protected void background(byte v1, byte v2, byte v3, byte a) {
+            background(new SKColor(v1, v2, v3, a));
         }
         protected void background(SKColor color) {
-            Canvas.Clear(color);
+            Canvas.DrawColor(color, SKBlendMode.SrcOver);
         }
         protected float min(float value1, float value2) => Math.Min(value1, value2);
 
