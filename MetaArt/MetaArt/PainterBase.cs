@@ -35,6 +35,7 @@ namespace MetaArt {
             drawMethod?.Invoke(sketch, null);
         }
         protected void SetupCore() {
+            sketch.StartStopwatch();
             setupwMethod?.Invoke(sketch, null);
         }
     }

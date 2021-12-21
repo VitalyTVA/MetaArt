@@ -17,13 +17,13 @@ class TransformAndBlend : SketchBase {
     //}
 
 
-    // Render loop that draws shapes with p5
+    // Render loop that draws shapes
     void draw() {
         // Set the default blend mode
         blendMode(BLEND);
 
         // Black background
-        background(0);
+        background(Black);
 
         // Set foreground as white
         fill(White);

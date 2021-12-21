@@ -7,7 +7,7 @@ class Circle : SketchBase {
     void setup() {
         size(400, 400);
     }
-    // Render loop that draws shapes with p5
+    // Render loop that draws shapes with
     void draw() {
         // Fill in the background
         background(Black);

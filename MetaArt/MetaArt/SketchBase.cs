@@ -1,10 +1,15 @@
 ﻿using SkiaSharp;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace MetaArt {
     //TODO make sketch interface skia-independent
     public class SketchBase {
+        Stopwatch stopwatch = new();
+        internal void StartStopwatch() => stopwatch.Start();
+        protected int millis() => (int)stopwatch.ElapsedMilliseconds;
+
         PainterBase? painter;
         internal PainterBase Painter { get => painter!; set => painter = value; }
 
@@ -123,6 +128,10 @@ namespace MetaArt {
             if(!_noStroke)
                 Canvas.DrawPath(path, strokePaint);
         }
+
+        protected static float sin(float angle) => (float)Math.Sin(angle);
+        protected static float cos(float angle) => (float)Math.Cos(angle);
+        protected static float PI => (float)Math.PI;
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {

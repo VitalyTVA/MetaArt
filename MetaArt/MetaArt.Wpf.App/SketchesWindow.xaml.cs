@@ -54,10 +54,11 @@ namespace MetaArt.Wpf {
             view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(SketchInfo.Category)));
 
             list.ItemsSource = view;
-            list.SelectedIndex = 0;
+            //list.SelectedIndex = 0;
+            list.SelectionChanged += (o, e) => { img.Run(((SketchInfo)list.SelectedItem).Type); };
         }
         void Button_Click(object sender, RoutedEventArgs e) {
-            img.Run(((SketchInfo)list.SelectedItem).Type);
+            //img.Run(((SketchInfo)list.SelectedItem).Type);
         }
     }
     record SketchInfo(Type Type, string Category);

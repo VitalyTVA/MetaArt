@@ -17,10 +17,10 @@ class Shape : SketchBase {
     //}
 
 
-    // Render loop that draws shapes with p5
+    // Render loop that draws shapes
     void draw() {
         // Black background
-        background(0);
+        background(Black);
 
         // Turn off shape filling
         noFill();
