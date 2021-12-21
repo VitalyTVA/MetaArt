@@ -30,6 +30,9 @@ namespace MetaArt {
         protected void background(SKColor color) {
             Canvas.DrawColor(color, SKBlendMode.SrcOver);
         }
+        protected void background(byte color) {
+            background(new SKColor(color, color, color));
+        }
         protected float min(float value1, float value2) => Math.Min(value1, value2);
 
 
