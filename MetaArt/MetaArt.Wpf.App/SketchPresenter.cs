@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,21 +54,12 @@ namespace MetaArt.Wpf {
 
             img.Source = bitmap;
 
-            int renderCount = 0;
-            async void OnRender(object? o, EventArgs e) {
-                renderCount++;
-                if(state.State == State.Ready) {
-                    state.State = State.None;
-                    painter.UnlockBitmap();
-                    //img.InvalidateVisual();
-                    if(painter.NoLoop) {
-                        CompositionTarget.Rendering -= OnRender;
-                        return;
-                    }
-                } else if(state.State == State.InProgress) {
-                    return;
-                }
-
+            stop = () => {
+                painter.NoLoop = true;
+            };
+            while(true) {
+                var sw = new Stopwatch();
+                sw.Start();
                 bitmap.Lock();
                 painter.ptr = bitmap.BackBuffer;
 
@@ -76,11 +68,28 @@ namespace MetaArt.Wpf {
                     painter.Draw();
                     state.State = State.Ready;
                 });
+                tcs = new TaskCompletionSource();
+                onRender = () => painter.UnlockBitmap();
+                InvalidateVisual();
+                await tcs.Task;
+                //painter.UnlockBitmap();
+                var sleep = (int)Math.Max(0, 1000f / 61 - sw.ElapsedMilliseconds);
+                await Task.Delay(sleep);
+                if(painter.NoLoop) {
+                    //CompositionTarget.Rendering -= OnRender;
+                    break;
+                }
             }
-            CompositionTarget.Rendering += OnRender;
-            stop = () => {
-                painter.NoLoop = true;
-            };
+            //CompositionTarget.Rendering += OnRender;
+        }
+        Action? onRender;
+        TaskCompletionSource? tcs;
+        protected override void OnRender(DrawingContext dc) {
+            base.OnRender(dc);
+            onRender?.Invoke();
+            tcs?.SetResult();
+            onRender = null;
+            tcs = null;
         }
         enum State { None, InProgress, Ready }
     }
