@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace MetaArt.Wpf {
@@ -13,54 +15,73 @@ namespace MetaArt.Wpf {
         public SketchPresenter() {
             Child = img;
         }
-        public void Stop() => scheduler.Complete();
         SingleThreadTaskScheduler scheduler = new();
-
-        DispatcherTimer? timer;
-
-        public async void Run(Type skecthType) {
-            timer?.Stop();
-
-            var factory = new TaskFactory(
-                CancellationToken.None, TaskCreationOptions.DenyChildAttach,
-                TaskContinuationOptions.None, scheduler);
-
-
-            var size = img.RenderSize;
-            var painter = await factory.StartNew(() => {
-                var sk = (SketchBase)Activator.CreateInstance(skecthType)!;
-                var painter = new Painter(sk);
-                painter.Setup();
-                return painter;
-            });
-
-            var bitmap = painter.Bitmap;
-            var field = typeof(DispatcherObject).GetField("_dispatcher", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-            field.SetValue(bitmap, this.Dispatcher);
-
-            img.Source = bitmap;
-
-
-
-            timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(30) };
-
-
-
-            timer.Tick += async (o, e) => {
-                bitmap.Lock();
-                painter.ptr = bitmap.BackBuffer;
-
-                await factory.StartNew(() => {
-                    painter.Draw();
-                });
-                bitmap.AddDirtyRect(new Int32Rect(0, 0, painter.Width, painter.Height));
-                bitmap.Unlock();
-                
-                if(painter.NoLoop)
-                    timer.Stop();
-            };
-            timer.Start();
+        public void Stop() {
+            StopRender();
+            scheduler.Complete();
         }
 
+        void StopRender() {
+            stop?.Invoke();
+            stop = null;
+        }
+        Action? stop;
+        public async void Run(Type skecthType) {
+            StopRender();
+
+            var painter = new Painter((SketchBase)Activator.CreateInstance(skecthType)!);
+            WriteableBitmap? bitmap = null;
+            void Unlock() {
+                bitmap!.AddDirtyRect(new Int32Rect(0, 0, painter.Width, painter.Height));
+                bitmap!.Unlock();
+            }
+            if(painter.Async) {
+                var factory = new TaskFactory(
+                    CancellationToken.None, TaskCreationOptions.DenyChildAttach,
+                    TaskContinuationOptions.None, scheduler);
+                bitmap = painter.Bitmap;
+
+                img.Source = bitmap;
+                await factory.StartNew(() => {
+                    painter.Setup();
+                });
+                Unlock();
+
+                bool shouldStop = false;
+                stop = () => shouldStop = true;
+                while(!shouldStop) {
+                    var sw = new Stopwatch();
+                    sw.Start();
+                    bitmap.Lock();
+                    painter.ptr = bitmap.BackBuffer;
+                    await factory.StartNew(() => {
+                        painter.Draw();
+                    });
+                    Unlock();
+                    sw.Stop();
+                    var sleep = (int)Math.Max(0, 1000f / 60 - sw.ElapsedMilliseconds);
+                    await Task.Delay(sleep);
+                    if(painter.NoLoop)
+                        break;
+                }
+            } else {
+                painter.Setup();
+                bitmap = painter.Bitmap;
+                Unlock();
+                img.Source = bitmap;
+                void OnRender(object? o, EventArgs e) {
+                    bitmap.Lock();
+                    painter.ptr = bitmap.BackBuffer;
+
+                    painter.Draw();
+                    Unlock();
+
+                    if(painter.NoLoop)
+                        StopRender();
+                }
+                CompositionTarget.Rendering += OnRender;
+                stop = () => CompositionTarget.Rendering -= OnRender;
+            }
+        }
     }
 }

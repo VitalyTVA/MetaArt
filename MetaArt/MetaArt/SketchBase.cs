@@ -21,9 +21,12 @@ namespace MetaArt {
 
 
         protected void size(int width, int height) {
+            //TODO if called from setup in async mode or from draw in normal mode
             Painter.SetSize(width, height);
         }
         protected void noLoop() => Painter.NoLoop = true;
+        protected void async() => Painter.Async = true;
+
         protected void background(byte v1, byte v2, byte v3, byte a) {
             background(new SKColor(v1, v2, v3, a));
         }
