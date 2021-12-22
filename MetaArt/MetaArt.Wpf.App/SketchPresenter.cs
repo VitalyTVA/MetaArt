@@ -13,14 +13,27 @@ namespace MetaArt.Wpf {
         public SketchPresenter() {
             Child = img;
         }
-        public void Stop() => scheduler.Complete();
+        public void Stop() {
+            StopRender();
+            scheduler.Complete();
+        }
+
+        private void StopRender() {
+            stop?.Invoke();
+            stop = null;
+        }
+
         SingleThreadTaskScheduler scheduler = new();
 
-        DispatcherTimer? timer;
+        //DispatcherTimer? timer;
 
+        Action? stop;
+        class StateValue {
+            public volatile State State = State.None;
+        }
         public async void Run(Type skecthType) {
-            timer?.Stop();
-
+            StopRender();
+            StateValue state = new();
             var factory = new TaskFactory(
                 CancellationToken.None, TaskCreationOptions.DenyChildAttach,
                 TaskContinuationOptions.None, scheduler);
@@ -40,27 +53,35 @@ namespace MetaArt.Wpf {
 
             img.Source = bitmap;
 
+            int renderCount = 0;
+            async void OnRender(object? o, EventArgs e) {
+                renderCount++;
+                if(state.State == State.Ready) {
+                    state.State = State.None;
+                    painter.UnlockBitmap();
+                    //img.InvalidateVisual();
+                    if(painter.NoLoop) {
+                        CompositionTarget.Rendering -= OnRender;
+                        return;
+                    }
+                } else if(state.State == State.InProgress) {
+                    return;
+                }
 
-
-            timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(30) };
-
-
-
-            timer.Tick += async (o, e) => {
                 bitmap.Lock();
                 painter.ptr = bitmap.BackBuffer;
 
+                state.State = State.InProgress;
                 await factory.StartNew(() => {
                     painter.Draw();
+                    state.State = State.Ready;
                 });
-                bitmap.AddDirtyRect(new Int32Rect(0, 0, painter.Width, painter.Height));
-                bitmap.Unlock();
-                
-                if(painter.NoLoop)
-                    timer.Stop();
+            }
+            CompositionTarget.Rendering += OnRender;
+            stop = () => {
+                painter.NoLoop = true;
             };
-            timer.Start();
         }
-
+        enum State { None, InProgress, Ready }
     }
 }

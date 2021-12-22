@@ -50,10 +50,15 @@ namespace MetaArt.Wpf {
         public void Setup() {
             SetupCore();
             var bmp = Bitmap;
-            Bitmap.AddDirtyRect(new Int32Rect(0, 0, Width, Height));
-            Bitmap.Unlock();
+            UnlockBitmap();
             ClearSurface();
         }
+
+        public void UnlockBitmap() {
+            Bitmap.AddDirtyRect(new Int32Rect(0, 0, Width, Height));
+            Bitmap.Unlock();
+        }
+
         public void Draw() {
             DrawCore();
             ClearSurface();
