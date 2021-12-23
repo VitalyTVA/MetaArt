@@ -61,11 +61,11 @@ namespace MetaArt.Wpf {
         }
         //protected override void OnActivated(EventArgs e) {
         //    base.OnActivated(e);
-        //    img.Show();
+        //    img.Show_();
         //}
         //protected override void OnDeactivated(EventArgs e) {
         //    base.OnDeactivated(e);
-        //    img.Hide();
+        //    img.Hide_();
         //}
         private void SketchesWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
             

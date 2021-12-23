@@ -20,20 +20,29 @@ namespace MetaArt.Wpf {
             window = null;
         }
         public void UpdateLocation() {
-            var location = PointToScreen(new Point(0, 0));
-            window?.SetLocation(location);
+            window?.SetLocation(GetLocation());
+        }
+
+        public void Hide_() => window?.Hide_();
+        public void Show_() => window?.Show_(GetLocation());
+
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+            base.OnRenderSizeChanged(sizeInfo);
+            UpdateLocation();
+        }
+
+        private Rect GetLocation() {
+            return new Rect(PointToScreen(new Point(0, 0)), new Size(ActualWidth, ActualHeight));
         }
 
         SketchPresenterWindow? window = null;
         public async void Run(Type skecthType) {
             await Stop();
 
-            var location = PointToScreen(new Point(0, 0));
+            var location = GetLocation();
 
             var thread = new Thread(new ThreadStart(() => {
-                window = new SketchPresenterWindow(skecthType);
-                window.Left = location.X;
-                window.Top = location.Y;
+                window = new SketchPresenterWindow(skecthType, location);
                 window.Show();
                 Dispatcher.Run();
 
@@ -46,19 +55,24 @@ namespace MetaArt.Wpf {
 
     class SketchPresenterWindow : Window {
         Image img = new Image() { Stretch = Stretch.None, VerticalAlignment = VerticalAlignment.Center };
-        public SketchPresenterWindow(Type skecthType) {
+        Painter painter;
+        public SketchPresenterWindow(Type skecthType, Rect ownerRect) {
             Content = img;
             SizeToContent = SizeToContent.WidthAndHeight;
             Topmost = true;
             ShowActivated = false;
+            WindowStyle = WindowStyle.None;
+            ShowInTaskbar = false;
+            ResizeMode = ResizeMode.NoResize;
 
-            var painter = new Painter((SketchBase)Activator.CreateInstance(skecthType)!);
+            painter = new Painter((SketchBase)Activator.CreateInstance(skecthType)!);
             WriteableBitmap? bitmap = null;
             void Unlock() {
                 bitmap!.AddDirtyRect(new Int32Rect(0, 0, painter.Width, painter.Height));
                 bitmap!.Unlock();
             }
             painter.Setup();
+            SetLocationCore(ownerRect);
             bitmap = painter.Bitmap;
             Unlock();
             img.Source = bitmap;
@@ -91,22 +105,25 @@ namespace MetaArt.Wpf {
         public async Task Stop() {
             await Dispatcher.BeginInvoke(new Action(() => { Close(); }));
         }
-        public void SetLocation(Point location) {
+        public void SetLocation(Rect ownerRect) {
             Dispatcher.BeginInvoke(new Action(() => {
-                Left = location.X;
-                Top = location.Y;
+                SetLocationCore(ownerRect);
 
             }));
         }
-        //public void Hide_() {
-        //    Dispatcher.BeginInvoke(new Action(() => {
-        //        Hide();
-        //    }));
-        //}
-        //public void Show(Point location) {
-        //    Dispatcher.BeginInvoke(new Action(() => {
-        //        Show();
-        //    }));
-        //}
+        void SetLocationCore(Rect ownerRect) {
+            Left = ownerRect.X + (ownerRect.Width - painter.Width) / 2;
+            Top = ownerRect.Y + (ownerRect.Height - painter.Height ) / 2;
+        }
+        public void Hide_() {
+            Dispatcher.BeginInvoke(new Action(() => {
+                Hide();
+            }));
+        }
+        public void Show_(Rect ownerRect) {
+            Dispatcher.BeginInvoke(new Action(() => {
+                Show();
+            }));
+        }
     }
 }
