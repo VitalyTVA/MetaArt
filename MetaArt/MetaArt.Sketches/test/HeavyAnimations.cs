@@ -1,8 +1,7 @@
 ﻿using System.Threading;
 
-class AsyncFastAnimations : SketchBase {
+class HeavyAnimations : SketchBase {
     void settings() {
-        async();
         size(400, 400);
     }
 
@@ -12,6 +11,7 @@ class AsyncFastAnimations : SketchBase {
 
 
     void draw() {
+        Thread.Sleep(500);
         background(Black);
 
         // Use the minimum screen size for relative rendering

@@ -26,7 +26,7 @@ namespace MetaArt.Wpf {
             stop = null;
         }
         Action? stop;
-        public async void Run(Type skecthType) {
+        public void Run(Type skecthType) {
             StopRender();
 
             var painter = new Painter((SketchBase)Activator.CreateInstance(skecthType)!);
@@ -35,53 +35,22 @@ namespace MetaArt.Wpf {
                 bitmap!.AddDirtyRect(new Int32Rect(0, 0, painter.Width, painter.Height));
                 bitmap!.Unlock();
             }
-            if(painter.Async) {
-                var factory = new TaskFactory(
-                    CancellationToken.None, TaskCreationOptions.DenyChildAttach,
-                    TaskContinuationOptions.None, scheduler);
-                bitmap = painter.Bitmap;
+            painter.Setup();
+            bitmap = painter.Bitmap;
+            Unlock();
+            img.Source = bitmap;
+            void OnRender(object? o, EventArgs e) {
+                bitmap.Lock();
+                painter.ptr = bitmap.BackBuffer;
 
-                img.Source = bitmap;
-                await factory.StartNew(() => {
-                    painter.Setup();
-                });
+                painter.Draw();
                 Unlock();
 
-                bool shouldStop = false;
-                stop = () => shouldStop = true;
-                while(!shouldStop) {
-                    var sw = new Stopwatch();
-                    sw.Start();
-                    bitmap.Lock();
-                    painter.ptr = bitmap.BackBuffer;
-                    await factory.StartNew(() => {
-                        painter.Draw();
-                    });
-                    Unlock();
-                    sw.Stop();
-                    var sleep = (int)Math.Max(0, 1000f / 60 - sw.ElapsedMilliseconds);
-                    await Task.Delay(sleep);
-                    if(painter.NoLoop)
-                        break;
-                }
-            } else {
-                painter.Setup();
-                bitmap = painter.Bitmap;
-                Unlock();
-                img.Source = bitmap;
-                void OnRender(object? o, EventArgs e) {
-                    bitmap.Lock();
-                    painter.ptr = bitmap.BackBuffer;
-
-                    painter.Draw();
-                    Unlock();
-
-                    if(painter.NoLoop)
-                        StopRender();
-                }
-                CompositionTarget.Rendering += OnRender;
-                stop = () => CompositionTarget.Rendering -= OnRender;
+                if(painter.NoLoop)
+                    StopRender();
             }
+            CompositionTarget.Rendering += OnRender;
+            stop = () => CompositionTarget.Rendering -= OnRender;
         }
     }
 }
