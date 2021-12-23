@@ -7,7 +7,6 @@ using System.Windows.Media.Imaging;
 
 namespace MetaArt.Wpf {
     sealed class Painter : PainterBase {
-
         WriteableBitmap? bitmap;
         SKSurface? surface;
         public IntPtr ptr;
@@ -21,6 +20,7 @@ namespace MetaArt.Wpf {
                 return bitmap;
             }
         }
+
         SKSurface SKSurface {
             get {
                 var bmp = Bitmap;
@@ -36,7 +36,8 @@ namespace MetaArt.Wpf {
             }
         }
 
-        public Painter(SketchBase sketch) : base(sketch) {
+        public Painter(SketchBase sketch) 
+            : base(sketch) {
         }
 
         void ClearSurface() {
@@ -49,9 +50,6 @@ namespace MetaArt.Wpf {
 
         public void Setup() {
             SetupCore();
-            var bmp = Bitmap;
-            Bitmap.AddDirtyRect(new Int32Rect(0, 0, Width, Height));
-            Bitmap.Unlock();
             ClearSurface();
         }
         public void Draw() {

@@ -1,66 +1,129 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace MetaArt.Wpf {
     public class SketchPresenter : Border {
-        Image img = new Image() { Stretch = Stretch.None, VerticalAlignment = VerticalAlignment.Center };
         public SketchPresenter() {
-            Child = img;
         }
-        public void Stop() => scheduler.Complete();
-        SingleThreadTaskScheduler scheduler = new();
+        public async Task Stop() {
+            if(window == null)
+                return;
+            await window.Stop();
+            window = null;
+        }
+        public void UpdateLocation() {
+            window?.SetLocation(GetLocation());
+        }
 
-        DispatcherTimer? timer;
+        public void Hide_() => window?.Hide_();
+        public void Show_() => window?.Show_(GetLocation());
 
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+            base.OnRenderSizeChanged(sizeInfo);
+            UpdateLocation();
+        }
+
+        private Rect GetLocation() {
+            return new Rect(PointToScreen(new Point(0, 0)), new Size(ActualWidth, ActualHeight));
+        }
+
+        SketchPresenterWindow? window = null;
         public async void Run(Type skecthType) {
-            timer?.Stop();
+            await Stop();
 
-            var factory = new TaskFactory(
-                CancellationToken.None, TaskCreationOptions.DenyChildAttach,
-                TaskContinuationOptions.None, scheduler);
+            var location = GetLocation();
 
+            var thread = new Thread(new ThreadStart(() => {
+                window = new SketchPresenterWindow(skecthType, location);
+                window.Show();
+                Dispatcher.Run();
 
-            var size = img.RenderSize;
-            var painter = await factory.StartNew(() => {
-                var sk = (SketchBase)Activator.CreateInstance(skecthType)!;
-                var painter = new Painter(sk);
-                painter.Setup();
-                return painter;
-            });
+            }));
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.IsBackground = true;
+            thread.Start();
+        }
+    }
 
-            var bitmap = painter.Bitmap;
-            var field = typeof(DispatcherObject).GetField("_dispatcher", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-            field.SetValue(bitmap, this.Dispatcher);
+    class SketchPresenterWindow : Window {
+        Image img = new Image() { Stretch = Stretch.None, VerticalAlignment = VerticalAlignment.Center };
+        Painter painter;
+        public SketchPresenterWindow(Type skecthType, Rect ownerRect) {
+            Content = img;
+            SizeToContent = SizeToContent.WidthAndHeight;
+            Topmost = true;
+            ShowActivated = false;
+            WindowStyle = WindowStyle.None;
+            ShowInTaskbar = false;
+            ResizeMode = ResizeMode.NoResize;
 
+            painter = new Painter((SketchBase)Activator.CreateInstance(skecthType)!);
+            WriteableBitmap? bitmap = null;
+            void Unlock() {
+                bitmap!.AddDirtyRect(new Int32Rect(0, 0, painter.Width, painter.Height));
+                bitmap!.Unlock();
+            }
+            painter.Setup();
+            SetLocationCore(ownerRect);
+            bitmap = painter.Bitmap;
+            Unlock();
             img.Source = bitmap;
-
-
-
-            timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(30) };
-
-
-
-            timer.Tick += async (o, e) => {
+            void OnRender(object? o, EventArgs e) {
                 bitmap.Lock();
                 painter.ptr = bitmap.BackBuffer;
 
-                await factory.StartNew(() => {
-                    painter.Draw();
-                });
-                bitmap.AddDirtyRect(new Int32Rect(0, 0, painter.Width, painter.Height));
-                bitmap.Unlock();
-                
-                if(painter.NoLoop)
-                    timer.Stop();
-            };
-            timer.Start();
-        }
+                painter.Draw();
+                Unlock();
 
+                if(painter.NoLoop)
+                    stop!();
+            }
+            onRender = () => {
+                CompositionTarget.Rendering += OnRender;
+            };
+            stop = () => CompositionTarget.Rendering -= OnRender;
+        }
+        Action? onRender;
+        protected override void OnContentRendered(EventArgs e) {
+            base.OnContentRendered(e);
+            onRender?.Invoke();
+            onRender = null;
+        }
+        protected override void OnClosed(EventArgs e) {
+            stop();
+        }
+        Action stop;
+
+        public async Task Stop() {
+            await Dispatcher.BeginInvoke(new Action(() => { Close(); }));
+        }
+        public void SetLocation(Rect ownerRect) {
+            Dispatcher.BeginInvoke(new Action(() => {
+                SetLocationCore(ownerRect);
+
+            }));
+        }
+        void SetLocationCore(Rect ownerRect) {
+            Left = ownerRect.X + (ownerRect.Width - painter.Width) / 2;
+            Top = ownerRect.Y + (ownerRect.Height - painter.Height ) / 2;
+        }
+        public void Hide_() {
+            Dispatcher.BeginInvoke(new Action(() => {
+                Hide();
+            }));
+        }
+        public void Show_(Rect ownerRect) {
+            Dispatcher.BeginInvoke(new Action(() => {
+                Show();
+            }));
+        }
     }
 }

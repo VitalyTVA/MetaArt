@@ -23,18 +23,24 @@ namespace MetaArt {
 
         MethodInfo? drawMethod;
         MethodInfo? setupwMethod;
+        MethodInfo? settingsMethod;
 
         protected PainterBase(SketchBase sketch) {
             this.sketch = sketch;
             drawMethod = sketch.GetType().GetMethod("draw", BindingFlags.Instance | BindingFlags.NonPublic);
             setupwMethod = sketch.GetType().GetMethod("setup", BindingFlags.Instance | BindingFlags.NonPublic);
+            settingsMethod = sketch.GetType().GetMethod("settings", BindingFlags.Instance | BindingFlags.NonPublic);
             sketch.Painter = this;
+
+            SettingsCore();
         }
 
         protected void DrawCore() { 
             drawMethod?.Invoke(sketch, null);
         }
-
+        void SettingsCore() {
+            settingsMethod?.Invoke(sketch, null);
+        }
         protected void SetupCore() {
             sketch.StartStopwatch();
             setupwMethod?.Invoke(sketch, null);

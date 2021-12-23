@@ -48,7 +48,7 @@ namespace MetaArt.Wpf {
 
 
             btn.Focus();
-            Closed+= (o, e) => img.Stop();
+            Closed+= async (o, e) => await img.Stop();
 
             ICollectionView view = CollectionViewSource.GetDefaultView(types);
             view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(SketchInfo.Category)));
@@ -56,9 +56,27 @@ namespace MetaArt.Wpf {
             list.ItemsSource = view;
             //list.SelectedIndex = 0;
             list.SelectionChanged += (o, e) => { img.Run(((SketchInfo)list.SelectedItem).Type); };
+            IsVisibleChanged += SketchesWindow_IsVisibleChanged;
+
         }
+        //protected override void OnActivated(EventArgs e) {
+        //    base.OnActivated(e);
+        //    img.Show_();
+        //}
+        //protected override void OnDeactivated(EventArgs e) {
+        //    base.OnDeactivated(e);
+        //    img.Hide_();
+        //}
+        private void SketchesWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
+            
+        }
+
         void Button_Click(object sender, RoutedEventArgs e) {
             //img.Run(((SketchInfo)list.SelectedItem).Type);
+        }
+        protected override void OnLocationChanged(EventArgs e) {
+            base.OnLocationChanged(e);
+            img.UpdateLocation();
         }
     }
     record SketchInfo(Type Type, string Category);
