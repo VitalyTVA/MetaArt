@@ -11,7 +11,7 @@ class HeavyAnimations : SketchBase {
 
 
     void draw() {
-        Thread.Sleep(500);
+        Thread.Sleep(1500);
         background(Black);
 
         // Use the minimum screen size for relative rendering
