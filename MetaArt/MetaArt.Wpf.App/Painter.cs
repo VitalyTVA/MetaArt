@@ -52,8 +52,8 @@ namespace MetaArt.Wpf {
             SetupCore();
             ClearSurface();
         }
-        public void Draw() {
-            DrawCore();
+        public void Draw(Point? mouse) {
+            DrawCore(mouse != null ? (float)mouse.Value.X : null, mouse != null ? (float)mouse.Value.Y : null);
             ClearSurface();
         }
 

@@ -1,5 +1,6 @@
 ﻿using SkiaSharp;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -34,15 +35,21 @@ namespace MetaArt {
 
             SettingsCore();
         }
-
-        protected void DrawCore() { 
+        Stopwatch stopwatch = new();
+        internal void StartStopwatch() => stopwatch.Start();
+        protected void DrawCore(float? mouseX, float? mouseY) {
+            var currentTime = (int)stopwatch.ElapsedMilliseconds;
+            sketch.deltaTime = currentTime - sketch.currentTime;
+            sketch.currentTime = currentTime;
+            sketch.mouseX = mouseX ?? sketch.mouseX;
+            sketch.mouseY = mouseY ?? sketch.mouseY;
             drawMethod?.Invoke(sketch, null);
         }
         void SettingsCore() {
             settingsMethod?.Invoke(sketch, null);
         }
         protected void SetupCore() {
-            sketch.StartStopwatch();
+            stopwatch.Start();
             setupwMethod?.Invoke(sketch, null);
         }
     }

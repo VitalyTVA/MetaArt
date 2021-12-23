@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -80,7 +81,7 @@ namespace MetaArt.Wpf {
                 bitmap.Lock();
                 painter.ptr = bitmap.BackBuffer;
 
-                painter.Draw();
+                painter.Draw(IsMouseOver ? Mouse.GetPosition(this) : null);
                 Unlock();
 
                 if(painter.NoLoop)
