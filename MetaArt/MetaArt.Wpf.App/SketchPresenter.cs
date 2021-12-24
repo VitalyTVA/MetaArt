@@ -34,12 +34,20 @@ namespace MetaArt.Wpf {
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
             base.OnRenderSizeChanged(sizeInfo);
-            UpdateLocation();
+            //UpdateLocation();
         }
 
-        private System.Drawing.Rectangle GetLocation() {
-            var p = PointToScreen(new Point(0, 0));
-            return new System.Drawing.Rectangle(new System.Drawing.Point((int)p.X, (int)p.Y), new System.Drawing.Size((int)ActualWidth, (int)ActualHeight));
+        private System.Drawing.Point GetLocation() {
+            PresentationSource source = PresentationSource.FromVisual(this);
+
+            double dpiX = 1, dpiY = 1;
+            if(source != null) {
+                dpiX = source.CompositionTarget.TransformToDevice.M11;
+                dpiY = source.CompositionTarget.TransformToDevice.M22;
+            }
+            var w = Window.GetWindow(this);
+            var p =  new Point((w.Left + w.Width) * dpiX, w.Top * dpiY);
+            return new System.Drawing.Point((int)p.X, (int)p.Y);
         }
 
         SketchForm? form = null;
@@ -60,80 +68,5 @@ namespace MetaArt.Wpf {
         //internal void BringToFront() {
         //    form?.BeginInvoke(() => form?.BringToFront());
         //}
-    }
-
-    class SketchPresenterWindow : Window {
-        Image img = new Image() { Stretch = Stretch.None, VerticalAlignment = VerticalAlignment.Center };
-        Painter painter;
-        public SketchPresenterWindow(Type skecthType, Rect ownerRect) {
-            Content = img;
-            SizeToContent = SizeToContent.WidthAndHeight;
-            Topmost = true;
-            ShowActivated = false;
-            WindowStyle = WindowStyle.None;
-            ShowInTaskbar = false;
-            ResizeMode = ResizeMode.NoResize;
-
-            painter = new Painter((SketchBase)Activator.CreateInstance(skecthType)!);
-            WriteableBitmap? bitmap = null;
-            void Unlock() {
-                bitmap!.AddDirtyRect(new Int32Rect(0, 0, painter.Width, painter.Height));
-                bitmap!.Unlock();
-            }
-            painter.Setup();
-            SetLocationCore(ownerRect);
-            //bitmap = painter.Bitmap;
-            Unlock();
-            img.Source = bitmap;
-            void OnRender(object? o, EventArgs e) {
-                //bitmap.Lock();
-                //painter.ptr = bitmap.BackBuffer;
-
-                painter.Draw(IsMouseOver ? Mouse.GetPosition(this) : null);
-                Unlock();
-
-                if(painter.NoLoop)
-                    stop!();
-            }
-            onRender = () => {
-                CompositionTarget.Rendering += OnRender;
-            };
-            stop = () => CompositionTarget.Rendering -= OnRender;
-        }
-        Action? onRender;
-        protected override void OnContentRendered(EventArgs e) {
-            base.OnContentRendered(e);
-            onRender?.Invoke();
-            onRender = null;
-        }
-        protected override void OnClosed(EventArgs e) {
-            stop();
-            Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
-        }
-        Action stop;
-
-        public async Task Stop() {
-            await Dispatcher.BeginInvoke(new Action(() => { Close(); }));
-        }
-        public void SetLocation(Rect ownerRect) {
-            Dispatcher.BeginInvoke(new Action(() => {
-                SetLocationCore(ownerRect);
-
-            }));
-        }
-        void SetLocationCore(Rect ownerRect) {
-            Left = ownerRect.X + (ownerRect.Width - painter.Width) / 2;
-            Top = ownerRect.Y + (ownerRect.Height - painter.Height ) / 2;
-        }
-        public void Hide_() {
-            Dispatcher.BeginInvoke(new Action(() => {
-                Hide();
-            }));
-        }
-        public void Show_(Rect ownerRect) {
-            Dispatcher.BeginInvoke(new Action(() => {
-                Show();
-            }));
-        }
     }
 }

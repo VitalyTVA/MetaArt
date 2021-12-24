@@ -1,6 +1,6 @@
 ﻿class SetBackgroundInSetup : SketchBase {
     void setup() {
-        size(200, 200);
+        size(600, 600);
         background(200);
     }
 }

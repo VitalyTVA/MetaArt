@@ -7,6 +7,7 @@ class Performance : SketchBase {
 
     void setup() {
         size(600, 600);
+        background(BlanchedAlmond);
         //background(150);
     }
 

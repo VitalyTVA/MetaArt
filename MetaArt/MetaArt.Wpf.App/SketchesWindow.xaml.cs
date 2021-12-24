@@ -61,7 +61,7 @@ namespace MetaArt.Wpf {
         }
         protected override void OnActivated(EventArgs e) {
             base.OnActivated(e);
-            //img.BringToFront();
+            img.UpdateLocation();
         }
         protected override void OnDeactivated(EventArgs e) {
             base.OnDeactivated(e);

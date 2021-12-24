@@ -19,7 +19,7 @@ namespace MetaArt.Wpf {
         }
         public void MousePressed(Point? mouse) {
             MousePressedCore(mouse != null ? (float)mouse.Value.X : null, mouse != null ? (float)mouse.Value.Y : null);
-            ClearSurface();
+            //ClearSurface();
         }
         public void Setup() {
             SetupCore();

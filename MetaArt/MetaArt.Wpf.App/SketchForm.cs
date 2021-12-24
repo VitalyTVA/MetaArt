@@ -14,15 +14,16 @@ namespace MetaArt.Wpf {
     public partial class SketchForm : Form {
         Timer t = new Timer();
         Painter painter;
-        Rectangle ownerRect;
-        public SketchForm(Type skecthType, Rectangle ownerRect) {
+        Point ownerLocation;
+        public SketchForm(Type skecthType, Point ownerLocation) {
             InitializeComponent();
-            TopMost = true;
+
+            //TopMost = true;
             ShowInTaskbar = false;
 
-            this.FormBorderStyle = FormBorderStyle.None;
+            this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
 
-            this.ownerRect = ownerRect;
+            this.ownerLocation = ownerLocation;
             painter = new Painter((SketchBase)Activator.CreateInstance(skecthType)!);
 
             t.Interval = 1000 / 120;
@@ -34,11 +35,13 @@ namespace MetaArt.Wpf {
             Click += SketchForm_Click;
             skglControl1.MouseDown += SkglControl1_MouseDown;
             //skglControl1.Visible = false;
+            Width = Screen.PrimaryScreen.WorkingArea.Width;
+            Height = Screen.PrimaryScreen.WorkingArea.Height;
         }
 
         private void SkglControl1_MouseDown(object? sender, MouseEventArgs e) {
             mouseDown = true;
-            skglControl1.ForcePaint();
+            skglControl1.Invalidate();
         }
 
         private void SketchForm_Click(object? sender, EventArgs e) {
@@ -63,28 +66,31 @@ namespace MetaArt.Wpf {
             painter.SKSurface = e.Surface;
             if(!setUp) {
                 painter.Setup();
-                SetLocation(ownerRect);
+                SetLocation(ownerLocation);
                 setUp = true;
                 skglControl1.Invalidate();
             } else {
-                var mouse = PointToClient(MousePosition);
-                bool over = new Rectangle(Point.Empty, Size).Contains(mouse);
+                var mouse = skglControl1.PointToClient(MousePosition);
+                bool over = new Rectangle(Point.Empty, skglControl1.Size).Contains(mouse);
                 if(mouseDown) {
                     painter.MousePressed(over ? new System.Windows.Point(mouse.X, mouse.Y) : null);
                     mouseDown = false;
-                } else {
+                }
+                //else {
                     painter.Draw(over ? new System.Windows.Point(mouse.X, mouse.Y) : null);
                     //draw = true;
-                }
+                //}
                 if(!painter.NoLoop)
                     skglControl1.Invalidate();
             }
         }
 
-        public void SetLocation(Rectangle rect) {
+        public void SetLocation(Point p) {
             BeginInvoke(() => {
-                this.Size = new Size(painter.Width, painter.Height);
-                this.Location = rect.Location;
+                Location = p; 
+                ClientSize = new Size(painter.Width, painter.Height);
+                TopMost = true;
+                TopMost = false;
             });
         }
 
