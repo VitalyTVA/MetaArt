@@ -15,38 +15,42 @@ namespace MetaArt.Wpf {
         public SketchPresenter() {
         }
         public async Task Stop() {
-            if(window == null)
+            if(form == null)
                 return;
-            await window.Stop();
-            window = null;
+            await form.Stop();
+            form = null;
         }
         public void UpdateLocation() {
-            window?.SetLocation(GetLocation());
+            form?.SetLocation(GetLocation());
         }
 
-        public void Hide_() => window?.Hide_();
-        public void Show_() => window?.Show_(GetLocation());
+        public void Hide_() {
+            //window?.Hide_();
+        }
+
+        public void Show_() {
+            //window?.Show_(GetLocation());
+        }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
             base.OnRenderSizeChanged(sizeInfo);
             UpdateLocation();
         }
 
-        private Rect GetLocation() {
-            return new Rect(PointToScreen(new Point(0, 0)), new Size(ActualWidth, ActualHeight));
+        private System.Drawing.Rectangle GetLocation() {
+            var p = PointToScreen(new Point(0, 0));
+            return new System.Drawing.Rectangle(new System.Drawing.Point((int)p.X, (int)p.Y), new System.Drawing.Size((int)ActualWidth, (int)ActualHeight));
         }
 
-        SketchPresenterWindow? window = null;
+        SketchForm? form = null;
         public async void Run(Type skecthType) {
             await Stop();
 
             var location = GetLocation();
 
             var thread = new Thread(new ThreadStart(() => {
-                window = new SketchPresenterWindow(skecthType, location);
-                window.Show();
-                Dispatcher.Run();
-
+                form = new SketchForm(skecthType, location);
+                form.ShowDialog();
             }));
             thread.SetApartmentState(ApartmentState.STA);
             //thread.IsBackground = true;
@@ -74,12 +78,12 @@ namespace MetaArt.Wpf {
             }
             painter.Setup();
             SetLocationCore(ownerRect);
-            bitmap = painter.Bitmap;
+            //bitmap = painter.Bitmap;
             Unlock();
             img.Source = bitmap;
             void OnRender(object? o, EventArgs e) {
-                bitmap.Lock();
-                painter.ptr = bitmap.BackBuffer;
+                //bitmap.Lock();
+                //painter.ptr = bitmap.BackBuffer;
 
                 painter.Draw(IsMouseOver ? Mouse.GetPosition(this) : null);
                 Unlock();
