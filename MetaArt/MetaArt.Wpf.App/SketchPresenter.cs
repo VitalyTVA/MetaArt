@@ -49,7 +49,7 @@ namespace MetaArt.Wpf {
 
             }));
             thread.SetApartmentState(ApartmentState.STA);
-            thread.IsBackground = true;
+            //thread.IsBackground = true;
             thread.Start();
         }
     }
@@ -100,6 +100,7 @@ namespace MetaArt.Wpf {
         }
         protected override void OnClosed(EventArgs e) {
             stop();
+            Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
         }
         Action stop;
 
