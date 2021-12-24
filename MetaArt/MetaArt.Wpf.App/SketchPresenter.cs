@@ -38,16 +38,18 @@ namespace MetaArt.Wpf {
         }
 
         private System.Drawing.Point GetLocation() {
-            PresentationSource source = PresentationSource.FromVisual(this);
-
-            double dpiX = 1, dpiY = 1;
-            if(source != null) {
-                dpiX = source.CompositionTarget.TransformToDevice.M11;
-                dpiY = source.CompositionTarget.TransformToDevice.M22;
-            }
-            var w = Window.GetWindow(this);
-            var p =  new Point((w.Left + w.Width) * dpiX, w.Top * dpiY);
+            var p = PointToScreen(new Point(0, 0));
             return new System.Drawing.Point((int)p.X, (int)p.Y);
+            //PresentationSource source = PresentationSource.FromVisual(this);
+
+            //double dpiX = 1, dpiY = 1;
+            //if(source != null) {
+            //    dpiX = source.CompositionTarget.TransformToDevice.M11;
+            //    dpiY = source.CompositionTarget.TransformToDevice.M22;
+            //}
+            //var w = Window.GetWindow(this);
+            //var p =  new Point((w.Left + w.Width) * dpiX, w.Top * dpiY);
+            //return new System.Drawing.Point((int)p.X, (int)p.Y);
         }
 
         SketchForm? form = null;

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace MetaArt.Wpf {
             //TopMost = true;
             ShowInTaskbar = false;
 
-            this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            this.FormBorderStyle = FormBorderStyle.None;
 
             this.ownerLocation = ownerLocation;
             painter = new Painter((SketchBase)Activator.CreateInstance(skecthType)!);
@@ -34,9 +35,26 @@ namespace MetaArt.Wpf {
 
             Click += SketchForm_Click;
             skglControl1.MouseDown += SkglControl1_MouseDown;
+            skglControl1.KeyDown += SkglControl1_KeyDown;
             //skglControl1.Visible = false;
             Width = Screen.PrimaryScreen.WorkingArea.Width;
             Height = Screen.PrimaryScreen.WorkingArea.Height;
+        }
+
+        private void SkglControl1_KeyDown(object? sender, KeyEventArgs e) {
+            if(e.KeyCode == Keys.S) {
+                save = true;
+            }
+        }
+
+        protected override CreateParams CreateParams {
+            get {
+                CreateParams cp = base.CreateParams;
+                //hide from alt+tab
+                // turn on WS_EX_TOOLWINDOW style bit
+                cp.ExStyle |= 0x80;
+                return cp;
+            }
         }
 
         private void SkglControl1_MouseDown(object? sender, MouseEventArgs e) {
@@ -60,6 +78,7 @@ namespace MetaArt.Wpf {
         //bool draw = false;
         //Point? mousePos;
         bool mouseDown;
+        bool save;
         private void skglControl1_PaintSurface(object sender, SKPaintGLSurfaceEventArgs e) {
             //if(draw && painter.NoLoop)
             //    return;
@@ -80,6 +99,17 @@ namespace MetaArt.Wpf {
                     painter.Draw(over ? new System.Windows.Point(mouse.X, mouse.Y) : null);
                     //draw = true;
                 //}
+                if(save) {
+                    using(SKImage image = e.Surface.Snapshot())
+                    using(SKData data = image.Encode())
+                    using(System.IO.MemoryStream mStream = new System.IO.MemoryStream(data.ToArray())) {
+                        var bmp = new Bitmap(mStream, false);
+                        bmp.SetResolution(300, 300);
+                        bmp.Save("c:\\temp\\1.png", ImageFormat.Png);
+                    }
+
+                    save = false;
+                }
                 if(!painter.NoLoop)
                     skglControl1.Invalidate();
             }
