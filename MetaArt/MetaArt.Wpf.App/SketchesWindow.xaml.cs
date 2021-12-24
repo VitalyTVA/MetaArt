@@ -59,14 +59,14 @@ namespace MetaArt.Wpf {
             IsVisibleChanged += SketchesWindow_IsVisibleChanged;
 
         }
-        //protected override void OnActivated(EventArgs e) {
-        //    base.OnActivated(e);
-        //    img.Show_();
-        //}
-        //protected override void OnDeactivated(EventArgs e) {
-        //    base.OnDeactivated(e);
-        //    img.Hide_();
-        //}
+        protected override void OnActivated(EventArgs e) {
+            base.OnActivated(e);
+            //img.BringToFront();
+        }
+        protected override void OnDeactivated(EventArgs e) {
+            base.OnDeactivated(e);
+            //img.HideIfNotA();
+        }
         private void SketchesWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
             
         }

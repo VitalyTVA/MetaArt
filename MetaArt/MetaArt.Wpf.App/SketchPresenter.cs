@@ -56,6 +56,10 @@ namespace MetaArt.Wpf {
             //thread.IsBackground = true;
             thread.Start();
         }
+
+        //internal void BringToFront() {
+        //    form?.BeginInvoke(() => form?.BringToFront());
+        //}
     }
 
     class SketchPresenterWindow : Window {

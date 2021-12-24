@@ -23,7 +23,7 @@
         ///  the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.skglControl1 = new SkiaSharp.Views.Desktop.SKGLControl();
+            this.skglControl1 = new MyControl();
             this.SuspendLayout();
             // 
             // skglControl1
@@ -52,6 +52,6 @@
 
         #endregion
 
-        private SkiaSharp.Views.Desktop.SKGLControl skglControl1;
+        private MyControl skglControl1;
     }
 }

@@ -25,18 +25,25 @@ namespace MetaArt {
         MethodInfo? drawMethod;
         MethodInfo? setupwMethod;
         MethodInfo? settingsMethod;
+        MethodInfo? mousePressedMethod;
 
         protected PainterBase(SketchBase sketch) {
             this.sketch = sketch;
             drawMethod = sketch.GetType().GetMethod("draw", BindingFlags.Instance | BindingFlags.NonPublic);
             setupwMethod = sketch.GetType().GetMethod("setup", BindingFlags.Instance | BindingFlags.NonPublic);
             settingsMethod = sketch.GetType().GetMethod("settings", BindingFlags.Instance | BindingFlags.NonPublic);
+            mousePressedMethod = sketch.GetType().GetMethod("mousePressed", BindingFlags.Instance | BindingFlags.NonPublic); 
             sketch.Painter = this;
 
             SettingsCore();
         }
         Stopwatch stopwatch = new();
         internal void StartStopwatch() => stopwatch.Start();
+        protected void MousePressedCore(float? mouseX, float? mouseY) {
+            sketch.mouseX = mouseX ?? sketch.mouseX;
+            sketch.mouseY = mouseY ?? sketch.mouseY;
+            mousePressedMethod?.Invoke(sketch, null);
+        }
         protected void DrawCore(float? mouseX, float? mouseY) {
             var currentTime = (int)stopwatch.ElapsedMilliseconds;
             sketch.deltaTime = currentTime - sketch.currentTime;

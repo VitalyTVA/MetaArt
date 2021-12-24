@@ -17,8 +17,8 @@ namespace MetaArt.Wpf {
         Rectangle ownerRect;
         public SketchForm(Type skecthType, Rectangle ownerRect) {
             InitializeComponent();
-
             TopMost = true;
+            ShowInTaskbar = false;
 
             this.FormBorderStyle = FormBorderStyle.None;
 
@@ -30,6 +30,19 @@ namespace MetaArt.Wpf {
             t.Start();
 
             LocationChanged += SketchForm_LocationChanged;
+
+            Click += SketchForm_Click;
+            skglControl1.MouseDown += SkglControl1_MouseDown;
+            //skglControl1.Visible = false;
+        }
+
+        private void SkglControl1_MouseDown(object? sender, MouseEventArgs e) {
+            mouseDown = true;
+            skglControl1.ForcePaint();
+        }
+
+        private void SketchForm_Click(object? sender, EventArgs e) {
+            //throw new NotImplementedException();
         }
 
         private void SketchForm_LocationChanged(object? sender, EventArgs e) {
@@ -42,6 +55,8 @@ namespace MetaArt.Wpf {
 
         bool setUp = false;
         //bool draw = false;
+        //Point? mousePos;
+        bool mouseDown;
         private void skglControl1_PaintSurface(object sender, SKPaintGLSurfaceEventArgs e) {
             //if(draw && painter.NoLoop)
             //    return;
@@ -53,13 +68,17 @@ namespace MetaArt.Wpf {
                 skglControl1.Invalidate();
             } else {
                 var mouse = PointToClient(MousePosition);
-                painter.Draw(isMouseOver ? new System.Windows.Point(mouse.X, mouse.Y) : null);
-                //draw = true;
+                bool over = new Rectangle(Point.Empty, Size).Contains(mouse);
+                if(mouseDown) {
+                    painter.MousePressed(over ? new System.Windows.Point(mouse.X, mouse.Y) : null);
+                    mouseDown = false;
+                } else {
+                    painter.Draw(over ? new System.Windows.Point(mouse.X, mouse.Y) : null);
+                    //draw = true;
+                }
                 if(!painter.NoLoop)
                     skglControl1.Invalidate();
             }
-            
-
         }
 
         public void SetLocation(Rectangle rect) {
@@ -69,19 +88,34 @@ namespace MetaArt.Wpf {
             });
         }
 
-        bool isMouseOver = false;
+        //bool isMouseOver = false;
         protected override void OnMouseHover(EventArgs e) {
             base.OnMouseHover(e);
-            isMouseOver = true;
+            //isMouseOver = true;
+            //skglControl1.ForcePaint();
             //skglControl1.GRContext.
         }
         protected override void OnMouseLeave(EventArgs e) {
             base.OnMouseLeave(e);
-            isMouseOver = false;
+            //isMouseOver = false;
         }
-
+        protected override void OnMouseDown(MouseEventArgs e) {
+            base.OnMouseDown(e);
+            //skglControl1.ForcePaint();
+        }
         public Task Stop() {
             return Task.Factory.FromAsync(BeginInvoke(new Action(() => { Close(); })), _ => { });
         }
     }
+    class MyControl : SKGLControl {
+        Graphics? g;
+        protected override void OnPaint(PaintEventArgs e) {
+            base.OnPaint(e);
+            g = e.Graphics;
+        }
+        public void ForcePaint() {
+            base.OnPaint(new PaintEventArgs(g!, Rectangle.Empty));
+        }
+    }
+
 }
