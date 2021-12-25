@@ -17,8 +17,12 @@ namespace MetaArt.Wpf {
         void ClearSurface() {
             sKSurface = null;
         }
-        public void MousePressed(Point? mouse) {
-            MousePressedCore(mouse != null ? (float)mouse.Value.X : null, mouse != null ? (float)mouse.Value.Y : null);
+        public void MousePressed(Point mouse) {
+            MousePressedCore((float)mouse.X, (float)mouse.Y);
+            //ClearSurface();
+        }
+        public void MouseMoved(Point mouse) {
+            MouseMovedCore((float)mouse.X, (float)mouse.Y);
             //ClearSurface();
         }
         public void Setup() {

@@ -36,10 +36,27 @@ namespace MetaArt.Wpf {
 
             Click += SketchForm_Click;
             skglControl1.MouseDown += SkglControl1_MouseDown;
+            skglControl1.MouseMove += SkglControl1_MouseMove;
             skglControl1.KeyDown += SkglControl1_KeyDown;
             //skglControl1.Visible = false;
             Width = Screen.PrimaryScreen.WorkingArea.Width;
             Height = Screen.PrimaryScreen.WorkingArea.Height;
+        }
+
+        private void SkglControl1_MouseMove(object? sender, EventArgs e) {
+            var mouse = skglControl1.PointToClient(MousePosition);
+            queue.Enqueue(() => {
+                painter.MouseMoved(new System.Windows.Point(mouse.X, mouse.Y));
+            });
+            skglControl1.Invalidate();
+        }
+
+        private void SkglControl1_MouseDown(object? sender, MouseEventArgs e) {
+            var mouse = skglControl1.PointToClient(MousePosition);
+            queue.Enqueue(() => {
+                painter.MousePressed(new System.Windows.Point(mouse.X, mouse.Y));
+            });
+            skglControl1.Invalidate();
         }
 
         private void SkglControl1_KeyDown(object? sender, KeyEventArgs e) {
@@ -58,11 +75,6 @@ namespace MetaArt.Wpf {
             }
         }
 
-        private void SkglControl1_MouseDown(object? sender, MouseEventArgs e) {
-            mouseDown = true;
-            skglControl1.Invalidate();
-        }
-
         private void SketchForm_Click(object? sender, EventArgs e) {
             //throw new NotImplementedException();
         }
@@ -78,7 +90,7 @@ namespace MetaArt.Wpf {
         bool setUp = false;
         SKImage? draw;
         //Point? mousePos;
-        bool mouseDown;
+        Queue<Action> queue = new();
         bool save;
         private void skglControl1_PaintSurface(object sender, SKPaintGLSurfaceEventArgs e) {
             if(draw != null) {
@@ -92,12 +104,17 @@ namespace MetaArt.Wpf {
                 setUp = true;
                 skglControl1.Invalidate();
             } else {
+                if(queue.Count > 2) { 
+                }
+                while(queue.Count > 0) { 
+                    queue.Dequeue().Invoke();
+                }
                 var mouse = skglControl1.PointToClient(MousePosition);
                 bool over = new Rectangle(Point.Empty, skglControl1.Size).Contains(mouse);
-                if(mouseDown) {
-                    painter.MousePressed(over ? new System.Windows.Point(mouse.X, mouse.Y) : null);
-                    mouseDown = false;
-                }
+                //if(mouseDown) {
+                //    painter.MousePressed(new System.Windows.Point(mouse.X, mouse.Y));
+                //    mouseDown = false;
+                //}
                 //else {
                     painter.Draw(over ? new System.Windows.Point(mouse.X, mouse.Y) : null);
                     if(painter.NoLoop)

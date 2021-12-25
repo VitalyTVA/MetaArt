@@ -26,30 +26,46 @@ namespace MetaArt {
         MethodInfo? setupwMethod;
         MethodInfo? settingsMethod;
         MethodInfo? mousePressedMethod;
+        MethodInfo? mouseMovedMethod;
 
         protected PainterBase(SketchBase sketch) {
             this.sketch = sketch;
             drawMethod = sketch.GetType().GetMethod("draw", BindingFlags.Instance | BindingFlags.NonPublic);
             setupwMethod = sketch.GetType().GetMethod("setup", BindingFlags.Instance | BindingFlags.NonPublic);
             settingsMethod = sketch.GetType().GetMethod("settings", BindingFlags.Instance | BindingFlags.NonPublic);
-            mousePressedMethod = sketch.GetType().GetMethod("mousePressed", BindingFlags.Instance | BindingFlags.NonPublic); 
+            mousePressedMethod = sketch.GetType().GetMethod("mousePressed", BindingFlags.Instance | BindingFlags.NonPublic);
+            mouseMovedMethod = sketch.GetType().GetMethod("mouseMoved", BindingFlags.Instance | BindingFlags.NonPublic); 
             sketch.Painter = this;
 
             SettingsCore();
         }
         Stopwatch stopwatch = new();
         internal void StartStopwatch() => stopwatch.Start();
-        protected void MousePressedCore(float? mouseX, float? mouseY) {
+        protected void MousePressedCore(float mouseX, float mouseY) {
+            if(mousePressedMethod == null)
+                return;
+            SetMouse(mouseX, mouseY);
+            mousePressedMethod.Invoke(sketch, null);
+        }
+        protected void MouseMovedCore(float mouseX, float mouseY) {
+            if(mouseMovedMethod == null)
+                return;
+            SetMouse(mouseX, mouseY);
+            mouseMovedMethod.Invoke(sketch, null);
+        }
+
+        private void SetMouse(float? mouseX, float? mouseY) {
+            sketch.pmouseX = sketch.mouseX;
+            sketch.pmouseY = sketch.mouseY;
             sketch.mouseX = mouseX ?? sketch.mouseX;
             sketch.mouseY = mouseY ?? sketch.mouseY;
-            mousePressedMethod?.Invoke(sketch, null);
         }
+
         protected void DrawCore(float? mouseX, float? mouseY) {
             var currentTime = (int)stopwatch.ElapsedMilliseconds;
             sketch.deltaTime = currentTime - sketch.currentTime;
             sketch.currentTime = currentTime;
-            sketch.mouseX = mouseX ?? sketch.mouseX;
-            sketch.mouseY = mouseY ?? sketch.mouseY;
+            SetMouse(mouseX, mouseY);
             drawMethod?.Invoke(sketch, null);
         }
         void SettingsCore() {

@@ -7,7 +7,7 @@ namespace MetaArt {
     //TODO make sketch interface skia-independent
     public class SketchBase {
         internal int currentTime;
-        protected internal int deltaTime { get; internal set; }
+        protected internal int deltaTime { get; internal set; } //TODO should only be accessible from draw, not from mouse events
         protected int millis() => (int)currentTime;
 
         PainterBase? painter;
@@ -21,6 +21,8 @@ namespace MetaArt {
 
         protected internal float mouseX;
         protected internal float mouseY;
+        protected internal float pmouseX;
+        protected internal float pmouseY;
 
 
 
@@ -111,6 +113,11 @@ namespace MetaArt {
         protected void rectMode(RectMode mode) {
             _rectMode = mode;
         }
+
+        protected void line(float x0, float y0, float x1, float y1) {
+            Canvas.DrawLine(x0, y0, x1, y1, strokePaint);
+        }
+
         protected void rect(float a, float b, float c, float d) {
             var rect = _rectMode switch {
                 RectMode.CENTER => new SKRect(a - c / 2, b - d / 2, a + c / 2, b + d / 2),
@@ -121,7 +128,6 @@ namespace MetaArt {
             if(!_noStroke)
                 Canvas.DrawRect(rect, strokePaint);
         }
-
 
         protected void circle(float x, float y, float extent) {
             var point = new SKPoint(x, y);
