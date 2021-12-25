@@ -9,7 +9,13 @@ using System.Windows.Media.Imaging;
 namespace MetaArt.Wpf {
     sealed class Painter : PainterBase {
         SKSurface? sKSurface;
-        public SKSurface SKSurface { get => sKSurface!; set => sKSurface = value; }
+        public SKSurface SKSurface {
+            get => sKSurface!; 
+            set {
+                sKSurface = value;
+                ((SkiaGraphics)Graphics).Canvas = SKSurface.Canvas;
+            }
+        }
 
         public Painter(SketchBase sketch) 
             : base(sketch, new SkiaGraphics()) {

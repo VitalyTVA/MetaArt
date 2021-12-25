@@ -7,7 +7,7 @@ class Performance : SketchBase {
 
     void setup() {
         size(600, 600);
-        background(BlanchedAlmond);
+        background(Black);
         //background(150);
     }
 
@@ -15,10 +15,10 @@ class Performance : SketchBase {
     void draw() {
         Stopwatch Stopwatch = new Stopwatch();
         Stopwatch.Start();
-        background(BlanchedAlmond);
+        background(Black);
         var rand = new Random();
         for(int i = 0; i < 100_000; i++) {
-            stroke(new SKColor(
+            stroke(new Color(
                     red: (byte)rand.Next(255),
                     green: (byte)rand.Next(255),
                     blue: (byte)rand.Next(255),

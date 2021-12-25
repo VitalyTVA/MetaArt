@@ -1,14 +1,113 @@
-﻿using SkiaSharp;
+﻿using MetaArt.Internal;
+using SkiaSharp;
 using System;
 using System.Diagnostics;
 using System.Linq;
 
 namespace MetaArt.Internal {
-    public abstract class Graphics { 
+    public abstract class Graphics {
+        public abstract void fill(Color color);
+        public abstract void noFill();
+        public abstract void textSize(float size);
+
+        public abstract void stroke(Color color);
+        public abstract void strokeWeight(float weight);
+        public abstract void strokeJoin(StrokeJoin join);
+        public abstract void noStroke();
+        public abstract void blendMode(BlendMode blendMode);
+        public abstract void line(float x0, float y0, float x1, float y1);
+        public abstract void rect(float a, float b, float c, float d);
+        public abstract void circle(float x, float y, float extent);
+        public abstract void ellipse(float x, float y, float width, float height);
+        public abstract void triangle(float x1, float y1, float x2, float y2, float x3, float y3);
+        public abstract void text(string str, float x, float y);
+        public abstract void rectMode(RectMode mode);
+        public abstract void background(Color color);
     }
 }
 namespace MetaArt {
-    //TODO make sketch interface skia-independent
+
+	public readonly struct Color : IEquatable<Color> {
+		public static readonly Color Empty;
+
+		public readonly uint Value;
+
+		public byte Alpha => (byte)((Value >> 24) & 0xFFu);
+
+		public byte Red => (byte)((Value >> 16) & 0xFFu);
+
+		public byte Green => (byte)((Value >> 8) & 0xFFu);
+
+		public byte Blue => (byte)(Value & 0xFFu);
+
+		public Color(uint value) {
+			Value = value;
+		}
+
+		public Color(byte red, byte green, byte blue, byte alpha) {
+			Value = (uint)((alpha << 24) | (red << 16) | (green << 8) | blue);
+		}
+
+		public Color(byte red, byte green, byte blue) {
+			Value = 0xFF000000u | (uint)(red << 16) | (uint)(green << 8) | blue;
+		}
+
+		public Color WithRed(byte red) {
+			return new Color(red, Green, Blue, Alpha);
+		}
+
+		public Color WithGreen(byte green) {
+			return new Color(Red, green, Blue, Alpha);
+		}
+
+		public Color WithBlue(byte blue) {
+			return new Color(Red, Green, blue, Alpha);
+		}
+
+		public Color WithAlpha(byte alpha) {
+			return new Color(Red, Green, Blue, alpha);
+		}
+
+		public override string ToString() {
+			return $"#{Alpha:x2}{Red:x2}{Green:x2}{Blue:x2}";
+		}
+
+		public bool Equals(Color obj) {
+			return obj.Value == Value;
+		}
+
+		public override bool Equals(object other) {
+			if(other is Color obj) {
+				return Equals(obj);
+			}
+			return false;
+		}
+
+		public static bool operator ==(Color left, Color right) {
+			return left.Equals(right);
+		}
+
+		public static bool operator !=(Color left, Color right) {
+			return !left.Equals(right);
+		}
+
+		public override int GetHashCode() {
+			uint num = Value;
+			return num.GetHashCode();
+		}
+	}
+
+    public enum StrokeJoin {
+        Miter,
+        Round,
+        Bevel
+    }
+
+    public enum BlendMode {
+        Blend,
+        Difference,
+    }
+
     public class SketchBase {
         internal int currentTime;
         protected internal int deltaTime { get; internal set; } //TODO should only be accessible from draw, not from mouse events
@@ -16,6 +115,7 @@ namespace MetaArt {
 
         PainterBase? painter;
         internal PainterBase Painter { get => painter!; set => painter = value; }
+        Graphics Graphics => Painter.Graphics;
 
 
         SKCanvas Canvas => Painter.Canvas;
@@ -28,7 +128,8 @@ namespace MetaArt {
         protected internal float pmouseX;
         protected internal float pmouseY;
 
-
+        protected static Color Black => new Color(0, 0, 0);
+        protected static Color White => new Color(255, 255, 255);
 
         protected void size(int width, int height) {
             //TODO if called from setup in async mode or from draw in normal mode
@@ -37,65 +138,39 @@ namespace MetaArt {
         protected void noLoop() => Painter.NoLoop = true;
 
         protected void background(byte v1, byte v2, byte v3, byte a) {
-            background(new SKColor(v1, v2, v3, a));
+            background(new Color(v1, v2, v3, a));
         }
-        protected void background(SKColor color) {
-            Canvas.DrawColor(color, SKBlendMode.SrcOver);
-        }
+        protected void background(Color color) => Graphics.background(color);
         protected void background(byte color) {
-            background(new SKColor(color, color, color));
+            background(new Color(color, color, color));
         }
         protected float min(float value1, float value2) => Math.Min(value1, value2);
 
 
-        protected static SKStrokeJoin ROUND => SKStrokeJoin.Round;
-        protected static SKStrokeJoin MITER => SKStrokeJoin.Miter;
-        protected static SKStrokeJoin BEVEL => SKStrokeJoin.Bevel;
-        SKPaint strokePaint = new SKPaint() { 
-            Style = SKPaintStyle.Stroke, 
-            StrokeWidth = 4, 
-            IsAntialias = true, 
-            //Color = SKColors.White 
-        };
-        bool _noStroke = false;
-        protected void noStroke() {
-            _noStroke = true;
-        }
+        protected static StrokeJoin ROUND => StrokeJoin.Round;
+        protected static StrokeJoin MITER => StrokeJoin.Miter;
+        protected static StrokeJoin BEVEL => StrokeJoin.Bevel;
+        protected void noStroke() => Graphics.noStroke();
         protected void stroke(byte color) {
-            stroke(new SKColor(color, color, color));
+            stroke(new Color(color, color, color));
         }
-        protected void stroke(SKColor color) {
-            _noStroke = false;
-            strokePaint.Color = color;
-        }
-        protected void strokeWeight(float weight) {
-            _noStroke = false;
-            strokePaint.StrokeWidth = weight;
-        }
-        protected void strokeJoin(SKStrokeJoin join) {
-            strokePaint.StrokeJoin = join;
-        }
-
-        SKPaint fillPaint = new SKPaint() { Style = SKPaintStyle.Fill, IsAntialias = true, TextSize = 12 };
-        bool _noFill = false;
+        protected void stroke(Color color) => Graphics.stroke(color);
+        protected void strokeWeight(float weight) => Graphics.strokeWeight(weight);
+        protected void strokeJoin(StrokeJoin join) => Graphics.strokeJoin(join);
         protected void fill(byte color) {
-            fill(new SKColor(color, color, color));
+            fill(new Color(color, color, color));
         }
-        protected void fill(SKColor color) {
-            _noFill = false;
-            fillPaint.Color = color;
+        protected void fill(Color color) {
+            Graphics.fill(color);
         }
         protected void noFill() {
-            _noFill = true;
+            Graphics.noFill();
         }
-        protected void textSize(float size) => fillPaint.TextSize = size;
+        protected void textSize(float size) => Graphics.textSize(size);
 
-        protected static SKBlendMode BLEND => SKBlendMode.SrcOver;
-        protected static SKBlendMode DIFFERENCE => SKBlendMode.Difference;
-        protected void blendMode(SKBlendMode blendMode) {
-            fillPaint.BlendMode = blendMode;
-            strokePaint.BlendMode = blendMode;
-        }
+        protected static BlendMode BLEND => BlendMode.Blend;
+        protected static BlendMode DIFFERENCE => BlendMode.Difference;
+        protected void blendMode(BlendMode blendMode) => Graphics.blendMode(blendMode);
 
         protected void push() {
             Canvas.Save();
@@ -110,62 +185,24 @@ namespace MetaArt {
             Canvas.RotateRadians(angle);
         }
 
-        RectMode _rectMode = CORNER;
         protected static RectMode CORNER = RectMode.CORNER;
         protected static RectMode CORNERS = RectMode.CORNERS;
         protected static RectMode RADIUS = RectMode.RADIUS;
         protected static RectMode CENTER = RectMode.CENTER;
-        protected void rectMode(RectMode mode) {
-            _rectMode = mode;
-        }
 
-        protected void line(float x0, float y0, float x1, float y1) {
-            Canvas.DrawLine(x0, y0, x1, y1, strokePaint);
-        }
+        protected void rectMode(RectMode mode) => Graphics.rectMode(mode);
 
-        protected void rect(float a, float b, float c, float d) {
-            var rect = _rectMode switch {
-                RectMode.CENTER => new SKRect(a - c / 2, b - d / 2, a + c / 2, b + d / 2),
-                _ => throw new InvalidOperationException()
-            };
-            if(!_noFill)
-                Canvas.DrawRect(rect, fillPaint);
-            if(!_noStroke)
-                Canvas.DrawRect(rect, strokePaint);
-        }
+        protected void line(float x0, float y0, float x1, float y1) => Graphics.line(x0, y0, x1, y1);
 
-        protected void circle(float x, float y, float extent) {
-            var point = new SKPoint(x, y);
-            if(!_noFill)
-                Canvas.DrawCircle(point, extent / 2, fillPaint);
-            if(!_noStroke)
-                Canvas.DrawCircle(point, extent / 2, strokePaint);
-        }
+        protected void rect(float a, float b, float c, float d) => Graphics.rect(a, b, c, d);
 
-        protected void ellipse(float x, float y, float width, float height) {
-            var point = new SKPoint(x, y);
-            var size = new SKSize(width / 2, height / 2);
-            if(!_noFill)
-                Canvas.DrawOval(point, size, fillPaint);
-            if(!_noStroke)
-                Canvas.DrawOval(point, size, strokePaint);
-        }
+        protected void circle(float x, float y, float extent) => Graphics.circle(x, y, extent);
 
-        protected void triangle(float x1, float y1, float x2, float y2, float x3, float y3) {
-            var path = new SKPath { FillType = SKPathFillType.EvenOdd }; //TODO reuse triangle path??
-            path.MoveTo(x1, y1);
-            path.LineTo(x2, y2);
-            path.LineTo(x3, y3);
-            path.Close();
-            if(!_noFill)
-                Canvas.DrawPath(path, fillPaint);
-            if(!_noStroke)
-                Canvas.DrawPath(path, strokePaint);
-        }
+        protected void ellipse(float x, float y, float width, float height) => Graphics.ellipse(x, y, width, height);
 
-        protected void text(string str, float x, float y) {
-            Canvas.DrawText(str, x, y, fillPaint);
-        }
+        protected void triangle(float x1, float y1, float x2, float y2, float x3, float y3) => Graphics.triangle(x1, y1, x2, y2, x3, y3);
+
+        protected void text(string str, float x, float y) => Graphics.text(str, x, y);
 
         protected static float exp(float d) => (float)Math.Exp(d);
         protected static float sin(float angle) => (float)Math.Sin(angle);
