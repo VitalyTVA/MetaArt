@@ -95,7 +95,8 @@ namespace MetaArt.Wpf {
         private void skglControl1_PaintSurface(object sender, SKPaintGLSurfaceEventArgs e) {
             if(draw != null) {
                 e.Surface.Canvas.DrawImage(draw, 0, 0);
-                return;
+                if(painter.NoLoop)
+                    return;
             }
             painter.SKSurface = e.Surface;
             if(!setUp) {
@@ -104,8 +105,6 @@ namespace MetaArt.Wpf {
                 setUp = true;
                 skglControl1.Invalidate();
             } else {
-                if(queue.Count > 2) { 
-                }
                 while(queue.Count > 0) { 
                     queue.Dequeue().Invoke();
                 }
@@ -116,9 +115,10 @@ namespace MetaArt.Wpf {
                 //    mouseDown = false;
                 //}
                 //else {
-                    painter.Draw(over ? new System.Windows.Point(mouse.X, mouse.Y) : null);
-                    if(painter.NoLoop)
-                        draw = e.Surface.Snapshot();
+                painter.Draw(over ? new System.Windows.Point(mouse.X, mouse.Y) : null);
+                if(draw != null)
+                    draw.Dispose();
+                draw = e.Surface.Snapshot();
                 //}
                 if(save) {
                     using(SKImage image = e.Surface.Snapshot())
