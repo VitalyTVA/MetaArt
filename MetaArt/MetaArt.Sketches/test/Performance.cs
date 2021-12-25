@@ -34,8 +34,8 @@ class Performance : SketchBase {
             );
         }
 
-        using var textPaint = new SKPaint() { Color = new SKColor(0, 0, 0), TextSize = 100 };
-        Canvas.DrawText(Stopwatch.ElapsedMilliseconds.ToString(), 30, 200, textPaint);
-
+        textSize(100);
+        fill(Black);
+        text(Stopwatch.ElapsedMilliseconds.ToString(), 30, 200);
     }
 }

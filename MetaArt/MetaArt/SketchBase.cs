@@ -72,7 +72,7 @@ namespace MetaArt {
             strokePaint.StrokeJoin = join;
         }
 
-        SKPaint fillPaint = new SKPaint() { Style = SKPaintStyle.Fill, IsAntialias = true };
+        SKPaint fillPaint = new SKPaint() { Style = SKPaintStyle.Fill, IsAntialias = true, TextSize = 12 };
         bool _noFill = false;
         protected void fill(byte color) {
             fill(new SKColor(color, color, color));
@@ -84,6 +84,7 @@ namespace MetaArt {
         protected void noFill() {
             _noFill = true;
         }
+        protected void textSize(float size) => fillPaint.TextSize = size;
 
         protected static SKBlendMode BLEND => SKBlendMode.SrcOver;
         protected static SKBlendMode DIFFERENCE => SKBlendMode.Difference;
@@ -156,6 +157,10 @@ namespace MetaArt {
                 Canvas.DrawPath(path, fillPaint);
             if(!_noStroke)
                 Canvas.DrawPath(path, strokePaint);
+        }
+
+        protected void text(string str, float x, float y) {
+            Canvas.DrawText(str, x, y, fillPaint);
         }
 
         protected static float exp(float d) => (float)Math.Exp(d);

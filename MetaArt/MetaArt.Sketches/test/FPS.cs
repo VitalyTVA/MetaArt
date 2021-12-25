@@ -15,14 +15,15 @@ class FPS : SketchBase {
     Stopwatch Stopwatch = new Stopwatch();
     void draw() {
         int x = 30;
-        var paint = new SKPaint() { Color = new SKColor(0, 0, 0), TextSize = 20 };
+        textSize(20);
+        fill(Black);
         background(150);
-        Canvas.DrawText("SkiaSharp on Wpf!", x, 20, paint);
+        text("SkiaSharp on Wpf!", x, 20);
         if(this.Call == 0)
             this.Stopwatch.Start();
         double fps = this.Call / ((this.Stopwatch.Elapsed.TotalSeconds != 0) ? this.Stopwatch.Elapsed.TotalSeconds : 1);
-        Canvas.DrawText($"FPS: {fps:0}", x, 40, paint);
-        Canvas.DrawText($"Frames: {this.Call++}", x, 60, paint);
+        text($"FPS: {fps:0}", x, 40);
+        text($"Frames: {this.Call++}", x, 60);
 
     }
 }
