@@ -1,5 +1,4 @@
-﻿//Rotating shapes around their center.
-//MetaArt version of https://glitch.com/edit/#!/p5-example-loop
+﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-loop
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
 class Rotate : SketchBase {

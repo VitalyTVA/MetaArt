@@ -1,5 +1,4 @@
-﻿//Shape and stroke operations.
-//MetaArt version of https://glitch.com/edit/#!/p5-example-shape
+﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-shape
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
 class Repeat : SketchBase {

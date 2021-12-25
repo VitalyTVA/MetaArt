@@ -1,5 +1,4 @@
-﻿//Using trigonometry to create radial motion.
-//MetaArt version of https://glitch.com/edit/#!/p5-example-trig
+﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-trig
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
 class Trigonometry : SketchBase {

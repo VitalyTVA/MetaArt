@@ -1,5 +1,4 @@
-﻿//Creating a seamless loop with a fixed duration.
-//MetaArt version of https://glitch.com/edit/#!/p5-example
+﻿//MetaArt version of https://glitch.com/edit/#!/p5-example
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
 class Loop : SketchBase {
