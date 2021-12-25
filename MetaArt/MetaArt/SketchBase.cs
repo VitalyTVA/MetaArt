@@ -1,5 +1,4 @@
 ﻿using MetaArt.Internal;
-using SkiaSharp;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -23,6 +22,11 @@ namespace MetaArt.Internal {
         public abstract void text(string str, float x, float y);
         public abstract void rectMode(RectMode mode);
         public abstract void background(Color color);
+
+        public abstract void push();
+        public abstract void pop();
+        public abstract void translate(float x, float y);
+        public abstract void rotate(float angle);
     }
 }
 namespace MetaArt {
@@ -118,8 +122,6 @@ namespace MetaArt {
         Graphics Graphics => Painter.Graphics;
 
 
-        SKCanvas Canvas => Painter.Canvas;
-
         protected float width => Painter.Width;
         protected float height => Painter.Height;
 
@@ -173,16 +175,16 @@ namespace MetaArt {
         protected void blendMode(BlendMode blendMode) => Graphics.blendMode(blendMode);
 
         protected void push() {
-            Canvas.Save();
+            Graphics.push();
         }
         protected void pop() {
-            Canvas.Restore();
+            Graphics.pop();
         }
-        protected void translate(float x, float y) { 
-            Canvas.Translate(x, y);
+        protected void translate(float x, float y) {
+            Graphics.translate(x, y);
         }
         protected void rotate(float angle) {
-            Canvas.RotateRadians(angle);
+            Graphics.rotate(angle);
         }
 
         protected static RectMode CORNER = RectMode.CORNER;

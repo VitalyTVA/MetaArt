@@ -117,5 +117,18 @@ namespace MetaArt.Skia {
         public override void background(Color color) {
             Canvas.DrawColor(color.ToSK(), SKBlendMode.SrcOver);
         }
+
+        public override void push() {
+            Canvas.Save();
+        }
+        public override void pop() {
+            Canvas.Restore();
+        }
+        public override void translate(float x, float y) {
+            Canvas.Translate(x, y);
+        }
+        public override void rotate(float angle) {
+            Canvas.RotateRadians(angle);
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using MetaArt.Internal;
-using SkiaSharp;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -7,7 +6,6 @@ using System.Reflection;
 
 namespace MetaArt {
     public abstract class PainterBase {
-        public abstract SKCanvas Canvas { get; }
         public virtual void SetSize(int width, int height) {
             this.width = width;
             this.height = height;

@@ -40,7 +40,5 @@ namespace MetaArt.Wpf {
             DrawCore(mouse != null ? (float)mouse.Value.X : null, mouse != null ? (float)mouse.Value.Y : null);
             ClearSurface();
         }
-
-        public override SKCanvas Canvas => SKSurface.Canvas;
     }
 }
