@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -75,13 +76,15 @@ namespace MetaArt.Wpf {
 
 
         bool setUp = false;
-        //bool draw = false;
+        SKImage? draw;
         //Point? mousePos;
         bool mouseDown;
         bool save;
         private void skglControl1_PaintSurface(object sender, SKPaintGLSurfaceEventArgs e) {
-            //if(draw && painter.NoLoop)
-            //    return;
+            if(draw != null) {
+                e.Surface.Canvas.DrawImage(draw, 0, 0);
+                return;
+            }
             painter.SKSurface = e.Surface;
             if(!setUp) {
                 painter.Setup();
@@ -97,16 +100,19 @@ namespace MetaArt.Wpf {
                 }
                 //else {
                     painter.Draw(over ? new System.Windows.Point(mouse.X, mouse.Y) : null);
-                    //draw = true;
+                    if(painter.NoLoop)
+                        draw = e.Surface.Snapshot();
                 //}
                 if(save) {
                     using(SKImage image = e.Surface.Snapshot())
-                    using(SKData data = image.Encode())
-                    using(System.IO.MemoryStream mStream = new System.IO.MemoryStream(data.ToArray())) {
-                        var bmp = new Bitmap(mStream, false);
-                        bmp.SetResolution(300, 300);
-                        bmp.Save("c:\\temp\\1.png", ImageFormat.Png);
+                    using(SKData data = image.Encode(SKEncodedImageFormat.Png, 100)) {
+                        File.WriteAllBytes("c:\\temp\\1.png", data.ToArray());
                     }
+                    //using(System.IO.MemoryStream mStream = new System.IO.MemoryStream(data.ToArray())) {
+                    //    var bmp = new Bitmap(mStream, false);
+                    //    bmp.SetResolution(300, 300);
+                    //    bmp.Save("c:\\temp\\1.png", ImageFormat.Png);
+                    //}
 
                     save = false;
                 }
