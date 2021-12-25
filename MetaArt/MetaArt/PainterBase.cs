@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using MetaArt.Internal;
+using SkiaSharp;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace MetaArt {
         public readonly SketchBase sketch;
 
         public bool NoLoop { get; set; }
+        public Graphics Graphics { get; }
 
         MethodInfo? drawMethod;
         MethodInfo? setupwMethod;
@@ -28,8 +30,9 @@ namespace MetaArt {
         MethodInfo? mousePressedMethod;
         MethodInfo? mouseMovedMethod;
 
-        protected PainterBase(SketchBase sketch) {
+        protected PainterBase(SketchBase sketch, Graphics graphics) {
             this.sketch = sketch;
+            Graphics = graphics;
             drawMethod = sketch.GetType().GetMethod("draw", BindingFlags.Instance | BindingFlags.NonPublic);
             setupwMethod = sketch.GetType().GetMethod("setup", BindingFlags.Instance | BindingFlags.NonPublic);
             settingsMethod = sketch.GetType().GetMethod("settings", BindingFlags.Instance | BindingFlags.NonPublic);

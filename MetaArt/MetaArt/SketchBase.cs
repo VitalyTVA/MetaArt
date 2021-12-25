@@ -3,6 +3,10 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 
+namespace MetaArt.Internal {
+    public abstract class Graphics { 
+    }
+}
 namespace MetaArt {
     //TODO make sketch interface skia-independent
     public class SketchBase {
@@ -14,7 +18,7 @@ namespace MetaArt {
         internal PainterBase Painter { get => painter!; set => painter = value; }
 
 
-        protected SKCanvas Canvas => Painter.Canvas;
+        SKCanvas Canvas => Painter.Canvas;
 
         protected float width => Painter.Width;
         protected float height => Painter.Height;

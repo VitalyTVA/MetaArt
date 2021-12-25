@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using MetaArt.Skia;
+using SkiaSharp;
 using System;
 using System.Linq;
 using System.Windows;
@@ -11,7 +12,7 @@ namespace MetaArt.Wpf {
         public SKSurface SKSurface { get => sKSurface!; set => sKSurface = value; }
 
         public Painter(SketchBase sketch) 
-            : base(sketch) {
+            : base(sketch, new SkiaGraphics()) {
         }
 
         void ClearSurface() {

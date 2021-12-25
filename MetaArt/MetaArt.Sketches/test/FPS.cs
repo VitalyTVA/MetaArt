@@ -1,10 +1,6 @@
 ﻿using System.Diagnostics;
 
 class FPS : SketchBase {
-
-
-
-
     void setup() {
         size(200, 200);
         background(150);
