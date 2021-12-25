@@ -1,7 +1,7 @@
-﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-mouse
+﻿//Simple interpolation with mouse movement.
+//MetaArt version of https://glitch.com/edit/#!/p5-example-mouse
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-/// <summary>Simple interpolation with mouse movement.</summary>
 class Mouse : SketchBase {
     float px;
     float py;

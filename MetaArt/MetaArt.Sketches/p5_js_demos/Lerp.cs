@@ -1,7 +1,7 @@
-﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-lerp
+﻿//Using linear interpolation (lerp) for animation.
+//MetaArt version of https://glitch.com/edit/#!/p5-example-lerp
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-/// <summary>Using linear interpolation (lerp) for animation.</summary>
 class Lerp : SketchBase {
     // Set canvas size
     void setup() {

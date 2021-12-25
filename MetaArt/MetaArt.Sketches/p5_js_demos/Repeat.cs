@@ -1,7 +1,7 @@
-﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-shape
+﻿//Shape and stroke operations.
+//MetaArt version of https://glitch.com/edit/#!/p5-example-shape
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-/// <summary>Shape and stroke operations.</summary>
 class Repeat : SketchBase {
     // Set canvas size
     void setup() {

@@ -1,7 +1,7 @@
-﻿//MetaArt version of https://glitch.com/edit/#!/p5-example
+﻿//Creating a seamless loop with a fixed duration.
+//MetaArt version of https://glitch.com/edit/#!/p5-example
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-/// <summary>Creating a seamless loop with a fixed duration.</summary>
 class Loop : SketchBase {
     // Set canvas size
     void setup() {

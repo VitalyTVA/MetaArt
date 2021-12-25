@@ -1,7 +1,7 @@
-﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-shape
+﻿//Using transform and blend mode.
+//MetaArt version of https://glitch.com/edit/#!/p5-example-shape
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-/// <summary>Using transform and blend mode.</summary>
 class TransformAndBlend : SketchBase {
     // Set canvas size
     void setup() {

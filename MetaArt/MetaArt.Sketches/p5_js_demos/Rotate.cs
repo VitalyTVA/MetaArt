@@ -1,7 +1,7 @@
-﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-loop
+﻿//Rotating shapes around their center.
+//MetaArt version of https://glitch.com/edit/#!/p5-example-loop
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-/// <summary>Rotating shapes around their center.</summary>
 class Rotate : SketchBase {
     // Set canvas size
     void setup() {
