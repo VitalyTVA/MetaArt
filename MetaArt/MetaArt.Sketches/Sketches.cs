@@ -17,6 +17,7 @@ class Sketches : ISkecthesProvider {
                 new SkecthInfo(typeof(Hexagon), description: "Repeating shapes to make a looping hexagonal design."),
                 new SkecthInfo(typeof(Rings), description: "Using the arc() function to build concentric rings."),
                 new SkecthInfo(typeof(Lines), description: "Animating grid of line segments with sin."),
+                new SkecthInfo(typeof(Lewitt), description: "Recreating Sol LeWitt 'Wall Drawing #130' from 1972."),
             }
         },
         new SketchGroup {
