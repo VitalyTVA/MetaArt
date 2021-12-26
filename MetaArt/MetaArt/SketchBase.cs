@@ -50,6 +50,7 @@ namespace MetaArt {
             background(new Color(color, color, color));
         }
         protected float min(float value1, float value2) => Math.Min(value1, value2);
+        protected float max(float value1, float value2) => Math.Max(value1, value2);
 
 
         protected static StrokeJoin ROUND => StrokeJoin.Round;

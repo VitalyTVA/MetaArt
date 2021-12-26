@@ -16,6 +16,7 @@ class Sketches : ISkecthesProvider {
                 new SkecthInfo(typeof(LineToCircle), description: "Animating from a line to a circle using a polygon function."),
                 new SkecthInfo(typeof(Hexagon), description: "Repeating shapes to make a looping hexagonal design."),
                 new SkecthInfo(typeof(Rings), description: "Using the arc() function to build concentric rings."),
+                new SkecthInfo(typeof(Lines), description: "Animating grid of line segments with sin."),
             }
         },
         new SketchGroup {
