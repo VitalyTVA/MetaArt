@@ -127,6 +127,9 @@ namespace MetaArt.Skia {
         public override void translate(float x, float y) {
             Canvas.Translate(x, y);
         }
+        public override void scale(float x, float y) {
+            Canvas.Scale(x, y);
+        }
         public override void rotate(float angle) {
             Canvas.RotateRadians(angle);
         }

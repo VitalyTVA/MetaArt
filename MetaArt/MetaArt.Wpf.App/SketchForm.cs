@@ -16,8 +16,8 @@ namespace MetaArt.Wpf {
     public partial class SketchForm : Form {
         Timer t = new Timer();
         Painter painter;
-        Point ownerLocation;
-        public SketchForm(Type skecthType, Point ownerLocation) {
+        System.Drawing.Point ownerLocation;
+        public SketchForm(Type skecthType, System.Drawing.Point ownerLocation) {
             InitializeComponent();
 
             //TopMost = true;
@@ -109,7 +109,7 @@ namespace MetaArt.Wpf {
                     queue.Dequeue().Invoke();
                 }
                 var mouse = skglControl1.PointToClient(MousePosition);
-                bool over = new Rectangle(Point.Empty, skglControl1.Size).Contains(mouse);
+                bool over = new Rectangle(System.Drawing.Point.Empty, skglControl1.Size).Contains(mouse);
                 //if(mouseDown) {
                 //    painter.MousePressed(new System.Windows.Point(mouse.X, mouse.Y));
                 //    mouseDown = false;
@@ -138,10 +138,10 @@ namespace MetaArt.Wpf {
             }
         }
 
-        public void SetLocation(Point p) {
+        public void SetLocation(System.Drawing.Point p) {
             BeginInvoke(() => {
-                Location = p; 
-                ClientSize = new Size(painter.Width, painter.Height);
+                Location = p;
+                ClientSize = new System.Drawing.Size(painter.Width, painter.Height);
                 TopMost = true;
                 TopMost = false;
             });

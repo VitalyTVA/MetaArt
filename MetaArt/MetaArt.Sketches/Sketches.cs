@@ -12,6 +12,7 @@ class Sketches : ISkecthesProvider {
                 new SkecthInfo(typeof(Repeat), description: "Repeating shape with a loop and linearly spacing them."),
                 new SkecthInfo(typeof(Trigonometry), description: "Using trigonometry to create radial motion."),
                 new SkecthInfo(typeof(Mouse), description: "Simple interpolation with mouse movement."),
+                new SkecthInfo(typeof(Rects), description: "Creating a pattern with randomly placed rectangles."),
             }
         },
         new SketchGroup {

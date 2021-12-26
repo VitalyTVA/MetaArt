@@ -38,7 +38,7 @@ namespace MetaArt.Wpf {
         }
 
         private System.Drawing.Point GetLocation() {
-            var p = PointToScreen(new Point(0, 0));
+            var p = PointToScreen(new System.Windows.Point(0, 0));
             return new System.Drawing.Point((int)p.X, (int)p.Y);
             //PresentationSource source = PresentationSource.FromVisual(this);
 

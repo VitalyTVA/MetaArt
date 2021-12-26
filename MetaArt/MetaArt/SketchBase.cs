@@ -86,6 +86,9 @@ namespace MetaArt {
         protected void translate(float x, float y) {
             Graphics.translate(x, y);
         }
+        protected void scale(float x, float y) {
+            Graphics.scale(x, y);
+        }
         protected void rotate(float angle) {
             Graphics.rotate(angle);
         }
@@ -114,6 +117,10 @@ namespace MetaArt {
         protected static float cos(float angle) => (float)Math.Cos(angle);
         protected static float PI => (float)Math.PI;
         protected static float lerp(float start, float stop, float amt) => start * (1 - amt) + stop * amt;
+    
+        Random rnd = new();
+        protected float random(float low, float high) => lerp(low, high, (float)rnd.NextDouble());
+
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {
