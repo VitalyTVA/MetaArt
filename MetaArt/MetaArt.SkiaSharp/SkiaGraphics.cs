@@ -1,6 +1,7 @@
 ﻿using MetaArt.Internal;
 using SkiaSharp;
 using System;
+using System.Collections.Generic;
 
 namespace MetaArt.Skia {
     static class Extensions {
@@ -93,7 +94,7 @@ namespace MetaArt.Skia {
         }
 
         public override void triangle(float x1, float y1, float x2, float y2, float x3, float y3) {
-            var path = new SKPath { FillType = SKPathFillType.EvenOdd }; //TODO reuse triangle path??
+            using var path = new SKPath { FillType = SKPathFillType.EvenOdd }; //TODO reuse triangle path??
             path.MoveTo(x1, y1);
             path.LineTo(x2, y2);
             path.LineTo(x3, y3);
@@ -132,6 +133,29 @@ namespace MetaArt.Skia {
         }
         public override void rotate(float angle) {
             Canvas.RotateRadians(angle);
+        }
+
+        SKPath? vertices;
+        public override void beginShape() {
+            vertices = new SKPath { FillType = SKPathFillType.EvenOdd };
+        }
+        public override void vertex(float x, float y) {
+            if(vertices!.IsEmpty)
+                vertices.MoveTo(new SKPoint(x, y));
+            else
+                vertices.LineTo(new SKPoint(x, y));
+        }
+        public override void endShape(EndShapeMode mode) {
+            if(mode == EndShapeMode.CLOSE)
+                vertices!.Close();
+            if(!_noFill && mode == EndShapeMode.CLOSE) {
+                Canvas.DrawPath(vertices, fillPaint);
+            }
+            if(!_noStroke) {
+                Canvas.DrawPath(vertices, strokePaint);
+            }
+            vertices!.Dispose();
+            vertices = null;
         }
     }
 }

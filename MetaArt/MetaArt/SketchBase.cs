@@ -112,10 +112,18 @@ namespace MetaArt {
 
         protected void text(string str, float x, float y) => Graphics.text(str, x, y);
 
+        protected void beginShape() => Graphics.beginShape();
+        protected static EndShapeMode CLOSE => EndShapeMode.CLOSE;
+        protected void endShape(EndShapeMode mode = EndShapeMode.OPEN) => Graphics.endShape(mode);
+        protected void vertex(float x, float y) => Graphics.vertex(x, y);
+
+
         protected static float exp(float d) => (float)Math.Exp(d);
+        protected static float pow(float n, float e) => (float)Math.Pow(n, e);
         protected static float sin(float angle) => (float)Math.Sin(angle);
         protected static float cos(float angle) => (float)Math.Cos(angle);
-        protected static float PI => (float)Math.PI;
+        protected static readonly float PI = (float)Math.PI;
+        protected static readonly float TWO_PI = PI * 2;
         protected static float lerp(float start, float stop, float amt) => start * (1 - amt) + stop * amt;
     
         Random rnd = new();
@@ -129,4 +137,5 @@ namespace MetaArt {
         CENTER,
         RADIUS
     }
+    public enum EndShapeMode { OPEN, CLOSE }
 }
