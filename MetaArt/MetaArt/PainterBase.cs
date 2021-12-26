@@ -68,6 +68,7 @@ namespace MetaArt {
             sketch.currentTime = currentTime;
             SetMouse(mouseX, mouseY);
             drawMethod?.Invoke(sketch, null);
+            sketch.frameCount++;
         }
         void SettingsCore() {
             settingsMethod?.Invoke(sketch, null);

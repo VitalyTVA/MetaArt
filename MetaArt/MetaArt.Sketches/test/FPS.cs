@@ -7,7 +7,6 @@ class FPS : SketchBase {
     }
 
 
-    int Call = 0;
     Stopwatch Stopwatch = new Stopwatch();
     void draw() {
         int x = 30;
@@ -15,11 +14,11 @@ class FPS : SketchBase {
         fill(Black);
         background(150);
         text("SkiaSharp on Wpf!", x, 20);
-        if(this.Call == 0)
+        if(this.frameCount == 0)
             this.Stopwatch.Start();
-        double fps = this.Call / ((this.Stopwatch.Elapsed.TotalSeconds != 0) ? this.Stopwatch.Elapsed.TotalSeconds : 1);
+        double fps = this.frameCount / ((this.Stopwatch.Elapsed.TotalSeconds != 0) ? this.Stopwatch.Elapsed.TotalSeconds : 1);
         text($"FPS: {fps:0}", x, 40);
-        text($"Frames: {this.Call++}", x, 60);
+        text($"Frames: {this.frameCount}", x, 60);
 
     }
 }

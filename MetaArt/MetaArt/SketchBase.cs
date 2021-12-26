@@ -18,6 +18,7 @@ namespace MetaArt {
         internal int currentTime;
         protected internal int deltaTime { get; internal set; } //TODO should only be accessible from draw, not from mouse events
         protected int millis() => (int)currentTime;
+        protected internal int frameCount { get; internal set; }
 
         PainterBase? painter;
         internal PainterBase Painter { get => painter!; set => painter = value; }
@@ -61,8 +62,8 @@ namespace MetaArt {
         protected void stroke(Color color) => Graphics.stroke(color);
         protected void strokeWeight(float weight) => Graphics.strokeWeight(weight);
         protected void strokeJoin(StrokeJoin join) => Graphics.strokeJoin(join);
-        protected void fill(byte color) {
-            fill(new Color(color, color, color));
+        protected void fill(byte gray, byte alpha = 255) {
+            fill(new Color(gray, gray, gray, alpha));
         }
         protected void fill(Color color) {
             Graphics.fill(color);
