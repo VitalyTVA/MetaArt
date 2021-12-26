@@ -7,11 +7,13 @@ namespace MetaArt.Skia {
     static class Extensions {
         public static SKColor ToSK(this Color value) => new SKColor(value.Value);
         public static SKStrokeJoin ToSK(this StrokeJoin value) => (SKStrokeJoin)value; //TODO test conversion
+        public static SKStrokeCap ToSK(this StrokeCap value) => (SKStrokeCap)value; //TODO test conversion
         public static SKBlendMode ToSK(this BlendMode value) => value switch { 
             BlendMode.Blend => SKBlendMode.SrcOver, 
             BlendMode.Difference => SKBlendMode.Difference, 
             _ => throw new NotImplementedException(), 
         }; //TODO test conversion
+        public static float ConvertRadiansToDegrees(float radians) => (float)(180 / Math.PI) * radians;
     }
 
     public sealed class SkiaGraphics : Graphics {
@@ -52,6 +54,9 @@ namespace MetaArt.Skia {
         public override void strokeJoin(StrokeJoin join) {
             strokePaint.StrokeJoin = join.ToSK();
         }
+        public override void strokeCap(StrokeCap cap) {
+            strokePaint.StrokeCap = cap.ToSK();
+        }
         public override void noStroke() {
             _noStroke = true;
         }
@@ -91,6 +96,13 @@ namespace MetaArt.Skia {
                 Canvas.DrawOval(point, size, fillPaint);
             if(!_noStroke)
                 Canvas.DrawOval(point, size, strokePaint);
+        }
+        public override void arc(float x, float y, float width, float height, float start, float stop) {
+            var rect = new SKRect(x - width / 2, y - height / 2, x + width / 2, x + height / 2);
+            if(!_noFill)
+                Canvas.DrawArc(rect, Extensions.ConvertRadiansToDegrees(start), Extensions.ConvertRadiansToDegrees(stop - start), false, fillPaint);
+            if(!_noStroke)
+                Canvas.DrawArc(rect, Extensions.ConvertRadiansToDegrees(start), Extensions.ConvertRadiansToDegrees(stop - start), false, strokePaint);
         }
 
         public override void triangle(float x1, float y1, float x2, float y2, float x3, float y3) {

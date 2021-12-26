@@ -14,6 +14,8 @@ class Sketches : ISkecthesProvider {
                 new SkecthInfo(typeof(Mouse), description: "Simple interpolation with mouse movement."),
                 new SkecthInfo(typeof(Rects), description: "Creating a pattern with randomly placed rectangles."),
                 new SkecthInfo(typeof(LineToCircle), description: "Animating from a line to a circle using a polygon function."),
+                new SkecthInfo(typeof(Hexagon), description: "Repeating shapes to make a looping hexagonal design."),
+                new SkecthInfo(typeof(Rings), description: "Using the arc() function to build concentric rings."),
             }
         },
         new SketchGroup {

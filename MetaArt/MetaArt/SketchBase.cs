@@ -62,6 +62,8 @@ namespace MetaArt {
         protected void stroke(Color color) => Graphics.stroke(color);
         protected void strokeWeight(float weight) => Graphics.strokeWeight(weight);
         protected void strokeJoin(StrokeJoin join) => Graphics.strokeJoin(join);
+        protected void strokeCap(StrokeCap cap) => Graphics.strokeCap(cap);
+
         protected void fill(byte gray, byte alpha = 255) {
             fill(new Color(gray, gray, gray, alpha));
         }
@@ -108,6 +110,8 @@ namespace MetaArt {
 
         protected void ellipse(float x, float y, float width, float height) => Graphics.ellipse(x, y, width, height);
 
+        protected void arc(float x, float y, float width, float height, float start, float stop) => Graphics.arc(x, y, width, height, start, stop);
+
         protected void triangle(float x1, float y1, float x2, float y2, float x3, float y3) => Graphics.triangle(x1, y1, x2, y2, x3, y3);
 
         protected void text(string str, float x, float y) => Graphics.text(str, x, y);
@@ -117,7 +121,7 @@ namespace MetaArt {
         protected void endShape(EndShapeMode mode = EndShapeMode.OPEN) => Graphics.endShape(mode);
         protected void vertex(float x, float y) => Graphics.vertex(x, y);
 
-
+        protected static int floor(float d) => (int)Math.Floor(d);
         protected static float exp(float d) => (float)Math.Exp(d);
         protected static float pow(float n, float e) => (float)Math.Pow(n, e);
         protected static float sin(float angle) => (float)Math.Sin(angle);
@@ -138,4 +142,5 @@ namespace MetaArt {
         RADIUS
     }
     public enum EndShapeMode { OPEN, CLOSE }
+    public enum StrokeCap { PROJECT, ROUND, SQUARE }
 }
