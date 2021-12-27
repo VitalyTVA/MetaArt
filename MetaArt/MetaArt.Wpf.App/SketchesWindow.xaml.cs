@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using MetaArt.Skia;
+using SkiaSharp;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -29,18 +30,7 @@ namespace MetaArt.Wpf {
         public SketchesWindow() {
             InitializeComponent();
 
-            var asm = Assembly.LoadFile(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "MetaArt.Sketches.dll"));
-
-            var types = asm.GetTypes();
-            var provider = (ISkecthesProvider)Activator.CreateInstance(types.Single(x => typeof(ISkecthesProvider).IsAssignableFrom(x)))!;
-            var sketches = provider.Groups
-                .SelectMany(x => x.Sketches.Select(y => new SketchDisplayInfo(y.Type, y.Name, x.Name, y.Description)))
-                .ToList();
-
-            var skecthTypes = asm
-                .GetTypes()
-                .Where(x => typeof(SketchBase).IsAssignableFrom(x) && !sketches.Any(y => y.Type == x));
-            sketches.AddRange(skecthTypes.Select(x => new SketchDisplayInfo(x, x.Name, "misc", null)));
+            var sketches = SketchDisplayInfo.LoadSketches(Assembly.LoadFile(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "MetaArt.Sketches.dll")));
 
             btn.Focus();
             Closed+= async (o, e) => await img.Stop();
@@ -73,8 +63,5 @@ namespace MetaArt.Wpf {
             base.OnLocationChanged(e);
             img.UpdateLocation();
         }
-    }
-    record SketchDisplayInfo(Type Type, string Name, string Category, string? Description) {
-        public Visibility DescriptionVisibility => Description != null ? Visibility.Visible : Visibility.Collapsed;
     }
 }

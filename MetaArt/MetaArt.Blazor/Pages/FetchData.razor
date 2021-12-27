@@ -1,0 +1,48 @@
+﻿@page "/fetchdata"
+@inject HttpClient Http
+
+<PageTitle>Weather forecast</PageTitle>
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (sketches == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Category</th>
+                <th>Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sketch in sketches)
+            {
+                <tr>
+                    <td><button @onclick="@(e => Run(sketch))">Run</button></td>
+                    <td>@sketch.Category</td>
+                    <td>@sketch.Name</td>
+                    <td>@sketch.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<SketchDisplayInfo> sketches = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        sketches = await Task.Run(() => SketchDisplayInfo.LoadSketches(typeof(Sketches).Assembly));
+    }
+    void Run(SketchDisplayInfo info) {
+    }
+}

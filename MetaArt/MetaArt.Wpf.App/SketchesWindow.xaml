@@ -6,6 +6,9 @@
         xmlns:local="clr-namespace:MetaArt.Wpf"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="1000" Topmost="False">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="converter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -26,7 +29,7 @@
                 <DataTemplate>
                     <StackPanel>
                         <TextBlock FontWeight="Bold" Text="{Binding Name}"/>
-                        <TextBlock Text="{Binding Description}" Visibility="{Binding DescriptionVisibility}" TextWrapping="Wrap" MaxHeight="100"/>
+                        <TextBlock Text="{Binding Description}" Visibility="{Binding DescriptionVisibility, Converter={StaticResource converter}}" TextWrapping="Wrap" MaxHeight="100"/>
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>

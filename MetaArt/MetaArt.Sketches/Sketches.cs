@@ -1,4 +1,4 @@
-class Sketches : ISkecthesProvider {
+public class Sketches : ISkecthesProvider {
     ICollection<SketchGroup> ISkecthesProvider.Groups => new[] {
         new SketchGroup {
             Name = "p5.js demos",
