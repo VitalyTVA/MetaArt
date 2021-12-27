@@ -41,7 +41,6 @@ namespace MetaArt {
             SettingsCore();
         }
         Stopwatch stopwatch = new();
-        internal void StartStopwatch() => stopwatch.Start();
         protected void MousePressedCore(float mouseX, float mouseY) {
             if(mousePressedMethod == null)
                 return;

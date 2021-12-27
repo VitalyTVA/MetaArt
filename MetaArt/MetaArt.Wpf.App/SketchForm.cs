@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using MetaArt.Skia;
+using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using System;
 using System.Collections.Generic;
@@ -14,27 +15,15 @@ using System.Windows.Forms;
 
 namespace MetaArt.Wpf {
     public partial class SketchForm : Form {
-        Timer t = new Timer();
         Painter painter;
         System.Drawing.Point ownerLocation;
-        public SketchForm(Type skecthType, System.Drawing.Point ownerLocation) {
+        public SketchForm(Type sketchType, System.Drawing.Point ownerLocation) {
             InitializeComponent();
-
-            //TopMost = true;
             ShowInTaskbar = false;
-
-            this.FormBorderStyle = FormBorderStyle.None;
-
+            FormBorderStyle = FormBorderStyle.None;
             this.ownerLocation = ownerLocation;
-            painter = new Painter((SketchBase)Activator.CreateInstance(skecthType)!);
+            painter = new Painter(sketchType!);
 
-            t.Interval = 1000 / 120;
-            t.Tick += T_Tick;
-            t.Start();
-
-            LocationChanged += SketchForm_LocationChanged;
-
-            Click += SketchForm_Click;
             skglControl1.MouseDown += SkglControl1_MouseDown;
             skglControl1.MouseMove += SkglControl1_MouseMove;
             skglControl1.KeyDown += SkglControl1_KeyDown;
@@ -46,7 +35,7 @@ namespace MetaArt.Wpf {
         private void SkglControl1_MouseMove(object? sender, EventArgs e) {
             var mouse = skglControl1.PointToClient(MousePosition);
             queue.Enqueue(() => {
-                painter.MouseMoved(new System.Windows.Point(mouse.X, mouse.Y));
+                painter.MouseMoved(new Point(mouse.X, mouse.Y));
             });
             skglControl1.Invalidate();
         }
@@ -54,7 +43,7 @@ namespace MetaArt.Wpf {
         private void SkglControl1_MouseDown(object? sender, MouseEventArgs e) {
             var mouse = skglControl1.PointToClient(MousePosition);
             queue.Enqueue(() => {
-                painter.MousePressed(new System.Windows.Point(mouse.X, mouse.Y));
+                painter.MousePressed(new Point(mouse.X, mouse.Y));
             });
             skglControl1.Invalidate();
         }
@@ -75,21 +64,8 @@ namespace MetaArt.Wpf {
             }
         }
 
-        private void SketchForm_Click(object? sender, EventArgs e) {
-            //throw new NotImplementedException();
-        }
-
-        private void SketchForm_LocationChanged(object? sender, EventArgs e) {
-        }
-
-        private void T_Tick(object? sender, EventArgs e) {
-            //skglControl1.Invalidate();
-        }
-
-
         bool setUp = false;
         SKImage? draw;
-        //Point? mousePos;
         Queue<Action> queue = new();
         bool save;
         private void skglControl1_PaintSurface(object sender, SKPaintGLSurfaceEventArgs e) {
@@ -110,12 +86,7 @@ namespace MetaArt.Wpf {
                 }
                 var mouse = skglControl1.PointToClient(MousePosition);
                 bool over = new Rectangle(System.Drawing.Point.Empty, skglControl1.Size).Contains(mouse);
-                //if(mouseDown) {
-                //    painter.MousePressed(new System.Windows.Point(mouse.X, mouse.Y));
-                //    mouseDown = false;
-                //}
-                //else {
-                painter.Draw(over ? new System.Windows.Point(mouse.X, mouse.Y) : null);
+                painter.Draw(over ? new Point(mouse.X, mouse.Y) : null);
                 if(draw != null)
                     draw.Dispose();
                 draw = e.Surface.Snapshot();

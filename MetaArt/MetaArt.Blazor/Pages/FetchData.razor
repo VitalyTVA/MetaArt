@@ -1,11 +1,15 @@
 ﻿@page "/fetchdata"
+@using System.Reflection
 @inject HttpClient Http
+<style>
+div.scrollable {
+  height: 300px;
+  overflow: auto;
+}
+</style>
+<PageTitle>MetaArt in Blazor</PageTitle>
 
-<PageTitle>Weather forecast</PageTitle>
-
-<h1>Weather forecast</h1>
-
-<p>This component demonstrates fetching data from the server.</p>
+<h1>MetaArt in Blazor</h1>
 
 @if (sketches == null)
 {
@@ -13,36 +17,108 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th></th>
-                <th>Category</th>
-                <th>Name</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var sketch in sketches)
-            {
+    <div class="scrollable">
+        <table class="table">
+            <thead>
                 <tr>
-                    <td><button @onclick="@(e => Run(sketch))">Run</button></td>
-                    <td>@sketch.Category</td>
-                    <td>@sketch.Name</td>
-                    <td>@sketch.Description</td>
+                    <th></th>
+                    <th>Category</th>
+                    <th>Name</th>
+                    <th>Description</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var sketch in sketches)
+                {
+                    <tr>
+                        <td><button @onclick="@(e => Run(sketch))">Run</button></td>
+                        <td>@sketch.Category</td>
+                        <td>@sketch.Name</td>
+                        <td>@sketch.Description</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
+<div class="container">
+    <div class="row">
+        <div class="col border rounded p-2 canvas-container">
+
+            <SKGLView @ref=view OnPaintSurface="OnPaintSurface" IgnorePixelScaling="true" EnableRenderLoop="true" style="@viewStyle"/>
+
+        </div>
+    </div>
+</div>
 
 @code {
+    SKGLView view = null!;
     List<SketchDisplayInfo> sketches = null!;
 
     protected override async Task OnInitializedAsync()
     {
         sketches = await Task.Run(() => SketchDisplayInfo.LoadSketches(typeof(Sketches).Assembly));
     }
+
+    Painter painter = null!;
+    string viewStyle = "height:1080px; width:1920px;";
     void Run(SketchDisplayInfo info) {
+        setUp = false;
+        draw = null;
+        draw?.Dispose();
+        queue.Clear();
+        painter = new Painter(info.Type);
+    }
+
+    bool setUp = false;
+    SKImage? draw;
+    Queue<Action> queue = new();
+    //bool save;
+    void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
+    {
+        
+        if(painter == null) return;
+
+        if(draw != null) {
+            e.Surface.Canvas.DrawImage(draw, 0, 0);
+            if(painter.NoLoop)
+                return;
+        }
+        painter.SKSurface = e.Surface;
+        if(!setUp) {
+            painter.Setup();
+            //ElementReference canvasRef = (ElementReference)view.GetType().GetField("htmlCanvas", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(view)!;
+            //SetLocation(ownerLocation);
+            //if(draw != null)
+            //    draw.Dispose();
+            //draw = e.Surface.Snapshot();
+
+            setUp = true;
+            viewStyle = $"height:{painter.Height}px; width:{painter.Width}px;";
+            StateHasChanged();
+            view.Invalidate();
+        } else {
+            while(queue.Count > 0) {
+                queue.Dequeue().Invoke();
+            }
+            //var mouse = skglControl1.PointToClient(MousePosition);
+            //bool over = new Rectangle(System.Drawing.Point.Empty, skglControl1.Size).Contains(mouse);
+            var mouse = Point.Empty;
+            bool over = false;
+            painter.Draw(over ? new Point(mouse.X, mouse.Y) : null);
+            if(draw != null)
+                draw.Dispose();
+            draw = e.Surface.Snapshot();
+            //}
+            //if(save) {
+            //    using(SKImage image = e.Surface.Snapshot())
+            //    using(SKData data = image.Encode(SKEncodedImageFormat.Png, 100)) {
+            //        File.WriteAllBytes("c:\\temp\\1.png", data.ToArray());
+            //    }
+            //    save = false;
+            //}
+            if(!painter.NoLoop)
+                view.Invalidate();
+        }
     }
 }
