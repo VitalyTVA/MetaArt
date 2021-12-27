@@ -20,6 +20,7 @@ namespace MetaArt {
         public readonly SketchBase sketch;
 
         public bool NoLoop { get; set; }
+        public bool HasDraw => drawMethod != null;
         public Graphics Graphics { get; }
 
         MethodInfo? drawMethod;

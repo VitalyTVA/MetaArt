@@ -45,8 +45,8 @@ else
     <div class="row">
         <div class="col border rounded p-2 canvas-container">
 
-            <SKGLView @ref=view OnPaintSurface="OnPaintSurface" IgnorePixelScaling="true" EnableRenderLoop="true" style="@viewStyle"/>
-
+            <SKGLView @ref=view OnPaintSurface="OnPaintSurface" IgnorePixelScaling="true" EnableRenderLoop="true" 
+            style="@viewStyle" onmousedown="@OnMouseDown" onmousemove="@OnMouseMove" onmouseout="@OnMouseOut"/>
         </div>
     </div>
 </div>
@@ -65,23 +65,54 @@ else
     void Run(SketchDisplayInfo info) {
         setUp = false;
         draw = null;
+        drawn = false;
         draw?.Dispose();
         queue.Clear();
+        first = true;
+        pos = null;
+        viewStyle = "height:1080px; width:1920px;";
+        StateHasChanged();
         painter = new Painter(info.Type);
+    }
+
+    void OnMouseDown(MouseEventArgs e) {
+        var pos = new Point((float)e.OffsetX, (float)e.OffsetY);
+        queue.Enqueue(() => {
+            painter.MousePressed(pos);
+        });
+    }
+    Point? pos;
+    void OnMouseMove(MouseEventArgs e) {
+        pos = new Point((float)e.OffsetX, (float)e.OffsetY);
+        var val = pos.Value;
+        queue.Enqueue(() => {
+            painter.MouseMoved(val);
+        });
+    }
+    void OnMouseOut(MouseEventArgs e) {
+        pos = null;
     }
 
     bool setUp = false;
     SKImage? draw;
+    bool drawn = false;
+
     Queue<Action> queue = new();
-    //bool save;
+    bool first = true;
     void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
     {
-        
+        if(first) {
+            e.Surface.Canvas.Clear();
+            viewStyle = "height:1080px; width:1920px;";
+            StateHasChanged();
+            first = false;
+            return;
+        }
         if(painter == null) return;
 
         if(draw != null) {
             e.Surface.Canvas.DrawImage(draw, 0, 0);
-            if(painter.NoLoop)
+            if((painter.NoLoop && drawn) || !painter.HasDraw)
                 return;
         }
         painter.SKSurface = e.Surface;
@@ -89,23 +120,24 @@ else
             painter.Setup();
             //ElementReference canvasRef = (ElementReference)view.GetType().GetField("htmlCanvas", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(view)!;
             //SetLocation(ownerLocation);
-            //if(draw != null)
-            //    draw.Dispose();
-            //draw = e.Surface.Snapshot();
+            if(draw != null)
+                draw.Dispose();
+            draw = e.Surface.Snapshot();
 
             setUp = true;
             viewStyle = $"height:{painter.Height}px; width:{painter.Width}px;";
             StateHasChanged();
-            view.Invalidate();
+            //view.Invalidate();
         } else {
             while(queue.Count > 0) {
                 queue.Dequeue().Invoke();
             }
             //var mouse = skglControl1.PointToClient(MousePosition);
             //bool over = new Rectangle(System.Drawing.Point.Empty, skglControl1.Size).Contains(mouse);
-            var mouse = Point.Empty;
-            bool over = false;
-            painter.Draw(over ? new Point(mouse.X, mouse.Y) : null);
+            var mouse = pos;
+            //bool over = false;
+            painter.Draw(pos);
+            drawn = true;
             if(draw != null)
                 draw.Dispose();
             draw = e.Surface.Snapshot();
@@ -117,8 +149,8 @@ else
             //    }
             //    save = false;
             //}
-            if(!painter.NoLoop)
-                view.Invalidate();
+            //if(!painter.NoLoop)
+            //    view.Invalidate();
         }
     }
 }
