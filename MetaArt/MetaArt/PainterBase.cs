@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 
 namespace MetaArt {
-    public abstract class PainterBase {
+    public abstract class PainterBase : IDisposable {
         public virtual void SetSize(int width, int height) {
             this.width = width;
             this.height = height;
@@ -42,6 +42,8 @@ namespace MetaArt {
             SettingsCore();
         }
         Stopwatch stopwatch = new();
+        private bool disposedValue;
+
         protected void MousePressedCore(float mouseX, float mouseY) {
             if(mousePressedMethod == null)
                 return;
@@ -76,6 +78,19 @@ namespace MetaArt {
         protected void SetupCore() {
             stopwatch.Start();
             setupwMethod?.Invoke(sketch, null);
+        }
+
+        protected virtual void Dispose(bool disposing) {
+            if(!disposedValue) {
+                if(disposing) {
+                }
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose() {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
