@@ -3,66 +3,70 @@
 @inject HttpClient Http
 <style>
 div.scrollable {
-  height: 300px;
+  height: 1000px;
   overflow: auto;
 }
 </style>
 <PageTitle>MetaArt in Blazor</PageTitle>
 
-<h1>MetaArt in Blazor</h1>
-
-@if (sketches == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <div class="scrollable">
-        <table class="table">
-            <thead>
+<h1><a href="https://github.com/VitalyTVA/MetaArt/" target="_blank">MetaArt</a> web viewer</h1>
+<div style="width: 100%; overflow: hidden;">
+    <div style="width: 400px; float: left;">
+        @if(groups == null) {
+            <p><em>Loading...</em></p>
+        } else {
+            <h3>@selectedGroup.Key</h3>
+            <h3>@(selectedSkecth?.Name ?? "Run Sketch")</h3>
+            <div>
                 <tr>
-                    <th></th>
-                    <th>Category</th>
-                    <th>Name</th>
-                    <th>Description</th>
+                    @foreach(var group in groups) {
+                        <td><button @onclick="@(e => SelectGroup(group))">@group.Key</button></td>
+                    }
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var sketch in sketches)
-                {
-                    <tr>
-                        <td><button @onclick="@(e => Run(sketch))">Run</button></td>
-                        <td>@sketch.Category</td>
-                        <td>@sketch.Name</td>
-                        <td>@sketch.Description</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+            </div>
+            <div class="scrollable">
+                <table class="table">
+                    <tbody>
+                        @foreach(var sketch in selectedGroup) {
+                            <tr>
+                                <td><button @onclick="@(e => Run(sketch))">Run</button></td>
+                                <td>@sketch.Name</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
-}
-<div class="container">
-    <div class="row">
-        <div class="col border rounded p-2 canvas-container">
-
-            <SKGLView @ref=view OnPaintSurface="OnPaintSurface" IgnorePixelScaling="true" EnableRenderLoop="true" 
-            style="@viewStyle" onmousedown="@OnMouseDown" onmousemove="@OnMouseMove" onmouseout="@OnMouseOut"/>
+    <div style="margin-left: 420px;">
+        <div class="container">
+            <div class="row">
+                <div class="col border rounded p-2 canvas-container">
+                    <SKGLView @ref=view OnPaintSurface="OnPaintSurface" IgnorePixelScaling="true" EnableRenderLoop="true"
+                              style="@viewStyle" onmousedown="@OnMouseDown" onmousemove="@OnMouseMove" onmouseout="@OnMouseOut" />
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @code {
     SKGLView view = null!;
-    List<SketchDisplayInfo> sketches = null!;
+    IGrouping<string, SketchDisplayInfo>[] groups = null!;
+    IGrouping<string, SketchDisplayInfo> selectedGroup = null!;
+    SketchDisplayInfo selectedSkecth = null!;
 
     protected override async Task OnInitializedAsync()
     {
-        sketches = await Task.Run(() => SketchDisplayInfo.LoadSketches(typeof(Sketches).Assembly));
+        var sketches = await Task.Run(() => SketchDisplayInfo.LoadSketches(typeof(Sketches).Assembly));
+        groups = sketches.GroupBy(x => x.Category).ToArray();
+        selectedGroup = groups.First();
     }
 
     Painter painter = null!;
     string viewStyle = "height:1080px; width:1920px;";
     void Run(SketchDisplayInfo info) {
+        selectedSkecth = info;
         setUp = false;
         draw = null;
         drawn = false;
@@ -73,6 +77,10 @@ else
         viewStyle = "height:1080px; width:1920px;";
         StateHasChanged();
         painter = new Painter(info.Type);
+
+    }
+    void SelectGroup(IGrouping<string, SketchDisplayInfo> group) {
+        selectedGroup = group;
     }
 
     void OnMouseDown(MouseEventArgs e) {
