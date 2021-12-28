@@ -1,9 +1,156 @@
 ﻿@page "/"
+@using System.Reflection
+@inject HttpClient Http
+<style>
+div.scrollable {
+  height: 300px;
+  overflow: auto;
+}
+</style>
+<PageTitle>MetaArt in Blazor</PageTitle>
 
-<PageTitle>Index</PageTitle>
+<h1>MetaArt in Blazor</h1>
 
-<h1>Hello, world!</h1>
+@if (sketches == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="scrollable">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Category</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sketch in sketches)
+                {
+                    <tr>
+                        <td><button @onclick="@(e => Run(sketch))">Run</button></td>
+                        <td>@sketch.Category</td>
+                        <td>@sketch.Name</td>
+                        <td>@sketch.Description</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+<div class="container">
+    <div class="row">
+        <div class="col border rounded p-2 canvas-container">
 
-Welcome to your new app.
+            <SKGLView @ref=view OnPaintSurface="OnPaintSurface" IgnorePixelScaling="true" EnableRenderLoop="true" 
+            style="@viewStyle" onmousedown="@OnMouseDown" onmousemove="@OnMouseMove" onmouseout="@OnMouseOut"/>
+        </div>
+    </div>
+</div>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
+    SKGLView view = null!;
+    List<SketchDisplayInfo> sketches = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        sketches = await Task.Run(() => SketchDisplayInfo.LoadSketches(typeof(Sketches).Assembly));
+    }
+
+    Painter painter = null!;
+    string viewStyle = "height:1080px; width:1920px;";
+    void Run(SketchDisplayInfo info) {
+        setUp = false;
+        draw = null;
+        drawn = false;
+        draw?.Dispose();
+        queue.Clear();
+        first = true;
+        pos = null;
+        viewStyle = "height:1080px; width:1920px;";
+        StateHasChanged();
+        painter = new Painter(info.Type);
+    }
+
+    void OnMouseDown(MouseEventArgs e) {
+        var pos = new Point((float)e.OffsetX, (float)e.OffsetY);
+        queue.Enqueue(() => {
+            painter.MousePressed(pos);
+        });
+    }
+    Point? pos;
+    void OnMouseMove(MouseEventArgs e) {
+        pos = new Point((float)e.OffsetX, (float)e.OffsetY);
+        var val = pos.Value;
+        queue.Enqueue(() => {
+            painter.MouseMoved(val);
+        });
+    }
+    void OnMouseOut(MouseEventArgs e) {
+        pos = null;
+    }
+
+    bool setUp = false;
+    SKImage? draw;
+    bool drawn = false;
+
+    Queue<Action> queue = new();
+    bool first = true;
+    void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
+    {
+        if(first) {
+            e.Surface.Canvas.Clear();
+            viewStyle = "height:1080px; width:1920px;";
+            StateHasChanged();
+            first = false;
+            return;
+        }
+        if(painter == null) return;
+
+        if(draw != null) {
+            e.Surface.Canvas.DrawImage(draw, 0, 0);
+            if((painter.NoLoop && drawn) || !painter.HasDraw)
+                return;
+        }
+        painter.SKSurface = e.Surface;
+        if(!setUp) {
+            painter.Setup();
+            //ElementReference canvasRef = (ElementReference)view.GetType().GetField("htmlCanvas", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(view)!;
+            //SetLocation(ownerLocation);
+            if(draw != null)
+                draw.Dispose();
+            draw = e.Surface.Snapshot();
+
+            setUp = true;
+            viewStyle = $"height:{painter.Height}px; width:{painter.Width}px;";
+            StateHasChanged();
+            //view.Invalidate();
+        } else {
+            while(queue.Count > 0) {
+                queue.Dequeue().Invoke();
+            }
+            //var mouse = skglControl1.PointToClient(MousePosition);
+            //bool over = new Rectangle(System.Drawing.Point.Empty, skglControl1.Size).Contains(mouse);
+            var mouse = pos;
+            //bool over = false;
+            painter.Draw(pos);
+            drawn = true;
+            if(draw != null)
+                draw.Dispose();
+            draw = e.Surface.Snapshot();
+            //}
+            //if(save) {
+            //    using(SKImage image = e.Surface.Snapshot())
+            //    using(SKData data = image.Encode(SKEncodedImageFormat.Png, 100)) {
+            //        File.WriteAllBytes("c:\\temp\\1.png", data.ToArray());
+            //    }
+            //    save = false;
+            //}
+            //if(!painter.NoLoop)
+            //    view.Invalidate();
+        }
+    }
+}
