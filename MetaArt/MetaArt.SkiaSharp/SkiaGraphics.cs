@@ -22,7 +22,10 @@ namespace MetaArt.Skia {
         public SKCanvas Canvas { get => canvas!; set => canvas = value; }
 
 
-        SKPaint fillPaint = new SKPaint() { Style = SKPaintStyle.Fill, IsAntialias = true, TextSize = 12 };
+        SKPaint fillPaint = new SKPaint() { 
+            Style = SKPaintStyle.Fill, 
+            IsAntialias = true, 
+            TextSize = 12 };
         bool _noFill = false;
 
         public override void fill(Color color) {
@@ -38,6 +41,7 @@ namespace MetaArt.Skia {
             Style = SKPaintStyle.Stroke,
             StrokeWidth = 4,
             IsAntialias = true,
+            StrokeCap = SKStrokeCap.Round,
             //Color = SKColors.White 
         };
         bool _noStroke = false;
@@ -148,26 +152,37 @@ namespace MetaArt.Skia {
         }
 
         SKPath? vertices;
-        public override void beginShape() {
-            vertices = new SKPath { FillType = SKPathFillType.EvenOdd };
+        List<SKPoint> points = new(); //TODO use LargeArrayBuilder??
+        public override void beginShape(BeginShapeMode mode) {
+            if(mode == BeginShapeMode.LINES)
+                vertices = new SKPath { FillType = SKPathFillType.EvenOdd };
         }
         public override void vertex(float x, float y) {
-            if(vertices!.IsEmpty)
-                vertices.MoveTo(new SKPoint(x, y));
-            else
-                vertices.LineTo(new SKPoint(x, y));
+            if(vertices != null) {
+                if(vertices!.IsEmpty)
+                    vertices.MoveTo(new SKPoint(x, y));
+                else
+                    vertices.LineTo(new SKPoint(x, y));
+            } else {
+                points.Add(new SKPoint(x, y));
+            }
         }
         public override void endShape(EndShapeMode mode) {
-            if(mode == EndShapeMode.CLOSE)
-                vertices!.Close();
-            if(!_noFill && mode == EndShapeMode.CLOSE) {
-                Canvas.DrawPath(vertices, fillPaint);
+            if(vertices != null) {
+                if(mode == EndShapeMode.CLOSE)
+                    vertices.Close();
+                if(!_noFill && mode == EndShapeMode.CLOSE) {
+                    Canvas.DrawPath(vertices, fillPaint);
+                }
+                if(!_noStroke) {
+                    Canvas.DrawPath(vertices, strokePaint);
+                }
+                vertices.Dispose();
+                vertices = null;
+            } else {
+                Canvas.DrawPoints(SKPointMode.Points, points.ToArray(), strokePaint);
+                points.Clear();
             }
-            if(!_noStroke) {
-                Canvas.DrawPath(vertices, strokePaint);
-            }
-            vertices!.Dispose();
-            vertices = null;
         }
     }
 }

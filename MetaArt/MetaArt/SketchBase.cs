@@ -17,8 +17,11 @@ namespace MetaArt {
     public class SketchBase {
         internal int currentTime;
         protected internal int deltaTime { get; internal set; } //TODO should only be accessible from draw, not from mouse events
-        protected int millis() => (int)currentTime;
+        protected int millis() => (int)currentTime; //TODO => stopwatch.ElapsedMillisecond
         protected internal int frameCount { get; internal set; }
+        protected int second() => DateTime.Now.Second;
+        protected int minute() => DateTime.Now.Minute;
+        protected int hour() => DateTime.Now.Hour;
 
         PainterBase? painter;
         internal PainterBase Painter { get => painter!; set => painter = value; }
@@ -117,8 +120,9 @@ namespace MetaArt {
 
         protected void text(string str, float x, float y) => Graphics.text(str, x, y);
 
-        protected void beginShape() => Graphics.beginShape();
+        protected void beginShape(BeginShapeMode mode = BeginShapeMode.LINES) => Graphics.beginShape(mode);
         protected static EndShapeMode CLOSE => EndShapeMode.CLOSE;
+        protected static BeginShapeMode POINTS => BeginShapeMode.POINTS;
         protected void endShape(EndShapeMode mode = EndShapeMode.OPEN) => Graphics.endShape(mode);
         protected void vertex(float x, float y) => Graphics.vertex(x, y);
 
@@ -127,13 +131,18 @@ namespace MetaArt {
         protected static float pow(float n, float e) => (float)Math.Pow(n, e);
         protected static float sin(float angle) => (float)Math.Sin(angle);
         protected static float cos(float angle) => (float)Math.Cos(angle);
-        protected static readonly float PI = (float)Math.PI;
-        protected static readonly float TWO_PI = PI * 2;
+        protected const float PI = (float)Math.PI;
+        protected const float TWO_PI = PI * 2;
+        protected const float HALF_PI = PI  / 2;
         protected static float lerp(float start, float stop, float amt) => start * (1 - amt) + stop * amt;
-    
+        protected static float map(float value, float start1, float stop1, float start2, float stop2) => lerp(start2, stop2, (value - start1) / (stop1 - start1));
+        protected static float norm(float value, float start, float stop) => lerp(0, 1, (value - start) / (stop - start));
+
+        const float degreesToRadians = PI / 180;
+        protected static float radians(float degrees) => degreesToRadians * degrees;
+
         Random rnd = new();
         protected float random(float low, float high) => lerp(low, high, (float)rnd.NextDouble());
-
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {
@@ -142,6 +151,7 @@ namespace MetaArt {
         CENTER,
         RADIUS
     }
+    public enum BeginShapeMode { LINES, POINTS }
     public enum EndShapeMode { OPEN, CLOSE }
     public enum StrokeCap { PROJECT, ROUND, SQUARE }
 }
