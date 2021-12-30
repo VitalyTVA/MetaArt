@@ -197,5 +197,10 @@ namespace MetaArt.Skia {
                 points.Clear();
             }
         }
+
+        public override void noSmooth() {
+            fillPaint.IsAntialias = false;
+            strokePaint.IsAntialias = false;
+        }
     }
 }

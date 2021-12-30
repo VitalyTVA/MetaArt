@@ -36,6 +36,7 @@ namespace MetaArt {
         protected internal float pmouseX;
         protected internal float pmouseY;
         protected internal char key { get; internal set; }
+        protected internal bool isMousePressed { get; internal set; }
 
         protected static Color Black => new Color(0, 0, 0);
         protected static Color White => new Color(255, 255, 255);
@@ -45,6 +46,7 @@ namespace MetaArt {
             Painter.SetSize(width, height);
         }
         protected void noLoop() => Painter.NoLoop = true;
+        protected void noSmooth() => Graphics.noSmooth();
 
         protected void background(float v1, float v2, float v3, float a) {
             background(this.color(v1, v2, v3, a));

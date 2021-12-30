@@ -6,48 +6,9 @@ using System.Linq;
 
 namespace MetaArt.Skia {
     public sealed class Painter : PainterBase {
-        Queue<Action> preRenderQueue = new();
         Queue<Action<SKSurface>> afterRenderQueue = new();
 
 
-        public void OnKeyPress(char key) {
-            preRenderQueue.Enqueue(() => {
-                KeyPressedCore(key);
-            });
-            invalidate();
-        }
-
-        Point? pos;
-        bool pressed;
-        public void OnMouseDown(float x, float y) {
-            pressed = true;
-            preRenderQueue.Enqueue(() => {
-                MousePressedCore(x, y);
-            });
-            invalidate();
-        }
-        public void OnMouseUp(float x, float y) {
-            pressed = false;
-            preRenderQueue.Enqueue(() => {
-                MouseReleasedCore(x, y);
-            });
-            invalidate();
-        }
-        public void OnMouseOver(float x, float y) {
-            pos = new Point(x, y);
-            var pressedValue = pressed;
-            preRenderQueue.Enqueue(() => {
-                if(pressedValue)
-                    MouseDraggedCore(x, y);
-                else
-                    MouseMovedCore(x, y);
-            });
-            invalidate();
-        }
-        public void OnMouseLeave() {
-            pos = null;
-            invalidate();
-        }
         public void MakeSnapshot(Action<byte[]> saveData) {
             afterRenderQueue.Enqueue(surface => {
                 using(SKImage image = surface.Snapshot())
@@ -97,12 +58,10 @@ namespace MetaArt.Skia {
             }
         }
 
-        readonly Action invalidate;
         readonly Action<Size> setSize;
 
         public Painter(Type sketchType, Action invalidate, Action<Size> setSize) 
-            : base((SketchBase)Activator.CreateInstance(sketchType), new SkiaGraphics()) {
-            this.invalidate = invalidate;
+            : base((SketchBase)Activator.CreateInstance(sketchType), new SkiaGraphics(), invalidate) {
             this.setSize = setSize;
         }
 
