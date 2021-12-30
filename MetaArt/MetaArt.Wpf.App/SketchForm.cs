@@ -29,9 +29,14 @@ namespace MetaArt.Wpf {
             skglControl1.MouseMove += SkglControl1_MouseMove;
             skglControl1.MouseLeave += SkglControl1_MouseLeave;
             skglControl1.KeyDown += SkglControl1_KeyDown;
+            skglControl1.KeyPress += SkglControl1_KeyPress;
             //skglControl1.Visible = false;
             Width = Screen.PrimaryScreen.WorkingArea.Width;
             Height = Screen.PrimaryScreen.WorkingArea.Height;
+        }
+
+        private void SkglControl1_KeyPress(object? sender, KeyPressEventArgs e) {
+            painter.OnKeyPress(e.KeyChar);
         }
 
         private void SkglControl1_MouseLeave(object? sender, EventArgs e) {
@@ -49,7 +54,7 @@ namespace MetaArt.Wpf {
         }
 
         private void SkglControl1_KeyDown(object? sender, KeyEventArgs e) {
-            if(e.KeyCode == Keys.S) {
+            if(e.KeyCode == Keys.S && e.Modifiers == Keys.Control) {
                 painter.MakeSnapshot(data => File.WriteAllBytes("c:\\temp\\1.png", data));
             }
         }

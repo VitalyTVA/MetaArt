@@ -9,17 +9,25 @@ namespace MetaArt.Skia {
         Queue<Action> preRenderQueue = new();
         Queue<Action<SKSurface>> afterRenderQueue = new();
 
+
+        public void OnKeyPress(char key) {
+            preRenderQueue.Enqueue(() => {
+                KeyPressedCore(key);
+            });
+            invalidate();
+        }
+
         Point? pos;
         public void OnMouseDown(float x, float y) {
             preRenderQueue.Enqueue(() => {
-                MousePressed(new Point(x, y));
+                MousePressedCore(x, y);
             });
             invalidate();
         }
         public void OnMouseOver(float x, float y) {
             pos = new Point(x, y);
             preRenderQueue.Enqueue(() => {
-                MouseMoved(new Point(x, y));
+                MouseMovedCore(x, y);
             });
             invalidate();
         }
@@ -87,14 +95,6 @@ namespace MetaArt.Skia {
 
         void ClearSurface() {
             sKSurface = null;
-        }
-        void MousePressed(Point mouse) {
-            MousePressedCore((float)mouse.X, (float)mouse.Y);
-            //ClearSurface();
-        }
-        void MouseMoved(Point mouse) {
-            MouseMovedCore((float)mouse.X, (float)mouse.Y);
-            //ClearSurface();
         }
         void Setup() {
             SetupCore();

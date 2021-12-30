@@ -1,6 +1,8 @@
 ﻿@page "/"
+
 @using System.Reflection
 @inject HttpClient Http
+@inject IJSRuntime JS
 <style>
 div.scrollable {
   height: 1000px;
@@ -41,7 +43,7 @@ div.scrollable {
     <div style="margin-left: 420px;">
         <div class="container">
             <div class="row">
-                <div class="col border rounded p-2 canvas-container">
+                <div class="col border rounded p-2 canvas-container" tabindex="0" onkeypress="@OnKeyPress" @ref="@viewContaner">
                     <SKGLView @ref=view OnPaintSurface="OnPaintSurface" IgnorePixelScaling="true" EnableRenderLoop="true"
                               style="@viewStyle" onmousedown="@OnMouseDown" onmousemove="@OnMouseMove" onmouseout="@OnMouseOut" />
                 </div>
@@ -52,6 +54,7 @@ div.scrollable {
 
 @code {
     SKGLView view = null!;
+    ElementReference viewContaner;
     IGrouping<string, SketchDisplayInfo>[] groups = null!;
     IGrouping<string, SketchDisplayInfo> selectedGroup = null!;
     SketchDisplayInfo selectedSkecth = null!;
@@ -66,6 +69,8 @@ div.scrollable {
     Painter painter = null!;
     string viewStyle = "height:1080px; width:1920px;";
     void Run(SketchDisplayInfo info) {
+        JS.InvokeVoidAsync("SetFocusToElement", viewContaner);
+
         painter?.Dispose();
         selectedSkecth = info;
         first = true;
@@ -86,6 +91,8 @@ div.scrollable {
     void OnMouseMove(MouseEventArgs e) => painter.OnMouseOver((float)e.OffsetX, (float)e.OffsetY);
 
     void OnMouseOut(MouseEventArgs e) => painter.OnMouseLeave();
+
+    void OnKeyPress(KeyboardEventArgs e) => painter.OnKeyPress(e.Key[0]);
 
     bool first = true;
     void OnPaintSurface(SKPaintGLSurfaceEventArgs e) {

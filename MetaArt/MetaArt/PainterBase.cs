@@ -28,6 +28,7 @@ namespace MetaArt {
         MethodInfo? settingsMethod;
         MethodInfo? mousePressedMethod;
         MethodInfo? mouseMovedMethod;
+        MethodInfo? keyPressedMethod;
 
         protected PainterBase(SketchBase sketch, Graphics graphics) {
             this.sketch = sketch;
@@ -36,7 +37,8 @@ namespace MetaArt {
             setupwMethod = sketch.GetType().GetMethod("setup", BindingFlags.Instance | BindingFlags.NonPublic);
             settingsMethod = sketch.GetType().GetMethod("settings", BindingFlags.Instance | BindingFlags.NonPublic);
             mousePressedMethod = sketch.GetType().GetMethod("mousePressed", BindingFlags.Instance | BindingFlags.NonPublic);
-            mouseMovedMethod = sketch.GetType().GetMethod("mouseMoved", BindingFlags.Instance | BindingFlags.NonPublic); 
+            mouseMovedMethod = sketch.GetType().GetMethod("mouseMoved", BindingFlags.Instance | BindingFlags.NonPublic);
+            keyPressedMethod = sketch.GetType().GetMethod("keyPressed", BindingFlags.Instance | BindingFlags.NonPublic);
             sketch.Painter = this;
 
             SettingsCore();
@@ -44,17 +46,24 @@ namespace MetaArt {
         Stopwatch stopwatch = new();
         private bool disposedValue;
 
+        protected void MouseMovedCore(float mouseX, float mouseY) {
+            if(mouseMovedMethod == null)
+                return;
+            SetMouse(mouseX, mouseY);
+            mouseMovedMethod.Invoke(sketch, null);
+        }
+
         protected void MousePressedCore(float mouseX, float mouseY) {
             if(mousePressedMethod == null)
                 return;
             SetMouse(mouseX, mouseY);
             mousePressedMethod.Invoke(sketch, null);
         }
-        protected void MouseMovedCore(float mouseX, float mouseY) {
-            if(mouseMovedMethod == null)
+        protected void KeyPressedCore(char key) {
+            if(keyPressedMethod == null)
                 return;
-            SetMouse(mouseX, mouseY);
-            mouseMovedMethod.Invoke(sketch, null);
+            sketch.key = key;
+            keyPressedMethod.Invoke(sketch, null);
         }
 
         private void SetMouse(float? mouseX, float? mouseY) {

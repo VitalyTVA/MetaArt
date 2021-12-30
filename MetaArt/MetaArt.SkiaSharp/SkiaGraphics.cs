@@ -80,6 +80,7 @@ namespace MetaArt.Skia {
             var rect = _rectMode switch {
                 RectMode.CENTER => new SKRect(a - c / 2, b - d / 2, a + c / 2, b + d / 2),
                 RectMode.CORNERS => new SKRect(a, b, c, d),
+                RectMode.CORNER => new SKRect(a, b, a + c, b + d),
                 _ => throw new InvalidOperationException()
             };
             if(!_noFill)

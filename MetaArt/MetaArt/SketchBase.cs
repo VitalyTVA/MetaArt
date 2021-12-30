@@ -35,6 +35,7 @@ namespace MetaArt {
         protected internal float mouseY;
         protected internal float pmouseX;
         protected internal float pmouseY;
+        protected internal char key { get; internal set; }
 
         protected static Color Black => new Color(0, 0, 0);
         protected static Color White => new Color(255, 255, 255);
