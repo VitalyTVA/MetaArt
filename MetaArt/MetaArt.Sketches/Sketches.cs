@@ -37,6 +37,7 @@ public class Sketches : ISkecthesProvider {
             Name = "Input",
             Sketches = new[] {
                 new SkecthInfo(typeof(Clock)),
+                new SkecthInfo(typeof(Constrain)),
                 new SkecthInfo(typeof(StoringInput)),
             }
         },

@@ -77,6 +77,7 @@ namespace MetaArt.Skia {
         public override void rect(float a, float b, float c, float d) {
             var rect = _rectMode switch {
                 RectMode.CENTER => new SKRect(a - c / 2, b - d / 2, a + c / 2, b + d / 2),
+                RectMode.CORNERS => new SKRect(a, b, c, d),
                 _ => throw new InvalidOperationException()
             };
             if(!_noFill)
@@ -93,9 +94,12 @@ namespace MetaArt.Skia {
                 Canvas.DrawCircle(point, extent / 2, strokePaint);
         }
 
-        public override void ellipse(float x, float y, float width, float height) {
-            var point = new SKPoint(x, y);
-            var size = new SKSize(width / 2, height / 2);
+        public override void ellipse(float a, float b, float c, float d) {
+            var (point, size) = _ellipseMode switch {
+                RectMode.RADIUS => (new SKPoint(a, b), new SKSize(c, d)),
+                RectMode.CENTER => (new SKPoint(a, b), new SKSize(c / 2, d / 2)),
+                _ => throw new InvalidOperationException()
+            };
             if(!_noFill)
                 Canvas.DrawOval(point, size, fillPaint);
             if(!_noStroke)
@@ -128,6 +132,11 @@ namespace MetaArt.Skia {
         RectMode _rectMode = RectMode.CORNER;
         public override void rectMode(RectMode mode) {
             _rectMode = mode;
+        }
+
+        RectMode _ellipseMode = RectMode.CENTER;
+        public override void ellipseMode(RectMode mode) {
+            _ellipseMode = mode;
         }
 
 

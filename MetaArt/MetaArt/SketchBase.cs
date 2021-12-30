@@ -52,9 +52,6 @@ namespace MetaArt {
         protected void background(byte color) {
             background(new Color(color, color, color));
         }
-        protected float min(float value1, float value2) => Math.Min(value1, value2);
-        protected float max(float value1, float value2) => Math.Max(value1, value2);
-
 
         protected static StrokeJoin ROUND => StrokeJoin.Round;
         protected static StrokeJoin MITER => StrokeJoin.Miter;
@@ -105,6 +102,7 @@ namespace MetaArt {
         protected static RectMode CENTER = RectMode.CENTER;
 
         protected void rectMode(RectMode mode) => Graphics.rectMode(mode);
+        protected void ellipseMode(RectMode mode) => Graphics.ellipseMode(mode);
 
         protected void line(float x0, float y0, float x1, float y1) => Graphics.line(x0, y0, x1, y1);
 
@@ -137,12 +135,17 @@ namespace MetaArt {
         protected static float lerp(float start, float stop, float amt) => start * (1 - amt) + stop * amt;
         protected static float map(float value, float start1, float stop1, float start2, float stop2) => lerp(start2, stop2, (value - start1) / (stop1 - start1));
         protected static float norm(float value, float start, float stop) => lerp(0, 1, (value - start) / (stop - start));
+        protected static float constrain(float amt, float low, float high) => min(max(amt, low), high);
 
         const float degreesToRadians = PI / 180;
         protected static float radians(float degrees) => degreesToRadians * degrees;
 
         Random rnd = new();
         protected float random(float low, float high) => lerp(low, high, (float)rnd.NextDouble());
+
+        protected static float min(float value1, float value2) => Math.Min(value1, value2);
+        protected static float max(float value1, float value2) => Math.Max(value1, value2);
+        protected static float abs(float n) => Math.Abs(n);
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {

@@ -1,12 +1,11 @@
-﻿/**
- * Clock. 
- * 
- * The current time can be read with the second(), minute(), 
- * and hour() functions. In this example, sin() and cos() values
- * are used to set the position of the hands.
- */
-
-class Clock : SketchBase {
+﻿class Clock : SketchBase {
+    /**
+     * Clock. 
+     * 
+     * The current time can be read with the second(), minute(), 
+     * and hour() functions. In this example, sin() and cos() values
+     * are used to set the position of the hands.
+     */
     float cx, cy;
     float secondsRadius;
     float minutesRadius;
