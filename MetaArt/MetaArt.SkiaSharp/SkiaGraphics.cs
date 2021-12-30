@@ -25,7 +25,9 @@ namespace MetaArt.Skia {
         SKPaint fillPaint = new SKPaint() { 
             Style = SKPaintStyle.Fill, 
             IsAntialias = true, 
-            TextSize = 12 };
+            TextSize = 12,
+            Color = SKColors.White,
+        };
         bool _noFill = false;
 
         public override void fill(Color color) {

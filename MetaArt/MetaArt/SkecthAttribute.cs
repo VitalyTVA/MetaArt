@@ -18,7 +18,7 @@ namespace MetaArt {
     public class SketchGroup {
         public static SketchGroup FromNamespace(string @namespace, Assembly assembly) { 
             var sketches = assembly.GetTypes()
-                .Where(x => x.Name == @namespace)
+                .Where(x => x.Namespace == @namespace)
                 .Select(x => new SkecthInfo(x))
                 .OrderBy(x => x.Name)
                 .ToArray();
