@@ -152,21 +152,33 @@ namespace MetaArt {
         protected static float abs(float n) => Math.Abs(n);
 
         ColorMode _colorMode = RGB;
-        float maxColorValue = 255;
+        float maxColorValue1 = 255;
+        float maxColorValue2 = 255;
+        float maxColorValue3 = 255;
+        float maxColorValueA = 255;
         protected static readonly ColorMode RGB = ColorMode.RGB;
         protected static readonly ColorMode HSB = ColorMode.HSB;
         protected void colorMode(ColorMode mode, float max) {
             _colorMode = mode;
-            maxColorValue = max;
+            maxColorValue1 = max;
+            maxColorValue2 = max;
+            maxColorValue3 = max;
+            maxColorValueA = max;
+        }
+        protected void colorMode(ColorMode mode, float max1, float max2, float max3) {
+            _colorMode = mode;
+            maxColorValue1 = max1;
+            maxColorValue2 = max2;
+            maxColorValue3 = max3;
         }
         protected Color color(float v1, float v2, float v3, float? a = null) {
-            a = a ?? maxColorValue;
+            a = a ?? maxColorValueA;
             return _colorMode switch {
                 ColorMode.RGB => new Color(
-                    (byte)map(v1, 0, maxColorValue, 0, 255),
-                    (byte)map(v2, 0, maxColorValue, 0, 255),
-                    (byte)map(v3, 0, maxColorValue, 0, 255),
-                    (byte)map(a.Value, 0, maxColorValue, 0, 255)
+                    (byte)map(v1, 0, maxColorValue1, 0, 255),
+                    (byte)map(v2, 0, maxColorValue2, 0, 255),
+                    (byte)map(v3, 0, maxColorValue3, 0, 255),
+                    (byte)map(a.Value, 0, maxColorValueA, 0, 255)
                 ),
                 ColorMode.HSB => FromHsv(v1, v2, v3, a.Value),
                 _ => throw new NotImplementedException(),
@@ -175,19 +187,19 @@ namespace MetaArt {
         protected Color color(float v) {
             return _colorMode switch {
                 ColorMode.RGB => new Color(
-                    (byte)map(v, 0, maxColorValue, 0, 255),
-                    (byte)map(v, 0, maxColorValue, 0, 255),
-                    (byte)map(v, 0, maxColorValue, 0, 255)
+                    (byte)map(v, 0, maxColorValue1, 0, 255),
+                    (byte)map(v, 0, maxColorValue2, 0, 255),
+                    (byte)map(v, 0, maxColorValue3, 0, 255)
                 ),
-                ColorMode.HSB => FromHsv(0, 0, v, maxColorValue),
+                ColorMode.HSB => FromHsv(0, 0, v, maxColorValueA),
                 _ => throw new NotImplementedException(),
             };
         }
         Color FromHsv(float h, float s, float v, float a) {
-            h /= maxColorValue;
-            s /= maxColorValue;
-            v /= maxColorValue;
-            a /= maxColorValue;
+            h /= maxColorValue1;
+            s /= maxColorValue2;
+            v /= maxColorValue3;
+            a /= maxColorValueA;
             float red = v;
             float green = v;
             float blue = v;
