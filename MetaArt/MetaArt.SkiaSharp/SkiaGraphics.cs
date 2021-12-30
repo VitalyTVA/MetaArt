@@ -72,6 +72,9 @@ namespace MetaArt.Skia {
             strokePaint.BlendMode = blendMode.ToSK();
         }
 
+        public override void point(float x, float y) {
+            Canvas.DrawPoint(x, y, strokePaint);//TODO default point size
+        }
         public override void line(float x0, float y0, float x1, float y1) {
             Canvas.DrawLine(x0, y0, x1, y1, strokePaint);
         }

@@ -13,6 +13,7 @@ namespace MetaArt.Internal {
         public abstract void strokeCap(StrokeCap cap);
         public abstract void noStroke();
         public abstract void blendMode(BlendMode blendMode);
+        public abstract void point(float x, float y);
         public abstract void line(float x0, float y0, float x1, float y1);
         public abstract void rect(float a, float b, float c, float d);
         public abstract void circle(float x, float y, float extent);

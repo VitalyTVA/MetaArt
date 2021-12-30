@@ -28,8 +28,8 @@ namespace MetaArt {
         Graphics Graphics => Painter.Graphics;
 
 
-        protected float width => Painter.Width;
-        protected float height => Painter.Height;
+        protected int width => Painter.Width;
+        protected int height => Painter.Height;
 
         protected internal float mouseX;
         protected internal float mouseY;
@@ -112,6 +112,8 @@ namespace MetaArt {
 
         protected void rectMode(RectMode mode) => Graphics.rectMode(mode);
         protected void ellipseMode(RectMode mode) => Graphics.ellipseMode(mode);
+
+        protected void point(float x, float y) => Graphics.point(x, y);
 
         protected void line(float x0, float y0, float x1, float y1) => Graphics.line(x0, y0, x1, y1);
 

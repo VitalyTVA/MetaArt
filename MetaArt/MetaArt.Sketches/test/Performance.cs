@@ -28,10 +28,10 @@ class Performance : SketchBase {
             );
             strokeWeight(rand.Next(1, 10));
             line(
-                x0: rand.Next((int)width),
-                y0: rand.Next((int)height),
-                x1: rand.Next((int)width),
-                y1: rand.Next((int)height)
+                x0: rand.Next(width),
+                y0: rand.Next(height),
+                x1: rand.Next(width),
+                y1: rand.Next(height)
             );
         }
 

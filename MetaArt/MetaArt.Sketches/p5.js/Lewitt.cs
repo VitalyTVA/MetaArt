@@ -60,13 +60,13 @@ class Lewitt : SketchBase {
         // Which corners to use for arcs
         (float, float)[] corners = new[] {
             // Top left
-            (0, 0),
+            (0f, 0f),
             // Bottom right
             (width, height),
             // Top right
-            (width, 0),
+            (width, 0f),
             // Bottom left
-            (0, height),
+            (0f, height),
             // Can also emit arcs from center
             // This is not in Sol LeWitt's instructions,
             // but it does appear on the final wall drawing
