@@ -1,3 +1,5 @@
+using System.Reflection;
+
 public class Sketches : ISkecthesProvider {
     ICollection<SketchGroup> ISkecthesProvider.Groups => new[] {
         new SketchGroup {
@@ -33,13 +35,6 @@ public class Sketches : ISkecthesProvider {
                 new SkecthInfo(typeof(SetBackgroundInSetup)),
             }
         },
-        new SketchGroup {
-            Name = "Input",
-            Sketches = new[] {
-                new SkecthInfo(typeof(Clock)),
-                new SkecthInfo(typeof(Constrain)),
-                new SkecthInfo(typeof(StoringInput)),
-            }
-        },
+        SketchGroup.FromNamespace("Input", Assembly.GetExecutingAssembly()),
     };
 }

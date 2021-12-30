@@ -1,4 +1,5 @@
-﻿class StoringInput : SketchBase {
+﻿namespace Input;
+class StoringInput : SketchBase {
     /**
      * Storing Input. 
      * 

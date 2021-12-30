@@ -8,6 +8,7 @@ class Performance : SketchBase {
     void setup() {
         size(600, 600);
         background(Black);
+        strokeCap(StrokeCap.SQUARE);
         //background(150);
     }
 
