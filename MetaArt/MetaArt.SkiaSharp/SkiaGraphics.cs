@@ -41,7 +41,7 @@ namespace MetaArt.Skia {
 
         SKPaint strokePaint = new SKPaint() {
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 4,
+            StrokeWidth = 2,
             IsAntialias = true,
             StrokeCap = SKStrokeCap.Round,
             //Color = SKColors.White 
@@ -81,6 +81,7 @@ namespace MetaArt.Skia {
                 RectMode.CENTER => new SKRect(a - c / 2, b - d / 2, a + c / 2, b + d / 2),
                 RectMode.CORNERS => new SKRect(a, b, c, d),
                 RectMode.CORNER => new SKRect(a, b, a + c, b + d),
+                RectMode.RADIUS => new SKRect(a - c, b - d, a + c, b + d),
                 _ => throw new InvalidOperationException()
             };
             if(!_noFill)

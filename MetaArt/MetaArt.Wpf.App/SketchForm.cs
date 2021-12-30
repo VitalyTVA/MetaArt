@@ -22,7 +22,6 @@ namespace MetaArt.Wpf {
             ShowInTaskbar = false;
             FormBorderStyle = FormBorderStyle.None;
             this.ownerLocation = ownerLocation;
-            skglControl1.MouseDown += SkglControl1_MouseDown;
             painter = new Painter(sketchType!, skglControl1.Invalidate, _ => {
                 SetLocation(ownerLocation);
             });
@@ -30,6 +29,8 @@ namespace MetaArt.Wpf {
             skglControl1.MouseLeave += SkglControl1_MouseLeave;
             skglControl1.KeyDown += SkglControl1_KeyDown;
             skglControl1.KeyPress += SkglControl1_KeyPress;
+            skglControl1.MouseDown += SkglControl1_MouseDown;
+            skglControl1.MouseUp += SkglControl1_MouseUp;
             //skglControl1.Visible = false;
             Width = Screen.PrimaryScreen.WorkingArea.Width;
             Height = Screen.PrimaryScreen.WorkingArea.Height;
@@ -51,6 +52,10 @@ namespace MetaArt.Wpf {
         private void SkglControl1_MouseDown(object? sender, MouseEventArgs e) {
             var mouse = skglControl1.PointToClient(MousePosition);
             painter.OnMouseDown(mouse.X, mouse.Y);
+        }
+        private void SkglControl1_MouseUp(object? sender, MouseEventArgs e) {
+            var mouse = skglControl1.PointToClient(MousePosition);
+            painter.OnMouseUp(mouse.X, mouse.Y);
         }
 
         private void SkglControl1_KeyDown(object? sender, KeyEventArgs e) {

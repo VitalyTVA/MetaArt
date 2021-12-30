@@ -18,16 +18,29 @@ namespace MetaArt.Skia {
         }
 
         Point? pos;
+        bool pressed;
         public void OnMouseDown(float x, float y) {
+            pressed = true;
             preRenderQueue.Enqueue(() => {
                 MousePressedCore(x, y);
             });
             invalidate();
         }
+        public void OnMouseUp(float x, float y) {
+            pressed = false;
+            preRenderQueue.Enqueue(() => {
+                MouseReleasedCore(x, y);
+            });
+            invalidate();
+        }
         public void OnMouseOver(float x, float y) {
             pos = new Point(x, y);
+            var pressedValue = pressed;
             preRenderQueue.Enqueue(() => {
-                MouseMovedCore(x, y);
+                if(pressedValue)
+                    MouseDraggedCore(x, y);
+                else
+                    MouseMovedCore(x, y);
             });
             invalidate();
         }

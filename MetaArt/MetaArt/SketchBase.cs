@@ -69,6 +69,9 @@ namespace MetaArt {
         protected void fill(float gray, float alpha) {
             fill(color(gray, gray, gray, alpha));
         }
+        protected void fill(float v1, float v2, float v3) {
+            fill(color(v1, v2, v3));
+        }
         protected void fill(float gray) {
             fill(color(gray));
         }

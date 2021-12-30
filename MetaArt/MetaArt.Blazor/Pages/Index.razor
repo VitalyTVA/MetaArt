@@ -45,7 +45,7 @@ div.scrollable {
             <div class="row">
                 <div class="col border rounded p-2 canvas-container" tabindex="0" onkeypress="@OnKeyPress" @ref="@viewContaner">
                     <SKGLView @ref=view OnPaintSurface="OnPaintSurface" IgnorePixelScaling="true" EnableRenderLoop="true"
-                              style="@viewStyle" onmousedown="@OnMouseDown" onmousemove="@OnMouseMove" onmouseout="@OnMouseOut" />
+                              style="@viewStyle" onmousedown="@OnMouseDown" onmouseup="@OnMouseUp" onmousemove="@OnMouseMove" onmouseout="@OnMouseOut" />
                 </div>
             </div>
         </div>
@@ -87,6 +87,7 @@ div.scrollable {
     }
 
     void OnMouseDown(MouseEventArgs e) => painter.OnMouseDown((float)e.OffsetX, (float)e.OffsetY);
+    void OnMouseUp(MouseEventArgs e) => painter.OnMouseUp((float)e.OffsetX, (float)e.OffsetY);
 
     void OnMouseMove(MouseEventArgs e) => painter.OnMouseOver((float)e.OffsetX, (float)e.OffsetY);
 

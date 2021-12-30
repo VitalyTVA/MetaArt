@@ -27,6 +27,8 @@ namespace MetaArt {
         MethodInfo? setupwMethod;
         MethodInfo? settingsMethod;
         MethodInfo? mousePressedMethod;
+        MethodInfo? mouseReleasedMethod;
+        MethodInfo? mouseDraggedMethod;
         MethodInfo? mouseMovedMethod;
         MethodInfo? keyPressedMethod;
 
@@ -37,6 +39,8 @@ namespace MetaArt {
             setupwMethod = sketch.GetType().GetMethod("setup", BindingFlags.Instance | BindingFlags.NonPublic);
             settingsMethod = sketch.GetType().GetMethod("settings", BindingFlags.Instance | BindingFlags.NonPublic);
             mousePressedMethod = sketch.GetType().GetMethod("mousePressed", BindingFlags.Instance | BindingFlags.NonPublic);
+            mouseReleasedMethod = sketch.GetType().GetMethod("mouseReleased", BindingFlags.Instance | BindingFlags.NonPublic);
+            mouseDraggedMethod = sketch.GetType().GetMethod("mouseDragged", BindingFlags.Instance | BindingFlags.NonPublic);
             mouseMovedMethod = sketch.GetType().GetMethod("mouseMoved", BindingFlags.Instance | BindingFlags.NonPublic);
             keyPressedMethod = sketch.GetType().GetMethod("keyPressed", BindingFlags.Instance | BindingFlags.NonPublic);
             sketch.Painter = this;
@@ -52,12 +56,24 @@ namespace MetaArt {
             SetMouse(mouseX, mouseY);
             mouseMovedMethod.Invoke(sketch, null);
         }
+        protected void MouseDraggedCore(float mouseX, float mouseY) {
+            if(mouseDraggedMethod == null)
+                return;
+            SetMouse(mouseX, mouseY);
+            mouseDraggedMethod.Invoke(sketch, null);
+        }
 
         protected void MousePressedCore(float mouseX, float mouseY) {
             if(mousePressedMethod == null)
                 return;
             SetMouse(mouseX, mouseY);
             mousePressedMethod.Invoke(sketch, null);
+        }
+        protected void MouseReleasedCore(float mouseX, float mouseY) {
+            if(mouseReleasedMethod == null)
+                return;
+            SetMouse(mouseX, mouseY);
+            mouseReleasedMethod.Invoke(sketch, null);
         }
         protected void KeyPressedCore(char key) {
             if(keyPressedMethod == null)
