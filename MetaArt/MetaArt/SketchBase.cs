@@ -46,13 +46,11 @@ namespace MetaArt {
         }
         protected void noLoop() => Painter.NoLoop = true;
 
-        protected void background(byte v1, byte v2, byte v3, byte a) {
-            if(_colorMode != ColorMode.RGB)
-                throw new InvalidOperationException();
-            background(new Color(v1, v2, v3, a)); //TODO _colorMode
+        protected void background(float v1, float v2, float v3, float a) {
+            background(this.color(v1, v2, v3, a));
         }
         protected void background(Color color) => Graphics.background(color);
-        protected void background(byte color) {
+        protected void background(float color) {
             background(this.color(color));
         }
 
@@ -60,20 +58,18 @@ namespace MetaArt {
         protected static StrokeJoin MITER => StrokeJoin.Miter;
         protected static StrokeJoin BEVEL => StrokeJoin.Bevel;
         protected void noStroke() => Graphics.noStroke();
-        protected void stroke(byte color) {
-            if(_colorMode != ColorMode.RGB)
-                throw new InvalidOperationException();
-            stroke(new Color(color, color, color)); //TODO _colorMode
+        protected void stroke(float color) {
+            stroke(this.color(color, color, color));
         }
         protected void stroke(Color color) => Graphics.stroke(color);
         protected void strokeWeight(float weight) => Graphics.strokeWeight(weight);
         protected void strokeJoin(StrokeJoin join) => Graphics.strokeJoin(join);
         protected void strokeCap(StrokeCap cap) => Graphics.strokeCap(cap);
 
-        protected void fill(byte gray, byte alpha) {
+        protected void fill(float gray, float alpha) {
             fill(color(gray, gray, gray, alpha));
         }
-        protected void fill(byte gray) {
+        protected void fill(float gray) {
             fill(color(gray));
         }
         protected void fill(Color color) {
@@ -164,13 +160,15 @@ namespace MetaArt {
             maxColorValue = max;
         }
         protected Color color(float v1, float v2, float v3, float? a = null) {
+            a = a ?? maxColorValue;
             return _colorMode switch {
                 ColorMode.RGB => new Color(
                     (byte)map(v1, 0, maxColorValue, 0, 255),
                     (byte)map(v2, 0, maxColorValue, 0, 255),
-                    (byte)map(v3, 0, maxColorValue, 0, 255)
+                    (byte)map(v3, 0, maxColorValue, 0, 255),
+                    (byte)map(a.Value, 0, maxColorValue, 0, 255)
                 ),
-                ColorMode.HSB => FromHsv(v1, v2, v3, a ?? maxColorValue),
+                ColorMode.HSB => FromHsv(v1, v2, v3, a.Value),
                 _ => throw new NotImplementedException(),
             };
         }
