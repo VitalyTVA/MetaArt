@@ -18,7 +18,6 @@ namespace MetaArt {
         public int Height { get => height; }
         public int Millis() => (int)stopwatch.ElapsedMilliseconds;
 
-
         public readonly SketchBase sketch;
 
         public bool NoLoop { get; set; }
@@ -134,13 +133,14 @@ namespace MetaArt {
 
         int lastDrawTime = 0;
         public int DeltaTime { get; private set; }
+        public int FrameCount { get; private set; }
         protected void DrawCore(float? mouseX, float? mouseY) {
             var currentTime = (int)stopwatch.ElapsedMilliseconds;
             DeltaTime = currentTime - lastDrawTime;
             lastDrawTime = currentTime;
             SetMouse(mouseX, mouseY);
             drawMethod?.Invoke(sketch, null);
-            sketch.frameCount++;
+            FrameCount++;
         }
         void SettingsCore() {
             settingsMethod?.Invoke(sketch, null);

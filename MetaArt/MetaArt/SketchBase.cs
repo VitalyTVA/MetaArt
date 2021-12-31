@@ -20,7 +20,7 @@ namespace MetaArt {
         //public static class Sketch {
         protected internal int deltaTime => Painter.DeltaTime; //TODO should only be accessible from draw, not from mouse events
         protected int millis() => Painter.Millis();
-        protected internal int frameCount { get; internal set; }
+        protected int frameCount => Painter.FrameCount;
         protected int second() => DateTime.Now.Second;
         protected int minute() => DateTime.Now.Minute;
         protected int hour() => DateTime.Now.Hour;
