@@ -14,10 +14,12 @@ namespace MetaArt {
         Difference,
     }
 
-    public class SketchBase {
-        internal int currentTime;
-        protected internal int deltaTime { get; internal set; } //TODO should only be accessible from draw, not from mouse events
-        protected int millis() => (int)currentTime; //TODO => stopwatch.ElapsedMillisecond
+    public abstract class SketchBase {
+        //}
+
+        //public static class Sketch {
+        protected internal int deltaTime => Painter.DeltaTime; //TODO should only be accessible from draw, not from mouse events
+        protected int millis() => Painter.Millis();
         protected internal int frameCount { get; internal set; }
         protected int second() => DateTime.Now.Second;
         protected int minute() => DateTime.Now.Minute;
