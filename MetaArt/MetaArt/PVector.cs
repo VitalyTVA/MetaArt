@@ -75,5 +75,29 @@ namespace MetaArt {
 			x = this.x;
 			y = this.y;
 		}
-	}
+
+        public static PVector sub(PVector b, PVector a) {
+            return new PVector(b.x - a.x, b.y - a.y);
+        }
+
+        public void div(int v) {
+            x /= v;
+			y /= v;
+        }
+
+        public void add(PVector v) {
+			x += v.x;
+			y += v.y;
+        }
+
+        public void rotate(float rad) {
+			float sin = (float)Math.Sin(rad);
+			float cos = (float)Math.Cos(rad);
+
+			float tx = x;
+			float ty = y;
+			x = (cos * tx) - (sin * ty);
+			y = (sin * tx) + (cos * ty);
+		}
+    }
 }

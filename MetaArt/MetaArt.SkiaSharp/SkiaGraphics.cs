@@ -47,7 +47,7 @@ namespace MetaArt.Skia {
 
         SKPaint strokePaint = new SKPaint() {
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 2,
+            StrokeWidth = 1,
             IsAntialias = true,
             StrokeCap = SKStrokeCap.Round,
             //Color = SKColors.White 

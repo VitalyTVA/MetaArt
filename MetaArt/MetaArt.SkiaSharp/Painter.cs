@@ -23,11 +23,16 @@ namespace MetaArt.Skia {
         SKImage? draw;
         bool drawn = false;
 
+        DateTime? lastFrame;
         public void PaintSurface(SKSurface surface) {
             if(draw != null) {
                 surface.Canvas.DrawImage(draw, 0, 0);
                 if((NoLoop && drawn) || !HasDraw)
                     return;
+            }
+            if(frameDistance != null && lastFrame != null && (DateTime.Now - lastFrame) < frameDistance) {
+                invalidate();
+                return;
             }
             SKSurface = surface;
             if(!setUp) {
@@ -47,6 +52,7 @@ namespace MetaArt.Skia {
                 if(!NoLoop)
                     invalidate();
             }
+            lastFrame = DateTime.Now;
         }
 
         SKSurface? sKSurface;

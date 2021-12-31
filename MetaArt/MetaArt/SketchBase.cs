@@ -63,6 +63,9 @@ namespace MetaArt {
         protected void stroke(float color) {
             stroke(this.color(color, color, color));
         }
+        protected void stroke(float v1, float v2, float v3) {
+            stroke(color(v1, v2, v3));
+        }
         protected void stroke(Color color) => Graphics.stroke(color);
         protected void strokeWeight(float weight) => Graphics.strokeWeight(weight);
         protected void strokeJoin(StrokeJoin join) => Graphics.strokeJoin(join);
@@ -267,6 +270,8 @@ namespace MetaArt {
             pixelsContainer!.UpdatePixelsAndDispose();
             pixelsContainer = null;
         }
+
+        protected void frameRate(float fps) => Painter.SetFPS(fps);
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {
