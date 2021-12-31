@@ -36,5 +36,6 @@ public class Sketches : ISkecthesProvider {
             }
         },
         SketchGroup.FromNamespace("Input", Assembly.GetExecutingAssembly()),
+        SketchGroup.FromNamespace("Fractals", Assembly.GetExecutingAssembly()),
     };
 }

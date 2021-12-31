@@ -137,6 +137,7 @@ namespace MetaArt {
 
         protected static int floor(float d) => (int)Math.Floor(d);
         protected static float exp(float d) => (float)Math.Exp(d);
+        protected static float sqrt(float d) => (float)Math.Sqrt(d);
         protected static float pow(float n, float e) => (float)Math.Pow(n, e);
         protected static float sin(float angle) => (float)Math.Sin(angle);
         protected static float cos(float angle) => (float)Math.Cos(angle);
@@ -253,6 +254,18 @@ namespace MetaArt {
                 }
             }
             return new Color((byte)(255 * red), (byte)(255 * green), (byte)(255 * blue), (byte)(255 * a));
+        }
+
+        Pixels? pixelsContainer;
+        protected Color[] pixels => pixelsContainer!.PixelsArray;
+        protected void loadPixels() {
+            if(pixelsContainer != null)
+                throw new InvalidOperationException(); //TODO infomative exception
+            pixelsContainer = Graphics.loadPixels();
+        }
+        protected void updatePixels() {
+            pixelsContainer!.UpdatePixelsAndDispose();
+            pixelsContainer = null;
         }
     }
     //https://p5js.org/reference/#/p5/rectMode

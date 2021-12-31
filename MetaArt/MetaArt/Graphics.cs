@@ -35,5 +35,16 @@ namespace MetaArt.Internal {
         public abstract void vertex(float x, float y);
 
         public abstract void noSmooth();
+
+        public abstract Pixels loadPixels();
+    }
+
+    public abstract class Pixels {
+        public readonly Color[] PixelsArray;
+        public abstract void UpdatePixelsAndDispose();
+
+        protected Pixels(Color[] pixels) {
+            PixelsArray = pixels;
+        }
     }
 }

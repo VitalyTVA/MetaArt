@@ -1,6 +1,7 @@
 ﻿using MetaArt.Internal;
 using SkiaSharp;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 
 namespace MetaArt.Skia {
@@ -17,8 +18,15 @@ namespace MetaArt.Skia {
     }
 
     public sealed class SkiaGraphics : Graphics {
-        public SKCanvas Canvas => Surface.Canvas;
-        public SKSurface Surface { get; set; } = null!;
+        public SKCanvas Canvas { get; private set; } = null!;
+        SKSurface surface = null!;
+        public SKSurface Surface {
+            get => surface;
+            set {
+                surface = value;
+                Canvas = surface.Canvas;
+            }
+        }
 
         SKPaint fillPaint = new SKPaint() { 
             Style = SKPaintStyle.Fill, 
@@ -202,6 +210,45 @@ namespace MetaArt.Skia {
         public override void noSmooth() {
             fillPaint.IsAntialias = false;
             strokePaint.IsAntialias = false;
+        }
+
+        class SkiaPixels : Pixels {
+            readonly SKCanvas canvas;
+            readonly SKImage image;
+            readonly SKBitmap bitmap;
+            readonly SKColor[] skPixels;
+
+            public SkiaPixels(SKCanvas canvas, SKImage image, SKBitmap bitmap, Color[] pixels, SKColor[] skPixels) 
+                : base(pixels) {
+                this.canvas = canvas;
+                this.image = image;
+                this.bitmap = bitmap;
+                this.skPixels = skPixels;
+            }
+
+            public override void UpdatePixelsAndDispose() {
+                var len = skPixels.Length;
+                for(int i = 0; i < len; i++) {
+                    uint value = PixelsArray[i].Value;
+                    skPixels[i] = value;
+                }
+                bitmap.Pixels = skPixels;
+                canvas.DrawBitmap(bitmap, SKPoint.Empty);
+                bitmap.Dispose();
+                image.Dispose();
+            }
+        }
+        public override Pixels loadPixels() {
+            var shot = Surface.Snapshot();
+            var bmp = SKBitmap.FromImage(shot);
+            var skPixels = bmp.Pixels;
+            var pixels = new Color[skPixels.Length];
+            var len = skPixels.Length;
+            for(int i = 0; i < len; i++) { //TODO copying pixels 1 by 1 is very slow
+                uint value = (uint)skPixels[i];
+                pixels[i] = new Color(value);
+            }
+            return new SkiaPixels(Surface.Canvas, shot, bmp, pixels, skPixels);
         }
     }
 }
