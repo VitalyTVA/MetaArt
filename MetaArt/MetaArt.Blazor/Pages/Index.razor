@@ -61,7 +61,12 @@ div.scrollable {
 
     protected override async Task OnInitializedAsync()
     {
-        var sketches = await Task.Run(() => SketchDisplayInfo.LoadSketches(typeof(Sketches).Assembly));
+        var sketches = await Task.Run(() => {
+            return new[] {
+                typeof(Sketches),
+                typeof(SkiaSketchBase),
+            }.SelectMany(x => SketchDisplayInfo.LoadSketches(x.Assembly)).ToList();
+        });
         groups = sketches.GroupBy(x => x.Category).ToArray();
         selectedGroup = groups.First();
     }

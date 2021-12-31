@@ -6,6 +6,8 @@ https://github.com/8/SkiaSharp-Wpf-Example
 https://github.com/AvaloniaUI/Avalonia/issues/1756
 https://github.com/AvaloniaUI/Avalonia/tree/master/samples/RenderDemo
 
+handling bitmap pixels
+https://github.com/MicrosoftDocs/xamarin-docs/blob/live/docs/xamarin-forms/user-interface/graphics/skiasharp/bitmaps/pixel-bits.md
 
 void setup()
 {

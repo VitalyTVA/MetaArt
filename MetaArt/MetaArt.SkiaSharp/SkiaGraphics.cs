@@ -17,10 +17,8 @@ namespace MetaArt.Skia {
     }
 
     public sealed class SkiaGraphics : Graphics {
-
-        private SKCanvas? canvas;
-        public SKCanvas Canvas { get => canvas!; set => canvas = value; }
-
+        public SKCanvas Canvas => Surface.Canvas;
+        public SKSurface Surface { get; set; } = null!;
 
         SKPaint fillPaint = new SKPaint() { 
             Style = SKPaintStyle.Fill, 

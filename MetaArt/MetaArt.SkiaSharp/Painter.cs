@@ -54,7 +54,7 @@ namespace MetaArt.Skia {
             get => sKSurface!; 
             set {
                 sKSurface = value;
-                ((SkiaGraphics)Graphics).Canvas = SKSurface.Canvas;
+                ((SkiaGraphics)Graphics).Surface = SKSurface;
             }
         }
 

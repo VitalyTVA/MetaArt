@@ -11,7 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaArt.Sketches", "MetaArt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaArt.Skia", "MetaArt.SkiaSharp\MetaArt.Skia.csproj", "{15470ABF-77C2-4297-847C-330133E88F2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaArt.Blazor", "MetaArt.Blazor\MetaArt.Blazor.csproj", "{8A4086A4-595C-475C-A4EA-85F31F0C7829}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaArt.Blazor", "MetaArt.Blazor\MetaArt.Blazor.csproj", "{8A4086A4-595C-475C-A4EA-85F31F0C7829}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaArt.Sketches.Skia", "MetaArt.Sketches.Skia\MetaArt.Sketches.Skia.csproj", "{EA7712C8-1485-4CFA-8F80-CC2667F8EC22}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sketches", "Sketches", "{D4F95FA2-3CFC-4EC0-8DAB-A7012A4F9631}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,9 +43,17 @@ Global
 		{8A4086A4-595C-475C-A4EA-85F31F0C7829}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A4086A4-595C-475C-A4EA-85F31F0C7829}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A4086A4-595C-475C-A4EA-85F31F0C7829}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA7712C8-1485-4CFA-8F80-CC2667F8EC22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA7712C8-1485-4CFA-8F80-CC2667F8EC22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA7712C8-1485-4CFA-8F80-CC2667F8EC22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA7712C8-1485-4CFA-8F80-CC2667F8EC22}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{875E8BBB-ABA7-421C-BC4D-6F18C9501DE3} = {D4F95FA2-3CFC-4EC0-8DAB-A7012A4F9631}
+		{EA7712C8-1485-4CFA-8F80-CC2667F8EC22} = {D4F95FA2-3CFC-4EC0-8DAB-A7012A4F9631}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {870AAA66-0D5A-43F7-AC2E-BD9D40287115}

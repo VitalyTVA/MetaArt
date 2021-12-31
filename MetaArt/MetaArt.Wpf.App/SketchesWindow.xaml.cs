@@ -30,7 +30,12 @@ namespace MetaArt.Wpf {
         public SketchesWindow() {
             InitializeComponent();
 
-            var sketches = SketchDisplayInfo.LoadSketches(Assembly.LoadFile(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "MetaArt.Sketches.dll")));
+            var sketches = new[] {
+                "MetaArt.Sketches.dll",
+                "MetaArt.Sketches.Skia.dll",
+            }
+            .SelectMany(x => SketchDisplayInfo.LoadSketches(Assembly.LoadFile(System.IO.Path.Combine(Directory.GetCurrentDirectory(), x)))
+            .ToList());
 
             btn.Focus();
             Closed+= async (o, e) => await img.Stop();

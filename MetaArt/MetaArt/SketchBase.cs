@@ -25,7 +25,7 @@ namespace MetaArt {
 
         PainterBase? painter;
         internal PainterBase Painter { get => painter!; set => painter = value; }
-        Graphics Graphics => Painter.Graphics;
+        protected Graphics Graphics => Painter.Graphics;
 
 
         protected int width => Painter.Width;
