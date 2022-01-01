@@ -14,11 +14,11 @@ class FPS : SketchBase {
         fill(Black);
         background(150);
         text("SkiaSharp on Wpf!", x, 20);
-        if(this.frameCount == 0)
+        if(frameCount == 0)
             this.Stopwatch.Start();
-        double fps = this.frameCount / ((this.Stopwatch.Elapsed.TotalSeconds != 0) ? this.Stopwatch.Elapsed.TotalSeconds : 1);
+        double fps = frameCount / ((this.Stopwatch.Elapsed.TotalSeconds != 0) ? this.Stopwatch.Elapsed.TotalSeconds : 1);
         text($"FPS: {fps:0}", x, 40);
-        text($"Frames: {this.frameCount}", x, 60);
+        text($"Frames: {frameCount}", x, 60);
 
     }
 }

@@ -64,7 +64,7 @@ div.scrollable {
         var sketches = await Task.Run(() => {
             return new[] {
                 typeof(Sketches),
-                typeof(SkiaSketchBase),
+                typeof(SkiaSketch),
             }.SelectMany(x => SketchDisplayInfo.LoadSketches(x.Assembly)).ToList();
         });
         groups = sketches.GroupBy(x => x.Category).ToArray();

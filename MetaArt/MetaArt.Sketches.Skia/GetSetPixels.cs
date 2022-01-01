@@ -2,7 +2,7 @@
 using SkiaSharp;
 using System.Diagnostics;
 
-class GetSetPixels : SkiaSketchBase {
+class GetSetPixels : SketchBase {
     void setup() {
         size(640, 360);
         noLoop();

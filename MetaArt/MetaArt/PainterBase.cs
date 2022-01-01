@@ -45,7 +45,7 @@ namespace MetaArt {
             mouseDraggedMethod = sketch.GetType().GetMethod("mouseDragged", BindingFlags.Instance | BindingFlags.NonPublic);
             mouseMovedMethod = sketch.GetType().GetMethod("mouseMoved", BindingFlags.Instance | BindingFlags.NonPublic);
             keyPressedMethod = sketch.GetType().GetMethod("keyPressed", BindingFlags.Instance | BindingFlags.NonPublic);
-            sketch.Painter = this;
+            Sketch.Painter = this;
 
             SettingsCore();
         }
@@ -54,14 +54,14 @@ namespace MetaArt {
         protected Queue<Action> preRenderQueue = new();
         protected Point? pos { get; private set; }
         public void OnMouseDown(float x, float y) {
-            sketch.isMousePressed = true;
+            isMousePressed = true;
             preRenderQueue.Enqueue(() => {
                 MousePressedCore(x, y);
             });
             invalidate();
         }
         public void OnMouseUp(float x, float y) {
-            sketch.isMousePressed = false;
+            isMousePressed = false;
             preRenderQueue.Enqueue(() => {
                 MouseReleasedCore(x, y);
             });
@@ -69,7 +69,7 @@ namespace MetaArt {
         }
         public void OnMouseOver(float x, float y) {
             pos = new Point(x, y);
-            var pressedValue = sketch.isMousePressed;
+            var pressedValue = isMousePressed;
             preRenderQueue.Enqueue(() => {
                 if(pressedValue)
                     MouseDraggedCore(x, y);
@@ -120,15 +120,15 @@ namespace MetaArt {
         void KeyPressedCore(char key) {
             if(keyPressedMethod == null)
                 return;
-            sketch.key = key;
+            this.key = key;
             keyPressedMethod.Invoke(sketch, null);
         }
 
         private void SetMouse(float? mouseX, float? mouseY) {
-            sketch.pmouseX = sketch.mouseX;
-            sketch.pmouseY = sketch.mouseY;
-            sketch.mouseX = mouseX ?? sketch.mouseX;
-            sketch.mouseY = mouseY ?? sketch.mouseY;
+            pmouseX = this.mouseX;
+            pmouseY = this.mouseY;
+            this.mouseX = mouseX ?? this.mouseX;
+            this.mouseY = mouseY ?? this.mouseY;
         }
 
         int lastDrawTime = 0;
@@ -153,6 +153,7 @@ namespace MetaArt {
         protected virtual void Dispose(bool disposing) {
             if(!disposedValue) {
                 if(disposing) {
+                    Sketch.ClearPainter();
                 }
                 disposedValue = true;
             }
@@ -165,6 +166,125 @@ namespace MetaArt {
         protected TimeSpan? frameDistance;
         public void SetFPS(float fps) {
             this.frameDistance = TimeSpan.FromMilliseconds(1000 / fps);    
+        }
+
+        internal float mouseX;
+        internal float mouseY;
+        internal float pmouseX;
+        internal float pmouseY;
+        internal char key { get; set; }
+        internal bool isMousePressed { get; set; }
+
+        ColorMode _colorMode = ColorMode.RGB;
+        float maxColorValue1 = 255;
+        float maxColorValue2 = 255;
+        float maxColorValue3 = 255;
+        float maxColorValueA = 255;
+
+        internal Color color(float v1, float v2, float v3, float? a = null) {
+            a = a ?? maxColorValueA;
+            return _colorMode switch {
+                ColorMode.RGB => new Color(
+                    (byte)Sketch.map(v1, 0, maxColorValue1, 0, 255),
+                    (byte)Sketch.map(v2, 0, maxColorValue2, 0, 255),
+                    (byte)Sketch.map(v3, 0, maxColorValue3, 0, 255),
+                    (byte)Sketch.map(a.Value, 0, maxColorValueA, 0, 255)
+                ),
+                ColorMode.HSB => FromHsv(v1, v2, v3, a.Value),
+                _ => throw new NotImplementedException(),
+            };
+        }
+        internal Color color(float v) {
+            return _colorMode switch {
+                ColorMode.RGB => new Color(
+                    (byte)Sketch.map(v, 0, maxColorValue1, 0, 255),
+                    (byte)Sketch.map(v, 0, maxColorValue2, 0, 255),
+                    (byte)Sketch.map(v, 0, maxColorValue3, 0, 255)
+                ),
+                ColorMode.HSB => FromHsv(0, 0, v, maxColorValueA),
+                _ => throw new NotImplementedException(),
+            };
+        }
+        Color FromHsv(float h, float s, float v, float a) {
+            h /= maxColorValue1;
+            s /= maxColorValue2;
+            v /= maxColorValue3;
+            a /= maxColorValueA;
+            float red = v;
+            float green = v;
+            float blue = v;
+            if(Math.Abs(s) > 0.001f) {
+                h *= 6f;
+                if(Math.Abs(h - 6f) < 0.001f) {
+                    h = 0f;
+                }
+                int num = (int)h;
+                float num2 = v * (1f - s);
+                float num3 = v * (1f - s * (h - (float)num));
+                float num4 = v * (1f - s * (1f - (h - (float)num)));
+                switch(num) {
+                    case 0:
+                        red = v;
+                        green = num4;
+                        blue = num2;
+                        break;
+                    case 1:
+                        red = num3;
+                        green = v;
+                        blue = num2;
+                        break;
+                    case 2:
+                        red = num2;
+                        green = v;
+                        blue = num4;
+                        break;
+                    case 3:
+                        red = num2;
+                        green = num3;
+                        blue = v;
+                        break;
+                    case 4:
+                        red = num4;
+                        green = num2;
+                        blue = v;
+                        break;
+                    default:
+                        red = v;
+                        green = num2;
+                        blue = num3;
+                        break;
+                }
+            }
+            return new Color((byte)(255 * red), (byte)(255 * green), (byte)(255 * blue), (byte)(255 * a));
+        }
+
+        internal void colorMode(ColorMode mode, float max) {
+            _colorMode = mode;
+            maxColorValue1 = max;
+            maxColorValue2 = max;
+            maxColorValue3 = max;
+            maxColorValueA = max;
+        }
+        internal void colorMode(ColorMode mode, float max1, float max2, float max3) {
+            _colorMode = mode;
+            maxColorValue1 = max1;
+            maxColorValue2 = max2;
+            maxColorValue3 = max3;
+        }
+
+        Random rnd = new();
+        internal double NextDouble() => rnd.NextDouble();
+
+        Pixels? pixelsContainer;
+        internal Color[] pixels => pixelsContainer!.PixelsArray;
+        internal void loadPixels() {
+            if(pixelsContainer != null)
+                throw new InvalidOperationException(); //TODO infomative exception
+            pixelsContainer = Graphics.loadPixels();
+        }
+        internal void updatePixels() {
+            pixelsContainer!.UpdatePixelsAndDispose();
+            pixelsContainer = null;
         }
     }
 }

@@ -155,10 +155,10 @@ class Substrate : SketchBase {
         translate(width / 2, height / 2);
         scale(dim, dim);
         strokeWeight(0.01f);
-        foreach(var line in lines) {
-            var (x0, y0) = line.Origin;
-            var (x1, y1) = line.Position;
-            this.line(x0, y0, x1, y1);
+        foreach(var l in lines) {
+            var (x0, y0) = l.Origin;
+            var (x1, y1) = l.Position;
+            line(x0, y0, x1, y1);
         }
         pop();
     }

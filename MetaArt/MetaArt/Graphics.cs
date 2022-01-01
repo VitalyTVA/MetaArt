@@ -3,6 +3,8 @@ using System.Linq;
 
 namespace MetaArt.Internal {
     public abstract class Graphics {
+        public static Graphics GraphicsInstance => Sketch.Graphics;
+
         public abstract void fill(Color color);
         public abstract void noFill();
         public abstract void textSize(float size);

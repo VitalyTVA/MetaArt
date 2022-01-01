@@ -14,266 +14,171 @@ namespace MetaArt {
         Difference,
     }
 
-    public abstract class SketchBase {
-        //}
+    public abstract class SketchBase { //TODO no base class
+    }
 
-        //public static class Sketch {
-        protected internal int deltaTime => Painter.DeltaTime; //TODO should only be accessible from draw, not from mouse events
-        protected int millis() => Painter.Millis();
-        protected int frameCount => Painter.FrameCount;
-        protected int second() => DateTime.Now.Second;
-        protected int minute() => DateTime.Now.Minute;
-        protected int hour() => DateTime.Now.Hour;
+    public static class Sketch {
+        public static int deltaTime => Painter.DeltaTime; //TODO should only be accessible from draw, not from mouse events
+        public static int millis() => Painter.Millis();
+        public static int frameCount => Painter.FrameCount;
+        public static int second() => DateTime.Now.Second;
+        public static int minute() => DateTime.Now.Minute;
+        public static int hour() => DateTime.Now.Hour;
 
-        PainterBase? painter;
-        internal PainterBase Painter { get => painter!; set => painter = value; }
-        protected Graphics Graphics => Painter.Graphics;
+        [ThreadStatic]
+        static PainterBase? painter;
+        internal static PainterBase Painter { get => painter!; set => painter = value; }
+        internal static void ClearPainter() => painter = null;
+        internal static Graphics Graphics => Painter.Graphics;
 
 
-        protected int width => Painter.Width;
-        protected int height => Painter.Height;
+        public static int width => Painter.Width;
+        public static int height => Painter.Height;
 
-        protected internal float mouseX;
-        protected internal float mouseY;
-        protected internal float pmouseX;
-        protected internal float pmouseY;
-        protected internal char key { get; internal set; }
-        protected internal bool isMousePressed { get; internal set; }
+        public static float mouseX { get => Painter.mouseX; set => Painter.mouseX = value; }
+        public static float mouseY { get => Painter.mouseY; set => Painter.mouseY = value; }
+        public static float pmouseX => Painter.pmouseX;
+        public static float pmouseY => Painter.pmouseY;
+        public static char key => Painter.key;
+        public static bool isMousePressed => Painter.isMousePressed;
 
-        protected static Color Black => new Color(0, 0, 0);
-        protected static Color White => new Color(255, 255, 255);
+        public static Color Black => new Color(0, 0, 0);
+        public static Color White => new Color(255, 255, 255);
 
-        protected void size(int width, int height) {
+        public static void size(int width, int height) {
             //TODO if called from setup in async mode or from draw in normal mode
             Painter.SetSize(width, height);
         }
-        protected void noLoop() => Painter.NoLoop = true;
-        protected void noSmooth() => Graphics.noSmooth();
+        public static void noLoop() => Painter.NoLoop = true;
+        public static void noSmooth() => Graphics.noSmooth();
 
-        protected void background(float v1, float v2, float v3, float a) {
-            background(this.color(v1, v2, v3, a));
+        public static void background(float v1, float v2, float v3, float a) {
+            background(color(v1, v2, v3, a));
         }
-        protected void background(Color color) => Graphics.background(color);
-        protected void background(float color) {
-            background(this.color(color));
+        public static void background(Color color) => Graphics.background(color);
+        public static void background(float color) {
+            background(Painter.color(color));
         }
 
-        protected static StrokeJoin ROUND => StrokeJoin.Round;
-        protected static StrokeJoin MITER => StrokeJoin.Miter;
-        protected static StrokeJoin BEVEL => StrokeJoin.Bevel;
-        protected void noStroke() => Graphics.noStroke();
-        protected void stroke(float color) {
-            stroke(this.color(color, color, color));
+        public static StrokeJoin ROUND => StrokeJoin.Round;
+        public static StrokeJoin MITER => StrokeJoin.Miter;
+        public static StrokeJoin BEVEL => StrokeJoin.Bevel;
+        public static void noStroke() => Graphics.noStroke();
+        public static void stroke(float color) {
+            stroke(Painter.color(color, color, color));
         }
-        protected void stroke(float v1, float v2, float v3) {
+        public static void stroke(float v1, float v2, float v3) {
             stroke(color(v1, v2, v3));
         }
-        protected void stroke(Color color) => Graphics.stroke(color);
-        protected void strokeWeight(float weight) => Graphics.strokeWeight(weight);
-        protected void strokeJoin(StrokeJoin join) => Graphics.strokeJoin(join);
-        protected void strokeCap(StrokeCap cap) => Graphics.strokeCap(cap);
+        public static void stroke(Color color) => Graphics.stroke(color);
+        public static void strokeWeight(float weight) => Graphics.strokeWeight(weight);
+        public static void strokeJoin(StrokeJoin join) => Graphics.strokeJoin(join);
+        public static void strokeCap(StrokeCap cap) => Graphics.strokeCap(cap);
 
-        protected void fill(float gray, float alpha) {
+        public static void fill(float gray, float alpha) {
             fill(color(gray, gray, gray, alpha));
         }
-        protected void fill(float v1, float v2, float v3) {
+        public static void fill(float v1, float v2, float v3) {
             fill(color(v1, v2, v3));
         }
-        protected void fill(float gray) {
+        public static void fill(float gray) {
             fill(color(gray));
         }
-        protected void fill(Color color) {
+        public static void fill(Color color) {
             Graphics.fill(color);
         }
-        protected void noFill() {
+        public static void noFill() {
             Graphics.noFill();
         }
-        protected void textSize(float size) => Graphics.textSize(size);
+        public static void textSize(float size) => Graphics.textSize(size);
 
-        protected static BlendMode BLEND => BlendMode.Blend;
-        protected static BlendMode DIFFERENCE => BlendMode.Difference;
-        protected void blendMode(BlendMode blendMode) => Graphics.blendMode(blendMode);
+        public static BlendMode BLEND => BlendMode.Blend;
+        public static BlendMode DIFFERENCE => BlendMode.Difference;
+        public static void blendMode(BlendMode blendMode) => Graphics.blendMode(blendMode);
 
-        protected void push() {
+        public static void push() {
             Graphics.push();
         }
-        protected void pop() {
+        public static void pop() {
             Graphics.pop();
         }
-        protected void translate(float x, float y) {
+        public static void translate(float x, float y) {
             Graphics.translate(x, y);
         }
-        protected void scale(float x, float y) {
+        public static void scale(float x, float y) {
             Graphics.scale(x, y);
         }
-        protected void rotate(float angle) {
+        public static void rotate(float angle) {
             Graphics.rotate(angle);
         }
 
-        protected static RectMode CORNER = RectMode.CORNER;
-        protected static RectMode CORNERS = RectMode.CORNERS;
-        protected static RectMode RADIUS = RectMode.RADIUS;
-        protected static RectMode CENTER = RectMode.CENTER;
+        public static RectMode CORNER = RectMode.CORNER;
+        public static RectMode CORNERS = RectMode.CORNERS;
+        public static RectMode RADIUS = RectMode.RADIUS;
+        public static RectMode CENTER = RectMode.CENTER;
 
-        protected void rectMode(RectMode mode) => Graphics.rectMode(mode);
-        protected void ellipseMode(RectMode mode) => Graphics.ellipseMode(mode);
+        public static void rectMode(RectMode mode) => Graphics.rectMode(mode);
+        public static void ellipseMode(RectMode mode) => Graphics.ellipseMode(mode);
 
-        protected void point(float x, float y) => Graphics.point(x, y);
+        public static void point(float x, float y) => Graphics.point(x, y);
 
-        protected void line(float x0, float y0, float x1, float y1) => Graphics.line(x0, y0, x1, y1);
+        public static void line(float x0, float y0, float x1, float y1) => Graphics.line(x0, y0, x1, y1);
 
-        protected void rect(float a, float b, float c, float d) => Graphics.rect(a, b, c, d);
+        public static void rect(float a, float b, float c, float d) => Graphics.rect(a, b, c, d);
 
-        protected void circle(float x, float y, float extent) => Graphics.circle(x, y, extent);
+        public static void circle(float x, float y, float extent) => Graphics.circle(x, y, extent);
 
-        protected void ellipse(float x, float y, float width, float height) => Graphics.ellipse(x, y, width, height);
+        public static void ellipse(float x, float y, float width, float height) => Graphics.ellipse(x, y, width, height);
 
-        protected void arc(float x, float y, float width, float height, float start, float stop) => Graphics.arc(x, y, width, height, start, stop);
+        public static void arc(float x, float y, float width, float height, float start, float stop) => Graphics.arc(x, y, width, height, start, stop);
 
-        protected void triangle(float x1, float y1, float x2, float y2, float x3, float y3) => Graphics.triangle(x1, y1, x2, y2, x3, y3);
+        public static void triangle(float x1, float y1, float x2, float y2, float x3, float y3) => Graphics.triangle(x1, y1, x2, y2, x3, y3);
 
-        protected void text(string str, float x, float y) => Graphics.text(str, x, y);
+        public static void text(string str, float x, float y) => Graphics.text(str, x, y);
 
-        protected void beginShape(BeginShapeMode mode = BeginShapeMode.LINES) => Graphics.beginShape(mode);
-        protected static EndShapeMode CLOSE => EndShapeMode.CLOSE;
-        protected static BeginShapeMode POINTS => BeginShapeMode.POINTS;
-        protected void endShape(EndShapeMode mode = EndShapeMode.OPEN) => Graphics.endShape(mode);
-        protected void vertex(float x, float y) => Graphics.vertex(x, y);
+        public static void beginShape(BeginShapeMode mode = BeginShapeMode.LINES) => Graphics.beginShape(mode);
+        public static EndShapeMode CLOSE => EndShapeMode.CLOSE;
+        public static BeginShapeMode POINTS => BeginShapeMode.POINTS;
+        public static void endShape(EndShapeMode mode = EndShapeMode.OPEN) => Graphics.endShape(mode);
+        public static void vertex(float x, float y) => Graphics.vertex(x, y);
 
-        protected static int floor(float d) => (int)Math.Floor(d);
-        protected static float exp(float d) => (float)Math.Exp(d);
-        protected static float sqrt(float d) => (float)Math.Sqrt(d);
-        protected static float pow(float n, float e) => (float)Math.Pow(n, e);
-        protected static float sin(float angle) => (float)Math.Sin(angle);
-        protected static float cos(float angle) => (float)Math.Cos(angle);
-        protected const float PI = (float)Math.PI;
-        protected const float TWO_PI = PI * 2;
-        protected const float HALF_PI = PI  / 2;
-        protected static float lerp(float start, float stop, float amt) => start * (1 - amt) + stop * amt;
-        protected static float map(float value, float start1, float stop1, float start2, float stop2) => lerp(start2, stop2, (value - start1) / (stop1 - start1));
-        protected static float norm(float value, float start, float stop) => lerp(0, 1, (value - start) / (stop - start));
-        protected static float constrain(float amt, float low, float high) => min(max(amt, low), high);
+        public static int floor(float d) => (int)Math.Floor(d);
+        public static float exp(float d) => (float)Math.Exp(d);
+        public static float sqrt(float d) => (float)Math.Sqrt(d);
+        public static float pow(float n, float e) => (float)Math.Pow(n, e);
+        public static float sin(float angle) => (float)Math.Sin(angle);
+        public static float cos(float angle) => (float)Math.Cos(angle);
+        public const float PI = (float)Math.PI;
+        public const float TWO_PI = PI * 2;
+        public const float HALF_PI = PI  / 2;
+        public static float lerp(float start, float stop, float amt) => start * (1 - amt) + stop * amt;
+        public static float map(float value, float start1, float stop1, float start2, float stop2) => lerp(start2, stop2, (value - start1) / (stop1 - start1));
+        public static float norm(float value, float start, float stop) => lerp(0, 1, (value - start) / (stop - start));
+        public static float constrain(float amt, float low, float high) => min(max(amt, low), high);
 
         const float degreesToRadians = PI / 180;
-        protected static float radians(float degrees) => degreesToRadians * degrees;
+        public static float radians(float degrees) => degreesToRadians * degrees;
 
-        Random rnd = new();
-        protected float random(float low, float high) => lerp(low, high, (float)rnd.NextDouble());
+        public static float random(float low, float high) => lerp(low, high, (float)Painter.NextDouble());
 
-        protected static float min(float value1, float value2) => Math.Min(value1, value2);
-        protected static float max(float value1, float value2) => Math.Max(value1, value2);
-        protected static float abs(float n) => Math.Abs(n);
+        public static float min(float value1, float value2) => Math.Min(value1, value2);
+        public static float max(float value1, float value2) => Math.Max(value1, value2);
+        public static float abs(float n) => Math.Abs(n);
 
-        ColorMode _colorMode = RGB;
-        float maxColorValue1 = 255;
-        float maxColorValue2 = 255;
-        float maxColorValue3 = 255;
-        float maxColorValueA = 255;
-        protected static readonly ColorMode RGB = ColorMode.RGB;
-        protected static readonly ColorMode HSB = ColorMode.HSB;
-        protected void colorMode(ColorMode mode, float max) {
-            _colorMode = mode;
-            maxColorValue1 = max;
-            maxColorValue2 = max;
-            maxColorValue3 = max;
-            maxColorValueA = max;
-        }
-        protected void colorMode(ColorMode mode, float max1, float max2, float max3) {
-            _colorMode = mode;
-            maxColorValue1 = max1;
-            maxColorValue2 = max2;
-            maxColorValue3 = max3;
-        }
-        protected Color color(float v1, float v2, float v3, float? a = null) {
-            a = a ?? maxColorValueA;
-            return _colorMode switch {
-                ColorMode.RGB => new Color(
-                    (byte)map(v1, 0, maxColorValue1, 0, 255),
-                    (byte)map(v2, 0, maxColorValue2, 0, 255),
-                    (byte)map(v3, 0, maxColorValue3, 0, 255),
-                    (byte)map(a.Value, 0, maxColorValueA, 0, 255)
-                ),
-                ColorMode.HSB => FromHsv(v1, v2, v3, a.Value),
-                _ => throw new NotImplementedException(),
-            };
-        }
-        protected Color color(float v) {
-            return _colorMode switch {
-                ColorMode.RGB => new Color(
-                    (byte)map(v, 0, maxColorValue1, 0, 255),
-                    (byte)map(v, 0, maxColorValue2, 0, 255),
-                    (byte)map(v, 0, maxColorValue3, 0, 255)
-                ),
-                ColorMode.HSB => FromHsv(0, 0, v, maxColorValueA),
-                _ => throw new NotImplementedException(),
-            };
-        }
-        Color FromHsv(float h, float s, float v, float a) {
-            h /= maxColorValue1;
-            s /= maxColorValue2;
-            v /= maxColorValue3;
-            a /= maxColorValueA;
-            float red = v;
-            float green = v;
-            float blue = v;
-            if(Math.Abs(s) > 0.001f) {
-                h *= 6f;
-                if(Math.Abs(h - 6f) < 0.001f) {
-                    h = 0f;
-                }
-                int num = (int)h;
-                float num2 = v * (1f - s);
-                float num3 = v * (1f - s * (h - (float)num));
-                float num4 = v * (1f - s * (1f - (h - (float)num)));
-                switch(num) {
-                    case 0:
-                        red = v;
-                        green = num4;
-                        blue = num2;
-                        break;
-                    case 1:
-                        red = num3;
-                        green = v;
-                        blue = num2;
-                        break;
-                    case 2:
-                        red = num2;
-                        green = v;
-                        blue = num4;
-                        break;
-                    case 3:
-                        red = num2;
-                        green = num3;
-                        blue = v;
-                        break;
-                    case 4:
-                        red = num4;
-                        green = num2;
-                        blue = v;
-                        break;
-                    default:
-                        red = v;
-                        green = num2;
-                        blue = num3;
-                        break;
-                }
-            }
-            return new Color((byte)(255 * red), (byte)(255 * green), (byte)(255 * blue), (byte)(255 * a));
-        }
+        public static readonly ColorMode RGB = ColorMode.RGB;
+        public static readonly ColorMode HSB = ColorMode.HSB;
 
-        Pixels? pixelsContainer;
-        protected Color[] pixels => pixelsContainer!.PixelsArray;
-        protected void loadPixels() {
-            if(pixelsContainer != null)
-                throw new InvalidOperationException(); //TODO infomative exception
-            pixelsContainer = Graphics.loadPixels();
-        }
-        protected void updatePixels() {
-            pixelsContainer!.UpdatePixelsAndDispose();
-            pixelsContainer = null;
-        }
+        public static void colorMode(ColorMode mode, float max) => Painter.colorMode(mode, max);
+        public static void colorMode(ColorMode mode, float max1, float max2, float max3) => Painter.colorMode(mode, max1, max2, max3);
 
-        protected void frameRate(float fps) => Painter.SetFPS(fps);
+        public static Color color(float v1, float v2, float v3, float? a = null) => Painter.color(v1, v2, v3, a);
+        public static Color color(float v)  => Painter.color(v);
+
+        public static Color[] pixels => Painter.pixels;
+        public static void loadPixels() => Painter.loadPixels();
+        public static void updatePixels() => Painter.updatePixels();
+
+        public static void frameRate(float fps) => Painter.SetFPS(fps);
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {
