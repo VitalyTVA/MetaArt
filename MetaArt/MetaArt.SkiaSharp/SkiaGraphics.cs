@@ -157,11 +157,19 @@ namespace MetaArt.Skia {
             Canvas.DrawColor(color.ToSK(), SKBlendMode.SrcOver);
         }
 
-        public override void push() {
+        public override void popMatrix() {
+            Canvas.Restore();
+        }
+        public override void pushMatrix() {
             Canvas.Save();
         }
         public override void pop() {
+            //TODO save drawing style, not only matrix
             Canvas.Restore();
+        }
+        public override void push() {
+            //TODO save drawing style, not only matrix
+            Canvas.Save();
         }
         public override void translate(float x, float y) {
             Canvas.Translate(x, y);

@@ -27,6 +27,8 @@ namespace MetaArt.Internal {
         public abstract void ellipseMode(RectMode mode);
         public abstract void background(Color color);
 
+        public abstract void pushMatrix();
+        public abstract void popMatrix();
         public abstract void push();
         public abstract void pop();
         public abstract void translate(float x, float y);

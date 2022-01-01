@@ -96,21 +96,13 @@ namespace MetaArt {
         public static BlendMode DIFFERENCE => BlendMode.Difference;
         public static void blendMode(BlendMode blendMode) => Graphics.blendMode(blendMode);
 
-        public static void push() {
-            Graphics.push();
-        }
-        public static void pop() {
-            Graphics.pop();
-        }
-        public static void translate(float x, float y) {
-            Graphics.translate(x, y);
-        }
-        public static void scale(float x, float y) {
-            Graphics.scale(x, y);
-        }
-        public static void rotate(float angle) {
-            Graphics.rotate(angle);
-        }
+        public static void pushMatrix() => Graphics.pushMatrix();
+        public static void popMatrix() => Graphics.popMatrix();
+        public static void push() => Graphics.push();
+        public static void pop() => Graphics.pop();
+        public static void translate(float x, float y) => Graphics.translate(x, y);
+        public static void scale(float x, float y) => Graphics.scale(x, y);
+        public static void rotate(float angle) => Graphics.rotate(angle);
 
         public static RectMode CORNER = RectMode.CORNER;
         public static RectMode CORNERS = RectMode.CORNERS;
