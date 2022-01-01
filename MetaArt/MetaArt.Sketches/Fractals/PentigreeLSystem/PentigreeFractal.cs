@@ -1,19 +1,18 @@
 ﻿namespace Fractals;
-class PenroseSnowflake {
+class PentigreeFractal {
     /** 
-     * Penrose Snowflake L-System 
+     * Pentigree L-System 
      * by Geraldine Sarmiento. 
      * 
      * This example was based on Patrick Dwyer's L-System class. 
      */
 
-    PenroseSnowflakeLSystem ps = new();
+
+    PentigreeLSystem ps = new();
 
     void setup() {
         size(640, 360);
-        stroke(255);
-        noFill();
-        ps.simulate(4);
+        ps.simulate(3);
     }
 
     void draw() {

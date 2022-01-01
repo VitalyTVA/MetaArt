@@ -198,14 +198,16 @@ namespace MetaArt {
                 _ => throw new NotImplementedException(),
             };
         }
-        internal Color color(float v) {
+        internal Color color(float v, float? a = null) {
+            a = a ?? maxColorValueA;
             return _colorMode switch {
                 ColorMode.RGB => new Color(
                     (byte)Sketch.map(v, 0, maxColorValue1, 0, 255),
                     (byte)Sketch.map(v, 0, maxColorValue2, 0, 255),
-                    (byte)Sketch.map(v, 0, maxColorValue3, 0, 255)
+                    (byte)Sketch.map(v, 0, maxColorValue3, 0, 255),
+                    (byte)Sketch.map(a.Value, 0, maxColorValueA, 0, 255)
                 ),
-                ColorMode.HSB => FromHsv(0, 0, v, maxColorValueA),
+                ColorMode.HSB => FromHsv(0, 0, v, a.Value),
                 _ => throw new NotImplementedException(),
             };
         }

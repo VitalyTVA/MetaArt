@@ -64,6 +64,9 @@ namespace MetaArt {
         public static void stroke(float color) {
             stroke(Painter.color(color, color, color));
         }
+        public static void stroke(float color, float a) {
+            stroke(Painter.color(color, a));
+        }
         public static void stroke(float v1, float v2, float v3) {
             stroke(color(v1, v2, v3));
         }
