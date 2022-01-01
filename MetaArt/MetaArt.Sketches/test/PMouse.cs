@@ -1,4 +1,4 @@
-﻿class PMouse : SketchBase {
+﻿class PMouse {
     void setup() {
         size(600, 600);
         background(150);

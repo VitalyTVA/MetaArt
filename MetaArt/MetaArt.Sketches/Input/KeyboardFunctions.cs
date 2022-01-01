@@ -1,5 +1,5 @@
 ﻿namespace Input;
-class KeyboardFunctions : SketchBase {
+class KeyboardFunctions {
     /**
      * Keyboard Functions 
      * by Martin Gomez 

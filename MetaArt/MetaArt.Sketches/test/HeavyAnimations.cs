@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-class HeavyAnimations : SketchBase {
+class HeavyAnimations {
     void settings() {
         size(400, 400);
     }

@@ -1,5 +1,5 @@
 ﻿namespace Input;
-class Keyboard : SketchBase {
+class Keyboard {
     /**
      * Keyboard. 
      * 

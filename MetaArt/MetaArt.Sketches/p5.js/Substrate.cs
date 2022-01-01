@@ -1,7 +1,7 @@
 ﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-algorithm
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-class Substrate : SketchBase {
+class Substrate {
     const int initialLines = 100;
     const int maxLines = 1000;
 

@@ -1,5 +1,5 @@
 ﻿namespace Fractals;
-class Mandelbrot : SketchBase {
+class Mandelbrot {
     /**
      * The Mandelbrot Set
      * by Daniel Shiffman.  

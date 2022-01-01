@@ -81,7 +81,6 @@ class PenroseSnowflakeLSystem {
         generations++;
         return newProduction;
     }
-
 }
 
 

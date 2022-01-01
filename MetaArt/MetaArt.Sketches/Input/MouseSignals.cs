@@ -1,5 +1,5 @@
 ﻿namespace Input;
-class MouseSignals : SketchBase {
+class MouseSignals {
     /**
      * Mouse Signals 
      * 

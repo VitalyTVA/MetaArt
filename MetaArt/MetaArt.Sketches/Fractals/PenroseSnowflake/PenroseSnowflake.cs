@@ -1,5 +1,5 @@
 ﻿namespace Fractals;
-class PenroseSnowflake : SketchBase {
+class PenroseSnowflake {
     /** 
      * Penrose Snowflake L-System 
      * by Geraldine Sarmiento. 

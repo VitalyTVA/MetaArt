@@ -1,5 +1,5 @@
 ﻿namespace Input;
-class Constrain : SketchBase {
+class Constrain {
     /**
      * Constrain. 
      * 

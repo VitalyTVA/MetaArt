@@ -1,5 +1,5 @@
 ﻿namespace Input;
-class MousePressed : SketchBase {
+class MousePressed {
     /**
      * Mouse Press. 
      * 

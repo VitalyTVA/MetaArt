@@ -1,7 +1,7 @@
 ﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-hexagon
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-class Hexagon : SketchBase {
+class Hexagon {
     // Set canvas size
     void setup() {
         size(600, 600);

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-class Performance : SketchBase {
+class Performance {
 
 
 

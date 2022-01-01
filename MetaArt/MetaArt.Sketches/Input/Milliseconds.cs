@@ -1,5 +1,5 @@
 ﻿namespace Input;
-class Milliseconds : SketchBase {
+class Milliseconds {
     /**
      * Milliseconds. 
      * 

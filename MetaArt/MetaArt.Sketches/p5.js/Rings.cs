@@ -1,7 +1,7 @@
 ﻿//MetaArt version of https://glitch.com/edit/#!/p5-example-rings
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-class Rings : SketchBase {
+class Rings {
     // Set canvas size
     List<(float spinSpeed, float diameter, float arcLength, float arcAngle)> rings = new();
     void setup() {

@@ -1,5 +1,5 @@
 ﻿namespace Input;
-class Mouse1D : SketchBase {
+class Mouse1D {
     /**
      * Mouse 1D. 
      * 

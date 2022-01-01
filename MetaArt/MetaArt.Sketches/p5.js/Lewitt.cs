@@ -4,7 +4,7 @@
 // Recreating Sol LeWitt Wall Drawing #130
 // "Grid and arcs from four corners."
 
-class Lewitt : SketchBase {
+class Lewitt {
     // Set canvas size
     void setup() {
         size(600, 600);

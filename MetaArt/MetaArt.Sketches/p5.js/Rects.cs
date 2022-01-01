@@ -1,7 +1,7 @@
 ﻿//MetaArt version of https://glitch.com/edit/#!/example-random-rects
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-class Rects : SketchBase {
+class Rects {
     List<(Point, Size)> rectangles = new();
     // Set canvas size
     void setup() {

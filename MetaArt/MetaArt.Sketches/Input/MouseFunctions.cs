@@ -1,5 +1,5 @@
 ﻿namespace Input;
-class MouseFunctions : SketchBase {
+class MouseFunctions {
     /**
      * Mouse Functions. 
      * 

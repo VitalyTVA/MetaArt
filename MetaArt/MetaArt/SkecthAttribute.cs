@@ -16,7 +16,10 @@ namespace MetaArt {
         public string? Description { get; }
     }
     public class SketchGroup {
-        public static bool IsSketchType(Type type) => typeof(SketchBase).IsAssignableFrom(type) && !type.IsAbstract;
+        public static bool IsSketchType(Type type) {
+            return !type.IsAbstract && PainterBase.GetSkecthMethod(type, "draw") != null || PainterBase.GetSkecthMethod(type, "setup") != null;
+        }
+
         public static SketchGroup FromNamespace(string @namespace, Assembly assembly) { 
             var sketches = assembly.GetTypes()
                 .Where(x => IsSketchType(x) && x.Namespace == @namespace)

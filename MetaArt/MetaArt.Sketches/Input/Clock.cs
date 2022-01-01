@@ -1,5 +1,5 @@
 ﻿namespace Input;
-class Clock : SketchBase {
+class Clock {
     /**
      * Clock. 
      * 

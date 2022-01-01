@@ -1,5 +1,5 @@
 ﻿namespace Fractals;
-class KochCurve : SketchBase {
+class KochCurve {
     /**
      * Koch Curve
      * by Daniel Shiffman.

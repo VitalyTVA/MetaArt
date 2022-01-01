@@ -14,9 +14,6 @@ namespace MetaArt {
         Difference,
     }
 
-    public abstract class SketchBase { //TODO no base class
-    }
-
     public static class Sketch {
         public static int deltaTime => Painter.DeltaTime; //TODO should only be accessible from draw, not from mouse events
         public static int millis() => Painter.Millis();

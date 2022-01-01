@@ -1,7 +1,7 @@
 ﻿//MetaArt version of https://glitch.com/edit/#!/p5-example
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
-class Loop : SketchBase {
+class Loop {
     // Set canvas size
     void setup() {
         size(400, 400);

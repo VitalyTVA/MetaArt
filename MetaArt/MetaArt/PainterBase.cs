@@ -18,7 +18,7 @@ namespace MetaArt {
         public int Height { get => height; }
         public int Millis() => (int)stopwatch.ElapsedMilliseconds;
 
-        public readonly SketchBase sketch;
+        public readonly object sketch;
 
         public bool NoLoop { get; set; }
         public bool HasDraw => drawMethod != null;
@@ -33,21 +33,25 @@ namespace MetaArt {
         MethodInfo? mouseMovedMethod;
         MethodInfo? keyPressedMethod;
 
-        protected PainterBase(SketchBase sketch, Graphics graphics, Action invalidate) {
+        protected PainterBase(object sketch, Graphics graphics, Action invalidate) {
             this.sketch = sketch;
             this.invalidate = invalidate;
             Graphics = graphics;
-            drawMethod = sketch.GetType().GetMethod("draw", BindingFlags.Instance | BindingFlags.NonPublic);
-            setupwMethod = sketch.GetType().GetMethod("setup", BindingFlags.Instance | BindingFlags.NonPublic);
-            settingsMethod = sketch.GetType().GetMethod("settings", BindingFlags.Instance | BindingFlags.NonPublic);
-            mousePressedMethod = sketch.GetType().GetMethod("mousePressed", BindingFlags.Instance | BindingFlags.NonPublic);
-            mouseReleasedMethod = sketch.GetType().GetMethod("mouseReleased", BindingFlags.Instance | BindingFlags.NonPublic);
-            mouseDraggedMethod = sketch.GetType().GetMethod("mouseDragged", BindingFlags.Instance | BindingFlags.NonPublic);
-            mouseMovedMethod = sketch.GetType().GetMethod("mouseMoved", BindingFlags.Instance | BindingFlags.NonPublic);
-            keyPressedMethod = sketch.GetType().GetMethod("keyPressed", BindingFlags.Instance | BindingFlags.NonPublic);
+            drawMethod = GetSkecthMethod(sketch.GetType(), "draw");
+            setupwMethod = GetSkecthMethod(sketch.GetType(), "setup");
+            settingsMethod = GetSkecthMethod(sketch.GetType(), "settings");
+            mousePressedMethod = GetSkecthMethod(sketch.GetType(), "mousePressed");
+            mouseReleasedMethod = GetSkecthMethod(sketch.GetType(), "mouseReleased");
+            mouseDraggedMethod = GetSkecthMethod(sketch.GetType(), "mouseDragged");
+            mouseMovedMethod = GetSkecthMethod(sketch.GetType(), "mouseMoved");
+            keyPressedMethod = GetSkecthMethod(sketch.GetType(), "keyPressed"); ;
             Sketch.Painter = this;
 
             SettingsCore();
+        }
+
+        internal static MethodInfo GetSkecthMethod(Type type, string name) {
+            return type.GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
         protected readonly Action invalidate;

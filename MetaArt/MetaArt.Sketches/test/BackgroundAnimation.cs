@@ -1,4 +1,4 @@
-﻿class BackgroundAnimation : SketchBase {
+﻿class BackgroundAnimation {
     void setup() {
         size(200, 200);
         background(150);

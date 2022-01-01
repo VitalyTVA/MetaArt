@@ -1,5 +1,5 @@
 ﻿namespace Input;
-class Easing : SketchBase {
+class Easing {
     /**
      * Easing. 
      * 
