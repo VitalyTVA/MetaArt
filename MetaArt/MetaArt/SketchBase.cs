@@ -113,6 +113,7 @@ namespace MetaArt {
         public static void ellipseMode(RectMode mode) => Graphics.ellipseMode(mode);
 
         public static void point(float x, float y) => Graphics.point(x, y);
+        public static void set(float x, float y, Color c) => Graphics.set(x, y, c);
 
         public static void line(float x0, float y0, float x1, float y1) => Graphics.line(x0, y0, x1, y1);
 

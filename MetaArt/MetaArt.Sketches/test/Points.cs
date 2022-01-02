@@ -18,6 +18,8 @@ class Points {
         strokeCap(StrokeCap.SQUARE);
         point(70f, 50f);
 
+        set(80f, 50f, color(255));
+
         strokeWeight(1);
         strokeCap(StrokeCap.ROUND);
         point(50f, 100f);
@@ -27,5 +29,7 @@ class Points {
 
         strokeCap(StrokeCap.SQUARE);
         point(70f, 100f);
+
+        set(80f, 100f, color(255));
     }
 }
