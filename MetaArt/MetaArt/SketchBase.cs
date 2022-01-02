@@ -172,6 +172,12 @@ namespace MetaArt {
         public static void updatePixels() => Painter.updatePixels();
 
         public static void frameRate(float fps) => Painter.SetFPS(fps);
+
+        public static PImage loadImage(string filename) {
+            var stream = Painter.Assembly.GetManifestResourceStream(Painter.Assembly.GetName().Name + ".Assets." + filename);
+            return Graphics.createImage(stream);
+        }
+        public static void image(PImage image, float x, float y) => Graphics.image(image, x, y);
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {

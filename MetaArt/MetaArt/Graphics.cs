@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 
 namespace MetaArt.Internal {
@@ -42,6 +43,10 @@ namespace MetaArt.Internal {
         public abstract void noSmooth();
 
         public abstract Pixels loadPixels();
+
+        public abstract PImage createImage(Stream stream);
+
+        public abstract void image(PImage image, float x, float y);
     }
 
     public abstract class Pixels {

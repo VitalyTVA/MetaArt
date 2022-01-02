@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,5 +7,8 @@
   <ItemGroup>
     <ProjectReference Include="..\MetaArt\MetaArt.csproj" />
   </ItemGroup>
-	
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\*.*" />
+  </ItemGroup>
 </Project>

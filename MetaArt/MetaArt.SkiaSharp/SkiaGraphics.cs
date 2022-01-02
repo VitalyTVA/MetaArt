@@ -3,6 +3,7 @@ using SkiaSharp;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 
 namespace MetaArt.Skia {
     static class Extensions {
@@ -266,6 +267,21 @@ namespace MetaArt.Skia {
                 pixels[i] = new Color(value);
             }
             return new SkiaPixels(Surface.Canvas, shot, bmp, pixels, skPixels);
+        }
+
+        class SkiaImage : PImage {
+            public readonly SKImage image;
+
+            public SkiaImage(SKImage image) {
+                this.image = image;
+            }
+        }
+        public override PImage createImage(Stream stream) {
+            return new SkiaImage(SKImage.FromEncodedData(stream)); //TODO dispose image
+        }
+
+        public override void image(PImage image, float x, float y) {
+            Canvas.DrawImage(((SkiaImage)image).image, x, y);
         }
     }
 }

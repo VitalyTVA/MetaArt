@@ -19,6 +19,7 @@ namespace MetaArt {
         public int Millis() => (int)stopwatch.ElapsedMilliseconds;
 
         public readonly object sketch;
+        public Assembly Assembly =>sketch.GetType().Assembly;
 
         public bool NoLoop { get; set; }
         public bool HasDraw => drawMethod != null;
