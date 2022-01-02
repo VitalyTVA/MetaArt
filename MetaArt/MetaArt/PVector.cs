@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 
-namespace MetaArt {
+namespace MetaArt.ProcessingCompatibility {
 	public struct PVector : IEquatable<PVector> {
 		public static readonly PVector Empty;
 
@@ -17,9 +17,11 @@ namespace MetaArt {
 
 		public readonly float LengthSquared => x * x + y * y;
 
-		public PVector(float x, float y) {
+		public PVector(float x, float y, float z = 0) {
 			this.x = x;
 			this.y = y;
+			if(z != 0) //TODO z-coordinate
+				throw new InvalidOperationException();
 		}
 
 		public override readonly string ToString() {
@@ -59,12 +61,16 @@ namespace MetaArt {
 			return (float)angle;
         }
 
-        public static bool operator !=(PVector left, PVector right) {
+		[Obsolete($"Use the {nameof(heading)}() method instead.")]
+		public float heading2D() => heading();
+
+
+		public static bool operator !=(PVector left, PVector right) {
 			return !left.Equals(right);
 		}
 
         public float mag() {
-			return Sketch.sqrt(x * x + y + y);
+			return Sketch.sqrt(x * x + y * y);
         }
 
         public void Deconstruct(out float x, out float y) {
@@ -76,7 +82,7 @@ namespace MetaArt {
             return new PVector(b.x - a.x, b.y - a.y);
         }
 
-        public void div(int v) {
+        public void div(float v) {
             x /= v;
 			y /= v;
         }
@@ -95,5 +101,36 @@ namespace MetaArt {
 			x = (cos * tx) - (sin * ty);
 			y = (sin * tx) + (cos * ty);
 		}
+
+        public static float dist(PVector position1, PVector position2) {
+			var x = position2.x - position1.x;
+			var y = position2.y - position1.y;
+			return Sketch.sqrt(x * x + y * y);
+        }
+
+        public void normalize() {
+			var len = mag();
+			//if(len <= 0.0000001) {
+			//	return;
+			//}
+			div(len);
+        }
+
+        public void sub(PVector other) {
+            x -= other.x;
+            y -= other.y;
+        }
+
+        public void limit(float max) {
+			var len = mag();
+			//if(len <= 0.0000001) {
+			//	return;
+			//}
+			if(len > max) {
+				var r = max / len;
+				x *= r;
+				y *= r;
+			}
+        }
     }
 }

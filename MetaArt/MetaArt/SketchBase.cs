@@ -154,6 +154,7 @@ namespace MetaArt {
         public static float radians(float degrees) => degreesToRadians * degrees;
 
         public static float random(float low, float high) => lerp(low, high, (float)Painter.NextDouble());
+        public static float random(float high) => random(0, high);
 
         public static float randomGaussian() {
             double mu = 0;
