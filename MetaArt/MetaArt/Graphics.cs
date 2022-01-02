@@ -46,7 +46,9 @@ namespace MetaArt.Internal {
 
         public abstract PImage createImage(Stream stream);
 
-        public abstract void image(PImage image, float x, float y);
+        public abstract void image(PImage image, float a, float b);
+        public abstract void imageOpacity(float opacity);
+        public abstract void imageMode(RectMode mode);
     }
 
     public abstract class Pixels {

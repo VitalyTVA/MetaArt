@@ -177,7 +177,14 @@ namespace MetaArt {
             var stream = Painter.Assembly.GetManifestResourceStream(Painter.Assembly.GetName().Name + ".Assets." + filename);
             return Graphics.createImage(stream);
         }
-        public static void image(PImage image, float x, float y) => Graphics.image(image, x, y);
+        public static void image(PImage image, float a, float b) => Graphics.image(image, a, b);
+        public static void tint(int rgb, float alpha) {
+            if(rgb != 255)
+                throw new InvalidOperationException(); //TODO tint
+            Graphics.imageOpacity(alpha);
+
+        }
+        public static void imageMode(RectMode mode) => Graphics.imageMode(mode);
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {

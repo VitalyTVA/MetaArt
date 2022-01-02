@@ -279,9 +279,22 @@ namespace MetaArt.Skia {
         public override PImage createImage(Stream stream) {
             return new SkiaImage(SKImage.FromEncodedData(stream)); //TODO dispose image
         }
-
-        public override void image(PImage image, float x, float y) {
-            Canvas.DrawImage(((SkiaImage)image).image, x, y);
+        SKPaint imagePaint = new SKPaint() { Color = SKColors.Black };
+        RectMode _imageMode = RectMode.CORNER;
+        public override void imageOpacity(float opacity) {
+            imagePaint.Color = imagePaint.Color.WithAlpha((byte)opacity);
+        }
+        public override void image(PImage image, float a, float b) {
+            var skImage = ((SkiaImage)image).image;
+            var (x, y) = _imageMode switch {
+                RectMode.CORNER => (a, b),
+                RectMode.CENTER => (a - skImage.Width / 2f, b - skImage.Height / 2f),
+                _ => throw new InvalidOperationException()
+            };
+            Canvas.DrawImage(skImage, x, y, imagePaint);
+        }
+        public override void imageMode(RectMode mode) {
+            _imageMode = mode;
         }
     }
 }
