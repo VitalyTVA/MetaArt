@@ -138,6 +138,7 @@ namespace MetaArt {
         public static int floor(float d) => (int)Math.Floor(d);
         public static float exp(float d) => (float)Math.Exp(d);
         public static float sqrt(float d) => (float)Math.Sqrt(d);
+        public static float log(float d) => (float)Math.Log(d);
         public static float pow(float n, float e) => (float)Math.Pow(n, e);
         public static float sin(float angle) => (float)Math.Sin(angle);
         public static float cos(float angle) => (float)Math.Cos(angle);
@@ -153,6 +154,16 @@ namespace MetaArt {
         public static float radians(float degrees) => degreesToRadians * degrees;
 
         public static float random(float low, float high) => lerp(low, high, (float)Painter.NextDouble());
+        public static float randomGaussian() {
+            const float mean = 0f;
+            const float stdDev = 1;
+            float u1 = 1 - (float)Painter.NextDouble(); //uniform(0,1] random doubles
+            float u2 = 1 - (float)Painter.NextDouble();
+            float randStdNormal = sqrt(-2 * log(u1) * sin(2.0f * PI * u2)); //random normal(0,1)
+            float randNormal = mean + stdDev * randStdNormal; //random normal(mean,stdDev^2)
+            var sign =  Math.Sign(Painter.NextDouble() - .5); //TODO very dirty
+            return randNormal * sign;
+        }
 
         public static float min(float value1, float value2) => Math.Min(value1, value2);
         public static float max(float value1, float value2) => Math.Max(value1, value2);
