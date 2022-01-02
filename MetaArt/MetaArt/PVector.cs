@@ -52,7 +52,12 @@ namespace MetaArt {
 			return false;
 		}
 
-		public override readonly bool Equals(object obj) {
+        public void mult(float v) {
+			x *= v;
+			y *= v;
+		}
+
+        public override readonly bool Equals(object obj) {
 			if(obj is PVector obj2) {
 				return Equals(obj2);
 			}
@@ -67,11 +72,20 @@ namespace MetaArt {
 			return left.Equals(right);
 		}
 
-		public static bool operator !=(PVector left, PVector right) {
+        public float heading() {
+            var angle = Math.Atan2(y, x);
+			return (float)angle;
+        }
+
+        public static bool operator !=(PVector left, PVector right) {
 			return !left.Equals(right);
 		}
 
-		public void Deconstruct(out float x, out float y) {
+        public float mag() {
+			return Sketch.sqrt(x * x + y + y);
+        }
+
+        public void Deconstruct(out float x, out float y) {
 			x = this.x;
 			y = this.y;
 		}
