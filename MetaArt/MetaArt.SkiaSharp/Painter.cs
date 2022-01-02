@@ -30,6 +30,7 @@ namespace MetaArt.Skia {
                 if((NoLoop && drawn) || !HasDraw)
                     return;
             }
+            surface.Canvas.Translate(.5f, .5f);
             if(frameDistance != null && lastFrame != null && (DateTime.Now - lastFrame) < frameDistance) {
                 invalidate();
                 return;

@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-
+namespace TestSketches;
 class FPS {
     void setup() {
         size(200, 200);

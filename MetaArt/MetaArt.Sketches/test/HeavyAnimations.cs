@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-
+namespace TestSketches;
 class HeavyAnimations {
     void settings() {
         size(400, 400);

@@ -1,4 +1,5 @@
-﻿class BackgroundAnimation {
+﻿namespace TestSketches;
+class BackgroundAnimation {
     void setup() {
         size(200, 200);
         background(150);

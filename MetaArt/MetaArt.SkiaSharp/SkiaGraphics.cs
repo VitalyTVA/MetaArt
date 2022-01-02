@@ -79,6 +79,8 @@ namespace MetaArt.Skia {
         }
 
         public override void point(float x, float y) {
+            if(strokePaint.StrokeCap == SKStrokeCap.Square)
+                return;
             Canvas.DrawPoint(x, y, strokePaint);//TODO default point size
         }
         public override void line(float x0, float y0, float x1, float y1) {
@@ -241,7 +243,12 @@ namespace MetaArt.Skia {
                     skPixels[i] = value;
                 }
                 bitmap.Pixels = skPixels;
+
+                canvas.Save();
+                canvas.SetMatrix(SKMatrix.Identity);
                 canvas.DrawBitmap(bitmap, SKPoint.Empty);
+                canvas.Restore();
+
                 bitmap.Dispose();
                 image.Dispose();
             }

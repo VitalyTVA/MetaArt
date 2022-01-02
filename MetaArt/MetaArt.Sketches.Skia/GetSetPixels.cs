@@ -20,7 +20,12 @@ class GetSetPixels {
             pixels[i] = color;
         }
         bmp.Pixels = pixels;
+
+        Canvas.Save();
+        Canvas.SetMatrix(SKMatrix.Identity);
         Canvas.DrawBitmap(bmp, SKPoint.Empty);
+        Canvas.Restore();
+
         var elapsed = stopwatch.ElapsedMilliseconds.ToString();
         textSize(40);
         text(elapsed, 200, 100);
