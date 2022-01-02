@@ -155,6 +155,18 @@ namespace MetaArt {
 
         public static float random(float low, float high) => lerp(low, high, (float)Painter.NextDouble());
 
+        public static float randomGaussian() {
+            double mu = 0;
+            double sigma = 1;
+            var u1 = Painter.NextDouble();
+            var u2 = Painter.NextDouble();
+            var rand_std_normal = Math.Sqrt(-2.0 * Math.Log(u1)) *
+                                Math.Sin(2.0 * Math.PI * u2);
+            var rand_normal = mu + sigma * rand_std_normal;
+
+            return (float)rand_normal;
+        }
+
         public static float min(float value1, float value2) => Math.Min(value1, value2);
         public static float max(float value1, float value2) => Math.Max(value1, value2);
         public static float abs(float n) => Math.Abs(n);

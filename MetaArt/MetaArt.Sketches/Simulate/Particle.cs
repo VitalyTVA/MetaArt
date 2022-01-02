@@ -12,8 +12,8 @@ class Particle {
 
     public Particle(PVector l, PImage img_) {
         acc = new PVector(0, 0);
-        float vx = random(-1, 1) * 0.3f; //TODO use randomGaussian
-        float vy = random(-1, 1) * 0.3f - 1;
+        float vx = randomGaussian() * 0.3f; //TODO use randomGaussian
+        float vy = randomGaussian() * 0.3f - 1;
         vel = new PVector(vx, vy);
         loc = l;
         lifespan = 100;
