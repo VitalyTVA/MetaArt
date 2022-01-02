@@ -37,7 +37,7 @@ class SmokeParticleSystem {
         pushMatrix();
         float arrowsize = 4;
         // Translate to position to render vector
-        translate(loc.X, loc.Y);
+        translate(loc.x, loc.y);
         stroke(255);
         // Call vector heading function to get direction (note that pointing up is a heading of 0) and rotate
         rotate(v.heading());

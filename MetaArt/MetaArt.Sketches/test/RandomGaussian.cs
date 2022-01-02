@@ -4,6 +4,7 @@ using System.Diagnostics;
 namespace TestSketches;
 class RandomGaussian {
     void setup() {
+        background(0);
         size(400, 400);
         stroke(White);
         for(int y = 0; y < 400; y++) {

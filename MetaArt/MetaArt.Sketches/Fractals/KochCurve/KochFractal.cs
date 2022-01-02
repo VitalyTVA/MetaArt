@@ -16,7 +16,7 @@ class KochFractal {
 
     public void Draw() {
         foreach(KochLine l in lines) {
-            line(l.Start.X, l.Start.Y, l.End.X, l.End.Y);
+            line(l.Start.x, l.Start.y, l.End.x, l.End.y);
         }
     }
 

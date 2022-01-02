@@ -7,33 +7,15 @@ namespace MetaArt {
 	public struct PVector : IEquatable<PVector> {
 		public static readonly PVector Empty;
 
-		private float x;
+		public float x;
 
-		private float y;
+		public float y;
 
 		public readonly bool IsEmpty => this == Empty;
 
 		public readonly float Length => (float)Math.Sqrt(x * x + y * y);
 
 		public readonly float LengthSquared => x * x + y * y;
-
-		public float X {
-			readonly get {
-				return x;
-			}
-			set {
-				x = value;
-			}
-		}
-
-		public float Y {
-			readonly get {
-				return y;
-			}
-			set {
-				y = value;
-			}
-		}
 
 		public PVector(float x, float y) {
 			this.x = x;
