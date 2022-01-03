@@ -23,6 +23,7 @@ public class Sketches : ISkecthesProvider {
                 new SkecthInfo(typeof(Substrate), description: "The advanced example, implementing Jared Tarbell's 'Substrate' algorithm."),
             }
         },
+        SketchGroup.FromNamespace("Motion", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("Input", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("Vectors", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("Fractals", Assembly.GetExecutingAssembly()),

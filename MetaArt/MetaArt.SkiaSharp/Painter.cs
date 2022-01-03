@@ -31,7 +31,7 @@ namespace MetaArt.Skia {
                     return;
             }
             surface.Canvas.Translate(.5f, .5f);
-            if(frameDistance != null && lastFrame != null && (DateTime.Now - lastFrame) < frameDistance) {
+            if(frameDistance != null && lastFrame != null && (DateTime.Now - lastFrame) < frameDistance.Value.Add(TimeSpan.FromMilliseconds(-3))) {
                 invalidate();
                 return;
             }
