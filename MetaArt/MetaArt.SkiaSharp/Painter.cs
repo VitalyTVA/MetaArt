@@ -68,7 +68,7 @@ namespace MetaArt.Skia {
         readonly Action<Size> setSize;
 
         public Painter(Type sketchType, Action invalidate, Action<Size> setSize) 
-            : base(Activator.CreateInstance(sketchType), new SkiaGraphics(), invalidate) {
+            : base(sketchType, new SkiaGraphics(), invalidate) {
             this.setSize = setSize;
         }
 

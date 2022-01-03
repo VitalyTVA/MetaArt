@@ -34,10 +34,12 @@ namespace MetaArt {
         MethodInfo? mouseMovedMethod;
         MethodInfo? keyPressedMethod;
 
-        protected PainterBase(object sketch, Graphics graphics, Action invalidate) {
-            this.sketch = sketch;
+        protected PainterBase(Type sketchType, Graphics graphics, Action invalidate) {
             this.invalidate = invalidate;
             Graphics = graphics;
+            Sketch.Painter = this;
+            
+            sketch = Activator.CreateInstance(sketchType);
             drawMethod = GetSkecthMethod(sketch.GetType(), "draw");
             setupwMethod = GetSkecthMethod(sketch.GetType(), "setup");
             settingsMethod = GetSkecthMethod(sketch.GetType(), "settings");
@@ -45,8 +47,7 @@ namespace MetaArt {
             mouseReleasedMethod = GetSkecthMethod(sketch.GetType(), "mouseReleased");
             mouseDraggedMethod = GetSkecthMethod(sketch.GetType(), "mouseDragged");
             mouseMovedMethod = GetSkecthMethod(sketch.GetType(), "mouseMoved");
-            keyPressedMethod = GetSkecthMethod(sketch.GetType(), "keyPressed"); ;
-            Sketch.Painter = this;
+            keyPressedMethod = GetSkecthMethod(sketch.GetType(), "keyPressed");
 
             SettingsCore();
         }

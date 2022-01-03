@@ -36,9 +36,15 @@ namespace MetaArt.ProcessingCompatibility {
 			return false;
 		}
 
-        public void mult(float v) {
+        public static PVector random2D() {
+            var angle = Sketch.random(Sketch.TWO_PI);
+			return new PVector(Sketch.cos(angle), Sketch.sin(angle));
+        }
+
+        public PVector mult(float v) {
 			x *= v;
 			y *= v;
+			return this;
 		}
 
         public override readonly bool Equals(object obj) {
@@ -108,12 +114,13 @@ namespace MetaArt.ProcessingCompatibility {
 			return Sketch.sqrt(x * x + y * y);
         }
 
-        public void normalize() {
+        public PVector normalize() {
 			var len = mag();
 			//if(len <= 0.0000001) {
 			//	return;
 			//}
 			div(len);
+			return this;
         }
 
         public void sub(PVector other) {
