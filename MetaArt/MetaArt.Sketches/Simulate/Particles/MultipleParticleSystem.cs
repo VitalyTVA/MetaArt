@@ -27,7 +27,7 @@ class MultipleParticleSystem {
         }
         if(systems.isEmpty()) {
             fill(255);
-            //textAlign(CENTER);
+            textAlign(TextAlign.CENTER);
             text("click mouse to add particle systems", width / 2, height / 2);
         }
     }

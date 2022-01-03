@@ -91,6 +91,7 @@ namespace MetaArt {
             Graphics.noFill();
         }
         public static void textSize(float size) => Graphics.textSize(size);
+        public static void textAlign(TextAlign alignX) => Graphics.textAlign(alignX);
 
         public static BlendMode BLEND => BlendMode.Blend;
         public static BlendMode DIFFERENCE => BlendMode.Difference;
@@ -211,4 +212,5 @@ namespace MetaArt {
     public enum EndShapeMode { OPEN, CLOSE }
     public enum StrokeCap { PROJECT, ROUND, SQUARE }
     public enum ColorMode { RGB, HSB }
+    public enum TextAlign { LEFT, CENTER, RIGHT }
 }

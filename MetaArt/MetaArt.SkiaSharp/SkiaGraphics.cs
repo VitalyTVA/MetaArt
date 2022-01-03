@@ -16,6 +16,12 @@ namespace MetaArt.Skia {
             _ => throw new NotImplementedException(), 
         }; //TODO test conversion
         public static float ConvertRadiansToDegrees(float radians) => (float)(180 / Math.PI) * radians;
+        public static SKTextAlign ToSK(this TextAlign value) => value switch {
+            TextAlign.CENTER => SKTextAlign.Center,
+            TextAlign.LEFT => SKTextAlign.Left,
+            TextAlign.RIGHT => SKTextAlign.Right,
+            _ => throw new NotImplementedException(),
+        }; //TODO test conversion
     }
 
     public sealed class SkiaGraphics : Graphics {
@@ -45,6 +51,7 @@ namespace MetaArt.Skia {
             _noFill = true;
         }
         public override void textSize(float size) => fillPaint.TextSize = size;
+        public override void textAlign(TextAlign alignX) => fillPaint.TextAlign = alignX.ToSK();
 
         SKPaint strokePaint = new SKPaint() {
             Style = SKPaintStyle.Stroke,
