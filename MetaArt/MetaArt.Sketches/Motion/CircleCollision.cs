@@ -91,8 +91,8 @@ class Ball {
             /* bTemp will hold rotated ball positions. You 
              just need to worry about bTemp[1] position*/
             PVector[] bTemp = {
-        new PVector(), new PVector()
-      };
+                new PVector(), new PVector()
+            };
 
             /* this ball's position is relative to the other
              so you can use the vector between them (bVect) as the 
@@ -105,8 +105,8 @@ class Ball {
 
             // rotate Temporary velocities
             PVector[] vTemp = {
-        new PVector(), new PVector()
-      };
+                new PVector(), new PVector()
+            };
 
             vTemp[0].x = cosine * velocity.x + sine * velocity.y;
             vTemp[0].y = cosine * velocity.y - sine * velocity.x;
@@ -117,8 +117,8 @@ class Ball {
              conservation of momentum equations to calculate 
              the final velocity along the x-axis. */
             PVector[] vFinal = {
-        new PVector(), new PVector()
-      };
+                new PVector(), new PVector()
+            };
 
             // final rotated velocity for b[0]
             vFinal[0].x = ((m - other.m) * vTemp[0].x + 2 * other.m * vTemp[1].x) / (m + other.m);
@@ -137,8 +137,8 @@ class Ball {
              in the opposite direction */
             // rotate balls
             PVector[] bFinal = {
-        new PVector(), new PVector()
-      };
+                new PVector(), new PVector()
+            };
 
             bFinal[0].x = cosine * bTemp[0].x - sine * bTemp[0].y;
             bFinal[0].y = cosine * bTemp[0].y + sine * bTemp[0].x;
