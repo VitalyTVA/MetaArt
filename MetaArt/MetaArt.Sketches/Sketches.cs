@@ -24,6 +24,7 @@ public class Sketches : ISkecthesProvider {
             }
         },
         SketchGroup.FromNamespace("Input", Assembly.GetExecutingAssembly()),
+        SketchGroup.FromNamespace("Vectors", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("Fractals", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("Simulate", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("TestSketches", Assembly.GetExecutingAssembly()),
