@@ -1,7 +1,4 @@
-﻿using MetaArt;
-using System.Diagnostics;
-
-namespace Motion;
+﻿namespace Motion;
 class Bounce {
     /**
      * Bounce. 
