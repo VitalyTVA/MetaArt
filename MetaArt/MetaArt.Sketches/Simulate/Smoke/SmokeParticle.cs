@@ -3,14 +3,14 @@
 
 // A simple Particle class, renders the particle as an image
 
-class Particle {
+class SmokeParticle {
     PVector loc;
     PVector vel;
     PVector acc;
     float lifespan;
     PImage img;
 
-    public Particle(PVector l, PImage img_) {
+    public SmokeParticle(PVector l, PImage img_) {
         acc = new PVector(0, 0);
         float vx = randomGaussian() * 0.3f; //TODO use randomGaussian
         float vy = randomGaussian() * 0.3f - 1;

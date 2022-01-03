@@ -1,52 +1,41 @@
 ﻿namespace Simulate;
+
+// A class to describe a group of Particles
+// An ArrayList is used to manage the list of Particles 
+
 class SmokeParticleSystem {
-    /**
-     * Smoke Particle System
-     * by Daniel Shiffman.
-     *
-     * A basic smoke effect using a particle system. Each particle
-     * is rendered as an alpha masked image.
-     */
 
-    ParticleSystem ps = null!;
+    List<SmokeParticle> particles = new();    // An arraylist for all the particles
+    PVector origin;                   // An origin point for where particles are birthed
+    PImage img;
 
-    void setup() {
-        size(640, 360);
-        PImage img = loadImage("texture.png");
-        ps = new ParticleSystem(0, new PVector(width / 2, height - 60), img);
-    }
-
-    void draw() {
-        background(0);
-
-        // Calculate a "wind" force based on mouse horizontal position
-        float dx = map(mouseX, 0, width, -0.2f, 0.2f);
-        PVector wind = new PVector(dx, 0);
-        ps.applyForce(wind);
-        ps.run();
-        for(int i = 0; i < 2; i++) {
-            ps.addParticle();
+    public SmokeParticleSystem(int num, PVector v, PImage img_) {
+        origin = v;                                   // Store the origin point
+        img = img_;
+        for(int i = 0; i < num; i++) {
+            particles.Add(new SmokeParticle(origin, img));         // Add "num" amount of particles to the arraylist
         }
-
-        // Draw an arrow representing the wind force
-        drawVector(wind, new PVector(width / 2, 50), 500);
     }
 
-    // Renders a vector object 'v' as an arrow and a position 'loc'
-    void drawVector(PVector v, PVector loc, float scayl) {
-        pushMatrix();
-        float arrowsize = 4;
-        // Translate to position to render vector
-        translate(loc.x, loc.y);
-        stroke(255);
-        // Call vector heading function to get direction (note that pointing up is a heading of 0) and rotate
-        rotate(v.heading());
-        // Calculate length of vector & scale it to be bigger or smaller if necessary
-        float len = v.mag() * scayl;
-        // Draw three lines to make an arrow (draw pointing up since we've rotate to the proper direction)
-        line(0, 0, len, 0);
-        line(len, 0, len - arrowsize, +arrowsize / 2);
-        line(len, 0, len - arrowsize, -arrowsize / 2);
-        popMatrix();
+    public void run() {
+        for(int i = particles.Count - 1; i >= 0; i--) {
+            SmokeParticle p = particles[i];
+            p.run();
+            if(p.isDead()) {
+                particles.RemoveAt(i);
+            }
+        }
+    }
+
+    // Method to add a force vector to all particles currently in the system
+    public void applyForce(PVector dir) {
+        // Enhanced loop!!!
+        foreach(SmokeParticle p in particles) {
+            p.applyForce(dir);
+        }
+    }
+
+    public void addParticle() {
+        particles.Add(new SmokeParticle(origin, img));
     }
 }
