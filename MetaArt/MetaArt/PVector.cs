@@ -121,7 +121,17 @@ namespace MetaArt.ProcessingCompatibility {
             y -= other.y;
         }
 
-        public void limit(float max) {
+        public PVector copy() {
+            return this; //TODO should vector be a class?
+        }
+
+        public void setMag(float mag) {
+			var r = mag / this.mag();
+			x *= r;
+			y *= r;
+		}
+
+		public void limit(float max) {
 			var len = mag();
 			//if(len <= 0.0000001) {
 			//	return;
@@ -131,6 +141,10 @@ namespace MetaArt.ProcessingCompatibility {
 				x *= r;
 				y *= r;
 			}
+		}
+
+        public static PVector div(PVector v, float mass) {
+            return new PVector(v.x / mass, v.y / mass);
         }
     }
 }
