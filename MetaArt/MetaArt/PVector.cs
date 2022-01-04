@@ -38,10 +38,13 @@ namespace MetaArt.ProcessingCompatibility {
 
         public static PVector random2D() {
             var angle = Sketch.random(Sketch.TWO_PI);
-			return new PVector(Sketch.cos(angle), Sketch.sin(angle));
+			return fromAngle(angle);
         }
+		public static PVector fromAngle(float angle) {
+			return new PVector(Sketch.cos(angle), Sketch.sin(angle));
+		}
 
-        public PVector mult(float v) {
+		public PVector mult(float v) {
 			x *= v;
 			y *= v;
 			return this;
@@ -106,6 +109,11 @@ namespace MetaArt.ProcessingCompatibility {
 			float ty = y;
 			x = (cos * tx) - (sin * ty);
 			y = (sin * tx) + (cos * ty);
+		}
+
+        public void lerp(PVector v, float amt) {
+			x = Sketch.lerp(x, v.x, amt);
+			y = Sketch.lerp(y, v.y, amt);
 		}
 
         public static float dist(PVector position1, PVector position2) {
