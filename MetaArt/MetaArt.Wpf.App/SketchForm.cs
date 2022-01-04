@@ -86,22 +86,6 @@ namespace MetaArt.Wpf {
                 TopMost = false;
             });
         }
-
-        //bool isMouseOver = false;
-        protected override void OnMouseHover(EventArgs e) {
-            base.OnMouseHover(e);
-            //isMouseOver = true;
-            //skglControl1.ForcePaint();
-            //skglControl1.GRContext.
-        }
-        protected override void OnMouseLeave(EventArgs e) {
-            base.OnMouseLeave(e);
-            //isMouseOver = false;
-        }
-        protected override void OnMouseDown(MouseEventArgs e) {
-            base.OnMouseDown(e);
-            //skglControl1.ForcePaint();
-        }
         protected override void OnClosing(CancelEventArgs e) {
             painter.Dispose();
             base.OnClosing(e);
