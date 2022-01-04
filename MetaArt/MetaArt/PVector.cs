@@ -20,13 +20,17 @@ namespace MetaArt.ProcessingCompatibility {
 		public PVector() : this(0, 0) {
 		}
 		public PVector(float x, float y, float z = 0) {
-			this.x = x;
-			this.y = y;
-			if(z != 0) //TODO z-coordinate
-				throw new InvalidOperationException();
-		}
+            this.x = x;
+            this.y = y;
+            ValidateZ(z);
+        }
 
-		public override string ToString() {
+        static void ValidateZ(float z) {
+            if(z != 0) //TODO z-coordinate
+                throw new InvalidOperationException();
+        }
+
+        public override string ToString() {
 			return $"{{X={x}, Y={y}}}";
 		}
 
@@ -98,7 +102,17 @@ namespace MetaArt.ProcessingCompatibility {
 			y /= v;
         }
 
-        public void add(PVector v) {
+        public float dot(PVector v) {
+            return x * v.x + y * v.y;
+        }
+
+        public void set(float x, float y, int z) {
+            this.x = x;
+            this.y = y;
+			ValidateZ(z);
+		}
+
+		public void add(PVector v) {
 			x += v.x;
 			y += v.y;
         }
@@ -160,8 +174,11 @@ namespace MetaArt.ProcessingCompatibility {
 			}
 		}
 
-        public static PVector div(PVector v, float mass) {
-            return new PVector(v.x / mass, v.y / mass);
+        public static PVector div(PVector v, float d) {
+            return new PVector(v.x / d, v.y / d);
         }
-    }
+		public static PVector mult(PVector v, float d) {
+			return new PVector(v.x * d, v.y * d);
+		}
+	}
 }

@@ -25,6 +25,7 @@ namespace MetaArt.Internal {
         public abstract void ellipse(float x, float y, float width, float height);
         public abstract void arc(float x, float y, float width, float height, float start, float stop);
         public abstract void triangle(float x1, float y1, float x2, float y2, float x3, float y3);
+        public abstract void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
         public abstract void text(string str, float x, float y);
         public abstract void rectMode(RectMode mode);
         public abstract void ellipseMode(RectMode mode);

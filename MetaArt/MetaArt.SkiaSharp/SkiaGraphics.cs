@@ -150,6 +150,19 @@ namespace MetaArt.Skia {
                 Canvas.DrawPath(path, strokePaint);
         }
 
+        public override void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
+            using var path = new SKPath { FillType = SKPathFillType.EvenOdd }; //TODO reuse triangle path??
+            path.MoveTo(x1, y1);
+            path.LineTo(x2, y2);
+            path.LineTo(x3, y3);
+            path.LineTo(x4, y4);
+            path.Close();
+            if(!_noFill)
+                Canvas.DrawPath(path, fillPaint);
+            if(!_noStroke)
+                Canvas.DrawPath(path, strokePaint);
+        }
+
         public override void text(string str, float x, float y) {
             Canvas.DrawText(str, x, y, fillPaint);
         }

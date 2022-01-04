@@ -127,6 +127,7 @@ namespace MetaArt {
         public static void arc(float x, float y, float width, float height, float start, float stop) => Graphics.arc(x, y, width, height, start, stop);
 
         public static void triangle(float x1, float y1, float x2, float y2, float x3, float y3) => Graphics.triangle(x1, y1, x2, y2, x3, y3);
+        public static void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) => Graphics.quad(x1, y1, x2, y2, x3, y3, x4, y4);
 
         public static void text(string str, float x, float y) => Graphics.text(str, x, y);
 
@@ -137,6 +138,7 @@ namespace MetaArt {
         public static void vertex(float x, float y) => Graphics.vertex(x, y);
 
         public static int floor(float d) => (int)Math.Floor(d);
+        public static int ceil(float d) => (int)Math.Ceiling(d);
         public static float exp(float d) => (float)Math.Exp(d);
         public static float sqrt(float d) => (float)Math.Sqrt(d);
         public static float log(float d) => (float)Math.Log(d);
