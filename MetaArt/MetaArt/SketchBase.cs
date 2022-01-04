@@ -146,6 +146,12 @@ namespace MetaArt {
         public static float sin(float angle) => (float)Math.Sin(angle);
         public static float cos(float angle) => (float)Math.Cos(angle);
         public static float atan2(float y, float x) => (float)Math.Atan2(y, x);
+        public static float dist(float x1, float y1, float x2, float y2) {
+            var x = x1 - x2;
+            var y = y1 - y2;
+            return sqrt(x * x + y * y);
+        }
+
         public const float PI = (float)Math.PI;
         public const float TWO_PI = PI * 2;
         public const float HALF_PI = PI  / 2;
