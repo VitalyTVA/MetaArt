@@ -51,7 +51,12 @@ namespace MetaArt.Skia {
             _noFill = true;
         }
         public override void textSize(float size) => fillPaint.TextSize = size;
-        public override void textAlign(TextAlign alignX) => fillPaint.TextAlign = alignX.ToSK();
+
+        TextVerticalAlign textVerticalAlign = TextVerticalAlign.BASELINE;
+        public override void textAlign(TextAlign alignX, TextVerticalAlign alignY) {
+            textVerticalAlign = alignY;
+            fillPaint.TextAlign = alignX.ToSK();
+        }
 
         SKPaint strokePaint = new SKPaint() {
             Style = SKPaintStyle.Stroke,
@@ -164,6 +169,8 @@ namespace MetaArt.Skia {
         }
 
         public override void text(string str, float x, float y) {
+            if(textVerticalAlign == TextVerticalAlign.CENTER)
+                y += textAscent() / 2;
             Canvas.DrawText(str, x, y, fillPaint);
         }
 
@@ -316,5 +323,26 @@ namespace MetaArt.Skia {
         public override void imageMode(RectMode mode) {
             _imageMode = mode;
         }
+
+        class SkiaFont : PFont {
+            public readonly SKTypeface typeface;
+            public readonly float fontSize;
+            public SkiaFont(SKTypeface typeface, float fontSize) {
+                this.typeface = typeface;
+                this.fontSize = fontSize;
+            }
+        }
+        public override PFont createFont(Stream stream, float size) {
+            var typeface = SKTypeface.FromStream(stream);
+            return new SkiaFont(typeface, size);
+        }
+        public override void textFont(PFont font) {
+            var skiaFont = (SkiaFont)font;
+            fillPaint.TextSize = skiaFont.fontSize;
+            fillPaint.Typeface = skiaFont.typeface;
+        }
+        public override float textAscent() => -fillPaint.FontMetrics.Ascent;
+        public override float textDescent() => fillPaint.FontMetrics.Descent;
+        public override float textWidth(string text) => fillPaint.MeasureText(text);
     }
 }

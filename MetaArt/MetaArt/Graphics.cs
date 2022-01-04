@@ -9,7 +9,7 @@ namespace MetaArt.Internal {
         public abstract void fill(Color color);
         public abstract void noFill();
         public abstract void textSize(float size);
-        public abstract void textAlign(TextAlign alignX);
+        public abstract void textAlign(TextAlign alignX, TextVerticalAlign alignY);
 
         public abstract void stroke(Color color);
         public abstract void strokeWeight(float weight);
@@ -46,11 +46,17 @@ namespace MetaArt.Internal {
 
         public abstract Pixels loadPixels();
 
+        public abstract PFont createFont(Stream stream, float size);
         public abstract PImage createImage(Stream stream);
 
         public abstract void image(PImage image, float a, float b);
         public abstract void imageOpacity(float opacity);
         public abstract void imageMode(RectMode mode);
+
+        public abstract void textFont(PFont font);
+        public abstract float textAscent();
+        public abstract float textDescent();
+        public abstract float textWidth(string text);
     }
 
     public abstract class Pixels {

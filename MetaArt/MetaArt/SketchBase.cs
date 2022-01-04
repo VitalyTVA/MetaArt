@@ -91,7 +91,7 @@ namespace MetaArt {
             Graphics.noFill();
         }
         public static void textSize(float size) => Graphics.textSize(size);
-        public static void textAlign(TextAlign alignX) => Graphics.textAlign(alignX);
+        public static void textAlign(TextAlign alignX, TextVerticalAlign alignY = TextVerticalAlign.BASELINE) => Graphics.textAlign(alignX, alignY);
 
         public static BlendMode BLEND => BlendMode.Blend;
         public static BlendMode DIFFERENCE => BlendMode.Difference;
@@ -198,9 +198,13 @@ namespace MetaArt {
         public static void frameRate(float fps) => Painter.SetFPS(fps);
 
         public static PImage loadImage(string filename) {
-            var stream = Painter.Assembly.GetManifestResourceStream(Painter.Assembly.GetName().Name + ".Assets." + filename);
+            var stream = GetStream(filename);
             return Graphics.createImage(stream);
         }
+        static System.IO.Stream GetStream(string filename) {
+            return Painter.Assembly.GetManifestResourceStream(Painter.Assembly.GetName().Name + ".Assets." + filename);
+        }
+
         public static void image(PImage image, float a, float b) => Graphics.image(image, a, b);
         public static void tint(int rgb, float alpha) {
             if(rgb != 255)
@@ -209,6 +213,16 @@ namespace MetaArt {
 
         }
         public static void imageMode(RectMode mode) => Graphics.imageMode(mode);
+
+        public static PFont createFont(string filename, float size) {
+            var stream = GetStream(filename);
+            return Graphics.createFont(stream, size);
+        }
+
+        public static void textFont(PFont font) => Graphics.textFont(font);
+        public static float textAscent() => Graphics.textAscent();
+        public static float textDescent() => Graphics.textDescent();
+        public static float textWidth(string text) => Graphics.textWidth(text);
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {
@@ -222,4 +236,5 @@ namespace MetaArt {
     public enum StrokeCap { PROJECT, ROUND, SQUARE }
     public enum ColorMode { RGB, HSB }
     public enum TextAlign { LEFT, CENTER, RIGHT }
+    public enum TextVerticalAlign { BASELINE, CENTER }
 }

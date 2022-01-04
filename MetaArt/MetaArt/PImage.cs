@@ -6,4 +6,7 @@ using System.Linq;
 namespace MetaArt {
 	public abstract class PImage {
     }
+    public abstract class PFont {
+
+    }
 }
