@@ -10,7 +10,7 @@ class SmokeParticleSystem {
     PImage img;
 
     public SmokeParticleSystem(int num, PVector v, PImage img_) {
-        origin = v;                                   // Store the origin point
+        origin = v.copy();                                   // Store the origin point
         img = img_;
         for(int i = 0; i < num; i++) {
             particles.Add(new SmokeParticle(origin, img));         // Add "num" amount of particles to the arraylist

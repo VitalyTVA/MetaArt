@@ -15,7 +15,7 @@ class SmokeParticle {
         float vx = randomGaussian() * 0.3f; //TODO use randomGaussian
         float vy = randomGaussian() * 0.3f - 1;
         vel = new PVector(vx, vy);
-        loc = l;
+        loc = l.copy();
         lifespan = 100;
         img = img_;
     }

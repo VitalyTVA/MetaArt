@@ -1,5 +1,4 @@
 ﻿namespace Fractals;
-
 // The Nature of Code
 // Daniel Shiffman
 // http://natureofcode.com
@@ -7,34 +6,47 @@
 // Koch Curve
 // A class to describe one line segment in the fractal
 // Includes methods to calculate midPVectors along the line according to the Koch algorithm
+
 class KochLine {
 
     // Two PVectors,
     // a is the "left" PVector and 
     // b is the "right PVector
-    public PVector Start { get; private set; }
-    public PVector End { get; private set; }
+    PVector a;
+    PVector b;
 
     public KochLine(PVector start, PVector end) {
-        Start = start;
-        End = end;
+        a = start.copy();
+        b = end.copy();
     }
 
+    public void display() {
+        stroke(255);
+        line(a.x, a.y, b.x, b.y);
+    }
+
+    public PVector start() {
+        return a.copy();
+    }
+
+    public PVector end() {
+        return b.copy();
+    }
 
     // This is easy, just 1/3 of the way
-    public PVector KochLeft() {
-        PVector v = PVector.sub(End, Start);
+    public PVector kochleft() {
+        PVector v = PVector.sub(b, a);
         v.div(3);
-        v.add(Start);
+        v.add(a);
         return v;
     }
 
     // More complicated, have to use a little trig to figure out where this PVector is!
-    public PVector KochMiddle() {
-        PVector v = PVector.sub(End, Start);
+    public PVector kochmiddle() {
+        PVector v = PVector.sub(b, a);
         v.div(3);
 
-        PVector p = Start;
+        PVector p = a.copy();
         p.add(v);
 
         v.rotate(-radians(60));
@@ -44,11 +56,10 @@ class KochLine {
     }
 
     // Easy, just 2/3 of the way
-    public PVector KochRight() {
-        PVector v = PVector.sub(Start, End);
+    public PVector kochright() {
+        PVector v = PVector.sub(a, b);
         v.div(3);
-        v.add(End);
+        v.add(b);
         return v;
     }
 }
-

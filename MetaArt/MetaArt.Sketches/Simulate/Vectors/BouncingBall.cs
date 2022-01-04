@@ -10,16 +10,12 @@ class BouncingBall {
      * to simulate motion using vectors in an object.
      */
 
-    PVector location;  // Location of shape
-    PVector velocity;  // Velocity of shape
-    PVector gravity;   // Gravity acts at the shape's acceleration
+    PVector location = new PVector(100, 100);  // Location of shape
+    PVector velocity = new PVector(1.5f, 2.1f);  // Velocity of shape
+    PVector gravity = new PVector(0, 0.2f);   // Gravity acts at the shape's acceleration
 
     void setup() {
         size(640, 360);
-        location = new PVector(100, 100);
-        velocity = new PVector(1.5f, 2.1f);
-        gravity = new PVector(0, 0.2f);
-
     }
 
     void draw() {

@@ -16,7 +16,9 @@ class KochFractal {
 
     public void Draw() {
         foreach(KochLine l in lines) {
-            line(l.Start.x, l.Start.y, l.End.x, l.End.y);
+            var start = l.start();
+            var end = l.end();
+            line(start.x, start.y, end.x, end.y);
         }
     }
 
@@ -45,11 +47,11 @@ class KochFractal {
         List<KochLine> now = new();    // Create emtpy list
         foreach(KochLine l in before) {
             // Calculate 5 koch PVectors (done for us by the line object)
-            PVector a = l.Start;
-            PVector b = l.KochLeft();
-            PVector c = l.KochMiddle();
-            PVector d = l.KochRight();
-            PVector e = l.End;
+            PVector a = l.start();
+            PVector b = l.kochleft();
+            PVector c = l.kochmiddle();
+            PVector d = l.kochright();
+            PVector e = l.end();
             // Make line segments between all the PVectors and add them
             now.Add(new KochLine(a, b));
             now.Add(new KochLine(b, c));

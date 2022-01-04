@@ -4,19 +4,21 @@ using System.Globalization;
 using System.Linq;
 
 namespace MetaArt.ProcessingCompatibility {
-	public struct PVector : IEquatable<PVector> {
-		public static readonly PVector Empty;
+	public class PVector : IEquatable<PVector> {
+		public static readonly PVector Empty = new PVector(0, 0);
 
 		public float x;
 
 		public float y;
 
-		public readonly bool IsEmpty => this == Empty;
+		public bool IsEmpty => this == Empty;
 
-		public readonly float Length => (float)Math.Sqrt(x * x + y * y);
+		public float Length => (float)Math.Sqrt(x * x + y * y);
 
-		public readonly float LengthSquared => x * x + y * y;
+		public float LengthSquared => x * x + y * y;
 
+		public PVector() : this(0, 0) {
+		}
 		public PVector(float x, float y, float z = 0) {
 			this.x = x;
 			this.y = y;
@@ -24,12 +26,12 @@ namespace MetaArt.ProcessingCompatibility {
 				throw new InvalidOperationException();
 		}
 
-		public override readonly string ToString() {
+		public override string ToString() {
 			return $"{{X={x}, Y={y}}}";
 		}
 
 
-		public readonly bool Equals(PVector obj) {
+		public bool Equals(PVector obj) {
 			if(x == obj.x) {
 				return y == obj.y;
 			}
@@ -50,7 +52,7 @@ namespace MetaArt.ProcessingCompatibility {
 			return this;
 		}
 
-        public override readonly bool Equals(object obj) {
+        public override bool Equals(object obj) {
 			if(obj is PVector obj2) {
 				return Equals(obj2);
 			}
@@ -137,7 +139,7 @@ namespace MetaArt.ProcessingCompatibility {
         }
 
         public PVector copy() {
-            return this; //TODO should vector be a class?
+            return new PVector(x, y);
         }
 
         public void setMag(float mag) {
