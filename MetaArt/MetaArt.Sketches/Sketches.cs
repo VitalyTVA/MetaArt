@@ -2,6 +2,13 @@ using System.Reflection;
 
 public class Sketches : ISkecthesProvider {
     ICollection<SketchGroup> ISkecthesProvider.Groups => new[] {
+        SketchGroup.FromNamespace("Interaction", Assembly.GetExecutingAssembly()),
+        SketchGroup.FromNamespace("Motion", Assembly.GetExecutingAssembly()),
+        SketchGroup.FromNamespace("Input", Assembly.GetExecutingAssembly()),
+        SketchGroup.FromNamespace("Vectors", Assembly.GetExecutingAssembly()),
+        SketchGroup.FromNamespace("Fractals", Assembly.GetExecutingAssembly()),
+        SketchGroup.FromNamespace("Simulate", Assembly.GetExecutingAssembly()),
+
         new SketchGroup {
             Name = "p5.js demos",
             Sketches = new[] {
@@ -23,11 +30,6 @@ public class Sketches : ISkecthesProvider {
                 new SkecthInfo(typeof(Substrate), description: "The advanced example, implementing Jared Tarbell's 'Substrate' algorithm."),
             }
         },
-        SketchGroup.FromNamespace("Motion", Assembly.GetExecutingAssembly()),
-        SketchGroup.FromNamespace("Input", Assembly.GetExecutingAssembly()),
-        SketchGroup.FromNamespace("Vectors", Assembly.GetExecutingAssembly()),
-        SketchGroup.FromNamespace("Fractals", Assembly.GetExecutingAssembly()),
-        SketchGroup.FromNamespace("Simulate", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("TestSketches", Assembly.GetExecutingAssembly()),
     };
 }
