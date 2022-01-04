@@ -20,11 +20,13 @@ div.scrollable {
             <h3>@selectedGroup.Key</h3>
             <h3>@(selectedSkecth?.Name ?? "Run Sketch")</h3>
             <div>
-                <tr>
-                    @foreach(var group in groups) {
-                        <td><button @onclick="@(e => SelectGroup(group))">@group.Key</button></td>
-                    }
-                </tr>
+                @foreach(var chunk in groups.Chunk(3)) {
+                    <tr>
+                        @foreach(var group in chunk) {
+                            <td><button @onclick="@(e => SelectGroup(group))">@group.Key</button></td>
+                        }
+                    </tr>
+                }
             </div>
             <div class="scrollable">
                 <table class="table">
