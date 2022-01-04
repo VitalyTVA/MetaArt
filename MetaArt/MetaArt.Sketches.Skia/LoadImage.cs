@@ -5,6 +5,7 @@ using System.Diagnostics;
 class LoadImage {
     void setup() {
         size(640, 360);
+        noLoop();
     }
 
     void draw() {
