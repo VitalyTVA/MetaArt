@@ -1,0 +1,44 @@
+/**
+ * Tickle. 
+ * 
+ * The word "tickle" jitters when the cursor hovers over.
+ * Sometimes, it can be tickled off the screen.
+ */
+
+String message = "Tickleg";
+float x, y; // X and Y coordinates of text
+float hr, vr;  // horizontal and vertical radius of the text
+
+void setup() {
+  size(640, 360);
+  
+  // Create the font
+  textFont(createFont("SourceCodePro-Regular.ttf", 100));
+  textAlign(CENTER, CENTER);
+  
+  hr = textWidth(message) / 2;
+  println(textWidth(message));
+  println(textAscent());
+  println(textDescent());
+  vr = (textAscent() + textDescent()) / 2;
+  noStroke();
+  x = width / 2;
+  y = height / 2;
+}
+
+void draw() {
+  // Instead of clearing the background, fade it by drawing
+  // a semi-transparent rectangle on top
+  fill(204, 120);
+  rect(0, 0, width, height);
+  
+  fill(0);
+  text(message, x, y);
+  
+  noFill();
+  stroke(255);
+  strokeWeight(1);
+  line(width / 2 - hr, 0, width / 2 - hr, height);
+  line(width / 2 + hr, 0, width / 2 + hr, height);
+  line(0, height / 2 + 100 / 2 - textAscent(), width, height / 2 + 100 / 2 - textAscent());
+  line(0, height / 2 + 100 / 2 + textDescent(), width, height / 2+ 100 / 2 + textDescent());
