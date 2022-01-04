@@ -37,6 +37,7 @@ namespace MetaArt.Skia {
             }
             SKSurface = surface;
             if(!setUp) {
+                Sketch.background(255 / 2);
                 Setup();
                 if(draw != null)
                     draw.Dispose();
