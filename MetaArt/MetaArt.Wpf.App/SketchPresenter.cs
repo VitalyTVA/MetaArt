@@ -24,14 +24,6 @@ namespace MetaArt.Wpf {
             form?.SetLocation(GetLocation());
         }
 
-        public void Hide_() {
-            //window?.Hide_();
-        }
-
-        public void Show_() {
-            //window?.Show_(GetLocation());
-        }
-
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
             base.OnRenderSizeChanged(sizeInfo);
             //UpdateLocation();
