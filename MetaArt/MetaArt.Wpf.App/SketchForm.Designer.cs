@@ -29,7 +29,6 @@
             // skglControl1
             // 
             this.skglControl1.BackColor = System.Drawing.Color.Black;
-            this.skglControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.skglControl1.Location = new System.Drawing.Point(0, 0);
             this.skglControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.skglControl1.Name = "skglControl1";

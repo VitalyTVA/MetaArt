@@ -16,14 +16,20 @@ using System.Windows.Forms;
 namespace MetaArt.Wpf {
     public partial class SketchForm : Form {
         Painter painter;
-        System.Drawing.Point ownerLocation;
-        public SketchForm(Type sketchType, System.Drawing.Point ownerLocation) {
+        System.Drawing.Rectangle ownerRect;
+        readonly Action<System.Drawing.Size> sketchSizeChanged;
+        readonly Action<int> mouseWheel;
+
+        public SketchForm(Type sketchType, System.Drawing.Rectangle ownerRect, Action<System.Drawing.Size> sketchSizeChanged, Action<int> mouseWheel) {
             InitializeComponent();
             ShowInTaskbar = false;
             FormBorderStyle = FormBorderStyle.None;
-            this.ownerLocation = ownerLocation;
+            BackColor = System.Drawing.Color.LightBlue;
+            this.ownerRect = ownerRect;
+            this.sketchSizeChanged = sketchSizeChanged;
+            this.mouseWheel = mouseWheel;
             painter = new Painter(sketchType!, skglControl1.Invalidate, _ => {
-                SetLocation(ownerLocation);
+                SetLocation(ownerRect);
             });
             skglControl1.MouseMove += SkglControl1_MouseMove;
             skglControl1.MouseLeave += SkglControl1_MouseLeave;
@@ -31,9 +37,15 @@ namespace MetaArt.Wpf {
             skglControl1.KeyPress += SkglControl1_KeyPress;
             skglControl1.MouseDown += SkglControl1_MouseDown;
             skglControl1.MouseUp += SkglControl1_MouseUp;
+            skglControl1.MouseWheel += SkglControl1_MouseWheel;
+            MouseWheel += SkglControl1_MouseWheel;
             //skglControl1.Visible = false;
             Width = Screen.PrimaryScreen.WorkingArea.Width;
             Height = Screen.PrimaryScreen.WorkingArea.Height;
+        }
+
+        private void SkglControl1_MouseWheel(object? sender, MouseEventArgs e) {
+            mouseWheel(e.Delta);
         }
 
         private void SkglControl1_KeyPress(object? sender, KeyPressEventArgs e) {
@@ -78,18 +90,28 @@ namespace MetaArt.Wpf {
             painter.PaintSurface(e.Surface);
         }
 
-        public void SetLocation(System.Drawing.Point p) {
+        public void SetLocation(System.Drawing.Rectangle ownerRect) {
             BeginInvoke(() => {
-                Location = p;
-                ClientSize = new System.Drawing.Size(painter.Width, painter.Height);
+                Location = ownerRect.Location;
+                ClientSize = ownerRect.Size;
+                var sketchSize = new System.Drawing.Size(painter.Width, painter.Height);
+                skglControl1.Size = sketchSize;
+                sketchSizeChanged(sketchSize);
                 TopMost = true;
                 TopMost = false;
             });
         }
+        internal void SetOffset(System.Drawing.Point offset) {
+            BeginInvoke(() => {
+                skglControl1.Location = new System.Drawing.Point(-offset.X, -offset.Y);
+            });
+        }
+
         protected override void OnClosing(CancelEventArgs e) {
             painter.Dispose();
             base.OnClosing(e);
         }
+
         public Task Stop() {
             return Task.Factory.FromAsync(BeginInvoke(new Action(() => { Close(); })), _ => { });
         }
