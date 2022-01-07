@@ -31,5 +31,15 @@ class Points {
         point(70f, 100f);
 
         set(80f, 100f, color(255));
+
+        strokeWeight(1f);
+        strokeCap(StrokeCap.ROUND);
+        point(50f, 150f);
+
+        strokeCap(StrokeCap.PROJECT);
+        point(60f, 150f);
+
+        strokeCap(StrokeCap.SQUARE);
+        point(70f, 150f);
     }
 }

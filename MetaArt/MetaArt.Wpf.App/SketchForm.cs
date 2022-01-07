@@ -45,7 +45,7 @@ namespace MetaArt.Wpf {
         }
 
         private void SkglControl1_MouseWheel(object? sender, MouseEventArgs e) {
-            mouseWheel(e.Delta);
+            mouseWheel(-e.Delta);
         }
 
         private void SkglControl1_KeyPress(object? sender, KeyPressEventArgs e) {
