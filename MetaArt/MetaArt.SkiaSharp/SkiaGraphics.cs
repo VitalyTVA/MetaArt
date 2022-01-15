@@ -35,6 +35,7 @@ namespace MetaArt.Skia {
             }
         }
 
+        public SKPaint FillPaint => fillPaint;
         SKPaint fillPaint = new SKPaint() { 
             Style = SKPaintStyle.Fill, 
             IsAntialias = true, 
@@ -58,6 +59,7 @@ namespace MetaArt.Skia {
             fillPaint.TextAlign = alignX.ToSK();
         }
 
+        public SKPaint StrokePaint => strokePaint;
         SKPaint strokePaint = new SKPaint() {
             Style = SKPaintStyle.Stroke,
             StrokeWidth = 1,

@@ -14,6 +14,8 @@ https://github.com/MicrosoftDocs/xamarin-docs/blob/live/docs/xamarin-forms/user-
 
 https://docs.microsoft.com/en-us/dotnet/api/skiasharp.skshader?view=skiasharp-2.80.2
 
+calc spline https://github.com/PeterWaher/IoTGateway/blob/1cb3631831f223eab7f145ebe3a789325fdb90e5/Script/Waher.Script.Graphs/Functions/Plots/Plot2DCurvePainter.cs
+
 void setup()
 {
 size(600, 600);

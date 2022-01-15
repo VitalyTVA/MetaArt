@@ -30,6 +30,9 @@ class Inversion {
             }
             lastPressedX = mouseX;
             lastPressedY = mouseY;
+        } else {
+            lastPressedX = 0;
+            lastPressedY = 0;
         }
     }
     PVector invertVector(float x, float y) {
@@ -37,9 +40,5 @@ class Inversion {
         var len = r * r / v.Length;
         v.setMag(len);
         return v;
-    }
-    void mouseReleased() {
-        lastPressedX = 0;
-        lastPressedY = 0;
     }
 }
