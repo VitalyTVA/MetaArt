@@ -2,6 +2,7 @@ using System.Reflection;
 
 public class Sketches : ISkecthesProvider {
     ICollection<SketchGroup> ISkecthesProvider.Groups => new[] {
+        SketchGroup.FromNamespace("Meta", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("Interaction", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("Motion", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("Input", Assembly.GetExecutingAssembly()),
