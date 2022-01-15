@@ -42,7 +42,7 @@ namespace MetaArt.Skia {
                 if(draw != null)
                     draw.Dispose();
                 draw = surface.Snapshot();
-                setSize(new Size(Width, Height));
+                setSize(new Vector(Width, Height));
                 setUp = true;
                 invalidate();
             } else {
@@ -66,9 +66,9 @@ namespace MetaArt.Skia {
             }
         }
 
-        readonly Action<Size> setSize;
+        readonly Action<Vector> setSize;
 
-        public Painter(Type sketchType, Action invalidate, Action<Size> setSize) 
+        public Painter(Type sketchType, Action invalidate, Action<Vector> setSize) 
             : base(sketchType, new SkiaGraphics(), invalidate) {
             this.setSize = setSize;
         }

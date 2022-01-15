@@ -58,7 +58,7 @@ namespace MetaArt {
 
         protected readonly Action invalidate;
         protected Queue<Action> preRenderQueue = new();
-        protected Point? pos { get; private set; }
+        protected Vector? pos { get; private set; }
         public void OnMouseDown(float x, float y) {
             isMousePressed = true;
             preRenderQueue.Enqueue(() => {
@@ -74,7 +74,7 @@ namespace MetaArt {
             invalidate();
         }
         public void OnMouseOver(float x, float y) {
-            pos = new Point(x, y);
+            pos = new Vector(x, y);
             var pressedValue = isMousePressed;
             preRenderQueue.Enqueue(() => {
                 if(pressedValue)

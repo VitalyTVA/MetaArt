@@ -2,7 +2,7 @@
 //p5.js demos by @mattdesl https://p5-demos.glitch.me/
 
 class Rects {
-    List<(Point, Size)> rectangles = new();
+    List<(Vector, Vector)> rectangles = new();
     // Set canvas size
     void setup() {
         size(400, 400);
@@ -15,10 +15,10 @@ class Rects {
         for(int i = 0; i < rectangleCount; i++) {
             // Randomly place some rectangles within -1..1 space
             const float shrink = 0.5f;
-            Point position = new Point(random(-1, 1) * shrink, random(-1, 1) * shrink);
+            Vector position = new Vector(random(-1, 1) * shrink, random(-1, 1) * shrink);
             // Create a random 0..1 scale for the rectangles
             float scale = random(0.5f, 1);
-            Size size = new Size(random(0, 1) * scale, random(0, 1) * scale);
+            var size = new Vector(random(0, 1) * scale, random(0, 1) * scale);
             rectangles.Add((position, size));
         }
     }

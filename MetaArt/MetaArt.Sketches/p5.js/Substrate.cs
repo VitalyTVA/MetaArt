@@ -12,7 +12,7 @@ class Substrate {
         size(600, 600);
         for(int i = 0; i < initialLines && i < maxLines; i++) {
             // Default to randomly within -1..1 space
-            var origin = new Point(random(-1, 1), random(-1, 1));
+            var origin = new Vector(random(-1, 1), random(-1, 1));
 
             // Default to a random direction
             var direction = randomUnitVector();
@@ -21,7 +21,7 @@ class Substrate {
         }
     }
 
-    Line createLine(Point origin, Point direction) {
+    Line createLine(Vector origin, Vector direction) {
         // We will use normalized coordinates
         // And then scale them to the screen size
         return new Line {
@@ -62,11 +62,11 @@ class Substrate {
 
             var hit = intersectLineSegments(
                 // this line A->B
-                new Point (x0, y0),
-                new Point(x1, y1),
+                new Vector (x0, y0),
+                new Vector(x1, y1),
                 // other line A->B
-                new Point(other.Origin.X, other.Origin.Y),
-                new Point(other.Position.X, other.Position.Y)
+                new Vector(other.Origin.X, other.Origin.Y),
+                new Vector(other.Position.X, other.Position.Y)
             );
 
             // We hit another line, make sure we didn't go further than it
@@ -87,7 +87,7 @@ class Substrate {
             }
         }
 
-        line.Position = new Point(x1, y1);
+        line.Position = new Vector(x1, y1);
 
         if(hitLine != null) {
             // Mark this line as stopped
@@ -125,9 +125,9 @@ class Substrate {
         float sign = random(0, 1) > 0.5 ? 1 : -1;
 
         // Get a perpendicular to the line
-        Point direction = new(-line.Direction.Y * sign, line.Direction.X * sign);
+        Vector direction = new(-line.Direction.Y * sign, line.Direction.X * sign);
 
-        return createLine(new Point(px, py), direction);
+        return createLine(new Vector(px, py), direction);
     }
 
     //// On window resize, update the canvas size
@@ -168,21 +168,21 @@ class Substrate {
     // ... Utilities ...
     // -----------------
 
-    Point randomUnitVector() {
+    Vector randomUnitVector() {
         float radius = 1; // unit circle
         float theta = random(0, 1) * 2.0f * PI;
-        return new Point(radius * cos(theta), radius * sin(theta));
+        return new Vector(radius * cos(theta), radius * sin(theta));
     }
 
-    Point? intersectLineSegments(Point p1, Point p2, Point p3, Point p4) {
+    Vector? intersectLineSegments(Vector p1, Vector p2, Vector p3, Vector p4) {
         float t = intersectLineSegmentsFract(p1, p2, p3, p4);
         if(t >= 0 && t <= 1) {
-            return new Point(p1.X + t * (p2.X - p1.X), p1.Y + t * (p2.Y - p1.Y));
+            return new Vector(p1.X + t * (p2.X - p1.X), p1.Y + t * (p2.Y - p1.Y));
         }
         return null;
     }
 
-    float intersectLineSegmentsFract(Point p1, Point p2, Point p3, Point p4) {
+    float intersectLineSegmentsFract(Vector p1, Vector p2, Vector p3, Vector p4) {
         // Reference:
         // https://github.com/evil-mad/EggBot/blob/master/inkscape_driver/eggbot_hatch.py
         float d21x = p2.X - p1.X;
@@ -204,9 +204,9 @@ class Substrate {
         return sa;
     }
     class Line {
-        public Point Origin { get; init; }
-        public Point Position { get; set; }
-        public Point Direction { get; init; }
+        public Vector Origin { get; init; }
+        public Vector Position { get; set; }
+        public Vector Direction { get; init; }
         public float Speed { get; init; }
         public List<Line> Hits { get; init; } = new();
         public bool Moving { get; set; }

@@ -21,9 +21,13 @@ class BlurredLine {
             Canvas.DrawPath(path, Graphics.StrokePaint);
 
             for(int i = 0; i < p.Length; i++) {
-                var mid = (p.Length - 1) / 2f;
+                float step = 2f * pow(i / (p.Length - 1f), 3);
+
+                //var mid = (p.Length - 1) / 2f;
+                //float step = 1f * ((float)i / p.Length);
+
                 //float step = 0.75f * (-abs(i - mid) + mid) / mid;
-                float step = 1f * ((float)i / p.Length);
+
                 var (dx, dy) = (random(-step, step), random(-step, step));
                 p[i].Offset(dx, dy);
             }
