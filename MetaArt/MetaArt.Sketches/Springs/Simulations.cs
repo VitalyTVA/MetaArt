@@ -26,18 +26,18 @@ class Simulations {
     //        springs: [Physics.createFixedSpring(350, new Vector(0, 0), box, new Vector(boxSize.x / 2, 0))]
     //    }
     //}
-    //static createDoubleUnbalancedSpringPendulum(): PhysicsSetup {
-    //    var boxSize3 = new Vector(100, 20);
-    //    var box3 = createBox(boxSize3, 100, new Vector(0, 200), new Vector(0, 0));
-    //    var box3_ = createBox(boxSize3, 100, new Vector(0, 400), new Vector(0, 0));
-    //    var spring3 = Physics.createFixedSpring(500, new Vector(0, 0), box3, new Vector(boxSize3.x / 2, 0));
-    //    var spring3_ = Physics.createDynamicSpring(500, box3, new Vector(-boxSize3.x / 2, 0), box3_, new Vector(boxSize3.x / 2, 0));
-    //    return {
-    //        boxes: [box3, box3_],
-    //        forceFields: [Physics.createGravity(100)],
-    //        springs: [spring3, spring3_]
-    //    }
-    //}
+    public static PhysicsSetup createDoubleUnbalancedSpringPendulum() {
+        var boxSize3 = new Vector(100, 20);
+        var box3 = BoxBody.createBox(boxSize3, 100, new Vector(0, 200), new Vector(0, 0));
+        var box3_ = BoxBody.createBox(boxSize3, 100, new Vector(0, 400), new Vector(0, 0));
+        var spring3 = Physics.createFixedSpring(500, new Vector(0, 0), box3, new Vector(boxSize3.X / 2, 0));
+        var spring3_ = Physics.createDynamicSpring(500, box3, new Vector(-boxSize3.X / 2, 0), box3_, new Vector(boxSize3.X / 2, 0));
+        return new PhysicsSetup(
+            boxes: new[] { box3, box3_ },
+            forceFields: new[] { Physics.createGravity(100) },
+            springs: new[] { spring3, spring3_ }
+        );
+    }
     //static createBalancedRotatingBoxes(): PhysicsSetup {
     //    var boxSize = new Vector(100, 20);
     //    var box1 = createBox(boxSize, 100, new Vector(0, -200), new Vector(0, 0));

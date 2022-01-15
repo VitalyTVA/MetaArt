@@ -103,7 +103,7 @@ class Physics {
             setRate = spring.setRate,
         };
     }
-    static SpringForceProvider createDynamicSpring(float rate, RigidBody fromBody, Vector fromBodyPoint, RigidBody toBody, Vector toBodyPoint) {
+    public static SpringForceProvider createDynamicSpring(float rate, RigidBody fromBody, Vector fromBodyPoint, RigidBody toBody, Vector toBodyPoint) {
         var spring = Physics.createSpring(
             rate,
             () => Extensions.toWorldPoint(fromBody, fromBodyPoint),
