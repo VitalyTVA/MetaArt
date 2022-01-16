@@ -1,11 +1,13 @@
 ﻿namespace SpringsPhysics;
 class Springs {
     void setup() {
-        size(600, 600);
+        size(800, 800);
 
         var setups = new[] { 
             Simulations.createUnbalancedSpringPendulum(),
-            Simulations.createDoubleUnbalancedSpringPendulum()
+            Simulations.createDoubleUnbalancedSpringPendulum(),
+            Simulations.createBalancedRotatingBoxes(),
+            Simulations.createPushPullSwing(),
         };
         sims = setups.Select(x => (Physics.create(x), x)).ToArray();
     }
@@ -19,7 +21,7 @@ class Springs {
         stroke(0, 255, 0);
         rectMode(RectMode.CENTER);
 
-        translate(0, 100);
+        translate(0, 200);
         foreach(var (p, ps) in sims) {
             translate(150, 0);
 
