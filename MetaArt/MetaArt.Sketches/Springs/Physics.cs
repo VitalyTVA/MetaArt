@@ -61,9 +61,9 @@ public enum AdvanceMode {
     Smart,
 }
 
-class Physics {
+public class Physics {
     const float defaultStep = 0.01f;
-    static ForceField createForceField(Vector acceleration) {
+    public static ForceField createForceField(Vector acceleration) {
         return new ForceField {
             getForce = body => {
                 var mass = body.mass;
@@ -151,7 +151,7 @@ class Physics {
 
     public readonly List<RigidBody> bodies;
     readonly List<ForceProvider> forces;
-    readonly float step;
+    public readonly float step;
     readonly AdvanceMode advanceMode;
     bool stopped;
     public Physics(List<RigidBody> bodies, List<ForceProvider> forces, float step = defaultStep, AdvanceMode advanceMode = AdvanceMode.Default) {
@@ -174,10 +174,10 @@ class Physics {
         return new Physics(setup.boxes.ToList<RigidBody>(), forces.ToList(), defaultStep, AdvanceMode.Smart);
     }
 
-    Vector[] positions() => this.bodies.Select(x => x.position).ToArray();
-    Vector[] velocities() => this.bodies.Select(x => x.velocity).ToArray();
-    float[] angles() => this.bodies.Select((x, _) => x.angle).ToArray();
-    float[] angularVelocities() => this.bodies.Select((x, _) => x.angularVelocity).ToArray();
+    public Vector[] positionsForTests() => this.bodies.Select(x => x.position).ToArray();
+    public Vector[] velocitiesForTests() => this.bodies.Select(x => x.velocity).ToArray();
+    public float[] anglesForTests() => this.bodies.Select((x, _) => x.angle).ToArray();
+    public float[] angularVelocitiesForTests() => this.bodies.Select((x, _) => x.angularVelocity).ToArray();
 
     public void advance() {
         if(this.stopped) {
@@ -229,7 +229,7 @@ class Physics {
                 body.angle = body.angle % Sketch.TWO_PI;
         }
     }
-    float totalEnergy() {
+    public float totalEnergy() {
         var res = 0f;
         foreach(var x in bodies) {
             res += Extensions.energy(x);
