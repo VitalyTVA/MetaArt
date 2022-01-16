@@ -1,4 +1,7 @@
-﻿namespace D3;
+﻿using System.Numerics;
+using Vector = MetaArt.Vector;
+
+namespace D3;
 class Cube {
     Vector3[] vertices = null!;
     void setup() {
@@ -55,8 +58,8 @@ class Camera {
     }
 
     public Vector ProjectPoint(Vector3 point) {
-        var t = ((ScreenCenter - point) * Screen) / ((Focus - point) * Screen);
-        var v = Focus.Mult(t) + point.Mult(1 - t);
+        var t = Vector3.Dot(ScreenCenter - point, Screen) / Vector3.Dot(Focus - point, Screen);
+        var v = Focus * t  + point * (1 - t);
         return new Vector(v.X, v.Y);
     }
 }
@@ -73,5 +76,10 @@ static class CameraExtensions {
         var (x1, y1) = c.ProjectPoint(p1);
         var (x2, y2) = c.ProjectPoint(p2);
         line(x1, y1, x2, y2);
+    }
+    public static void Deconstruct(this Vector3 v, out float x, out float y, out float z) {
+        x = v.X;
+        y = v.Y;
+        z = v.Z;
     }
 }
