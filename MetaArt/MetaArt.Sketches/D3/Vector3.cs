@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 
-namespace Emergent {
+namespace D3 {
 	public readonly struct Vector3 : IEquatable<Vector3> {
 		public static readonly Vector3 Empty;
 		public readonly float X, Y, Z;
@@ -54,6 +54,9 @@ namespace Emergent {
             return new Vector3(v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z);
         }
 
+        public static float operator *(Vector3 v1, Vector3 v2) {
+            return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
+        }
 
         public readonly bool Equals(Vector3 obj) {
 			return X == obj.X && Y == obj.Y && Z == obj.Z;

@@ -128,6 +128,8 @@ namespace MetaArt.Wpf {
         }
 
         class ScrollableSketch : IScrollInfo {
+            public override string ToString() => string.Empty;
+
             private SketchPresenter owner;
 
             public ScrollableSketch(SketchPresenter sketchPresenter) {

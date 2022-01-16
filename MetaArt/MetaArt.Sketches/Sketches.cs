@@ -2,6 +2,7 @@ using System.Reflection;
 
 public class Sketches : ISkecthesProvider {
     ICollection<SketchGroup> ISkecthesProvider.Groups => new[] {
+        SketchGroup.FromNamespace("D3", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("SpringsPhysics", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("Meta", Assembly.GetExecutingAssembly()),
         SketchGroup.FromNamespace("Interaction", Assembly.GetExecutingAssembly()),
