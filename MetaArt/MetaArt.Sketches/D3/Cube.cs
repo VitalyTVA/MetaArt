@@ -22,6 +22,8 @@ class Cube {
         };
     }
 
+    float yaw, pitch;
+
     void draw() {
         noSmooth();
         stroke(White);
@@ -30,6 +32,11 @@ class Cube {
         background(0);
         translate(width / 2, height / 2);
         scale(1, -1);
+
+        //var q = Quaternion.CreateFromYawPitchRoll(yaw, pitch, 0);
+        var q = Quaternion.CreateFromYawPitchRoll(0, pitch, 0) * Quaternion.CreateFromYawPitchRoll(yaw, 0, 0);
+
+        var v = Vector3.Transform(new Vector3(0, 0, -300), Quaternion.Conjugate(q));
 
         //circle(0, 0, 50);
         var c = new Camera(
@@ -45,9 +52,11 @@ class Cube {
             //new Vector3(0, 300, -300),
             //Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), -PI / 4), 
 
-            new Vector3(0, 0, -300),
-            Quaternion.Identity,
+            //new Vector3(0, 0, -300),
+            //Quaternion.Identity,
 
+            v,
+            q,
 
             200
         );
@@ -63,17 +72,26 @@ class Cube {
             c.line3(vertices[from], vertices[to]);
         }
     }
+
+    void keyPressed() {
+        float step = PI / 30;
+
+        if(key == 'a') yaw -= step;
+        if(key == 'd') yaw += step;
+        if(key == 'w' && pitch > - PI / 4) pitch -= step;
+        if(key == 's' && pitch < PI / 4) pitch += step;
+    }
 }
 
 class Camera {
     public readonly Vector3 Location;
     readonly float FocalDistance;
-    readonly Quaternion rotation;
+    readonly Quaternion Rotation;
 
     public Camera(Vector3 location, Quaternion rotation, float focalDistance) {
         Location = location;
 
-        this.rotation = Quaternion.Normalize(rotation);
+        this.Rotation = Quaternion.Normalize(rotation);
         FocalDistance = focalDistance;
     }
 
@@ -81,7 +99,7 @@ class Camera {
         var p = point - Location;
 
 
-        p = Vector3.Transform(p, rotation);
+        p = Vector3.Transform(p, Rotation);
 
         var r = new Vector(
             p.X * FocalDistance / p.Z,
