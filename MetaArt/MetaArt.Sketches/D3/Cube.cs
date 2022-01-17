@@ -29,11 +29,30 @@ class Cube {
         noFill();
         background(0);
         translate(width / 2, height / 2);
+        scale(1, -1);
 
         //circle(0, 0, 50);
-        var c = new Camera(new Vector3(0, 0, -300), new Vector3(0, 0, -200));
+        var c = new Camera(
+            //new Vector3(0, 300, -300),
+            //Quaternion.CreateFromYawPitchRoll(0.0f, -PI / 4, 0.0f),
 
-        vertices.RotateY(deltaTime / 1000f);
+            //new Vector3(300, 0, -300),
+            //Quaternion.CreateFromYawPitchRoll(PI / 4, 0.0f, 0.0f),
+
+            //new Vector3(300, 0, -300),
+            //Quaternion.CreateFromAxisAngle(new Vector3(0, 1f, 0), PI / 4), 
+
+            //new Vector3(0, 300, -300),
+            //Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), -PI / 4), 
+
+            new Vector3(0, 0, -300),
+            Quaternion.Identity,
+
+
+            200
+        );
+
+        //vertices.RotateY(deltaTime / 1000f);
 
         var lines = new[] {
             (0, 1), (1, 2), (2, 3), (3, 0),
@@ -47,20 +66,32 @@ class Cube {
 }
 
 class Camera {
-    public readonly Vector3 Focus; //eye position
-    public readonly Vector3 Screen; //vector from eye to screen center
-    public readonly Vector3 ScreenCenter;
+    public readonly Vector3 Location;
+    readonly float FocalDistance;
+    readonly Quaternion rotation;
 
-    public Camera(Vector3 focus, Vector3 screen) {
-        Focus = focus;
-        Screen = screen;
-        ScreenCenter = focus + screen;
+    public Camera(Vector3 location, Quaternion rotation, float focalDistance) {
+        Location = location;
+
+        this.rotation = Quaternion.Normalize(rotation);
+        FocalDistance = focalDistance;
     }
 
     public Vector ProjectPoint(Vector3 point) {
-        var t = Vector3.Dot(ScreenCenter - point, Screen) / Vector3.Dot(Focus - point, Screen);
-        var v = Focus * t  + point * (1 - t);
-        return new Vector(v.X, v.Y);
+        var p = point - Location;
+
+
+        p = Vector3.Transform(p, rotation);
+
+        var r = new Vector(
+            p.X * FocalDistance / p.Z,
+            p.Y * FocalDistance / p.Z
+        );
+        return r;//.Negate();
+
+        //var t = Vector3.Dot(ScreenCenter - point, Screen) / Vector3.Dot(Location - point, Screen);
+        //var v = Location * t  + point * (1 - t);
+        //return new Vector(v.X, v.Y);
     }
 }
 

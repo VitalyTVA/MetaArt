@@ -168,7 +168,7 @@ namespace MetaArt {
             var len = Length;
             return new Vector(X / len, this.Y / len);
         }
-        public Vector Negate(Vector v) => new Vector(-X, -Y);
+        public Vector Negate() => new Vector(-X, -Y);
 
 
         public Vector Rotate(float angle) {
