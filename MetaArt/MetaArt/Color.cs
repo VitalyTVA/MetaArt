@@ -70,4 +70,12 @@ namespace MetaArt {
             return num.GetHashCode();
         }
     }
+    public static class Colors {
+        public static Color Red = new Color(4294901760u);
+        public static Color Blue = new Color(4278190335u);
+        public static Color Green = new Color(4278222848u);
+        public static Color Yellow = new Color(4294967040u);
+        public static Color Orange = new Color(4294944000u);
+        public static Color Pink = new Color(4294951115u);
+    }
 }

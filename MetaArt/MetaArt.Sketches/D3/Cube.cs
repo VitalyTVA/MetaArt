@@ -71,6 +71,19 @@ class Cube {
         foreach(var (from, to) in lines) {
             c.line3(vertices[from], vertices[to]);
         }
+
+        var quads = new[] {
+            (0, 1, 2, 3, Colors.Red),
+            (7, 6, 5, 4, Colors.Blue),
+            (4, 5, 1, 0, Colors.Pink),
+            (3, 2, 6, 7, Colors.Green),
+            (3, 7, 4, 0, Colors.Yellow),
+            (1, 5, 6, 2, Colors.Orange),
+        };
+        foreach(var (v1, v2, v3, v4, color) in quads) {
+            fill(color);
+            c.quad3(vertices[v1], vertices[v2], vertices[v3], vertices[v4]);
+        }
     }
 
     void keyPressed() {
@@ -125,6 +138,17 @@ static class CameraExtensions {
         var (x1, y1) = c.ProjectPoint(p1);
         var (x2, y2) = c.ProjectPoint(p2);
         line(x1, y1, x2, y2);
+    }
+    public static void quad3(this Camera c, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4) {
+        var n = Vector3.Cross(p2 - p1, p3 - p2);
+        var v = p1 - c.Location;
+        if(Vector3.Dot(n, v) < 0) return;
+
+        var (x1, y1) = c.ProjectPoint(p1);
+        var (x2, y2) = c.ProjectPoint(p2);
+        var (x3, y3) = c.ProjectPoint(p3);
+        var (x4, y4) = c.ProjectPoint(p4);
+        quad(x1, y1, x2, y2, x3, y3, x4, y4);
     }
     public static void Deconstruct(this Vector3 v, out float x, out float y, out float z) {
         x = v.X;
