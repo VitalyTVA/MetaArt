@@ -68,9 +68,9 @@ class Cube {
             (4, 5), (5, 6), (6, 7), (7, 4),
             (0, 4), (1, 5), (2, 6), (3, 7),
         };
-        foreach(var (from, to) in lines) {
-            c.line3(vertices[from], vertices[to]);
-        }
+        //foreach(var (from, to) in lines) {
+        //    c.line3(vertices[from], vertices[to]);
+        //}
 
         var quads = new[] {
             (0, 1, 2, 3, Colors.Red),
@@ -80,10 +80,46 @@ class Cube {
             (3, 7, 4, 0, Colors.Yellow),
             (1, 5, 6, 2, Colors.Orange),
         };
-        foreach(var (v1, v2, v3, v4, color) in quads) {
-            fill(color);
-            c.quad3(vertices[v1], vertices[v2], vertices[v3], vertices[v4]);
+
+        var pointPlains = quads.Select(x => {
+            var v1 = vertices[x.Item1];
+            var v2 = vertices[x.Item2];
+            var v3 = vertices[x.Item3];
+            var v4 = vertices[x.Item4];
+
+            var (x1, y1, z1) = v1; 
+            var (x2, y2, z2) = v3;
+            var points = Enumerable
+                .Range(0, 30)
+                .Select(_ => new Vector3(random(x1, x2), random(y1, y2), random(z1, z2)))
+                .ToArray();
+            return (points, (v1, v2, v3, v4));
+        }).ToArray();
+
+        randomSeed(0);
+        var backgroundPoints = Enumerable.Range(0, 400).Select(_ => (random(-width / 2, width / 2), random(-height / 2, height / 2)));
+        stroke(White);
+        foreach(var (x, y) in backgroundPoints) {
+            point(x, y);
         }
+
+        fill(Black);
+        foreach(var (points, (v1, v2, v3, v4)) in pointPlains) {
+            var n = CameraExtensions.GetNormal(v1, v2, v3);
+            if(!c.IsVisible(v1, n)) continue;
+            noStroke();
+            c.quad3(v1, v2, v3, v4);
+            stroke(White);
+            foreach(var p in points) {
+                var (x, y) = c.ProjectPoint(p);
+                point(x, y);
+            }
+        }
+
+        //foreach(var (v1, v2, v3, v4, color) in quads) {
+        //    fill(color);
+        //    c.quad3(vertices[v1], vertices[v2], vertices[v3], vertices[v4]);
+        //}
     }
 
     void keyPressed() {
@@ -140,9 +176,8 @@ static class CameraExtensions {
         line(x1, y1, x2, y2);
     }
     public static void quad3(this Camera c, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4) {
-        var n = Vector3.Cross(p2 - p1, p3 - p2);
-        var v = p1 - c.Location;
-        if(Vector3.Dot(n, v) < 0) return;
+        var n = GetNormal(p1, p2, p3);
+        if(!c.IsVisible(p1, n)) return;
 
         var (x1, y1) = c.ProjectPoint(p1);
         var (x2, y2) = c.ProjectPoint(p2);
@@ -150,6 +185,15 @@ static class CameraExtensions {
         var (x4, y4) = c.ProjectPoint(p4);
         quad(x1, y1, x2, y2, x3, y3, x4, y4);
     }
+
+    public static Vector3 GetNormal(Vector3 p1, Vector3 p2, Vector3 p3) {
+        return Vector3.Cross(p2 - p1, p3 - p2);
+    }
+
+    public static bool IsVisible(this Camera c, Vector3 vertex, Vector3 normal) {
+        return Vector3.Dot(vertex - c.Location, normal) > 0;
+    }
+
     public static void Deconstruct(this Vector3 v, out float x, out float y, out float z) {
         x = v.X;
         y = v.Y;

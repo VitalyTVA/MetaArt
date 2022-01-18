@@ -282,6 +282,7 @@ namespace MetaArt {
 
         Random rnd = new();
         internal double NextDouble() => rnd.NextDouble();
+        internal void RandomSeed(int seed) => rnd = new(seed);
 
         Pixels? pixelsContainer;
         internal Color[] pixels => pixelsContainer!.PixelsArray;
