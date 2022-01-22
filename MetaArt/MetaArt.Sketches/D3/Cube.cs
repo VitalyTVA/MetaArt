@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using MetaArt.D3;
 using Vector = MetaArt.Vector;
 
 namespace D3;
@@ -96,9 +97,12 @@ class Cube {
             return (points, (v1, v2, v3, v4));
         }).ToArray();
 
+        var pointSize = 2;
+
         randomSeed(0);
         var backgroundPoints = Enumerable.Range(0, 400).Select(_ => (random(-width / 2, width / 2), random(-height / 2, height / 2)));
         stroke(White);
+        strokeWeight(pointSize);
         foreach(var (x, y) in backgroundPoints) {
             point(x, y);
         }
@@ -110,6 +114,7 @@ class Cube {
             noStroke();
             c.quad3(v1, v2, v3, v4);
             stroke(White);
+            strokeWeight(pointSize);
             foreach(var p in points) {
                 var (x, y) = c.ProjectPoint(p);
                 point(x, y);
@@ -123,7 +128,7 @@ class Cube {
     }
 
     void keyPressed() {
-        float step = PI / 30;
+        float step = PI / 60;
 
         if(key == 'a') yaw -= step;
         if(key == 'd') yaw += step;
@@ -131,37 +136,6 @@ class Cube {
         if(key == 's' && pitch < PI / 4) pitch += step;
     }
 }
-
-class Camera {
-    public readonly Vector3 Location;
-    readonly float FocalDistance;
-    readonly Quaternion Rotation;
-
-    public Camera(Vector3 location, Quaternion rotation, float focalDistance) {
-        Location = location;
-
-        this.Rotation = Quaternion.Normalize(rotation);
-        FocalDistance = focalDistance;
-    }
-
-    public Vector ProjectPoint(Vector3 point) {
-        var p = point - Location;
-
-
-        p = Vector3.Transform(p, Rotation);
-
-        var r = new Vector(
-            p.X * FocalDistance / p.Z,
-            p.Y * FocalDistance / p.Z
-        );
-        return r;//.Negate();
-
-        //var t = Vector3.Dot(ScreenCenter - point, Screen) / Vector3.Dot(Location - point, Screen);
-        //var v = Location * t  + point * (1 - t);
-        //return new Vector(v.X, v.Y);
-    }
-}
-
 static class CameraExtensions {
     public static void RotateY(this Vector3[] vertices, float angle) {
         for(int i = 0; i < vertices.Length; i++) {
@@ -198,5 +172,9 @@ static class CameraExtensions {
         x = v.X;
         y = v.Y;
         z = v.Z;
+    }
+    public static void Deconstruct(this Vector2 v, out float x, out float y) {
+        x = v.X;
+        y = v.Y;
     }
 }
