@@ -20,14 +20,12 @@ public class Camera {
 
         p = Vector3.Transform(p, Rotation);
 
-        var r = new Vector2(
-            p.X * FocalDistance / p.Z,
-            p.Y * FocalDistance / p.Z
-        );
-        return r;//.Negate();
+        var ratio = FocalDistance / p.Z;
 
-        //var t = Vector3.Dot(ScreenCenter - point, Screen) / Vector3.Dot(Location - point, Screen);
-        //var v = Location * t  + point * (1 - t);
-        //return new Vector(v.X, v.Y);
+        var r = new Vector2(
+            p.X * ratio,
+            p.Y * ratio
+        );
+        return r;
     }
 }

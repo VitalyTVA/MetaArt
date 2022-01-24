@@ -59,7 +59,7 @@ public class SphereCameraContoller {
 
     }
 }
-static class MathF {
+public static class MathF {
     public static readonly float PI = (float)Math.PI;
 }
 public static class Extensions {
