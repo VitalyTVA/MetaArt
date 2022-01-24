@@ -85,11 +85,11 @@ public static class Extensions {
         });
     }
     public static Vector3 GetNormal(Vector3 p1, Vector3 p2, Vector3 p3) {
-        return Vector3.Cross(p2 - p1, p3 - p2);
+        return Vector3.Cross(p3 - p2, p2 - p1);
     }
 
     public static bool IsVisible(this Camera c, Vector3 vertex, Vector3 normal) {
-        return Vector3.Dot(vertex - c.Location, normal) > 0;
+        return Vector3.Dot(c.Location - vertex, normal) > 0;
     }
 
     public static void Deconstruct(this Vector3 v, out float x, out float y, out float z) {
