@@ -14,21 +14,18 @@ public class Model {
     }
     public Vector3 GetVertex(int index) => Vector3.Transform(Vertices[index], Rotation);
 }
-public enum MoveDirection {
-    Left, Right, Up, Down
-}
+
 
 public class SphereCameraContoller {
     float yaw;
     float pitch;
 
-    public void Move(MoveDirection direction) {
-        float step = PI / 60;
-
-        if(direction == MoveDirection.Left) yaw -= step;
-        if(direction == MoveDirection.Right) yaw += step;
-        if(direction == MoveDirection.Up && pitch > -PI / 4) pitch -= step;
-        if(direction == MoveDirection.Down && pitch < PI / 4) pitch += step;
+    public void Yaw(float yawDelta) {
+        yaw += yawDelta;
+    }
+    public void Pitch(float pitchDelta) {
+        pitch += pitchDelta;
+        pitch = Constrain(pitch, -PI / 4, PI / 4);
     }
 
     public Camera CreateCamera() {
@@ -64,6 +61,8 @@ public class SphereCameraContoller {
 }
 public static class MathF {
     public static readonly float PI = (float)Math.PI;
+    public static float Constrain(float amt, float low, float high) => Math.Min(Math.Max(amt, low), high);
+
 }
 public static class Extensions {
     public static void Rotate(this Model model, Camera c, float dx, float dy) {

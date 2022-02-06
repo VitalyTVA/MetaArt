@@ -93,7 +93,7 @@ div.scrollable {
         selectedGroup = group;
     }
 
-    void OnMouseDown(MouseEventArgs e) => painter.OnMouseDown((float)e.OffsetX, (float)e.OffsetY);
+    void OnMouseDown(MouseEventArgs e) => painter.OnMouseDown((float)e.OffsetX, (float)e.OffsetY, true);
     void OnMouseUp(MouseEventArgs e) => painter.OnMouseUp((float)e.OffsetX, (float)e.OffsetY);
 
     void OnMouseMove(MouseEventArgs e) => painter.OnMouseOver((float)e.OffsetX, (float)e.OffsetY);

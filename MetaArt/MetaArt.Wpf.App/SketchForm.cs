@@ -63,7 +63,7 @@ namespace MetaArt.Wpf {
 
         private void SkglControl1_MouseDown(object? sender, MouseEventArgs e) {
             var mouse = skglControl1.PointToClient(MousePosition);
-            painter.OnMouseDown(mouse.X, mouse.Y);
+            painter.OnMouseDown(mouse.X, mouse.Y, e.Button == MouseButtons.Left);
         }
         private void SkglControl1_MouseUp(object? sender, MouseEventArgs e) {
             var mouse = skglControl1.PointToClient(MousePosition);

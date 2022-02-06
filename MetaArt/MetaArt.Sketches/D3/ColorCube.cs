@@ -24,9 +24,15 @@ class ColorCube {
         var c = controller.CreateCamera();
         //vertices.RotateY(deltaTime / 1000f);
 
-        if(isMousePressed) {
-            var dx = mouseX - pmouseX;
-            var dy = mouseY - pmouseY;
+        var dx = mouseX - pmouseX;
+        var dy = mouseY - pmouseY;
+
+        if(isLeftMousePressed) {
+            const float scale = 200;
+            controller.Pitch(-dy / scale);
+            controller.Yaw(-dx / scale);
+        }
+        if(isRightMousePressed) {
             cube.Rotate(c, dx, -dy);
         }
 

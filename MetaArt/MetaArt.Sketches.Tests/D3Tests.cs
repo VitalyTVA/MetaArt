@@ -42,8 +42,21 @@ namespace MetaArt.Sketches.Tests {
         static void AssertVector(Vector2 expected, Vector2 actual) {
             if(FloatEqual(expected.X, actual.X) && FloatEqual(expected.Y, actual.Y))
                 return;
-            Assert.Fail($"Expected {expected} but was {actual}");
+            Assert.Fail($"Expected {PrintVector(expected)} but was {PrintVector(actual)}");
         }
+        static string PrintVector(Vector2 q) {
+            return $"{q.X}f, {q.Y}f";
+        }
+
+        static void AssertVector(Vector3 expected, Vector3 actual) {
+            if(FloatEqual(expected.X, actual.X) && FloatEqual(expected.Y, actual.Y) && FloatEqual(expected.Z, actual.Z))
+                return;
+            Assert.Fail($"Expected {PrintVector(expected)} but was {PrintVector(actual)}");
+        }
+        static string PrintVector(Vector3 q) {
+            return $"{q.X}f, {q.Y}f, {q.Z}f";
+        }
+
 
         [Test]
         public void RotateModel() {
@@ -74,5 +87,34 @@ namespace MetaArt.Sketches.Tests {
         }
 
         static bool FloatEqual(float x, float y) => Math.Abs(x - y) < delta;
+
+        [Test]
+        public void ShepereCameraControllerTest() {
+            var controller = new SphereCameraContoller();
+
+            var c = controller.CreateCamera();
+            AssertVector(new Vector3(0f, 0f, -600f), c.Location);
+            AssertQuaternion(Quaternion.Identity, c.Rotation);
+
+            controller.Yaw(1);
+            c = controller.CreateCamera();
+            AssertVector(new Vector3(504.8826f, 0f, -324.18137f), c.Location);
+            AssertQuaternion(new Quaternion(0f, 0.47942555f, 0f, 0.87758255f), c.Rotation);
+
+            controller.Pitch(-0.5f);
+            c = controller.CreateCamera();
+            AssertVector(new Vector3(443.07614f, 287.65533f, -284.4959f), c.Location);
+            AssertQuaternion(new Quaternion(-0.2171174f, 0.46452138f, -0.11861178f, 0.8503006f), c.Rotation);
+
+            controller.Pitch(-5f);
+            c = controller.CreateCamera();
+            AssertVector(new Vector3(357.0059f, 424.26407f, -229.23085f), c.Location);
+            AssertQuaternion(new Quaternion(-0.33583632f, 0.44293144f, -0.18346822f, 0.8107805f), c.Rotation);
+
+            controller.Pitch(15f);
+            c = controller.CreateCamera();
+            AssertVector(new Vector3(357.0059f, -424.26407f, -229.23085f), c.Location);
+            AssertQuaternion(new Quaternion(0.33583632f, 0.44293144f, 0.18346822f, 0.8107805f), c.Rotation);
+        }
     }
 }

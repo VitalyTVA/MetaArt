@@ -59,8 +59,9 @@ namespace MetaArt {
         protected readonly Action invalidate;
         protected Queue<Action> preRenderQueue = new();
         protected Vector? pos { get; private set; }
-        public void OnMouseDown(float x, float y) {
+        public void OnMouseDown(float x, float y, bool isLeft) {
             isMousePressed = true;
+            this.isLeft = isLeft;
             preRenderQueue.Enqueue(() => {
                 MousePressedCore(x, y);
             });
@@ -180,6 +181,9 @@ namespace MetaArt {
         internal float pmouseY;
         internal char key { get; set; }
         internal bool isMousePressed { get; set; }
+        internal bool isLeftMousePressed => isMousePressed && isLeft;
+        internal bool isRightMousePressed => isMousePressed && !isLeft;
+        internal bool isLeft { get; set; }
 
         ColorMode _colorMode = ColorMode.RGB;
         float maxColorValue1 = 255;

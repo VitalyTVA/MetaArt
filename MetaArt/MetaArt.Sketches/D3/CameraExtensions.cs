@@ -5,15 +5,21 @@ namespace D3;
 
 static class CameraExtensions {
     public static void MoveCameraOnShepeOnKeyPressed(SphereCameraContoller controller) {
-        var direction = key switch {
-            'a' => MoveDirection.Left,
-            'd' => MoveDirection.Right,
-            'w' => MoveDirection.Up,
-            's' => MoveDirection.Down,
-            _ => default(MoveDirection?)
+        float step = PI / 60;
+        switch(key) {
+            case 'a':
+                controller.Yaw(-step);
+                break;
+            case 'd':
+                controller.Yaw(step);
+                break;
+            case 'w':
+                controller.Pitch(-step);
+                break;
+            case 's':
+                controller.Pitch(step);
+                break;
         };
-        if(direction is not null)
-            controller.Move(direction.Value);
     }
     public static void InitCoords() {
         translate(width / 2, height / 2);

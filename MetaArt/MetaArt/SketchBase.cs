@@ -38,6 +38,8 @@ namespace MetaArt {
         public static float pmouseY => Painter.pmouseY;
         public static char key => Painter.key;
         public static bool isMousePressed => Painter.isMousePressed;
+        public static bool isLeftMousePressed => Painter.isLeftMousePressed;
+        public static bool isRightMousePressed => Painter.isRightMousePressed;
 
         public static Color Black => new Color(0, 0, 0);
         public static Color White => new Color(255, 255, 255);
