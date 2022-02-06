@@ -3,11 +3,11 @@ using MetaArt.D3;
 using static MetaArt.D3.MathF;
 
 namespace MetaArt.D3;
-public class Model {
-    readonly Vector3[] Vertices;
-    public readonly (int, int, int, int)[] Quads;
+public class Model<T> {
+    public readonly Vector3[] Vertices;
+    public readonly (int, int, int, int, T)[] Quads;
     public Quaternion Rotation { get; set; }
-    public Model(Vector3[] vertices, (int, int, int, int)[] quads) {
+    public Model(Vector3[] vertices, (int, int, int, int, T)[] quads) {
         Vertices = vertices;
         Quads = quads;
         Rotation = Quaternion.Identity;
@@ -65,7 +65,7 @@ public static class MathF {
 
 }
 public static class Extensions {
-    public static void Rotate(this Model model, Camera c, float dx, float dy) {
+    public static void Rotate<T>(this Model<T> model, Camera c, float dx, float dy) {
         var rotationSpeed = .01f;
         if(dx == 0 && dy == 0) 
             return;
@@ -81,8 +81,8 @@ public static class Extensions {
         //var rotationY = Quaternion.CreateFromAxisAngle(axisY, -dy * rotationSpeed);
         //model.Rotation = rotationX * rotationY * model.Rotation;
     }
-    public static Model CreateCube(float side) {
-        return new Model(new[] {
+    public static Model<T> CreateCube<T>(float side, (T front, T back, T left, T right, T top, T bottom) sides) {
+        return new Model<T>(new[] {
             new Vector3(side, side, side),
             new Vector3(side, -side, side),
             new Vector3(-side, -side, side),
@@ -94,12 +94,12 @@ public static class Extensions {
             new Vector3(-side, side, -side),
         },
         new[] {
-            (0, 1, 2, 3),
-            (7, 6, 5, 4),
-            (4, 5, 1, 0),
-            (3, 2, 6, 7),
-            (3, 7, 4, 0),
-            (1, 5, 6, 2),
+            (7, 6, 5, 4, sides.front),
+            (0, 1, 2, 3, sides.back),
+            (4, 5, 1, 0, sides.right),
+            (3, 2, 6, 7, sides.left),
+            (3, 7, 4, 0, sides.top),
+            (1, 5, 6, 2, sides.bottom),
         });
     }
     public static Vector3 GetNormal(Vector3 p1, Vector3 p2, Vector3 p3) {

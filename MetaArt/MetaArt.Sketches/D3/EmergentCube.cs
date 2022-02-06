@@ -4,30 +4,32 @@ using Vector = MetaArt.Vector;
 
 namespace D3;
 class EmergentCube {
-    Model cube = null!;
+    Model<int[]> cube = null!;
     void setup() {
         size(600, 400);
 
-        cube = Extensions.CreateCube(100);
-        pointPlains = cube.Quads.Select(x => {
-            var v1 = cube.GetVertex(x.Item1);
-            var v2 = cube.GetVertex(x.Item2);
-            var v3 = cube.GetVertex(x.Item3);
-            var v4 = cube.GetVertex(x.Item4);
+        var tempCube = Extensions.CreateCube<object?>(100, (null, null, null, null, null, null));
 
-            var (x1, y1, z1) = v1;
-            var (x2, y2, z2) = v3;
+        var vertices = new List<Vector3>(tempCube.Vertices);
+        List<(int, int, int, int, int[])> planes = new();
+
+        foreach(var (v1, v2, v3, v4, _) in tempCube.Quads) {
+            var (x1, y1, z1) = tempCube.Vertices[v1];
+            var (x2, y2, z2) = tempCube.Vertices[v3];
             var points = Enumerable
                 .Range(0, 30)
                 .Select(_ => new Vector3(random(x1, x2), random(y1, y2), random(z1, z2)))
                 .ToArray();
-            return (points, (v1, v2, v3, v4));
-        }).ToArray();
+            var pointIndices = Enumerable.Range(vertices.Count, points.Length).ToArray();
+            vertices.AddRange(points);
+            planes.Add((v1, v2, v3, v4, pointIndices));
+        }
 
+
+        cube = new Model<int[]>(vertices.ToArray(), planes.ToArray());
     }
 
     SphereCameraContoller controller = new();
-    (Vector3[] points, (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4))[]? pointPlains;
     void draw() {
         noSmooth();
         stroke(White);
@@ -60,11 +62,11 @@ class EmergentCube {
         }
 
         fill(Black);
-        foreach(var (points, v) in pointPlains!) {
-            var v1 = Vector3.Transform(v.v1, cube.Rotation);
-            var v2 = Vector3.Transform(v.v2, cube.Rotation);
-            var v3 = Vector3.Transform(v.v3, cube.Rotation);
-            var v4 = Vector3.Transform(v.v4, cube.Rotation);
+        foreach(var (i1, i2, i3, i4, points) in cube.Quads) {
+            var v1 = cube.GetVertex(i1);
+            var v2 = cube.GetVertex(i2);
+            var v3 = cube.GetVertex(i3);
+            var v4 = cube.GetVertex(i4);
             var n = Extensions.GetNormal(v1, v2, v3);
             if(!c.IsVisible(v1, n)) continue;
             noStroke();
@@ -72,7 +74,7 @@ class EmergentCube {
             stroke(White);
             strokeWeight(pointSize);
             foreach(var p in points) {
-                var (x, y) = c.ProjectPoint(Vector3.Transform(p, cube.Rotation));
+                var (x, y) = c.ProjectPoint(cube.GetVertex(p));
                 point(x, y);
             }
         }

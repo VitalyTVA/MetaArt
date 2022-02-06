@@ -4,11 +4,18 @@ using Vector = MetaArt.Vector;
 
 namespace D3;
 class ColorCube {
-    Model cube = null!;
+    Model<Color> cube = null!;
     void setup() {
         size(600, 400);
 
-        cube = Extensions.CreateCube(100);
+        cube = Extensions.CreateCube(100, (
+            front: Colors.Red,
+            back: Colors.Blue,
+            left: Colors.Pink,
+            right: Colors.Green,
+            top: Colors.Yellow,
+            bottom: Colors.Orange
+        ));
     }
 
     SphereCameraContoller controller = new();
@@ -49,17 +56,7 @@ class ColorCube {
             );
         }
 
-        var colors = new[] {
-            Colors.Red,
-            Colors.Blue,
-            Colors.Pink,
-            Colors.Green,
-            Colors.Yellow,
-            Colors.Orange,
-        };
-
-
-        foreach(var ((v1, v2, v3, v4), color) in cube.Quads.Zip(colors, (quad, color) => (quad, color))) {
+        foreach(var (v1, v2, v3, v4, color) in cube.Quads) {
             fill(color);
             c.quad3(
                 cube.GetVertex(v1),
