@@ -16,6 +16,8 @@ https://docs.microsoft.com/en-us/dotnet/api/skiasharp.skshader?view=skiasharp-2.
 
 calc spline https://github.com/PeterWaher/IoTGateway/blob/1cb3631831f223eab7f145ebe3a789325fdb90e5/Script/Waher.Script.Graphs/Functions/Plots/Plot2DCurvePainter.cs
 
+https://github.com/microsoft/referencesource/tree/master/System.Numerics/System/Numerics
+
 void setup()
 {
 size(600, 600);

@@ -4,12 +4,15 @@ using static MetaArt.D3.MathF;
 
 namespace MetaArt.D3;
 public class Model {
-    public readonly Vector3[] Vertices;
+    readonly Vector3[] Vertices;
     public readonly (int, int, int, int)[] Quads;
+    public Quaternion Rotation { get; set; }
     public Model(Vector3[] vertices, (int, int, int, int)[] quads) {
         Vertices = vertices;
         Quads = quads;
+        Rotation = Quaternion.Identity;
     }
+    public Vector3 GetVertex(int index) => Vector3.Transform(Vertices[index], Rotation);
 }
 public enum MoveDirection {
     Left, Right, Up, Down
@@ -63,6 +66,22 @@ public static class MathF {
     public static readonly float PI = (float)Math.PI;
 }
 public static class Extensions {
+    public static void Rotate(this Model model, Camera c, float dx, float dy) {
+        var rotationSpeed = .01f;
+        if(dx == 0 && dy == 0) 
+            return;
+        var v = new Vector3(dy, -dx, 0);
+        var axis = Vector3.Transform(Vector3.Normalize(v), Quaternion.Conjugate(c.Rotation));
+        var rotation = Quaternion.CreateFromAxisAngle(axis, v.Length() * rotationSpeed);
+        model.Rotation = rotation * model.Rotation;
+
+        //var r = Quaternion.Conjugate(c.Rotation);
+        //var axisX = Vector3.Transform(new Vector3(0, 1, 0), r);
+        //var axisY = Vector3.Transform(new Vector3(1, 0, 0), r);
+        //var rotationX = Quaternion.CreateFromAxisAngle(axisX, -dx * rotationSpeed);
+        //var rotationY = Quaternion.CreateFromAxisAngle(axisY, -dy * rotationSpeed);
+        //model.Rotation = rotationX * rotationY * model.Rotation;
+    }
     public static Model CreateCube(float side) {
         return new Model(new[] {
             new Vector3(side, side, side),

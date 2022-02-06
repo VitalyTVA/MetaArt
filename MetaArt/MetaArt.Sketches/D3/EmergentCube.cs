@@ -9,25 +9,11 @@ class EmergentCube {
         size(600, 400);
 
         cube = Extensions.CreateCube(100);
-    }
-
-    SphereCameraContoller controller = new();
-
-    void draw() {
-        noSmooth();
-        stroke(White);
-        strokeWeight(1);
-        noFill();
-        background(0);
-        CameraExtensions.InitCoords();
-
-        var c = controller.CreateCamera();
-
-        var pointPlains = cube.Quads.Select(x => {
-            var v1 = cube.Vertices[x.Item1];
-            var v2 = cube.Vertices[x.Item2];
-            var v3 = cube.Vertices[x.Item3];
-            var v4 = cube.Vertices[x.Item4];
+        pointPlains = cube.Quads.Select(x => {
+            var v1 = cube.GetVertex(x.Item1);
+            var v2 = cube.GetVertex(x.Item2);
+            var v3 = cube.GetVertex(x.Item3);
+            var v4 = cube.GetVertex(x.Item4);
 
             var (x1, y1, z1) = v1;
             var (x2, y2, z2) = v3;
@@ -37,6 +23,25 @@ class EmergentCube {
                 .ToArray();
             return (points, (v1, v2, v3, v4));
         }).ToArray();
+
+    }
+
+    SphereCameraContoller controller = new();
+    (Vector3[] points, (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4))[]? pointPlains;
+    void draw() {
+        noSmooth();
+        stroke(White);
+        strokeWeight(1);
+        noFill();
+        background(0);
+        CameraExtensions.InitCoords();
+
+        var c = controller.CreateCamera();
+        if(isMousePressed) {
+            var dx = mouseX - pmouseX;
+            var dy = mouseY - pmouseY;
+            cube.Rotate(c, dx, -dy);
+        }
 
         var pointSize = 2;
 
@@ -49,7 +54,11 @@ class EmergentCube {
         }
 
         fill(Black);
-        foreach(var (points, (v1, v2, v3, v4)) in pointPlains) {
+        foreach(var (points, v) in pointPlains!) {
+            var v1 = Vector3.Transform(v.v1, cube.Rotation);
+            var v2 = Vector3.Transform(v.v2, cube.Rotation);
+            var v3 = Vector3.Transform(v.v3, cube.Rotation);
+            var v4 = Vector3.Transform(v.v4, cube.Rotation);
             var n = Extensions.GetNormal(v1, v2, v3);
             if(!c.IsVisible(v1, n)) continue;
             noStroke();
@@ -57,7 +66,7 @@ class EmergentCube {
             stroke(White);
             strokeWeight(pointSize);
             foreach(var p in points) {
-                var (x, y) = c.ProjectPoint(p);
+                var (x, y) = c.ProjectPoint(Vector3.Transform(p, cube.Rotation));
                 point(x, y);
             }
         }
