@@ -39,10 +39,16 @@ public static class MathF {
 
 }
 public static class Extensions {
+    public static Vector3 GetDirection(this YawPitchContoller controller) {
+        return Vector3.Transform(new Vector3(0, 0, 1), Quaternion.Conjugate(controller.CreateRotation()));
+    }
+
     public static Camera CreateCamera(this YawPitchContoller controller) {
         var q = controller.CreateRotation();
 
-        var v = Vector3.Transform(new Vector3(0, 0, -600), Quaternion.Conjugate(q));
+        var radius = 600;
+
+        var v = controller.GetDirection() * (-radius);
 
         //circle(0, 0, 50);
         var c = new Camera(

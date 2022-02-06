@@ -95,26 +95,31 @@ namespace MetaArt.Sketches.Tests {
             var c = controller.CreateCamera();
             AssertVector(new Vector3(0f, 0f, -600f), c.Location);
             AssertQuaternion(Quaternion.Identity, c.Rotation);
+            AssertVector(new Vector3(0, 0, 1), controller.GetDirection());
 
             controller.Yaw(1);
             c = controller.CreateCamera();
             AssertVector(new Vector3(504.8826f, 0f, -324.18137f), c.Location);
             AssertQuaternion(new Quaternion(0f, 0.47942555f, 0f, 0.87758255f), c.Rotation);
+            AssertVector(new Vector3(-0.841471f, 0f, 0.5403023f), controller.GetDirection());
 
             controller.Pitch(-0.5f);
             c = controller.CreateCamera();
             AssertVector(new Vector3(443.07614f, 287.65533f, -284.4959f), c.Location);
             AssertQuaternion(new Quaternion(-0.2171174f, 0.46452138f, -0.11861178f, 0.8503006f), c.Rotation);
+            AssertVector(new Vector3(-0.73846024f, -0.47942555f, 0.47415984f), controller.GetDirection());
 
             controller.Pitch(-5f);
             c = controller.CreateCamera();
             AssertVector(new Vector3(357.0059f, 424.26407f, -229.23085f), c.Location);
             AssertQuaternion(new Quaternion(-0.33583632f, 0.44293144f, -0.18346822f, 0.8107805f), c.Rotation);
+            AssertVector(new Vector3(-0.5950098f, -0.70710677f, 0.3820514f), controller.GetDirection());
 
             controller.Pitch(15f);
             c = controller.CreateCamera();
             AssertVector(new Vector3(357.0059f, -424.26407f, -229.23085f), c.Location);
             AssertQuaternion(new Quaternion(0.33583632f, 0.44293144f, 0.18346822f, 0.8107805f), c.Rotation);
+            AssertVector(new Vector3(-0.5950098f, 0.70710677f, 0.3820514f), controller.GetDirection());
         }
     }
 }
