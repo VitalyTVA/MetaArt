@@ -60,7 +60,7 @@ namespace MetaArt.Sketches.Tests {
 
         [Test]
         public void RotateModel() {
-            var m = new Model(new Vector3[] { }, new (int, int, int, int)[] { });
+            var m = new Model<object>(new Vector3[] { }, new (int, int, int, int, object)[] { });
             var c = new Camera(new Vector3(10, 20, 30), Quaternion.CreateFromYawPitchRoll(1, 2, 3), 40);
 
             Extensions.Rotate(m, c, 0, 0);
@@ -90,7 +90,7 @@ namespace MetaArt.Sketches.Tests {
 
         [Test]
         public void ShepereCameraControllerTest() {
-            var controller = new SphereCameraContoller();
+            var controller = new YawPitchContoller();
 
             var c = controller.CreateCamera();
             AssertVector(new Vector3(0f, 0f, -600f), c.Location);

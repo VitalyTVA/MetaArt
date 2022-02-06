@@ -4,7 +4,7 @@ using System.Numerics;
 namespace D3;
 
 static class CameraExtensions {
-    public static void MoveCameraOnShepeOnKeyPressed(SphereCameraContoller controller) {
+    public static void MoveOnShepeOnKeyPressed(YawPitchContoller controller) {
         float step = PI / 60;
         switch(key) {
             case 'a':

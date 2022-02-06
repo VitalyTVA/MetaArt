@@ -9,26 +9,34 @@ class ColorCube {
         size(600, 400);
 
         cube = Extensions.CreateCube(100, (
-            front: Colors.Red,
-            back: Colors.Blue,
-            left: Colors.Pink,
-            right: Colors.Green,
-            top: Colors.Yellow,
-            bottom: Colors.Orange
+            //front: Colors.Red,
+            //back: Colors.Blue,
+            //left: Colors.Pink,
+            //right: Colors.Green,
+            //top: Colors.Yellow,
+            //bottom: Colors.Orange
+            front: Colors.White,
+            back: Colors.White,
+            left: Colors.White,
+            right: Colors.White,
+            top: Colors.White,
+            bottom: Colors.White
         ));
     }
 
-    SphereCameraContoller controller = new();
+    YawPitchContoller cameraController = new();
+    YawPitchContoller lightsController = new();
+    float ambientLight = 0.5f;
+    float directionalLight = 0.5f;
 
     void draw() {
         noSmooth();
-        stroke(White);
         strokeWeight(1);
         noFill();
         background(0);
         CameraExtensions.InitCoords();
 
-        var c = controller.CreateCamera();
+        var c = cameraController.CreateCamera();
         //vertices.RotateY(deltaTime / 1000f);
 
         var dx = mouseX - pmouseX;
@@ -36,8 +44,8 @@ class ColorCube {
 
         if(isLeftMousePressed) {
             const float scale = 200;
-            controller.Pitch(-dy / scale);
-            controller.Yaw(-dx / scale);
+            cameraController.Pitch(-dy / scale);
+            cameraController.Yaw(-dx / scale);
         }
         if(isRightMousePressed) {
             cube.Rotate(c, dx, -dy);
@@ -49,6 +57,7 @@ class ColorCube {
             (4, 5), (5, 6), (6, 7), (7, 4),
             (0, 4), (1, 5), (2, 6), (3, 7),
         };
+        stroke(ambientLight * 255);
         foreach(var (from, to) in lines) {
             c.line3(
                 cube.GetVertex(from),
@@ -56,18 +65,47 @@ class ColorCube {
             );
         }
 
-        foreach(var (v1, v2, v3, v4, color) in cube.Quads) {
-            fill(color);
+        var lightDirection = Vector3.Transform(new Vector3(0, 0, 1), Quaternion.Conjugate(lightsController.CreateRotation()));
+
+        foreach(var (i1, i2, i3, i4, col) in cube.Quads) {
+            var v1 = cube.GetVertex(i1);
+            var v2 = cube.GetVertex(i2);
+            var v3 = cube.GetVertex(i3);
+            var v4 = cube.GetVertex(i4);
+
+            var norm = Vector3.Normalize(Extensions.GetNormal(v3, v2, v1));
+            var lum = ambientLight + max(0, Vector3.Dot(lightDirection, norm)) * directionalLight;
+
+            var actualColor = color(
+                col.Red * lum, 
+                col.Green * lum, 
+                col.Blue * lum
+            );
+            fill(actualColor);
             c.quad3(
-                cube.GetVertex(v1),
-                cube.GetVertex(v2),
-                cube.GetVertex(v3),
-                cube.GetVertex(v4)
+                cube.GetVertex(i1),
+                cube.GetVertex(i2),
+                cube.GetVertex(i3),
+                cube.GetVertex(i4)
             );
         }
     }
 
     void keyPressed() {
-        CameraExtensions.MoveCameraOnShepeOnKeyPressed(controller);
+        var delta = .05f;
+        if(key == '+')
+            ambientLight += delta;
+        if(key == '-')
+            ambientLight -= delta;
+        ambientLight = constrain(ambientLight, 0, 1);
+
+        CameraExtensions.MoveOnShepeOnKeyPressed(lightsController);
+
     }
 }
+
+//public class Lights {
+//    public float Ambient;
+//    public DirectionalLight Directional;
+//}
+//public record struct DirectionalLight(Vector3 deirection, float intensity);

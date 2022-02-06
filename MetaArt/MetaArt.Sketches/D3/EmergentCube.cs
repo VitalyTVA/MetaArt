@@ -29,7 +29,7 @@ class EmergentCube {
         cube = new Model<int[]>(vertices.ToArray(), planes.ToArray());
     }
 
-    SphereCameraContoller controller = new();
+    YawPitchContoller controller = new();
     void draw() {
         noSmooth();
         stroke(White);
@@ -81,6 +81,6 @@ class EmergentCube {
     }
 
     void keyPressed() {
-        CameraExtensions.MoveCameraOnShepeOnKeyPressed(controller);
+        CameraExtensions.MoveOnShepeOnKeyPressed(controller);
     }
 }

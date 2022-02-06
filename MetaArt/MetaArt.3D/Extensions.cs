@@ -16,7 +16,8 @@ public class Model<T> {
 }
 
 
-public class SphereCameraContoller {
+
+public class YawPitchContoller {
     float yaw;
     float pitch;
 
@@ -27,9 +28,19 @@ public class SphereCameraContoller {
         pitch += pitchDelta;
         pitch = Constrain(pitch, -PI / 4, PI / 4);
     }
+    public Quaternion CreateRotation() {
+        return Quaternion.CreateFromYawPitchRoll(0, pitch, 0) * Quaternion.CreateFromYawPitchRoll(yaw, 0, 0);
+    }
+}
 
-    public Camera CreateCamera() {
-        var q = Quaternion.CreateFromYawPitchRoll(0, pitch, 0) * Quaternion.CreateFromYawPitchRoll(yaw, 0, 0);
+public static class MathF {
+    public static readonly float PI = (float)Math.PI;
+    public static float Constrain(float amt, float low, float high) => Math.Min(Math.Max(amt, low), high);
+
+}
+public static class Extensions {
+    public static Camera CreateCamera(this YawPitchContoller controller) {
+        var q = controller.CreateRotation();
 
         var v = Vector3.Transform(new Vector3(0, 0, -600), Quaternion.Conjugate(q));
 
@@ -58,13 +69,8 @@ public class SphereCameraContoller {
         return c;
 
     }
-}
-public static class MathF {
-    public static readonly float PI = (float)Math.PI;
-    public static float Constrain(float amt, float low, float high) => Math.Min(Math.Max(amt, low), high);
 
-}
-public static class Extensions {
+
     public static void Rotate<T>(this Model<T> model, Camera c, float dx, float dy) {
         var rotationSpeed = .01f;
         if(dx == 0 && dy == 0) 

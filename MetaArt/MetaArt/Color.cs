@@ -71,6 +71,7 @@ namespace MetaArt {
         }
     }
     public static class Colors {
+        public static Color White = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue);
         public static Color Red = new Color(4294901760u);
         public static Color Blue = new Color(4278190335u);
         public static Color Green = new Color(4278222848u);
