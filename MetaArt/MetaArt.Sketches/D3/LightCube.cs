@@ -19,13 +19,11 @@ class LightCube {
     }
 
     YawPitchContoller cameraController = new();
-    YawPitchContoller lightsController = new();
-    float ambientLight = 0.5f;
-    float directionalLight = 0.5f;
+    Lights lights = new Lights();
 
     void draw() {
         noSmooth();
-        strokeWeight(1);
+        noStroke();
         noFill();
         background(0);
         CameraExtensions.InitCoords();
@@ -46,29 +44,14 @@ class LightCube {
         }
 
 
-        var lines = new[] {
-            (0, 1), (1, 2), (2, 3), (3, 0),
-            (4, 5), (5, 6), (6, 7), (7, 4),
-            (0, 4), (1, 5), (2, 6), (3, 7),
-        };
-        stroke(ambientLight * 255);
-        foreach(var (from, to) in lines) {
-            c.line3(
-                cube.GetVertex(from),
-                cube.GetVertex(to)
-            );
-        }
-        Vector3 lightDirection = lightsController.GetDirection();
+        var lightCalulator = lights.GetLuminocityCalulator();
 
         foreach(var (i1, i2, i3, i4, col) in cube.Quads) {
             var v1 = cube.GetVertex(i1);
             var v2 = cube.GetVertex(i2);
             var v3 = cube.GetVertex(i3);
             var v4 = cube.GetVertex(i4);
-
-            var norm = Vector3.Normalize(Extensions.GetNormal(v3, v2, v1));
-            var lum = ambientLight + max(0, Vector3.Dot(lightDirection, norm)) * directionalLight;
-
+            var lum = lightCalulator(v1, v2, v3);
             var actualColor = color(
                 col.Red * lum,
                 col.Green * lum,
@@ -82,18 +65,11 @@ class LightCube {
     void keyPressed() {
         var delta = .05f;
         if(key == '+')
-            ambientLight += delta;
+            lights.ChangeAmbient(delta);
         if(key == '-')
-            ambientLight -= delta;
-        ambientLight = constrain(ambientLight, 0, 1);
+            lights.ChangeAmbient(-delta);
 
-        CameraExtensions.MoveOnShepeOnKeyPressed(lightsController);
+        CameraExtensions.MoveOnShepeOnKeyPressed(lights.lightsController);
 
     }
 }
-
-//public class Lights {
-//    public float Ambient;
-//    public DirectionalLight Directional;
-//}
-//public record struct DirectionalLight(Vector3 deirection, float intensity);

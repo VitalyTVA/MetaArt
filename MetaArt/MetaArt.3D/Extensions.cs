@@ -3,41 +3,6 @@ using MetaArt.D3;
 using static MetaArt.D3.MathF;
 
 namespace MetaArt.D3;
-public class Model<T> {
-    public readonly Vector3[] Vertices;
-    public readonly (int, int, int, int, T)[] Quads;
-    public Quaternion Rotation { get; set; }
-    public Model(Vector3[] vertices, (int, int, int, int, T)[] quads) {
-        Vertices = vertices;
-        Quads = quads;
-        Rotation = Quaternion.Identity;
-    }
-    public Vector3 GetVertex(int index) => Vector3.Transform(Vertices[index], Rotation);
-}
-
-
-
-public class YawPitchContoller {
-    float yaw;
-    float pitch;
-
-    public void Yaw(float yawDelta) {
-        yaw += yawDelta;
-    }
-    public void Pitch(float pitchDelta) {
-        pitch += pitchDelta;
-        pitch = Constrain(pitch, -PI / 4, PI / 4);
-    }
-    public Quaternion CreateRotation() {
-        return Quaternion.CreateFromYawPitchRoll(0, pitch, 0) * Quaternion.CreateFromYawPitchRoll(yaw, 0, 0);
-    }
-}
-
-public static class MathF {
-    public static readonly float PI = (float)Math.PI;
-    public static float Constrain(float amt, float low, float high) => Math.Min(Math.Max(amt, low), high);
-
-}
 public static class Extensions {
     public static Vector3 GetDirection(this YawPitchContoller controller) {
         return Vector3.Transform(new Vector3(0, 0, 1), Quaternion.Conjugate(controller.CreateRotation()));
