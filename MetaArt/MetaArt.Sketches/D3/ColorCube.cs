@@ -4,6 +4,7 @@ using Vector = MetaArt.Vector;
 
 namespace D3;
 class ColorCube {
+    Scene<Color> scene = null!;
     Model<Color> cube = null!;
     void setup() {
         size(600, 400);
@@ -16,13 +17,14 @@ class ColorCube {
             top: Colors.Yellow,
             bottom: Colors.Orange
         ));
+        scene = new Scene<Color>(cube);
     }
 
     YawPitchContoller cameraController = new();
 
     void draw() {
         noSmooth();
-        strokeWeight(1);
+        noStroke();
         noFill();
         background(0);
         CameraExtensions.InitCoords();
@@ -48,21 +50,14 @@ class ColorCube {
             (4, 5), (5, 6), (6, 7), (7, 4),
             (0, 4), (1, 5), (2, 6), (3, 7),
         };
-        stroke(White);
-        foreach(var (from, to) in lines) {
-            c.line3(
-                cube.GetVertex(from),
-                cube.GetVertex(to)
-            );
-        }
 
-        foreach(var (i1, i2, i3, i4, col) in cube.Quads) {
+        foreach(var (i1, i2, i3, i4, col, vertices) in scene.GetQuads(c)) {
             fill(col);
             c.quad3(
-                cube.GetVertex(i1),
-                cube.GetVertex(i2),
-                cube.GetVertex(i3),
-                cube.GetVertex(i4)
+                vertices[i1],
+                vertices[i2],
+                vertices[i3],
+                vertices[i4]
             );
         }
     }

@@ -5,6 +5,8 @@ using Vector = MetaArt.Vector;
 namespace D3;
 class LightCube {
     Model<Color> cube = null!;
+    Scene<Color> scene = null!;
+
     void setup() {
         size(600, 400);
 
@@ -16,6 +18,7 @@ class LightCube {
             top: Colors.White,
             bottom: Colors.White
         ));
+        scene = new Scene<Color>(cube);
     }
 
     YawPitchContoller cameraController = new();
@@ -46,11 +49,11 @@ class LightCube {
 
         var lightCalulator = lights.GetLuminocityCalulator();
 
-        foreach(var (i1, i2, i3, i4, col) in cube.Quads) {
-            var v1 = cube.GetVertex(i1);
-            var v2 = cube.GetVertex(i2);
-            var v3 = cube.GetVertex(i3);
-            var v4 = cube.GetVertex(i4);
+        foreach(var (i1, i2, i3, i4, col, vertices) in scene.GetQuads(c)) {
+            var v1 = vertices[i1];
+            var v2 = vertices[i2];
+            var v3 = vertices[i3];
+            var v4 = vertices[i4];
             var lum = lightCalulator(v1, v2, v3);
             var actualColor = color(
                 col.Red * lum,

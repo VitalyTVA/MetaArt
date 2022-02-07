@@ -5,6 +5,7 @@ using Vector = MetaArt.Vector;
 namespace D3;
 class EmergentCube {
     Model<int[]> cube = null!;
+    Scene<int[]> scene = null!;
     void setup() {
         size(600, 400);
 
@@ -27,6 +28,7 @@ class EmergentCube {
 
 
         cube = new Model<int[]>(vertices.ToArray(), planes.ToArray());
+        scene = new Scene<int[]>(cube);
     }
 
     YawPitchContoller controller = new();
@@ -62,19 +64,18 @@ class EmergentCube {
         }
 
         fill(Black);
-        foreach(var (i1, i2, i3, i4, points) in cube.Quads) {
-            var v1 = cube.GetVertex(i1);
-            var v2 = cube.GetVertex(i2);
-            var v3 = cube.GetVertex(i3);
-            var v4 = cube.GetVertex(i4);
-            var n = Extensions.GetNormal(v1, v2, v3);
-            if(!c.IsVisible(v1, n)) continue;
+
+        foreach(var (i1, i2, i3, i4, points, vertices) in scene.GetQuads(c)) {
+            var v1 = vertices[i1];
+            var v2 = vertices[i2];
+            var v3 = vertices[i3];
+            var v4 = vertices[i4];
             noStroke();
             c.quad3(v1, v2, v3, v4);
             stroke(White);
             strokeWeight(pointSize);
             foreach(var p in points) {
-                var (x, y) = c.ProjectPoint(cube.GetVertex(p));
+                var (x, y) = c.ToScreenCoords(vertices[p]);
                 point(x, y);
             }
         }

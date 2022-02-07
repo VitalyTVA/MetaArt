@@ -123,3 +123,10 @@ namespace MetaArt.Sketches.Tests {
         }
     }
 }
+public static class TestExtensions {
+    public static Vector2 ProjectPoint(this Camera c, Vector3 point) {
+        Vector3 p = c.TranslatePoint(point);
+
+        return c.ToScreenCoords(p);
+    }
+}
