@@ -49,7 +49,7 @@ public static class Extensions {
         var v = new Vector3(dy, -dx, 0);
         var axis = Vector3.Transform(Vector3.Normalize(v), Quaternion.Conjugate(c.Rotation));
         var rotation = Quaternion.CreateFromAxisAngle(axis, v.Length() * rotationSpeed);
-        model.Rotation = rotation * model.Rotation;
+        model.Rotate(rotation);
 
         //var r = Quaternion.Conjugate(c.Rotation);
         //var axisX = Vector3.Transform(new Vector3(0, 1, 0), r);
@@ -57,6 +57,9 @@ public static class Extensions {
         //var rotationX = Quaternion.CreateFromAxisAngle(axisX, -dx * rotationSpeed);
         //var rotationY = Quaternion.CreateFromAxisAngle(axisY, -dy * rotationSpeed);
         //model.Rotation = rotationX * rotationY * model.Rotation;
+    }
+    public static void Rotate<T>(this Model<T> model, Quaternion rotation) {
+        model.Rotation = rotation * model.Rotation;
     }
     public static Model<T> CreateCube<T>(float side, (T front, T back, T left, T right, T top, T bottom) sides) {
         return new Model<T>(new[] {
@@ -81,10 +84,6 @@ public static class Extensions {
     }
     public static Vector3 GetNormal(Vector3 p1, Vector3 p2, Vector3 p3) {
         return Vector3.Cross(p3 - p2, p2 - p1);
-    }
-
-    public static bool IsVisible(this Camera c, Vector3 vertex, Vector3 normal) {
-        return Vector3.Dot(c.Location - vertex, normal) > 0;
     }
 
     public static void Deconstruct(this Vector3 v, out float x, out float y, out float z) {

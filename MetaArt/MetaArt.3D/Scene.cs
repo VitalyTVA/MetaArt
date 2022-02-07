@@ -11,17 +11,15 @@ public class Scene<T> {
         foreach(var (model, vertices) in models) {
             for(int i = 0; i < model.Vertices.Length; i++) {
                 vertices[i] = camera.TranslatePoint(model.GetVertex(i));
-
-                //vertices[i] = camera.TranslatePoint(model.Vertices[i]);
             }
         }
         foreach(var (model, vertices) in models) {
             foreach(var (i1, i2, i3, i4, value) in model.Quads) {
-                //var v1  = model.Vertices[i1];
-                var v1 = model.GetVertex(i1);
-                var n = Extensions.GetNormal(v1, model.GetVertex(i2), model.GetVertex(i3));
-                if(!camera.IsVisible(v1, n)) 
+                var v1 = vertices[i1];
+                var n = Extensions.GetNormal(v1, vertices[i2], vertices[i3]);
+                if(Vector3.Dot(v1, n) >= 0) 
                     continue;
+
                 yield return (i1, i2, i3, i4, value, vertices);
             }
         }
