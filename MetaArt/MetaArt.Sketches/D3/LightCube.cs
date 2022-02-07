@@ -47,7 +47,7 @@ class LightCube {
         }
 
 
-        var lightCalulator = lights.GetLuminocityCalulator();
+        var lightCalulator = lights.GetLuminocityCalulator(c);
 
         foreach(var (i1, i2, i3, i4, col, vertices) in scene.GetQuads(c)) {
             var v1 = vertices[i1];
