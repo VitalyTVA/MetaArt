@@ -1,6 +1,7 @@
 ﻿using MetaArt.D3;
 using NUnit.Framework;
 using System.Numerics;
+using System.Reflection;
 using static MetaArt.D3.MathF;
 
 namespace MetaArt.Sketches.Tests {
@@ -38,6 +39,10 @@ namespace MetaArt.Sketches.Tests {
             (i1, i2, i3, i4, val, vertices) = scene.GetQuads(c).Single();
             AssertVector(new Vector3(-60f, 60f, 150f), vertices[i1]);
             Assert.AreEqual(100, val);
+
+            model.Scale = new Vector3(2, 3, .5f);
+            (i1, i2, i3, i4, val, vertices) = scene.GetQuads(c).Single();
+            AssertVector(new Vector3(-120f, 180f, 155f), vertices[i1]);
         }
 
         [Test]
@@ -213,7 +218,7 @@ namespace MetaArt.Sketches.Tests {
 
         [Test]
         public void RotateModel() {
-            var m = new Model<D3.Void>(new Vector3[] { }, new Quad<D3.Void>[] { });
+            var m = new Model<D3.VoidType>(new Vector3[] { }, new Quad<D3.VoidType>[] { });
             var c = new Camera(new Vector3(10, 20, 30), Quaternion.CreateFromYawPitchRoll(1, 2, 3), 40);
 
             Extensions.Rotate(m, c, 0, 0);
@@ -273,6 +278,114 @@ namespace MetaArt.Sketches.Tests {
             AssertVector(new Vector3(357.0059f, -424.26407f, -229.23085f), c.Location);
             AssertQuaternion(new Quaternion(0.33583632f, 0.44293144f, 0.18346822f, 0.8107805f), c.Rotation);
             AssertVector(new Vector3(-0.5950098f, 0.70710677f, 0.3820514f), controller.GetDirection());
+        }
+
+        [Test]
+        public void LoadModel_Cube() {
+            var model = LoadModels("cube").Single();
+            Assert.AreEqual(8, model.Vertices.Length);
+            Assert.AreEqual(6, model.Quads.Length);
+            AssertVector(new Vector3(1, 1, 1), model.Vertices[0]);
+            AssertVector(new Vector3(1, -1, 1), model.Vertices[1]);
+            AssertVector(new Vector3(1, 1, -1), model.Vertices[2]);
+            AssertVector(new Vector3(1, -1, -1), model.Vertices[3]);
+            AssertVector(new Vector3(-1, 1, 1), model.Vertices[4]);
+            AssertVector(new Vector3(-1, -1, 1), model.Vertices[5]);
+            AssertVector(new Vector3(-1, 1, -1), model.Vertices[6]);
+            AssertVector(new Vector3(-1, -1, -1), model.Vertices[7]);
+
+            AssertQuad(1, 5, 7, 3, model.Quads[0]);
+            AssertQuad(4, 3, 7, 8, model.Quads[1]);
+            AssertQuad(8, 7, 5, 6, model.Quads[2]);
+            AssertQuad(6, 2, 4, 8, model.Quads[3]);
+            AssertQuad(2, 1, 3, 4, model.Quads[4]);
+            AssertQuad(6, 5, 1, 2, model.Quads[5]);
+        }
+
+        [Test]
+        public void LoadModel_Cubes() {
+            var models = LoadModels("cubes").ToArray();
+            Assert.AreEqual(4, models.Length);
+            Assert.AreEqual(8, models[0].Vertices.Length);
+            Assert.AreEqual(6, models[0].Quads.Length);
+            Assert.AreEqual(8, models[1].Vertices.Length);
+            Assert.AreEqual(6, models[1].Quads.Length);
+            Assert.AreEqual(8, models[2].Vertices.Length);
+            Assert.AreEqual(6, models[2].Quads.Length);
+            Assert.AreEqual(8, models[3].Vertices.Length);
+            Assert.AreEqual(6, models[3].Quads.Length);
+
+            AssertVector(new Vector3(4, 1, 1), models[0].Vertices[0]);
+            AssertVector(new Vector3(4, -1, 1), models[0].Vertices[1]);
+            AssertVector(new Vector3(4, 1, -1), models[0].Vertices[2]);
+            AssertVector(new Vector3(4, -1, -1), models[0].Vertices[3]);
+            AssertVector(new Vector3(2, 1, 1), models[0].Vertices[4]);
+            AssertVector(new Vector3(2, -1, 1), models[0].Vertices[5]);
+            AssertVector(new Vector3(2, 1, -1), models[0].Vertices[6]);
+            AssertVector(new Vector3(2, -1, -1), models[0].Vertices[7]);
+            AssertQuad(1, 5, 7, 3, models[0].Quads[0]);
+            AssertQuad(4, 3, 7, 8, models[0].Quads[1]);
+            AssertQuad(8, 7, 5, 6, models[0].Quads[2]);
+            AssertQuad(6, 2, 4, 8, models[0].Quads[3]);
+            AssertQuad(2, 1, 3, 4, models[0].Quads[4]);
+            AssertQuad(6, 5, 1, 2, models[0].Quads[5]);
+
+            AssertVector(new Vector3(1, 4, 1), models[1].Vertices[0]);
+            AssertVector(new Vector3(1, 2, 1), models[1].Vertices[1]);
+            AssertVector(new Vector3(1, 4, -1), models[1].Vertices[2]);
+            AssertVector(new Vector3(1, 2, -1), models[1].Vertices[3]);
+            AssertVector(new Vector3(-1, 4, 1), models[1].Vertices[4]);
+            AssertVector(new Vector3(-1, 2, 1), models[1].Vertices[5]);
+            AssertVector(new Vector3(-1, 4, -1), models[1].Vertices[6]);
+            AssertVector(new Vector3(-1, 2, -1), models[1].Vertices[7]);
+            AssertQuad(1, 5, 7, 3, models[1].Quads[0]);
+            AssertQuad(4, 3, 7, 8, models[1].Quads[1]);
+            AssertQuad(8, 7, 5, 6, models[1].Quads[2]);
+            AssertQuad(6, 2, 4, 8, models[1].Quads[3]);
+            AssertQuad(2, 1, 3, 4, models[1].Quads[4]);
+            AssertQuad(6, 5, 1, 2, models[1].Quads[5]);
+
+            AssertVector(new Vector3(1, 1, 4), models[2].Vertices[0]);
+            AssertVector(new Vector3(1, -1, 4), models[2].Vertices[1]);
+            AssertVector(new Vector3(1, 1, 2), models[2].Vertices[2]);
+            AssertVector(new Vector3(1, -1, 2), models[2].Vertices[3]);
+            AssertVector(new Vector3(-1, 1, 4), models[2].Vertices[4]);
+            AssertVector(new Vector3(-1, -1, 4), models[2].Vertices[5]);
+            AssertVector(new Vector3(-1, 1, 2), models[2].Vertices[6]);
+            AssertVector(new Vector3(-1, -1, 2), models[2].Vertices[7]);
+            AssertQuad(1, 5, 7, 3, models[2].Quads[0]);
+            AssertQuad(4, 3, 7, 8, models[2].Quads[1]);
+            AssertQuad(8, 7, 5, 6, models[2].Quads[2]);
+            AssertQuad(6, 2, 4, 8, models[2].Quads[3]);
+            AssertQuad(2, 1, 3, 4, models[2].Quads[4]);
+            AssertQuad(6, 5, 1, 2, models[2].Quads[5]);
+
+            AssertVector(new Vector3(1, 1, 1), models[3].Vertices[0]);
+            AssertVector(new Vector3(1, -1, 1), models[3].Vertices[1]);
+            AssertVector(new Vector3(1, 1, -1), models[3].Vertices[2]);
+            AssertVector(new Vector3(1, -1, -1), models[3].Vertices[3]);
+            AssertVector(new Vector3(-1, 1, 1), models[3].Vertices[4]);
+            AssertVector(new Vector3(-1, -1, 1), models[3].Vertices[5]);
+            AssertVector(new Vector3(-1, 1, -1), models[3].Vertices[6]);
+            AssertVector(new Vector3(-1, -1, -1), models[3].Vertices[7]);
+            AssertQuad(1, 5, 7, 3, models[3].Quads[0]);
+            AssertQuad(4, 3, 7, 8, models[3].Quads[1]);
+            AssertQuad(8, 7, 5, 6, models[3].Quads[2]);
+            AssertQuad(6, 2, 4, 8, models[3].Quads[3]);
+            AssertQuad(2, 1, 3, 4, models[3].Quads[4]);
+            AssertQuad(6, 5, 1, 2, models[3].Quads[5]);
+        }
+
+        IEnumerable<Model<VoidType>> LoadModels(string fileName) {
+            var asm = Assembly.GetExecutingAssembly();
+            return ObjLoader.Load(asm.GetManifestResourceStream(asm.GetName().Name + $".Models.{fileName}.obj")!);
+        }
+
+        static void AssertQuad(int i1, int i2, int i3, int i4, Quad<VoidType> quad) { 
+            Assert.AreEqual(i1, quad.i1 + 1);
+            Assert.AreEqual(i2, quad.i2 + 1);
+            Assert.AreEqual(i3, quad.i3 + 1);
+            Assert.AreEqual(i4, quad.i4 + 1);
         }
     }
 }

@@ -1,24 +1,16 @@
 ﻿using System.Numerics;
+using System.Reflection;
 using MetaArt.D3;
 using Vector = MetaArt.Vector;
 
 namespace D3;
 class LightCube {
-    Model<Color> cube = null!;
-    Scene<Color> scene = null!;
+    Scene<VoidType> scene = null!;
 
     void setup() {
         size(600, 400);
 
-        cube = Extensions.CreateCube(100, (
-            front: Colors.White,
-            back: Colors.White,
-            left: Colors.White,
-            right: Colors.White,
-            top: Colors.White,
-            bottom: Colors.White
-        ));
-        scene = new Scene<Color>(cube);
+        scene = Loader.LoadScene("cube", 100);
     }
 
     YawPitchContoller cameraController = new();
@@ -43,22 +35,24 @@ class LightCube {
             cameraController.Yaw(-dx / scale);
         }
         if(isRightMousePressed) {
-            cube.Rotate(c, dx, -dy);
+            foreach(var item in scene.GetModels()) {
+                item.Rotate(c, dx, -dy);
+            }
         }
 
 
         var lightCalulator = lights.GetLuminocityCalulator(c);
 
-        foreach(var (i1, i2, i3, i4, col, vertices) in scene.GetQuads(c)) {
+        foreach(var (i1, i2, i3, i4, _, vertices) in scene.GetQuads(c)) {
             var v1 = vertices[i1];
             var v2 = vertices[i2];
             var v3 = vertices[i3];
             var v4 = vertices[i4];
             var lum = lightCalulator(v1, v2, v3);
             var actualColor = color(
-                col.Red * lum,
-                col.Green * lum,
-                col.Blue * lum
+                byte.MaxValue * lum,
+                byte.MaxValue * lum,
+                byte.MaxValue * lum
             );
             fill(actualColor);
             c.quad3(v1, v2, v3, v4);
@@ -75,4 +69,16 @@ class LightCube {
         CameraExtensions.MoveOnShepeOnKeyPressed(lights.lightsController);
 
     }
+
 }
+static class Loader {
+    public static Scene<VoidType> LoadScene(string fileName, float scale) {
+        var asm = Assembly.GetExecutingAssembly();
+        var models = ObjLoader.Load(asm.GetManifestResourceStream(asm.GetName().Name + $".D3.Models.{fileName}.obj")!).ToArray();
+        foreach(var item in models) {
+            item.Scale = new Vector3(scale, scale, scale);
+        }
+        return new Scene<VoidType>(models);
+    }
+}
+

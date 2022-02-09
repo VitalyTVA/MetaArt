@@ -22,4 +22,8 @@
 	  <ProjectReference Include="..\MetaArt\MetaArt.csproj" />
 	</ItemGroup>
 
+
+	<ItemGroup>
+		<EmbeddedResource Include="Models\*.obj" />
+	</ItemGroup>
 </Project>

@@ -5,6 +5,9 @@ namespace MetaArt.D3;
 public class Scene<T> {
     List<(Model<T> model, Vector3[] vertices)> models = new();
     QuadRef<T>[] quads;
+
+    public IEnumerable<Model<T>> GetModels() => models.Select(x => x.model);
+    
     public Scene(params Model<T>[] models) {
         this.models.AddRange(models.Select(x => (x, new Vector3[x.Vertices.Length])));
         quads = models.SelectMany((x, j) => Enumerable.Range(0, x.Quads.Length).Select(i => new QuadRef<T>(j, i))).ToArray();
