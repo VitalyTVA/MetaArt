@@ -12,7 +12,7 @@ class EmergentCube {
         var tempCube = Extensions.CreateCube<object?>(100, (null, null, null, null, null, null));
 
         var vertices = new List<Vector3>(tempCube.Vertices);
-        List<(int, int, int, int, int[])> planes = new();
+        List<Quad<int[]>> planes = new();
 
         foreach(var (v1, v2, v3, v4, _) in tempCube.Quads) {
             var (x1, y1, z1) = tempCube.Vertices[v1];

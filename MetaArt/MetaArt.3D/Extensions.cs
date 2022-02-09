@@ -73,7 +73,7 @@ public static class Extensions {
             new Vector3(-side, -side, -side),
             new Vector3(-side, side, -side),
         },
-        new[] {
+        new Quad<T>[] {
             (7, 6, 5, 4, sides.front),
             (0, 1, 2, 3, sides.back),
             (4, 5, 1, 0, sides.right),

@@ -18,7 +18,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z),
                 new Vector3(-side, side, z),
             },
-            new[] {
+            new Quad<int>[] {
                 (3, 2, 1, 0, 100),
             });
             var scene = new Scene<int>(model);
@@ -48,7 +48,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(30, -10, -40),
                 new Vector3(30, 10, -40),
             },
-            new[] {
+            new Quad<int>[] {
                 (3, 2, 1, 0, 100),
             });
             var scene = new Scene<int>(model);
@@ -85,7 +85,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z + 10),
                 new Vector3(-side, side, z + 10),
             },
-            new[] {
+            new Quad<int>[] {
                 (7, 6, 5, 4, 200),
                 (3, 2, 1, 0, 100),
             });
@@ -112,7 +112,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z + 10),
                 new Vector3(-side, side, z + 10),
             },
-            new[] {
+            new Quad<int>[] {
                 (3, 2, 1, 0, 200),
             });
             var model2 = new Model<int>(new[] {
@@ -121,10 +121,39 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z),
                 new Vector3(-side, side, z),
             },
-            new[] {
+            new Quad<int>[] {
                 (3, 2, 1, 0, 100),
             });
             var scene = new Scene<int>(model1, model2);
+
+            var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
+            var vals = scene.GetQuads(c).Select(x => x.Item5);
+            CollectionAssert.AreEqual(new[] { 200, 100 }, vals);
+        }
+
+        [Test]
+        public void Scene_TwoModels_ReverseOrder() {
+            var z = -10;
+            var side = 60;
+            var model1 = new Model<int>(new[] {
+                new Vector3(side, side, z + 10),
+                new Vector3(side, -side, z + 10),
+                new Vector3(-side, -side, z + 10),
+                new Vector3(-side, side, z + 10),
+            },
+            new Quad<int>[] {
+                (3, 2, 1, 0, 200),
+            });
+            var model2 = new Model<int>(new[] {
+                new Vector3(side, side, z),
+                new Vector3(side, -side, z),
+                new Vector3(-side, -side, z),
+                new Vector3(-side, side, z),
+            },
+            new Quad<int>[] {
+                (3, 2, 1, 0, 100),
+            });
+            var scene = new Scene<int>(model2, model1);
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
             var vals = scene.GetQuads(c).Select(x => x.Item5);
@@ -184,7 +213,7 @@ namespace MetaArt.Sketches.Tests {
 
         [Test]
         public void RotateModel() {
-            var m = new Model<object>(new Vector3[] { }, new (int, int, int, int, object)[] { });
+            var m = new Model<D3.Void>(new Vector3[] { }, new Quad<D3.Void>[] { });
             var c = new Camera(new Vector3(10, 20, 30), Quaternion.CreateFromYawPitchRoll(1, 2, 3), 40);
 
             Extensions.Rotate(m, c, 0, 0);
