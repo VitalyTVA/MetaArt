@@ -34,8 +34,7 @@ class EmergentCube {
     YawPitchContoller controller = new();
     void draw() {
         noSmooth();
-        stroke(White);
-        strokeWeight(1);
+        noStroke();
         noFill();
         background(0);
         CameraExtensions.InitCoords();
