@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="D3\Models\*.obj" />
+    <EmbeddedResource Include="..\Models\*.obj" LinkBase="D3\Models"/>
   </ItemGroup>
 
   <ItemGroup>
