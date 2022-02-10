@@ -41,7 +41,7 @@ public static class ObjLoader {
                     int.Parse(split[1]) - 1 - startIndex, 
                     int.Parse(split[2]) - 1 - startIndex, 
                     int.Parse(split[3]) - 1 - startIndex, 
-                    int.Parse(split[4]) - 1 - startIndex, 
+                    int.Parse(split.Length == 5 ? split[4] : split[3]) - 1 - startIndex, 
                 default));
                 continue;
             }

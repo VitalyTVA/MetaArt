@@ -303,6 +303,18 @@ namespace MetaArt.Sketches.Tests {
         }
 
         [Test]
+        public void LoadModel_Triangle() {
+            var model = LoadModels("triangle").Single();
+            Assert.AreEqual(3, model.Vertices.Length);
+            Assert.AreEqual(1, model.Quads.Length);
+            AssertVector(new Vector3(1, 1, 1), model.Vertices[0]);
+            AssertVector(new Vector3(1, -1, 1), model.Vertices[1]);
+            AssertVector(new Vector3(1, 1, -1), model.Vertices[2]);
+
+            AssertQuad(1, 2, 3, 3, model.Quads[0]);
+        }
+
+        [Test]
         public void LoadModel_Cubes() {
             var models = LoadModels("cubes").ToArray();
             Assert.AreEqual(4, models.Length);
