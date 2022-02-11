@@ -10,7 +10,7 @@ class LightCube {
     void setup() {
         size(600, 400);
 
-        scene = Loader.LoadScene("monkey", 150);
+        scene = Loader.LoadScene("cubes", 50);
     }
 
     YawPitchContoller cameraController = new();

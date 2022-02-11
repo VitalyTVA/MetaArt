@@ -166,9 +166,72 @@ namespace MetaArt.Sketches.Tests {
         }
 
         [Test]
+        public void Scene_TrivialOrder() {
+            var scene = CreateScene(
+                Quad((-20, 100), (20, 100)),
+                Quad((-20, 110), (20, 110))
+            );
+            AssertOrder(new[] { 1, 0 }, scene);
+        }
+
+        [Test]
+        public void Scene_ZOverlap1() {
+            AssertOrder(
+                new[] { 0, 1 }, 
+                CreateScene(
+                    Quad((-20, 120), (-10, 80)),
+                    Quad((10, 110), (20, 90))
+                )
+            );
+        }
+        [Test]
+        public void Scene_ZOverlap2() {
+            AssertOrder(
+                new[] { 0, 1 },
+                CreateScene(
+                    QuadN((-10, 80), (-20, 120)),
+                    QuadN((20, 90), (10, 110))
+                )
+            );
+        }
+
+        static (Vector3, Vector3, Vector3, Vector3) Quad((float x, float z) v1, (float x, float z) v2) {
+            return (
+                new Vector3(v1.x, -10, v1.z),
+                new Vector3(v2.x, -10, v2.z),
+                new Vector3(v2.x, 10, v2.z),
+                new Vector3(v1.x, 10, v1.z)
+            );
+        }
+        static (Vector3, Vector3, Vector3, Vector3) QuadN((float x, float z) v1, (float x, float z) v2) {
+            return (
+                new Vector3(v1.x, 10, v1.z),
+                new Vector3(v2.x, 10, v2.z),
+                new Vector3(v2.x, -10, v2.z),
+                new Vector3(v1.x, -10, v1.z)
+            );
+        }
+        static void AssertOrder(int[] epxectedOrder, Scene<int> scene) {
+            var camera = new Camera(new Vector3(0, 0, 0), Quaternion.Identity, 50);
+            var actual = scene.GetQuads(camera).Select(x => x.Item5).ToArray();
+            Assert.AreEqual(epxectedOrder, actual);
+        }
+        static Scene<int> CreateScene(params (Vector3, Vector3, Vector3, Vector3)[] quads) {
+            var vertices = quads
+                .SelectMany(x => new[] { x.Item1, x.Item2, x.Item3, x.Item4 })
+                .ToArray();
+            var quads_ = Enumerable.Range(0, quads.Length)
+                .Select(i => new Quad<int>(4 * i, 4 * i + 1, 4 * i + 2, 4 * i + 3, i))
+                .ToArray();
+            return new Scene<int>(new Model<int>(vertices, quads_));
+        } 
+
+        [Test]
         public void ProjectPoint() {
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
             AssertVector(new Vector2(-20, 40), c.ProjectPoint(new Vector3(-30, 60, -10)));
+            AssertVector(new Vector3(-30f, 60f, 150f), c.TranslatePoint(new Vector3(-30, 60, -10)));
+            AssertVector(new Vector3(-30f, 60f, 170f), c.TranslatePoint(new Vector3(-30, 60, 10)));
 
             c = new Camera(new Vector3(10, 20, -160), Quaternion.Identity, 100);
             AssertVector(new Vector2(-20, 40), c.ProjectPoint(new Vector3(-30 + 10, 60 + 20, -10)));
