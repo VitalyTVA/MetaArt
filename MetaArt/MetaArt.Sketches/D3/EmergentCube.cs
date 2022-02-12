@@ -74,7 +74,7 @@ class EmergentCube {
             stroke(White);
             strokeWeight(pointSize);
             foreach(var p in points) {
-                var (x, y) = c.ToScreenCoords(vertices[p]);
+                var (x, y, _) = vertices[p];
                 point(x, y);
             }
         }

@@ -14,11 +14,12 @@ public class Camera {
         FocalDistance = focalDistance;
     }
 
-    public Vector2 ToScreenCoords(Vector3 p) {
+    public Vector3 ToScreenCoords3(Vector3 p) {
         var ratio = FocalDistance / p.Z;
-        var r = new Vector2(
+        var r = new Vector3(
             p.X * ratio,
-            p.Y * ratio
+            p.Y * ratio,
+            p.Z
         );
         return r;
     }

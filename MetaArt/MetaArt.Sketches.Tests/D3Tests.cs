@@ -26,10 +26,10 @@ namespace MetaArt.Sketches.Tests {
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
             var (i1, i2, i3, i4, val, vertices) = scene.GetQuads(c).Single();
-            AssertVector(new Vector3(-60f, 60f, 150f), vertices[i1]);
-            AssertVector(new Vector3(-60f, -60f, 150f), vertices[i2]);
-            AssertVector(new Vector3(60f, -60f, 150f), vertices[i3]);
-            AssertVector(new Vector3(60f, 60f, 150f), vertices[i4]);
+            AssertVector(new Vector3(-40f, 40f, 150f), vertices[i1]);
+            AssertVector(new Vector3(-40f, -40f, 150f), vertices[i2]);
+            AssertVector(new Vector3(40f, -40f, 150f), vertices[i3]);
+            AssertVector(new Vector3(40f, 40f, 150f), vertices[i4]);
             Assert.AreEqual(100, val);
 
             c = new Camera(new Vector3(0, 0, 160), Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI), 100);
@@ -37,12 +37,12 @@ namespace MetaArt.Sketches.Tests {
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI));
             (i1, i2, i3, i4, val, vertices) = scene.GetQuads(c).Single();
-            AssertVector(new Vector3(-60f, 60f, 150f), vertices[i1]);
+            AssertVector(new Vector3(-40f, 40f, 150f), vertices[i1]);
             Assert.AreEqual(100, val);
 
             model.Scale = new Vector3(2, 3, .5f);
             (i1, i2, i3, i4, val, vertices) = scene.GetQuads(c).Single();
-            AssertVector(new Vector3(-120f, 180f, 155f), vertices[i1]);
+            AssertVector(new Vector3(-77.41933f, 116.129005f, 155f), vertices[i1]);
         }
 
         [Test]
@@ -280,6 +280,29 @@ namespace MetaArt.Sketches.Tests {
                 new[] { 1, 0 },
                 new Scene<int>(model),
                 camera: new YawPitchContoller(0.08f, 0.025f).CreateCamera()
+            );
+        }
+
+
+        [Test]
+        public void Scene_ZOverlap2_XOverlap_ZOverlap_PBeyondQPlane3() {
+            AssertOrder(
+                new[] { 0, 1 },
+                CreateScene(
+                    QuadXZ((-50, 100), (-50, 149)),
+                    QuadXZ((-49, 100), (-49, 150))
+                )
+            );
+        }
+
+        [Test]
+        public void Scene_ZOverlap2_XOverlap_ZOverlap_PBeyondQPlane4() {
+            AssertOrder(
+                new[] { 0, 1 },
+                CreateScene(
+                    QuadXZ((-50, 100), (-50, 140)),
+                    QuadXZ((-49, 100), (-49, 150))
+                )
             );
         }
 
@@ -665,11 +688,30 @@ namespace MetaArt.Sketches.Tests {
         }
     }
 }
+[TestFixture]
+public class DoublesSandbox {
+    [Test]
+    public static void Test() {
+        //QuadXZ((-50, 100), (-50, 150)),
+        //            QuadXZ((-49, 100), (-49, 150))
+        var x1 = Project(-50.0, 100.0);
+        var x2 = Project(-50.0, 140.0);
+
+        var x3 = Project(-49.0, 100.0);
+        var x4 = Project(-49.0, 150.0);
+
+    }
+
+    static (double, double) Project(double x, double z) {
+        return (x * 50 / z, z);
+    } 
+}
 public static class TestExtensions {
     public static Vector2 ProjectPoint(this Camera c, Vector3 point) {
         Vector3 p = c.TranslatePoint(point);
 
-        return c.ToScreenCoords(p);
+        var (x, y, _) = c.ToScreenCoords3(p);
+        return new Vector2(x, y);
     }
     public static bool IsVisible(this Camera c, Vector3 vertex, Vector3 normal) {
         return Vector3.Dot(c.Location - vertex, normal) > 0;

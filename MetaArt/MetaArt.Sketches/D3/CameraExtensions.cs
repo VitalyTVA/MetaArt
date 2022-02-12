@@ -32,10 +32,10 @@ static class CameraExtensions {
     //    line(x1, y1, x2, y2);
     //}
     public static void quad3(this Camera c, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4) {
-        var (x1, y1) = c.ToScreenCoords(p1);
-        var (x2, y2) = c.ToScreenCoords(p2);
-        var (x3, y3) = c.ToScreenCoords(p3);
-        var (x4, y4) = c.ToScreenCoords(p4);
+        var (x1, y1, _) = p1;
+        var (x2, y2, _) = p2;
+        var (x3, y3, _) = p3;
+        var (x4, y4, _) = p4;
         quad(x1, y1, x2, y2, x3, y3, x4, y4);
     }
 }
