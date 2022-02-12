@@ -46,8 +46,8 @@ public class Scene<T> {
                 }
                 if(RangesAreApart((pBox.min.X, pBox.max.X), (qBox.min.X, qBox.max.X))
                     || RangesAreApart((pBox.min.Y, pBox.max.Y), (qBox.min.Y, qBox.max.Y))
-                    || Extensions.VerticesOnDifferentSideOfPlaneWithCamera((q1, q2, q3), (p1, p2, p3, p4), camera.Location)
-                    || Extensions.VerticesOnSameSideOfPlaneWithCamera((p1, p2, p3), (q1, q2, q3, q4), camera.Location)
+                    || Extensions.VerticesOnSameSideOfPlane((q1, q2, q3), (p1, p2, p3, p4), camera.Location, cameraOnSameSide: false)
+                    || Extensions.VerticesOnSameSideOfPlane((p1, p2, p3), (q1, q2, q3, q4), camera.Location, cameraOnSameSide: true)
                 ) {
                     continue;
                 }
@@ -56,8 +56,6 @@ public class Scene<T> {
                 quads[qi] = t;
                 pi--;
                 break;
-
-                //throw new NotImplementedException();
             }
             if(!writeP)
                 writeP = qi == quads.Length;

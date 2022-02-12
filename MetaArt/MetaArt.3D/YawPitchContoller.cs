@@ -6,6 +6,11 @@ public class YawPitchContoller {
     float yaw;
     float pitch;
 
+    public YawPitchContoller(float yaw = 0, float pitch = 0) {
+        this.yaw = yaw;
+        this.pitch = pitch;
+    }
+
     public void Yaw(float yawDelta) {
         yaw += yawDelta;
     }

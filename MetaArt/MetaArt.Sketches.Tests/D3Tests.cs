@@ -276,13 +276,10 @@ namespace MetaArt.Sketches.Tests {
                 (5, 4, 0, 1, 1),
             });
 
-            var controller = new YawPitchContoller();
-            controller.Pitch(0.025f);
-            controller.Yaw(0.08f);
             AssertOrder(
                 new[] { 1, 0 },
                 new Scene<int>(model),
-                camera: controller.CreateCamera()
+                camera: new YawPitchContoller(0.08f, 0.025f).CreateCamera()
             );
         }
 
@@ -294,6 +291,30 @@ namespace MetaArt.Sketches.Tests {
                     QuadXZ((-20, 120), (20, 80)),
                     QuadXZ((-20, 70), (0, 90))
                 )
+            );
+        }
+
+        [Test]
+        public void Scene_ZOverlap2_XOverlap_ZOverlap_QInFrontOfPPlane2() {
+            var side = 100;
+            var model = new Model<int>(new[] {
+                new Vector3(side, side, side),
+                new Vector3(side, -side, side),
+                new Vector3(-side, -side, side),
+                new Vector3(-side, side, side),
+
+                new Vector3(side, side, -side),
+                new Vector3(-side, side, -side),
+            },
+            new Quad<int>[] {
+                (3, 2, 1, 0, 0),
+                (3, 5, 4, 0, 1),
+            });
+
+            AssertOrder(
+                new[] { 0, 1 },
+                new Scene<int>(model),
+                camera: new YawPitchContoller(0.125f, -0.515f).CreateCamera()
             );
         }
 

@@ -3,7 +3,7 @@
 namespace MetaArt.D3;
 public static class MathFEx {
     public static readonly float PI = (float)Math.PI;
-    const float delta = 0.00001f;
+    const float delta = 0.0001f;
     public static float Constrain(float amt, float low, float high) => Math.Min(Math.Max(amt, low), high);
     public static float Max(float v1, float v2) => Math.Max(v1, v2);
     public static float Min(float v1, float v2) => Math.Min(v1, v2);
