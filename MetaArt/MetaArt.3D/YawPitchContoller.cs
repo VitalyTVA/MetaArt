@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using static MetaArt.D3.MathF;
+using static MetaArt.D3.MathFEx;
 
 namespace MetaArt.D3;
 public class YawPitchContoller {
