@@ -128,14 +128,12 @@ public static class Extensions {
             || PointInside(q2, q1.v4);
     }
     public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) { 
-        if(q.v3 == q.v4)
-            throw new NotImplementedException();
-        return PointOnSameSideOfLine((q.v1, q.v2), (q.v3, q.v4, p))
-            && PointOnSameSideOfLine((q.v2, q.v3), (q.v1, q.v4, p))
-            && (/*q.v3 == q.v4 || */PointOnSameSideOfLine((q.v3, q.v4), (q.v1, q.v2, p)))
-            && PointOnSameSideOfLine((q.v4, q.v1), (q.v2, q.v3, p));
+        return PointsOnSameSideOfLine((q.v1, q.v2), (q.v3, q.v4, p))
+            && PointsOnSameSideOfLine((q.v2, q.v3), (q.v1, q.v4, p))
+            && (q.v3 == q.v4 || PointsOnSameSideOfLine((q.v3, q.v4), (q.v1, q.v2, p)))
+            && PointsOnSameSideOfLine((q.v4, q.v1), (q.v2, q.v3, p));
     }
-    public static bool PointOnSameSideOfLine((Vector2 v1, Vector2 v2) line, (Vector2 v1, Vector2 v2, Vector2 v3) points) {
+    public static bool PointsOnSameSideOfLine((Vector2 v1, Vector2 v2) line, (Vector2 v1, Vector2 v2, Vector2 v3) points) {
         var n = Vector2.Normalize(GetNormal(line.v1, line.v2));
         var s1 = Vector2.Dot(n, (line.v1 - points.v1));
         var s2 = Vector2.Dot(n, (line.v1 - points.v2));
