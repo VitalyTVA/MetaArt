@@ -832,7 +832,7 @@ f 6 2 4 8";
                 (new Vector2(1, 2), new Vector2(3, 3)),
                 (new Vector2(1, 1), new Vector2(2, 2), new Vector2(3, 2))
             ));
-            Assert.True(Extensions.PointsOnSameSideOfLine(
+            Assert.False(Extensions.PointsOnSameSideOfLine(
                 (new Vector2(1, 2), new Vector2(3, 3)),
                 (new Vector2(1, 1), new Vector2(2, 2), new Vector2(3, 3))
             ));
@@ -841,7 +841,7 @@ f 6 2 4 8";
         public void PointsInside() {
             var quad = (new Vector2(1, 2), new Vector2(3, 3), new Vector2(2, 4), new Vector2(1, 4));
             Assert.True(Extensions.PointInside(quad, new Vector2(2, 3)));
-            Assert.True(Extensions.PointInside(quad, new Vector2(1, 3)));
+            Assert.False(Extensions.PointInside(quad, new Vector2(1, 3)));
 
             Assert.False(Extensions.PointInside(quad, new Vector2(0, 3)));
             Assert.False(Extensions.PointInside(quad, new Vector2(1, 5)));
@@ -901,6 +901,11 @@ f 6 2 4 8";
             Assert.True(Extensions.Intersects((new Vector2(2, 4), new Vector2(1, 4), new Vector2(1, 2), new Vector2(3, 3)), quad));
             Assert.True(Extensions.Intersects((new Vector2(1, 4), new Vector2(1, 2), new Vector2(3, 3), new Vector2(2, 4)), quad));
             Assert.False(Extensions.Intersects((new Vector2(1, 2), new Vector2(2, 3), new Vector2(2, 4), new Vector2(1, 4)), quad));
+        }
+        [Test]
+        public void Intersects4() {
+            var quad = (new Vector2(0, 2), new Vector2(2, 2), new Vector2(2, 0), new Vector2(0, 0));
+            Assert.False(Extensions.Intersects((new Vector2(2, 1), new Vector2(3, 0), new Vector2(4, 1), new Vector2(3, 2)), quad));
         }
     }
 }

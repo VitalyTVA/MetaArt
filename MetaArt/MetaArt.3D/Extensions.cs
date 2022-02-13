@@ -127,10 +127,15 @@ public static class Extensions {
             || PointInside(q2, q1.v3)
             || PointInside(q2, q1.v4);
     }
-    public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) { 
+    public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) {
+        if(q.v3 == q.v4) {
+            return PointsOnSameSideOfLine((q.v1, q.v2), (q.v3, p, p))
+                && PointsOnSameSideOfLine((q.v2, q.v3), (q.v1, p, p))
+                && PointsOnSameSideOfLine((q.v3, q.v1), (q.v2, p, p));
+        }
         return PointsOnSameSideOfLine((q.v1, q.v2), (q.v3, q.v4, p))
             && PointsOnSameSideOfLine((q.v2, q.v3), (q.v1, q.v4, p))
-            && (q.v3 == q.v4 || PointsOnSameSideOfLine((q.v3, q.v4), (q.v1, q.v2, p)))
+            && PointsOnSameSideOfLine((q.v3, q.v4), (q.v1, q.v2, p))
             && PointsOnSameSideOfLine((q.v4, q.v1), (q.v2, q.v3, p));
     }
     public static bool PointsOnSameSideOfLine((Vector2 v1, Vector2 v2) line, (Vector2 v1, Vector2 v2, Vector2 v3) points) {
@@ -138,8 +143,8 @@ public static class Extensions {
         var s1 = Vector2.Dot(n, (line.v1 - points.v1));
         var s2 = Vector2.Dot(n, (line.v1 - points.v2));
         var s3 = Vector2.Dot(n, (line.v1 - points.v3));
-        return (Greater(s1, 0) && Greater(s2, 0) && Greater(s3, 0))
+        return (GreaterOrEqual(s1, 0) && GreaterOrEqual(s2, 0) && GreaterOrEqual(s3, 0))
             ||
-            (Less(s1, 0) && Less(s2, 0) && Less(s3, 0));
+            (LessOrEqual(s1, 0) && LessOrEqual(s2, 0) && LessOrEqual(s3, 0));
     }
 }
