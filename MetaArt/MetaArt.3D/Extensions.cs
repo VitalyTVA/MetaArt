@@ -110,9 +110,9 @@ public static class Extensions {
         var s_cam = Vector3.Dot(n, plane.v1); //camera is at origin here
         if(!cameraOnSameSide)
             s_cam = -s_cam;
-        return (Greater(s1, 0) && Greater(s2, 0) && Greater(s3, 0) && Greater(s4, 0) && Greater(s_cam, 0))
+        return (GreaterOrEqual(s1, 0) && GreaterOrEqual(s2, 0) && GreaterOrEqual(s3, 0) && GreaterOrEqual(s4, 0) && GreaterOrEqual(s_cam, 0))
             ||
-            (Less(s1, 0) && Less(s2, 0) && Less(s3, 0) && Less(s4, 0) && Less(s_cam, 0));
+            (LessOrEqual(s1, 0) && LessOrEqual(s2, 0) && LessOrEqual(s3, 0) && LessOrEqual(s4, 0) && LessOrEqual(s_cam, 0));
     }
 
     public static Vector2 NoZ(this Vector3 v) => new Vector2(v.X, v.Y);
@@ -143,8 +143,8 @@ public static class Extensions {
         var s1 = Vector2.Dot(n, (line.v1 - points.v1));
         var s2 = Vector2.Dot(n, (line.v1 - points.v2));
         var s3 = Vector2.Dot(n, (line.v1 - points.v3));
-        return (GreaterOrEqual(s1, 0) && GreaterOrEqual(s2, 0) && GreaterOrEqual(s3, 0))
+        return (Greater(s1, 0) && Greater(s2, 0) && Greater(s3, 0))
             ||
-            (LessOrEqual(s1, 0) && LessOrEqual(s2, 0) && LessOrEqual(s3, 0));
+            (Less(s1, 0) && Less(s2, 0) && Less(s3, 0));
     }
 }
