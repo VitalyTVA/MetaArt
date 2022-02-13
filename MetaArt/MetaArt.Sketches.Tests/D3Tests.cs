@@ -431,6 +431,32 @@ f 12 11 15 16";
         }
 
         [Test]
+        public void Scene_ZOverlap2_XOverlap_ZOverlap_QInFrontOfPPlane6() {
+            var obj =
+@"o X_Cube
+v 4.000000 1.000000 -1.000000
+v 4.000000 -1.000000 -1.000000
+v 4.000000 1.000000 1.000000
+v 4.000000 -1.000000 1.000000
+v 2.000000 1.000000 -1.000000
+v 2.000000 -1.000000 -1.000000
+v 2.000000 1.000000 1.000000
+v 2.000000 -1.000000 1.000000
+s off
+f 4 3 7 8
+f 6 2 4 8";
+            Scene<int> scene = CreateScene(obj, scale: 50);
+            foreach(var item in scene.GetModels()) {
+                item.Rotation = new Quaternion(0.41467953f, 0.323241f, 0.5681285f, -0.6330752f);
+            }
+            AssertOrder(
+                new int[] { },
+                scene,
+                camera: new YawPitchContoller(yaw: 2.04999971f, pitch: -0.759999931f).CreateCamera()
+            );
+        }
+
+        [Test]
         public void Scene_SwapPlanes1() {
             AssertOrder(
                 new[] { 1, 0 },
