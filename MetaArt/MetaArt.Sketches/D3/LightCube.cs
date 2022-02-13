@@ -11,10 +11,12 @@ class LightCube {
         size(600, 400);
 
         //scene = Loader.LoadScene("monkey", 150);
-        scene = Loader.LoadScene("cubes", 50);
+        scene = Loader.LoadScene<VoidType>("cubes", 50);
+
+        lights.lightsController.Yaw(PI / 2);
     }
 
-    YawPitchContoller cameraController = new();
+    YawPitchContoller cameraController = new(yaw: 2.41499972f, pitch: 0.530000031f);
     Lights lights = new Lights();
 
     void draw() {
@@ -73,13 +75,13 @@ class LightCube {
 
 }
 static class Loader {
-    public static Scene<VoidType> LoadScene(string fileName, float scale) {
+    public static Scene<T> LoadScene<T>(string fileName, float scale) {
         var asm = Assembly.GetExecutingAssembly();
-        var models = ObjLoader.Load(asm.GetManifestResourceStream(asm.GetName().Name + $".D3.Models.{fileName}.obj")!).ToArray();
+        var models = ObjLoader.Load<T>(asm.GetManifestResourceStream(asm.GetName().Name + $".D3.Models.{fileName}.obj")!).ToArray();
         foreach(var item in models) {
             item.Scale = new Vector3(scale, scale, scale);
         }
-        return new Scene<VoidType>(models);
+        return new Scene<T>(models);
     }
 }
 

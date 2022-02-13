@@ -45,8 +45,8 @@ public class Scene<T> {
                 }
                 if(RangesAreApart((pBox.min.X, pBox.max.X), (qBox.min.X, qBox.max.X))
                     || RangesAreApart((pBox.min.Y, pBox.max.Y), (qBox.min.Y, qBox.max.Y))
-                    || Extensions.VerticesOnSameSideOfPlane((q1, q2, q3), (p1, p2, p3, p4), camera.Location, cameraOnSameSide: false)
-                    || Extensions.VerticesOnSameSideOfPlane((p1, p2, p3), (q1, q2, q3, q4), camera.Location, cameraOnSameSide: true)
+                    || Extensions.VerticesOnSameSideOfPlane((q1, q2, q3), (p1, p2, p3, p4), cameraOnSameSide: false)
+                    || Extensions.VerticesOnSameSideOfPlane((p1, p2, p3), (q1, q2, q3, q4), cameraOnSameSide: true)
                 ) {
                     continue;
                 }

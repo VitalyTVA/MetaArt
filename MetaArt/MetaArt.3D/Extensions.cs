@@ -96,13 +96,13 @@ public static class Extensions {
         y = v.Y;
     }
 
-    public static bool VerticesOnSameSideOfPlane((Vector3 v1, Vector3 v2, Vector3 v3) plane, (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) vertices, Vector3 camera, bool cameraOnSameSide) {
+    public static bool VerticesOnSameSideOfPlane((Vector3 v1, Vector3 v2, Vector3 v3) plane, (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) vertices, bool cameraOnSameSide) {
         var n = Vector3.Normalize(GetNormal(plane.v1, plane.v2, plane.v3));
         var s1 = Vector3.Dot(n, (plane.v1 - vertices.v1));
         var s2 = Vector3.Dot(n, (plane.v1 - vertices.v2));
         var s3 = Vector3.Dot(n, (plane.v1 - vertices.v3));
         var s4 = Vector3.Dot(n, (plane.v1 - vertices.v4));
-        var s_cam = Vector3.Dot(n, (plane.v1 - camera));
+        var s_cam = Vector3.Dot(n, plane.v1); //camera is at origin here
         if(!cameraOnSameSide)
             s_cam = -s_cam;
         return (Greater(s1, 0) && Greater(s2, 0) && Greater(s3, 0) && Greater(s4, 0) && Greater(s_cam, 0))

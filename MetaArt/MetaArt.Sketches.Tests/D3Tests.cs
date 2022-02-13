@@ -342,6 +342,35 @@ namespace MetaArt.Sketches.Tests {
         }
 
         [Test]
+        public void Scene_ZOverlap2_XOverlap_ZOverlap_QInFrontOfPPlane3() {
+            var obj =
+@"o X
+v 4.000000 1.000000 -1.000000
+v 4.000000 1.000000 1.000000
+v 2.000000 1.000000 -1.000000
+v 2.000000 -1.000000 -1.000000
+v 2.000000 1.000000 1.000000
+v 2.000000 -1.000000 1.000000
+v 1.000000 4.000000 -1.000000
+v 1.000000 2.000000 -1.000000
+v 1.000000 4.000000 1.000000
+v 1.000000 2.000000 1.000000
+v -1.000000 2.000000 -1.000000
+v -1.000000 2.000000 1.000000
+f 2 5 3 1
+f 4 3 5 6
+f 11 8 10 12
+f 8 7 9 10";
+            var scene = CreateScene(obj, scale: 50);
+
+            AssertOrder(
+                new[] { 2, 3, 0, 1 },
+                scene,
+                camera: new YawPitchContoller(yaw: 2.415f, pitch: 0.53f).CreateCamera()
+            );
+        }
+
+        [Test]
         public void Scene_SwapPlanes1() {
             AssertOrder(
                 new[] { 1, 0 },
@@ -557,7 +586,7 @@ namespace MetaArt.Sketches.Tests {
 
         [Test]
         public void LoadModel_Cube() {
-            var model = LoadModels("cube").Single();
+            var model = LoadModels<int>("cube", info => info.Index).Single();
             Assert.AreEqual(8, model.Vertices.Length);
             Assert.AreEqual(6, model.Quads.Length);
             AssertVector(new Vector3(1, 1, 1), model.Vertices[0]);
@@ -569,17 +598,17 @@ namespace MetaArt.Sketches.Tests {
             AssertVector(new Vector3(-1, 1, -1), model.Vertices[6]);
             AssertVector(new Vector3(-1, -1, -1), model.Vertices[7]);
 
-            AssertQuad(1, 5, 7, 3, model.Quads[0]);
-            AssertQuad(4, 3, 7, 8, model.Quads[1]);
-            AssertQuad(8, 7, 5, 6, model.Quads[2]);
-            AssertQuad(6, 2, 4, 8, model.Quads[3]);
-            AssertQuad(2, 1, 3, 4, model.Quads[4]);
-            AssertQuad(6, 5, 1, 2, model.Quads[5]);
+            AssertQuad(1, 5, 7, 3, model.Quads[0], 0);
+            AssertQuad(4, 3, 7, 8, model.Quads[1], 1);
+            AssertQuad(8, 7, 5, 6, model.Quads[2], 2);
+            AssertQuad(6, 2, 4, 8, model.Quads[3], 3);
+            AssertQuad(2, 1, 3, 4, model.Quads[4], 4);
+            AssertQuad(6, 5, 1, 2, model.Quads[5], 5);
         }
 
         [Test]
         public void LoadModel_Triangle() {
-            var model = LoadModels("triangle").Single();
+            var model = LoadModels<VoidType>("triangle").Single();
             Assert.AreEqual(3, model.Vertices.Length);
             Assert.AreEqual(1, model.Quads.Length);
             AssertVector(new Vector3(1, 1, 1), model.Vertices[0]);
@@ -591,7 +620,7 @@ namespace MetaArt.Sketches.Tests {
 
         [Test]
         public void LoadModel_Cubes() {
-            var models = LoadModels("cubes").ToArray();
+            var models = LoadModels<VoidType>("cubes").ToArray();
             Assert.AreEqual(4, models.Length);
             Assert.AreEqual(8, models[0].Vertices.Length);
             Assert.AreEqual(6, models[0].Quads.Length);
@@ -663,17 +692,29 @@ namespace MetaArt.Sketches.Tests {
             AssertQuad(6, 5, 1, 2, models[3].Quads[5]);
         }
 
-        IEnumerable<Model<VoidType>> LoadModels(string fileName) {
+        IEnumerable<Model<T>> LoadModels<T>(string fileName, Func<QuadInfo, T>? getValue = null) {
             var asm = Assembly.GetExecutingAssembly();
-            return ObjLoader.Load(asm.GetManifestResourceStream(asm.GetName().Name + $".Models.{fileName}.obj")!);
+            return ObjLoader.Load<T>(asm.GetManifestResourceStream(asm.GetName().Name + $".Models.{fileName}.obj")!, getValue);
         }
 
-        static void AssertQuad(int i1, int i2, int i3, int i4, Quad<VoidType> quad) { 
+        static void AssertQuad<T>(int i1, int i2, int i3, int i4, Quad<T> quad, T value = default!) { 
             Assert.AreEqual(i1, quad.i1 + 1);
             Assert.AreEqual(i2, quad.i2 + 1);
             Assert.AreEqual(i3, quad.i3 + 1);
             Assert.AreEqual(i4, quad.i4 + 1);
+            Assert.AreEqual(value, quad.value);
         }
+
+        static Scene<int> CreateScene(string objFile, float scale) {
+            using var stream = objFile.AsStream();
+            var models = ObjLoader.Load(stream, info => info.Index).ToArray();
+            foreach(var item in models) {
+                item.Scale = new Vector3(scale, scale, scale);
+            }
+            return new Scene<int>(models);
+        }
+
+
 
         [Test]
         public void RangesOverlappring() {
@@ -715,5 +756,13 @@ public static class TestExtensions {
     }
     public static bool IsVisible(this Camera c, Vector3 vertex, Vector3 normal) {
         return Vector3.Dot(c.Location - vertex, normal) > 0;
+    }
+    public static Stream AsStream(this string s) {
+        var stream = new MemoryStream();
+        var writer = new StreamWriter(stream);
+        writer.Write(s);
+        writer.Flush();
+        stream.Position = 0;
+        return stream;
     }
 }

@@ -2,14 +2,15 @@
 using System.Text.RegularExpressions;
 
 namespace MetaArt.D3;
-
+public record struct QuadInfo(int Index);
 public static class ObjLoader {
-    public static IEnumerable<Model<VoidType>> Load(Stream stream) {
+    public static IEnumerable<Model<T>> Load<T>(Stream stream, Func<QuadInfo, T>? getValue = null) {
         //TODO optimize
+        getValue = getValue ?? (_ => default!);
         using var reader = new StreamReader(stream);
         var vertices = new List<Vector3>();
-        var quads = new List<Quad<VoidType>>();
-        Model<VoidType> CreateModel() => new Model<VoidType>(vertices.ToArray(), quads.ToArray());
+        var quads = new List<Quad<T>>();
+        Model<T> CreateModel() => new Model<T>(vertices.ToArray(), quads.ToArray());
         int startIndex = 0;
         while(!reader.EndOfStream) {
             var l = reader.ReadLine();
@@ -37,12 +38,12 @@ public static class ObjLoader {
             if(l.StartsWith("f")) {
                 var split = l.Split(' ');
                 //TODO invariant culture to parse
-                quads.Add(new Quad<VoidType>(
+                quads.Add(new Quad<T>(
                     int.Parse(split[1]) - 1 - startIndex, 
                     int.Parse(split[2]) - 1 - startIndex, 
                     int.Parse(split[3]) - 1 - startIndex, 
                     int.Parse(split.Length == 5 ? split[4] : split[3]) - 1 - startIndex, 
-                default));
+                    value: getValue(new QuadInfo(quads.Count))));
                 continue;
             }
         }
