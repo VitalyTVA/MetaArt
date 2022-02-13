@@ -50,6 +50,16 @@ public class Scene<T> {
                 ) {
                     continue;
                 }
+                {
+                    var (p1_, p2_, p3_, p4_) = GetVertices(quads[pi]);
+                    var (q1_, q2_, q3_, q4_) = GetVertices(quads[qi]);
+                    if(!Extensions.Intersects(
+                        (p1_.NoZ(), p2_.NoZ(), p3_.NoZ(), p4_.NoZ()),
+                        (q1_.NoZ(), q2_.NoZ(), q3_.NoZ(), q4_.NoZ())
+                    )) {
+                        continue;
+                    }
+                }
                 var t = quads[pi];
                 quads[pi] = quads[qi];
                 quads[qi] = t;

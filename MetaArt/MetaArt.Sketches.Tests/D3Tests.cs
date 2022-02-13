@@ -361,12 +361,72 @@ f 2 5 3 1
 f 4 3 5 6
 f 11 8 10 12
 f 8 7 9 10";
-            var scene = CreateScene(obj, scale: 50);
-
             AssertOrder(
                 new[] { 2, 3, 0, 1 },
-                scene,
+                CreateScene(obj, scale: 50),
                 camera: new YawPitchContoller(yaw: 2.415f, pitch: 0.53f).CreateCamera()
+            );
+        }
+
+        [Test]
+        public void Scene_ZOverlap2_XOverlap_ZOverlap_QInFrontOfPPlane4() {
+            var obj =
+@"o X
+v 1 4 -1
+v 1 2 -1
+v 1 4 1
+v 1 2 1
+v -1 4 -1
+v -1 2 -1
+v -1 4 1
+v -1 2 1
+v 1 1 -4
+v 1 -1 -4
+v 1 1 -2
+v 1 -1 -2
+v -1 1 -4
+v -1 -1 -4
+v -1 1 -2
+v -1 -1 -2
+s off
+f 6 2 4 8
+f 2 1 5 6
+f 11 15 13 9
+f 12 11 15 16";
+            AssertOrder(
+                new[] { 1, 2, 0, 3 },
+                CreateScene(obj, scale: 50),
+                camera: new YawPitchContoller(yaw: -0.9099997f, pitch: 0.7853982f).CreateCamera()
+            );
+        }
+
+        [Test]
+        public void Scene_ZOverlap2_XOverlap_ZOverlap_QInFrontOfPPlane5() {
+            var obj =
+@"o X
+v 1 4 -1
+v 1 2 -1
+v 1 4 1
+v 1 2 1
+v -1 4 -1
+v -1 2 -1
+v -1 4 1
+v -1 2 1
+v 1 1 -4
+v 1 -1 -4
+v 1 1 -2
+v 1 -1 -2
+v -1 1 -4
+v -1 -1 -4
+v -1 1 -2
+v -1 -1 -2
+s off
+f 2 1 5 6
+f 12 11 15 16";
+            AssertOrder(
+                new[] { 0, 1 },
+                CreateScene(obj, scale: 50),
+                camera: new YawPitchContoller(yaw: -0.9099997f, pitch: 0.7853982f).CreateCamera()
             );
         }
 
@@ -726,6 +786,21 @@ f 8 7 9 10";
 
             Assert.True(RangesAreApart((0, 1), (1, 3)));
             Assert.False(RangesAreApart((0, 1.1f), (1, 3)));
+        }
+
+        [Test]
+        public void PointsOnSameSideOfLine1() {
+            Assert.True(Extensions.PointOnSameSideOfLine(
+                (new Vector2(1, 2), new Vector2(3, 3)),
+                (new Vector2(1, 3), new Vector2(2, 3), new Vector2(3, 4))
+            ));
+        }
+        [Test]
+        public void PointsOnSameSideOfLine2() {
+            Assert.False(Extensions.PointOnSameSideOfLine(
+                (new Vector2(1, 2), new Vector2(3, 3)),
+                (new Vector2(1, 3), new Vector2(2, 3), new Vector2(3, 2))
+            ));
         }
     }
 }

@@ -85,6 +85,11 @@ public static class Extensions {
     public static Vector3 GetNormal(Vector3 p1, Vector3 p2, Vector3 p3) {
         return Vector3.Cross(p3 - p2, p2 - p1);
     }
+    public static Vector2 GetNormal(Vector2 p1, Vector2 p2) {
+        var (x, y) = p2 - p1;
+        return new Vector2(-y, x);
+    }
+
 
     public static void Deconstruct(this Vector3 v, out float x, out float y, out float z) {
         x = v.X;
@@ -108,5 +113,35 @@ public static class Extensions {
         return (Greater(s1, 0) && Greater(s2, 0) && Greater(s3, 0) && Greater(s4, 0) && Greater(s_cam, 0))
             ||
             (Less(s1, 0) && Less(s2, 0) && Less(s3, 0) && Less(s4, 0) && Less(s_cam, 0));
+    }
+
+    public static Vector2 NoZ(this Vector3 v) => new Vector2(v.X, v.Y);
+
+    public static bool Intersects((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q1, (Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q2) {
+        return PointInside(q1, q2.v1)
+            || PointInside(q1, q2.v2)
+            || PointInside(q1, q2.v3)
+            || PointInside(q1, q2.v4)
+            || PointInside(q2, q1.v1)
+            || PointInside(q2, q1.v2)
+            || PointInside(q2, q1.v3)
+            || PointInside(q2, q1.v4);
+    }
+    public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) { 
+        if(q.v3 == q.v4)
+            throw new NotImplementedException();
+        return PointOnSameSideOfLine((q.v1, q.v2), (q.v3, q.v4, p))
+            && PointOnSameSideOfLine((q.v2, q.v3), (q.v1, q.v4, p))
+            && (/*q.v3 == q.v4 || */PointOnSameSideOfLine((q.v3, q.v4), (q.v1, q.v2, p)))
+            && PointOnSameSideOfLine((q.v4, q.v1), (q.v2, q.v3, p));
+    }
+    public static bool PointOnSameSideOfLine((Vector2 v1, Vector2 v2) line, (Vector2 v1, Vector2 v2, Vector2 v3) points) {
+        var n = Vector2.Normalize(GetNormal(line.v1, line.v2));
+        var s1 = Vector2.Dot(n, (line.v1 - points.v1));
+        var s2 = Vector2.Dot(n, (line.v1 - points.v2));
+        var s3 = Vector2.Dot(n, (line.v1 - points.v3));
+        return (Greater(s1, 0) && Greater(s2, 0) && Greater(s3, 0))
+            ||
+            (Less(s1, 0) && Less(s2, 0) && Less(s3, 0));
     }
 }
