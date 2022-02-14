@@ -907,6 +907,92 @@ f 6 2 4 8";
             var quad = (new Vector2(0, 2), new Vector2(2, 2), new Vector2(2, 0), new Vector2(0, 0));
             Assert.False(Extensions.Intersects((new Vector2(2, 1), new Vector2(3, 0), new Vector2(4, 1), new Vector2(3, 2)), quad));
         }
+
+        [Test]
+        public void Intersects5() {
+            var quad = (new Vector2(0, 0), new Vector2(4, 0), new Vector2(4, 1), new Vector2(0, 1));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2))));
+            Assert.True(Extensions.Intersects((new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2)), quad));
+
+            quad = (new Vector2(4, 0), new Vector2(4, 1), new Vector2(0, 1), new Vector2(0, 0));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2))));
+            Assert.True(Extensions.Intersects((new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2)), quad));
+
+            quad = (new Vector2(4, 1), new Vector2(0, 1), new Vector2(0, 0), new Vector2(4, 0));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2))));
+            Assert.True(Extensions.Intersects((new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2)), quad));
+
+            quad = (new Vector2(0, 1), new Vector2(0, 0), new Vector2(4, 0), new Vector2(4, 1));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2))));
+            Assert.True(Extensions.Intersects((new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2)), quad));
+        }
+
+        [Test]
+        public void Intersects6() {
+            var quad = (new Vector2(0, 0), new Vector2(4, 0), new Vector2(4, 1), new Vector2(4, 1));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(2, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(1, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, -2))));
+            Assert.True(Extensions.Intersects((new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(2, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(1, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, -2)), quad));
+
+            quad = (new Vector2(4, 0), new Vector2(4, 1), new Vector2(0, 1), new Vector2(0, 1));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(2, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(1, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, -2))));
+            Assert.True(Extensions.Intersects((new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(2, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(1, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, -2)), quad));
+
+            quad = (new Vector2(4, 1), new Vector2(0, 1), new Vector2(0, 0), new Vector2(0, 0));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(2, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(1, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, -2))));
+            Assert.True(Extensions.Intersects((new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(2, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(1, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, -2)), quad));
+
+            quad = (new Vector2(0, 1), new Vector2(0, 0), new Vector2(4, 0), new Vector2(4, 0));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(2, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, 2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(1, -2))));
+            Assert.True(Extensions.Intersects(quad, (new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, -2))));
+            Assert.True(Extensions.Intersects((new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, 2), new Vector2(2, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, 2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(1, -2)), quad));
+            Assert.True(Extensions.Intersects((new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, -2)), quad));
+        }
     }
 }
 [TestFixture]

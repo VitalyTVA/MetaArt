@@ -35,7 +35,7 @@ public class Scene<T> {
             int qi = pi + 1;
             for(qi = pi + 1; qi < quads.Length; qi++) {
                 steps++;
-                if(steps > 1000)
+                if(steps > 100000)
                     throw new InvalidOperationException("Cycle detected");
                 var (q1, q2, q3, q4) = GetNormalVertices(quads[qi]);
                 var qBox = GetBox(quads[qi]);

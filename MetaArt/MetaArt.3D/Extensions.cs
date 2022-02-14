@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using MetaArt.D3;
 using static MetaArt.D3.MathFEx;
 
@@ -118,14 +119,62 @@ public static class Extensions {
     public static Vector2 NoZ(this Vector3 v) => new Vector2(v.X, v.Y);
 
     public static bool Intersects((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q1, (Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q2) {
-        return PointInside(q1, q2.v1)
+        if(PointInside(q1, q2.v1)
             || PointInside(q1, q2.v2)
             || PointInside(q1, q2.v3)
             || PointInside(q1, q2.v4)
             || PointInside(q2, q1.v1)
             || PointInside(q2, q1.v2)
             || PointInside(q2, q1.v3)
-            || PointInside(q2, q1.v4);
+            || PointInside(q2, q1.v4)
+        ) return true;
+
+        var fastSegmentsCheck =
+               /*SegmentsIntesect((q1.v1, q1.v2), (q2.v1, q2.v2))
+            || */SegmentsIntesect((q1.v1, q1.v2), (q2.v2, q2.v3))
+            || SegmentsIntesect((q1.v1, q1.v2), (q2.v3, q2.v4))
+            || SegmentsIntesect((q1.v1, q1.v2), (q2.v4, q2.v1))
+
+            || SegmentsIntesect((q1.v2, q1.v3), (q2.v1, q2.v2))
+            || SegmentsIntesect((q1.v2, q1.v3), (q2.v2, q2.v3))
+            || SegmentsIntesect((q1.v2, q1.v3), (q2.v3, q2.v4))
+            //|| SegmentsIntesect((q1.v2, q1.v3), (q2.v4, q2.v1))
+
+            //|| SegmentsIntesect((q1.v3, q1.v4), (q2.v1, q2.v2))
+            //|| SegmentsIntesect((q1.v3, q1.v4), (q2.v2, q2.v3))
+            //|| SegmentsIntesect((q1.v3, q1.v4), (q2.v3, q2.v4))
+            //|| SegmentsIntesect((q1.v3, q1.v4), (q2.v4, q2.v1))
+
+            //|| SegmentsIntesect((q1.v4, q1.v1), (q2.v1, q2.v2))
+            //|| SegmentsIntesect((q1.v4, q1.v1), (q2.v2, q2.v3))
+            //|| SegmentsIntesect((q1.v4, q1.v1), (q2.v3, q2.v4))
+            //|| SegmentsIntesect((q1.v4, q1.v1), (q2.v4, q2.v1))
+        ;
+
+#if DEBUG
+        var fullSegmentsCheck = 
+               SegmentsIntesect((q1.v1, q1.v2), (q2.v1, q2.v2))
+            || SegmentsIntesect((q1.v1, q1.v2), (q2.v2, q2.v3))
+            || SegmentsIntesect((q1.v1, q1.v2), (q2.v3, q2.v4))
+            || SegmentsIntesect((q1.v1, q1.v2), (q2.v4, q2.v1))
+
+            || SegmentsIntesect((q1.v2, q1.v3), (q2.v1, q2.v2))
+            || SegmentsIntesect((q1.v2, q1.v3), (q2.v2, q2.v3))
+            || SegmentsIntesect((q1.v2, q1.v3), (q2.v3, q2.v4))
+            || SegmentsIntesect((q1.v2, q1.v3), (q2.v4, q2.v1))
+
+            || SegmentsIntesect((q1.v3, q1.v4), (q2.v1, q2.v2))
+            || SegmentsIntesect((q1.v3, q1.v4), (q2.v2, q2.v3))
+            || SegmentsIntesect((q1.v3, q1.v4), (q2.v3, q2.v4))
+            || SegmentsIntesect((q1.v3, q1.v4), (q2.v4, q2.v1))
+
+            || SegmentsIntesect((q1.v4, q1.v1), (q2.v1, q2.v2))
+            || SegmentsIntesect((q1.v4, q1.v1), (q2.v2, q2.v3))
+            || SegmentsIntesect((q1.v4, q1.v1), (q2.v3, q2.v4))
+            || SegmentsIntesect((q1.v4, q1.v1), (q2.v4, q2.v1));
+        Debug.Assert(fullSegmentsCheck == fastSegmentsCheck);
+#endif
+        return fastSegmentsCheck;
     }
     public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) {
         if(q.v3 == q.v4) {
@@ -146,5 +195,18 @@ public static class Extensions {
         return (Greater(s1, 0) && Greater(s2, 0) && Greater(s3, 0))
             ||
             (Less(s1, 0) && Less(s2, 0) && Less(s3, 0));
+    }
+
+    public static bool SegmentsIntesect((Vector2 v1, Vector2 v2) s1, (Vector2 v1, Vector2 v2) s2) {
+        //TODO optimize segments intersection
+        var (x1, y1) = s1.v1;
+        var (x2, y2) = s1.v2;
+        var (x3, y3) = s2.v1;
+        var (x4, y4) = s2.v2;
+
+        var d = (y4 - y3) * (x2 - x1) - (x4 - x3)* (y2 - y1);
+        var ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / d;
+        var ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / d;
+        return Greater(ua, 0) && Less(ua, 1) && Greater(ub, 0) && Less(ub, 1);
     }
 }
