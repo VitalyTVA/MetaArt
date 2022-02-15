@@ -129,29 +129,7 @@ public static class Extensions {
             || PointInside(q2, q1.v4)
         ) return true;
 
-        var fastSegmentsCheck =
-               /*SegmentsIntesect((q1.v1, q1.v2), (q2.v1, q2.v2))
-            || */SegmentsIntesect((q1.v1, q1.v2), (q2.v2, q2.v3))
-            || SegmentsIntesect((q1.v1, q1.v2), (q2.v3, q2.v4))
-            || SegmentsIntesect((q1.v1, q1.v2), (q2.v4, q2.v1))
-
-            || SegmentsIntesect((q1.v2, q1.v3), (q2.v1, q2.v2))
-            || SegmentsIntesect((q1.v2, q1.v3), (q2.v2, q2.v3))
-            || SegmentsIntesect((q1.v2, q1.v3), (q2.v3, q2.v4))
-            //|| SegmentsIntesect((q1.v2, q1.v3), (q2.v4, q2.v1))
-
-            //|| SegmentsIntesect((q1.v3, q1.v4), (q2.v1, q2.v2))
-            //|| SegmentsIntesect((q1.v3, q1.v4), (q2.v2, q2.v3))
-            //|| SegmentsIntesect((q1.v3, q1.v4), (q2.v3, q2.v4))
-            //|| SegmentsIntesect((q1.v3, q1.v4), (q2.v4, q2.v1))
-
-            //|| SegmentsIntesect((q1.v4, q1.v1), (q2.v1, q2.v2))
-            //|| SegmentsIntesect((q1.v4, q1.v1), (q2.v2, q2.v3))
-            //|| SegmentsIntesect((q1.v4, q1.v1), (q2.v3, q2.v4))
-            //|| SegmentsIntesect((q1.v4, q1.v1), (q2.v4, q2.v1))
-        ;
-
-#if DEBUG
+        //TODO only needed checks
         var fullSegmentsCheck = 
                SegmentsIntesect((q1.v1, q1.v2), (q2.v1, q2.v2))
             || SegmentsIntesect((q1.v1, q1.v2), (q2.v2, q2.v3))
@@ -172,9 +150,7 @@ public static class Extensions {
             || SegmentsIntesect((q1.v4, q1.v1), (q2.v2, q2.v3))
             || SegmentsIntesect((q1.v4, q1.v1), (q2.v3, q2.v4))
             || SegmentsIntesect((q1.v4, q1.v1), (q2.v4, q2.v1));
-        Debug.Assert(fullSegmentsCheck == fastSegmentsCheck);
-#endif
-        return fastSegmentsCheck;
+        return fullSegmentsCheck;
     }
     public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) {
         if(q.v3 == q.v4) {
@@ -208,5 +184,57 @@ public static class Extensions {
         var ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / d;
         var ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / d;
         return Greater(ua, 0) && Less(ua, 1) && Greater(ub, 0) && Less(ub, 1);
+    }
+
+    public static Vector2? GetQuadsIntersection((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q1, (Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q2) {
+        //TODO Test all variants
+        var intersection =
+               GetSegmentsIntesection((q1.v1, q1.v2), (q2.v1, q2.v2))
+            ?? GetSegmentsIntesection((q1.v1, q1.v2), (q2.v2, q2.v3))
+            ?? GetSegmentsIntesection((q1.v1, q1.v2), (q2.v3, q2.v4))
+            ?? GetSegmentsIntesection((q1.v1, q1.v2), (q2.v4, q2.v1))
+
+            ?? GetSegmentsIntesection((q1.v2, q1.v3), (q2.v1, q2.v2))
+            ?? GetSegmentsIntesection((q1.v2, q1.v3), (q2.v2, q2.v3))
+            ?? GetSegmentsIntesection((q1.v2, q1.v3), (q2.v3, q2.v4))
+            ?? GetSegmentsIntesection((q1.v2, q1.v3), (q2.v4, q2.v1))
+
+            ?? GetSegmentsIntesection((q1.v3, q1.v4), (q2.v1, q2.v2))
+            ?? GetSegmentsIntesection((q1.v3, q1.v4), (q2.v2, q2.v3))
+            ?? GetSegmentsIntesection((q1.v3, q1.v4), (q2.v3, q2.v4))
+            ?? GetSegmentsIntesection((q1.v3, q1.v4), (q2.v4, q2.v1))
+
+            ?? GetSegmentsIntesection((q1.v4, q1.v1), (q2.v1, q2.v2))
+            ?? GetSegmentsIntesection((q1.v4, q1.v1), (q2.v2, q2.v3))
+            ?? GetSegmentsIntesection((q1.v4, q1.v1), (q2.v3, q2.v4))
+            ?? GetSegmentsIntesection((q1.v4, q1.v1), (q2.v4, q2.v1));
+        return intersection;
+    }
+
+    static Vector2? GetSegmentsIntesection((Vector2 v1, Vector2 v2) s1, (Vector2 v1, Vector2 v2) s2) {
+        //TODO optimize segments intersection
+        var (x1, y1) = s1.v1;
+        var (x2, y2) = s1.v2;
+        var (x3, y3) = s2.v1;
+        var (x4, y4) = s2.v2;
+
+        var d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+        var ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / d;
+        var ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / d;
+        if(Greater(ua, 0) && Less(ua, 1) && Greater(ub, 0) && Less(ub, 1)) {
+            return new Vector2(x1 + (x2 - x1) * ua, y1 + (y2 - y1) * ua);
+        }
+        return null;
+    }
+
+    public static Vector3 PlaneLineIntersection((Vector3 v1, Vector3 v2, Vector3 v3) plane, (Vector3 l0, Vector3 l) line) {
+        //TODO test it
+        //https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
+
+        var n = Vector3.Normalize(GetNormal(plane.v1, plane.v2, plane.v3));
+
+        var (l0, l) = line;
+        var d = Vector3.Dot(plane.v1 - l0, n) / Vector3.Dot(l, n);
+        return l0 + l * d;
     }
 }

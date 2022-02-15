@@ -4,7 +4,7 @@ namespace MetaArt.D3;
 
 public class Camera {
     public readonly Vector3 Location;
-    readonly float FocalDistance;
+    public readonly float FocalDistance;
     public readonly Quaternion Rotation;
 
     public Camera(Vector3 location, Quaternion rotation, float focalDistance) {

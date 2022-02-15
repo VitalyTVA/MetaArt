@@ -27,6 +27,7 @@ public class Scene<T> {
             );
         });
 
+        HashSet<(int, int)> swaps = new();
         int steps = 0;
         for(int pi = 0; pi < quads.Length; pi++) {
             var (p1, p2, p3, p4) = GetNormalVertices(quads[pi]);
@@ -59,8 +60,22 @@ public class Scene<T> {
                     )) {
                         continue;
                     }
+                    var intersection = Extensions.GetQuadsIntersection(
+                        (p1_.NoZ(), p2_.NoZ(), p3_.NoZ(), p4_.NoZ()),
+                        (q1_.NoZ(), q2_.NoZ(), q3_.NoZ(), q4_.NoZ())
+                    );
+                    if(intersection != null) {
+                        var castPoint = (Vector3.Zero, new Vector3(intersection.Value.X, intersection.Value.Y, camera.FocalDistance));
+                        var ip = Extensions.PlaneLineIntersection((p1, p2, p3), castPoint);
+                        var iq = Extensions.PlaneLineIntersection((q1, q2, q3), castPoint);
+                        if(Greater(ip.LengthSquared(), iq.LengthSquared()))
+                            continue;   
+                    }
                 }
+                if(swaps.Contains((pi, qi))) 
+                    throw new InvalidOperationException("Cycle detected: " + (pi, qi));
                 var t = quads[pi];
+                swaps.Add((pi, qi));
                 quads[pi] = quads[qi];
                 quads[qi] = t;
                 pi--;

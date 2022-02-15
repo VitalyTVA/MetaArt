@@ -504,6 +504,39 @@ f 6 2 4 8";
             );
         }
 
+        [Test]
+        public void Scene_SwapPlanes5() {
+            AssertOrder(
+                new[] { 1, 0 },
+                CreateScene(
+                    (new Vector3(-20, -30, 110), new Vector3(-19, -30, 110), new Vector3(-19, 30, 90), new Vector3(-20, 30, 90)),
+                    (new Vector3(-30, 20, 110), new Vector3(-30, 19, 110), new Vector3(30, 19, 90), new Vector3(30, 20, 90))
+                )
+            );
+        }
+
+        [Test]
+        public void Scene_SwapPlanes6() {
+            AssertOrder(
+                new[] { 0, 1 },
+                CreateScene(
+                    (new Vector3(-30, 20, 110), new Vector3(-30, 19, 110), new Vector3(30, 19, 90), new Vector3(30, 20, 90)),
+                    (new Vector3(-20, -30, 110), new Vector3(-19, -30, 110), new Vector3(-19, 30, 90), new Vector3(-20, 30, 90))
+                )
+            );
+        }
+
+        [Test]
+        public void Scene_SwapCycle() {
+            var scene = CreateScene(
+                (new Vector3(-20, -30, 110), new Vector3(-19, -30, 110), new Vector3(-19, 30, 90), new Vector3(-20, 30, 90)),
+                (new Vector3(-30, 20, 110), new Vector3(-30, 19, 110), new Vector3(30, 19, 90), new Vector3(30, 20, 90)),
+                (new Vector3(20, 30, 110), new Vector3(21, 30, 110), new Vector3(-30, -31, 90), new Vector3(-30, -30, 90))
+            );
+            var e = Assert.Throws<InvalidOperationException>(() => scene.GetQuads(new Camera(new Vector3(0, 0, 0), Quaternion.Identity, 50)).ToArray());
+            Assert.AreEqual("Cycle detected: (0, 1)", e!.Message);
+        }
+
         static (Vector3, Vector3, Vector3, Vector3) QuadYZ((float y, float z) v1, (float y, float z) v2) {
             return (
                 new Vector3(10, v1.y, v1.z),
@@ -992,6 +1025,26 @@ f 6 2 4 8";
             Assert.True(Extensions.Intersects((new Vector2(2, -2), new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, 2)), quad));
             Assert.True(Extensions.Intersects((new Vector2(2, 2), new Vector2(1, 2), new Vector2(1, -2), new Vector2(1, -2)), quad));
             Assert.True(Extensions.Intersects((new Vector2(1, 2), new Vector2(1, -2), new Vector2(2, -2), new Vector2(2, -2)), quad));
+        }
+
+        [Test]
+        public void Intersects7() {
+            Assert.True(Extensions.Intersects(
+                (new Vector2(0, 0), new Vector2(4, 0), new Vector2(4, 4), new Vector2(0, 4)),
+                (new Vector2(1, 1), new Vector2(1, 2), new Vector2(2, 2), new Vector2(2, 1)))
+            );
+
+            Assert.Null(Extensions.GetQuadsIntersection(
+                (new Vector2(0, 0), new Vector2(4, 0), new Vector2(4, 4), new Vector2(0, 4)),
+                (new Vector2(1, 1), new Vector2(1, 2), new Vector2(2, 2), new Vector2(2, 1)))
+            );
+        }
+
+        [Test]
+        public void GetIntersection1() {
+            var quad = (new Vector2(1, 2), new Vector2(3, 3), new Vector2(2, 4), new Vector2(1, 4));
+            Assert.AreEqual(new Vector2(2.2f, 2.6f), Extensions.GetQuadsIntersection(quad,
+                (new Vector2(2, 3), new Vector2(3, 1), new Vector2(4, 3), new Vector2(4, 4))));
         }
     }
 }
