@@ -38,14 +38,16 @@ public static class ObjLoader {
                 continue;
             }
             if(l.StartsWith("f")) {
-                var split = l.Split(' ');
+                var split = l.Substring(2).Split(' ');
+                for(int i = 0; i + 2 < split.Length; i += 2) {
+                    quads.Add(new Quad<T>(
+                        int.Parse(split[0]) - 1 - startIndex,
+                        int.Parse(split[i + 1]) - 1 - startIndex,
+                        int.Parse(split[i + 2]) - 1 - startIndex,
+                        int.Parse(i + 3 < split.Length ? split[i + 3] : split[i + 2]) - 1 - startIndex,
+                        value: getValue(new QuadInfo(quads.Count, lineIndex))));
+                }
                 //TODO invariant culture to parse
-                quads.Add(new Quad<T>(
-                    int.Parse(split[1]) - 1 - startIndex, 
-                    int.Parse(split[2]) - 1 - startIndex, 
-                    int.Parse(split[3]) - 1 - startIndex, 
-                    int.Parse(split.Length == 5 ? split[4] : split[3]) - 1 - startIndex, 
-                    value: getValue(new QuadInfo(quads.Count, lineIndex))));
                 continue;
             }
         }

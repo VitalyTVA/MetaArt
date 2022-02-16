@@ -3,12 +3,11 @@ using NUnit.Framework;
 using System.Numerics;
 using System.Reflection;
 using static MetaArt.D3.MathFEx;
+using static MetaArt.Sketches.Tests.TestExtensions;
 
 namespace MetaArt.Sketches.Tests {
     [TestFixture]
     public class D3Tests {
-        const float delta = 0.001f;
-
         [Test]
         public void Scene_Visibility1() {
             var z = -10;
@@ -620,25 +619,6 @@ f 6 2 4 8";
             Assert.True(c.IsVisible(new Vector3(30, 0, -40), new Vector3(20, 0, -10 - 1)));
         }
 
-        static void AssertVector(Vector2 expected, Vector2 actual) {
-            if(FloatEqual(expected.X, actual.X) && FloatEqual(expected.Y, actual.Y))
-                return;
-            Assert.Fail($"Expected {PrintVector(expected)} but was {PrintVector(actual)}");
-        }
-        static string PrintVector(Vector2 q) {
-            return $"{q.X}f, {q.Y}f";
-        }
-
-        static void AssertVector(Vector3 expected, Vector3 actual) {
-            if(FloatEqual(expected.X, actual.X) && FloatEqual(expected.Y, actual.Y) && FloatEqual(expected.Z, actual.Z))
-                return;
-            Assert.Fail($"Expected {PrintVector(expected)} but was {PrintVector(actual)}");
-        }
-        static string PrintVector(Vector3 q) {
-            return $"{q.X}f, {q.Y}f, {q.Z}f";
-        }
-
-
         [Test]
         public void RotateModel() {
             var m = new Model<D3.VoidType>(new Vector3[] { }, new Quad<D3.VoidType>[] { });
@@ -656,18 +636,6 @@ f 6 2 4 8";
             Extensions.Rotate(m, c, -2, -3);
             AssertQuaternion(new Quaternion(-0.015287506f, -0.034826715f, 0.0017010788f, 0.99927497f), m.Rotation);
         }
-
-        static void AssertQuaternion(Quaternion expected, Quaternion actual) {
-            if(FloatEqual(expected.X, actual.X) && FloatEqual(expected.Y, actual.Y) && FloatEqual(expected.Z, actual.Z) && FloatEqual(expected.W, actual.W))
-                return;
-            Assert.Fail($"Expected {PrintQuaterion(expected)} but was {PrintQuaterion(actual)}");
-        }
-
-        static string PrintQuaterion(Quaternion q) {
-            return $"{q.X}f, {q.Y}f, {q.Z}f, {q.W}f";
-        }
-
-        static bool FloatEqual(float x, float y) => Math.Abs(x - y) < delta;
 
         [Test]
         public void ShepereCameraControllerTest() {
@@ -702,138 +670,6 @@ f 6 2 4 8";
             AssertQuaternion(new Quaternion(0.33583632f, 0.44293144f, 0.18346822f, 0.8107805f), c.Rotation);
             AssertVector(new Vector3(-0.5950098f, 0.70710677f, 0.3820514f), controller.GetDirection());
         }
-
-        [Test]
-        public void LoadModel_Cube() {
-            var model = LoadModels<(int, int)>("cube", info => (info.Index, info.LineIndex)).Single();
-            Assert.AreEqual(8, model.Vertices.Length);
-            Assert.AreEqual(6, model.Quads.Length);
-            AssertVector(new Vector3(1, 1, 1), model.Vertices[0]);
-            AssertVector(new Vector3(1, -1, 1), model.Vertices[1]);
-            AssertVector(new Vector3(1, 1, -1), model.Vertices[2]);
-            AssertVector(new Vector3(1, -1, -1), model.Vertices[3]);
-            AssertVector(new Vector3(-1, 1, 1), model.Vertices[4]);
-            AssertVector(new Vector3(-1, -1, 1), model.Vertices[5]);
-            AssertVector(new Vector3(-1, 1, -1), model.Vertices[6]);
-            AssertVector(new Vector3(-1, -1, -1), model.Vertices[7]);
-
-            AssertQuad(1, 5, 7, 3, model.Quads[0], (0, 13));
-            AssertQuad(4, 3, 7, 8, model.Quads[1], (1, 14));
-            AssertQuad(8, 7, 5, 6, model.Quads[2], (2, 15));
-            AssertQuad(6, 2, 4, 8, model.Quads[3], (3, 16));
-            AssertQuad(2, 1, 3, 4, model.Quads[4], (4, 17));
-            AssertQuad(6, 5, 1, 2, model.Quads[5], (5, 18));
-        }
-
-        [Test]
-        public void LoadModel_Triangle() {
-            var model = LoadModels<VoidType>("triangle").Single();
-            Assert.AreEqual(3, model.Vertices.Length);
-            Assert.AreEqual(1, model.Quads.Length);
-            AssertVector(new Vector3(1, 1, 1), model.Vertices[0]);
-            AssertVector(new Vector3(1, -1, 1), model.Vertices[1]);
-            AssertVector(new Vector3(1, 1, -1), model.Vertices[2]);
-
-            AssertQuad(1, 2, 3, 3, model.Quads[0]);
-        }
-
-        [Test]
-        public void LoadModel_Cubes() {
-            var models = LoadModels<VoidType>("cubes").ToArray();
-            Assert.AreEqual(4, models.Length);
-            Assert.AreEqual(8, models[0].Vertices.Length);
-            Assert.AreEqual(6, models[0].Quads.Length);
-            Assert.AreEqual(8, models[1].Vertices.Length);
-            Assert.AreEqual(6, models[1].Quads.Length);
-            Assert.AreEqual(8, models[2].Vertices.Length);
-            Assert.AreEqual(6, models[2].Quads.Length);
-            Assert.AreEqual(8, models[3].Vertices.Length);
-            Assert.AreEqual(6, models[3].Quads.Length);
-
-            AssertVector(new Vector3(4, 1, 1), models[0].Vertices[0]);
-            AssertVector(new Vector3(4, -1, 1), models[0].Vertices[1]);
-            AssertVector(new Vector3(4, 1, -1), models[0].Vertices[2]);
-            AssertVector(new Vector3(4, -1, -1), models[0].Vertices[3]);
-            AssertVector(new Vector3(2, 1, 1), models[0].Vertices[4]);
-            AssertVector(new Vector3(2, -1, 1), models[0].Vertices[5]);
-            AssertVector(new Vector3(2, 1, -1), models[0].Vertices[6]);
-            AssertVector(new Vector3(2, -1, -1), models[0].Vertices[7]);
-            AssertQuad(1, 5, 7, 3, models[0].Quads[0]);
-            AssertQuad(4, 3, 7, 8, models[0].Quads[1]);
-            AssertQuad(8, 7, 5, 6, models[0].Quads[2]);
-            AssertQuad(6, 2, 4, 8, models[0].Quads[3]);
-            AssertQuad(2, 1, 3, 4, models[0].Quads[4]);
-            AssertQuad(6, 5, 1, 2, models[0].Quads[5]);
-
-            AssertVector(new Vector3(1, 4, 1), models[1].Vertices[0]);
-            AssertVector(new Vector3(1, 2, 1), models[1].Vertices[1]);
-            AssertVector(new Vector3(1, 4, -1), models[1].Vertices[2]);
-            AssertVector(new Vector3(1, 2, -1), models[1].Vertices[3]);
-            AssertVector(new Vector3(-1, 4, 1), models[1].Vertices[4]);
-            AssertVector(new Vector3(-1, 2, 1), models[1].Vertices[5]);
-            AssertVector(new Vector3(-1, 4, -1), models[1].Vertices[6]);
-            AssertVector(new Vector3(-1, 2, -1), models[1].Vertices[7]);
-            AssertQuad(1, 5, 7, 3, models[1].Quads[0]);
-            AssertQuad(4, 3, 7, 8, models[1].Quads[1]);
-            AssertQuad(8, 7, 5, 6, models[1].Quads[2]);
-            AssertQuad(6, 2, 4, 8, models[1].Quads[3]);
-            AssertQuad(2, 1, 3, 4, models[1].Quads[4]);
-            AssertQuad(6, 5, 1, 2, models[1].Quads[5]);
-
-            AssertVector(new Vector3(1, 1, 4), models[2].Vertices[0]);
-            AssertVector(new Vector3(1, -1, 4), models[2].Vertices[1]);
-            AssertVector(new Vector3(1, 1, 2), models[2].Vertices[2]);
-            AssertVector(new Vector3(1, -1, 2), models[2].Vertices[3]);
-            AssertVector(new Vector3(-1, 1, 4), models[2].Vertices[4]);
-            AssertVector(new Vector3(-1, -1, 4), models[2].Vertices[5]);
-            AssertVector(new Vector3(-1, 1, 2), models[2].Vertices[6]);
-            AssertVector(new Vector3(-1, -1, 2), models[2].Vertices[7]);
-            AssertQuad(1, 5, 7, 3, models[2].Quads[0]);
-            AssertQuad(4, 3, 7, 8, models[2].Quads[1]);
-            AssertQuad(8, 7, 5, 6, models[2].Quads[2]);
-            AssertQuad(6, 2, 4, 8, models[2].Quads[3]);
-            AssertQuad(2, 1, 3, 4, models[2].Quads[4]);
-            AssertQuad(6, 5, 1, 2, models[2].Quads[5]);
-
-            AssertVector(new Vector3(1, 1, 1), models[3].Vertices[0]);
-            AssertVector(new Vector3(1, -1, 1), models[3].Vertices[1]);
-            AssertVector(new Vector3(1, 1, -1), models[3].Vertices[2]);
-            AssertVector(new Vector3(1, -1, -1), models[3].Vertices[3]);
-            AssertVector(new Vector3(-1, 1, 1), models[3].Vertices[4]);
-            AssertVector(new Vector3(-1, -1, 1), models[3].Vertices[5]);
-            AssertVector(new Vector3(-1, 1, -1), models[3].Vertices[6]);
-            AssertVector(new Vector3(-1, -1, -1), models[3].Vertices[7]);
-            AssertQuad(1, 5, 7, 3, models[3].Quads[0]);
-            AssertQuad(4, 3, 7, 8, models[3].Quads[1]);
-            AssertQuad(8, 7, 5, 6, models[3].Quads[2]);
-            AssertQuad(6, 2, 4, 8, models[3].Quads[3]);
-            AssertQuad(2, 1, 3, 4, models[3].Quads[4]);
-            AssertQuad(6, 5, 1, 2, models[3].Quads[5]);
-        }
-
-        IEnumerable<Model<T>> LoadModels<T>(string fileName, Func<QuadInfo, T>? getValue = null) {
-            var asm = Assembly.GetExecutingAssembly();
-            return ObjLoader.Load<T>(asm.GetManifestResourceStream(asm.GetName().Name + $".Models.{fileName}.obj")!, getValue);
-        }
-
-        static void AssertQuad<T>(int i1, int i2, int i3, int i4, Quad<T> quad, T value = default!) { 
-            Assert.AreEqual(i1, quad.i1 + 1);
-            Assert.AreEqual(i2, quad.i2 + 1);
-            Assert.AreEqual(i3, quad.i3 + 1);
-            Assert.AreEqual(i4, quad.i4 + 1);
-            Assert.AreEqual(value, quad.value);
-        }
-
-        static Scene<int> CreateScene(string objFile, float scale) {
-            using var stream = objFile.AsStream();
-            var models = ObjLoader.Load(stream, info => info.Index).ToArray();
-            foreach(var item in models) {
-                item.Scale = new Vector3(scale, scale, scale);
-            }
-            return new Scene<int>(models);
-        }
-
-
 
         [Test]
         public void RangesOverlappring() {
@@ -1046,42 +882,14 @@ f 6 2 4 8";
             Assert.AreEqual(new Vector2(2.2f, 2.6f), Extensions.GetQuadsIntersection(quad,
                 (new Vector2(2, 3), new Vector2(3, 1), new Vector2(4, 3), new Vector2(4, 4))));
         }
-    }
-}
-[TestFixture]
-public class DoublesSandbox {
-    [Test]
-    public static void Test() {
-        //QuadXZ((-50, 100), (-50, 150)),
-        //            QuadXZ((-49, 100), (-49, 150))
-        var x1 = Project(-50.0, 100.0);
-        var x2 = Project(-50.0, 140.0);
 
-        var x3 = Project(-49.0, 100.0);
-        var x4 = Project(-49.0, 150.0);
-
-    }
-
-    static (double, double) Project(double x, double z) {
-        return (x * 50 / z, z);
-    } 
-}
-public static class TestExtensions {
-    public static Vector2 ProjectPoint(this Camera c, Vector3 point) {
-        Vector3 p = c.TranslatePoint(point);
-
-        var (x, y, _) = c.ToScreenCoords3(p);
-        return new Vector2(x, y);
-    }
-    public static bool IsVisible(this Camera c, Vector3 vertex, Vector3 normal) {
-        return Vector3.Dot(c.Location - vertex, normal) > 0;
-    }
-    public static Stream AsStream(this string s) {
-        var stream = new MemoryStream();
-        var writer = new StreamWriter(stream);
-        writer.Write(s);
-        writer.Flush();
-        stream.Position = 0;
-        return stream;
+        static Scene<int> CreateScene(string objFile, float scale) {
+            using var stream = objFile.AsStream();
+            var models = ObjLoader.Load(stream, info => info.Index).ToArray();
+            foreach(var item in models) {
+                item.Scale = new Vector3(scale, scale, scale);
+            }
+            return new Scene<int>(models);
+        }
     }
 }
