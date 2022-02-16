@@ -125,10 +125,70 @@ v 2 1 0
 v 3 3 0
 v 4 6 0
 f 1 2 3 4 5";
-            var model = ObjLoader.Load(obj.AsStream(), x => x).Single();
+            var model = GetModel(obj);
             Assert.AreEqual(2, model.Quads.Length);
             AssertQuad(1, 2, 3, 4, model.Quads[0], (new QuadInfo(0, 7)));
             AssertQuad(1, 4, 5, 5, model.Quads[1], (new QuadInfo(1, 7)));
+        }
+
+        [Test]
+        public void Hexagon() {
+            var obj =
+    @"o X
+v 0 0 0
+v 1 0 0
+v 2 1 0
+v 3 3 0
+v 4 6 0
+v 5 10 0
+f 1 2 3 4 5 6";
+            var model = GetModel(obj);
+            Assert.AreEqual(2, model.Quads.Length);
+            AssertQuad(1, 2, 3, 4, model.Quads[0], (new QuadInfo(0, 8)));
+            AssertQuad(1, 4, 5, 6, model.Quads[1], (new QuadInfo(1, 8)));
+        }
+
+        [Test]
+        public void Septagon() {
+            var obj =
+    @"o X
+v 0 0 0
+v 1 0 0
+v 2 1 0
+v 3 3 0
+v 4 6 0
+v 5 10 0
+v 6 15 0
+f 1 2 3 4 5 6 7";
+            var model = GetModel(obj);
+            Assert.AreEqual(3, model.Quads.Length);
+            AssertQuad(1, 2, 3, 4, model.Quads[0], (new QuadInfo(0, 9)));
+            AssertQuad(1, 4, 5, 6, model.Quads[1], (new QuadInfo(1, 9)));
+            AssertQuad(1, 6, 7, 7, model.Quads[2], (new QuadInfo(2, 9)));
+        }
+
+        [Test]
+        public void Octagon() {
+            var obj =
+    @"o X
+v 0 0 0
+v 1 0 0
+v 2 1 0
+v 3 3 0
+v 4 6 0
+v 5 10 0
+v 6 15 0
+v 7 21 0
+f 1 2 3 4 5 6 7 8";
+            var model = GetModel(obj);
+            Assert.AreEqual(3, model.Quads.Length);
+            AssertQuad(1, 2, 3, 4, model.Quads[0], (new QuadInfo(0, 10)));
+            AssertQuad(1, 4, 5, 6, model.Quads[1], (new QuadInfo(1, 10)));
+            AssertQuad(1, 6, 7, 8, model.Quads[2], (new QuadInfo(2, 10)));
+        }
+
+        static Model<QuadInfo> GetModel(string obj) {
+            return ObjLoader.Load(obj.AsStream(), x => x).Single();
         }
 
         IEnumerable<Model<T>> LoadModels<T>(string fileName, Func<QuadInfo, T>? getValue = null) {
