@@ -10,8 +10,8 @@ class LightCube {
     void setup() {
         size(600, 400);
 
-        //scene = Loader.LoadScene<int>("monkey", 150, info => info.LineIndex);
-        scene = Loader.LoadScene<int>("cubes", 50, info => info.LineIndex);
+        scene = Loader.LoadScene<int>("primitives", 50, info => info.LineIndex);
+        //scene = Loader.LoadScene<int>("cubes", 50, info => info.LineIndex);
 
         //lights.lightsController.Yaw(PI / 2);
 
