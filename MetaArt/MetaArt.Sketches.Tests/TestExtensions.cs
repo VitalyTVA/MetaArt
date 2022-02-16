@@ -52,5 +52,9 @@ namespace MetaArt.Sketches.Tests {
         }
 
         public static bool FloatEqual(float x, float y) => Math.Abs(x - y) < delta;
+
+        public static bool Intersects((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q1, (Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q2) {
+            return Extensions.GetQuadsIntersection(q1, q2) != null;
+        }
     }
 }

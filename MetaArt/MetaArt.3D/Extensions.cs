@@ -118,40 +118,6 @@ public static class Extensions {
 
     public static Vector2 NoZ(this Vector3 v) => new Vector2(v.X, v.Y);
 
-    public static bool Intersects((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q1, (Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q2) {
-        if(PointInside(q1, q2.v1)
-            || PointInside(q1, q2.v2)
-            || PointInside(q1, q2.v3)
-            || PointInside(q1, q2.v4)
-            || PointInside(q2, q1.v1)
-            || PointInside(q2, q1.v2)
-            || PointInside(q2, q1.v3)
-            || PointInside(q2, q1.v4)
-        ) return true;
-
-        //TODO only needed checks
-        var fullSegmentsCheck = 
-               SegmentsIntesect((q1.v1, q1.v2), (q2.v1, q2.v2))
-            || SegmentsIntesect((q1.v1, q1.v2), (q2.v2, q2.v3))
-            || SegmentsIntesect((q1.v1, q1.v2), (q2.v3, q2.v4))
-            || SegmentsIntesect((q1.v1, q1.v2), (q2.v4, q2.v1))
-
-            || SegmentsIntesect((q1.v2, q1.v3), (q2.v1, q2.v2))
-            || SegmentsIntesect((q1.v2, q1.v3), (q2.v2, q2.v3))
-            || SegmentsIntesect((q1.v2, q1.v3), (q2.v3, q2.v4))
-            || SegmentsIntesect((q1.v2, q1.v3), (q2.v4, q2.v1))
-
-            || SegmentsIntesect((q1.v3, q1.v4), (q2.v1, q2.v2))
-            || SegmentsIntesect((q1.v3, q1.v4), (q2.v2, q2.v3))
-            || SegmentsIntesect((q1.v3, q1.v4), (q2.v3, q2.v4))
-            || SegmentsIntesect((q1.v3, q1.v4), (q2.v4, q2.v1))
-
-            || SegmentsIntesect((q1.v4, q1.v1), (q2.v1, q2.v2))
-            || SegmentsIntesect((q1.v4, q1.v1), (q2.v2, q2.v3))
-            || SegmentsIntesect((q1.v4, q1.v1), (q2.v3, q2.v4))
-            || SegmentsIntesect((q1.v4, q1.v1), (q2.v4, q2.v1));
-        return fullSegmentsCheck;
-    }
     public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) {
         if(q.v3 == q.v4) {
             return PointsOnSameSideOfLine((q.v1, q.v2), (q.v3, p, p))
@@ -162,6 +128,9 @@ public static class Extensions {
             && PointsOnSameSideOfLine((q.v2, q.v3), (q.v1, q.v4, p))
             && PointsOnSameSideOfLine((q.v3, q.v4), (q.v1, q.v2, p))
             && PointsOnSameSideOfLine((q.v4, q.v1), (q.v2, q.v3, p));
+    }
+    public static Vector2? GetPointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) {
+        return PointInside(q, p) ? p : default(Vector2?);
     }
     public static bool PointsOnSameSideOfLine((Vector2 v1, Vector2 v2) line, (Vector2 v1, Vector2 v2, Vector2 v3) points) {
         var n = Vector2.Normalize(GetNormal(line.v1, line.v2));
@@ -189,7 +158,15 @@ public static class Extensions {
     public static Vector2? GetQuadsIntersection((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q1, (Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q2) {
         //TODO Test all variants
         var intersection =
-               GetSegmentsIntesection((q1.v1, q1.v2), (q2.v1, q2.v2))
+            GetPointInside(q1, q2.v1)
+            ?? GetPointInside(q1, q2.v2)
+            ?? GetPointInside(q1, q2.v3)
+            ?? GetPointInside(q1, q2.v4)
+            ?? GetPointInside(q2, q1.v1)
+            ?? GetPointInside(q2, q1.v2)
+            ?? GetPointInside(q2, q1.v3)
+            ?? GetPointInside(q2, q1.v4)
+            ?? GetSegmentsIntesection((q1.v1, q1.v2), (q2.v1, q2.v2))
             ?? GetSegmentsIntesection((q1.v1, q1.v2), (q2.v2, q2.v3))
             ?? GetSegmentsIntesection((q1.v1, q1.v2), (q2.v3, q2.v4))
             ?? GetSegmentsIntesection((q1.v1, q1.v2), (q2.v4, q2.v1))

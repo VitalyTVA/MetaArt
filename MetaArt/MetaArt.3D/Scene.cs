@@ -54,16 +54,12 @@ public class Scene<T> {
                 {
                     var (p1_, p2_, p3_, p4_) = GetVertices(quads[pi]);
                     var (q1_, q2_, q3_, q4_) = GetVertices(quads[qi]);
-                    if(!Extensions.Intersects(
-                        (p1_.NoZ(), p2_.NoZ(), p3_.NoZ(), p4_.NoZ()),
-                        (q1_.NoZ(), q2_.NoZ(), q3_.NoZ(), q4_.NoZ())
-                    )) {
-                        continue;
-                    }
                     var intersection = Extensions.GetQuadsIntersection(
                         (p1_.NoZ(), p2_.NoZ(), p3_.NoZ(), p4_.NoZ()),
                         (q1_.NoZ(), q2_.NoZ(), q3_.NoZ(), q4_.NoZ())
                     );
+                    if(intersection == null)
+                        continue;
                     if(intersection != null) {
                         var castPoint = (Vector3.Zero, new Vector3(intersection.Value.X, intersection.Value.Y, camera.FocalDistance));
                         var ip = Extensions.PlaneLineIntersection((p1, p2, p3), castPoint);
