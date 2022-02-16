@@ -883,6 +883,25 @@ f 6 2 4 8";
                 (new Vector2(2, 3), new Vector2(3, 1), new Vector2(4, 3), new Vector2(4, 4))));
         }
 
+        [Test]
+        public void GetIntersection_EdgeTouch() {
+            var quad1 = (new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1));
+            var quad2 = (new Vector2(0, 0), new Vector2(-1, 0), new Vector2(-1, -1), new Vector2(0, -1));
+            Assert.False(Extensions.Intersects(quad1, quad2));
+            Assert.False(Extensions.Intersects(quad2, quad1));
+            Assert.Null(Extensions.GetQuadsIntersection(quad1, quad2));
+            Assert.Null(Extensions.GetQuadsIntersection(quad2, quad1));
+        }
+        [Test]
+        public void GetIntersection_SideTouch() {
+            var quad1 = (new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1));
+            var quad2 = (new Vector2(0, 0), new Vector2(-1, 0), new Vector2(-1, 1), new Vector2(0, 1));
+            Assert.False(Extensions.Intersects(quad1, quad2));
+            Assert.False(Extensions.Intersects(quad2, quad1));
+            Assert.Null(Extensions.GetQuadsIntersection(quad1, quad2));
+            Assert.Null(Extensions.GetQuadsIntersection(quad2, quad1));
+        }
+
         static Scene<int> CreateScene(string objFile, float scale) {
             using var stream = objFile.AsStream();
             var models = ObjLoader.Load(stream, info => info.Index).ToArray();
