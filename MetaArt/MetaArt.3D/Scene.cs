@@ -72,8 +72,10 @@ public class Scene<T> {
                             continue;   
                     }
                 }
-                if(swaps.Contains((pi, qi))) 
+                if(swaps.Contains((pi, qi))) {
+                    //continue;
                     throw new InvalidOperationException("Cycle detected: " + (pi, qi));
+                }
                 var t = quads[pi];
                 swaps.Add((pi, qi));
                 quads[pi] = quads[qi];

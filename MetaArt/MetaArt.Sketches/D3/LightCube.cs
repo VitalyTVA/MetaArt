@@ -5,13 +5,13 @@ using Vector = MetaArt.Vector;
 
 namespace D3;
 class LightCube {
-    Scene<VoidType> scene = null!;
+    Scene<int> scene = null!;
 
     void setup() {
         size(600, 400);
 
-        //scene = Loader.LoadScene<VoidType>("monkey", 150);
-        scene = Loader.LoadScene<VoidType>("cubes", 50);
+        //scene = Loader.LoadScene<int>("monkey", 150, info => info.LineIndex);
+        scene = Loader.LoadScene<int>("cubes", 50, info => info.LineIndex);
 
         //lights.lightsController.Yaw(PI / 2);
 
@@ -80,9 +80,12 @@ class LightCube {
 
 }
 static class Loader {
-    public static Scene<T> LoadScene<T>(string fileName, float scale) {
+    public static Scene<T> LoadScene<T>(string fileName, float scale, Func<QuadInfo, T> getValue) {
         var asm = Assembly.GetExecutingAssembly();
-        var models = ObjLoader.Load<T>(asm.GetManifestResourceStream(asm.GetName().Name + $".D3.Models.{fileName}.obj")!).ToArray();
+        var models = ObjLoader.Load<T>(
+            asm.GetManifestResourceStream(asm.GetName().Name + $".D3.Models.{fileName}.obj")!,
+            getValue
+        ).ToArray();
         foreach(var item in models) {
             item.Scale = new Vector3(scale, scale, scale);
         }

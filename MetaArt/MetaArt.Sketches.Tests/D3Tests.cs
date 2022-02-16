@@ -705,7 +705,7 @@ f 6 2 4 8";
 
         [Test]
         public void LoadModel_Cube() {
-            var model = LoadModels<int>("cube", info => info.Index).Single();
+            var model = LoadModels<(int, int)>("cube", info => (info.Index, info.LineIndex)).Single();
             Assert.AreEqual(8, model.Vertices.Length);
             Assert.AreEqual(6, model.Quads.Length);
             AssertVector(new Vector3(1, 1, 1), model.Vertices[0]);
@@ -717,12 +717,12 @@ f 6 2 4 8";
             AssertVector(new Vector3(-1, 1, -1), model.Vertices[6]);
             AssertVector(new Vector3(-1, -1, -1), model.Vertices[7]);
 
-            AssertQuad(1, 5, 7, 3, model.Quads[0], 0);
-            AssertQuad(4, 3, 7, 8, model.Quads[1], 1);
-            AssertQuad(8, 7, 5, 6, model.Quads[2], 2);
-            AssertQuad(6, 2, 4, 8, model.Quads[3], 3);
-            AssertQuad(2, 1, 3, 4, model.Quads[4], 4);
-            AssertQuad(6, 5, 1, 2, model.Quads[5], 5);
+            AssertQuad(1, 5, 7, 3, model.Quads[0], (0, 13));
+            AssertQuad(4, 3, 7, 8, model.Quads[1], (1, 14));
+            AssertQuad(8, 7, 5, 6, model.Quads[2], (2, 15));
+            AssertQuad(6, 2, 4, 8, model.Quads[3], (3, 16));
+            AssertQuad(2, 1, 3, 4, model.Quads[4], (4, 17));
+            AssertQuad(6, 5, 1, 2, model.Quads[5], (5, 18));
         }
 
         [Test]

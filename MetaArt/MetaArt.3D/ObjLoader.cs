@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 
 namespace MetaArt.D3;
-public record struct QuadInfo(int Index);
+public record struct QuadInfo(int Index, int LineIndex);
 public static class ObjLoader {
     public static IEnumerable<Model<T>> Load<T>(Stream stream, Func<QuadInfo, T>? getValue = null) {
         //TODO optimize
@@ -12,8 +12,10 @@ public static class ObjLoader {
         var quads = new List<Quad<T>>();
         Model<T> CreateModel() => new Model<T>(vertices.ToArray(), quads.ToArray());
         int startIndex = 0;
+        int lineIndex = 0;
         while(!reader.EndOfStream) {
             var l = reader.ReadLine();
+            lineIndex++;
             if(l.StartsWith("#"))
                 continue;
             if(l.StartsWith("o")) {
@@ -43,7 +45,7 @@ public static class ObjLoader {
                     int.Parse(split[2]) - 1 - startIndex, 
                     int.Parse(split[3]) - 1 - startIndex, 
                     int.Parse(split.Length == 5 ? split[4] : split[3]) - 1 - startIndex, 
-                    value: getValue(new QuadInfo(quads.Count))));
+                    value: getValue(new QuadInfo(quads.Count, lineIndex))));
                 continue;
             }
         }
