@@ -14,21 +14,45 @@ class EmergentCube {
         var vertices = new List<Vector3>(tempCube.Vertices);
         List<Quad<int[]>> planes = new();
 
-        foreach(var (v1, v2, v3, v4, _) in tempCube.Quads) {
-            var (x1, y1, z1) = tempCube.Vertices[v1];
-            var (x2, y2, z2) = tempCube.Vertices[v3];
-            var points = Enumerable
-                .Range(0, 30)
-                .Select(_ => new Vector3(random(x1, x2), random(y1, y2), random(z1, z2)))
-                .ToArray();
-            var pointIndices = Enumerable.Range(vertices.Count, points.Length).ToArray();
-            vertices.AddRange(points);
-            planes.Add((v1, v2, v3, v4, pointIndices));
-        }
+        foreach(var (i1, i2, i3, i4, _) in tempCube.Quads) {
+            var v1 = tempCube.Vertices[i1];
+            var v2 = tempCube.Vertices[i2];
+            var v3 = tempCube.Vertices[i3];
+            var v4 = tempCube.Vertices[i4];
 
+            var count = vertices.Count;
+            float density = 0.001f;
+            vertices.AddRange(GetTrianglePoints(v1, v2, v3, density));
+            vertices.AddRange(GetTrianglePoints(v1, v3, v4, density));
+
+            var pointIndices = Enumerable.Range(count, vertices.Count - count).ToArray();
+            planes.Add((i1, i2, i3, i4, pointIndices));
+        }
 
         cube = new Model<int[]>(vertices.ToArray(), planes.ToArray());
         scene = new Scene<int[]>(cube);
+    }
+
+    static IEnumerable<Vector3> GetTrianglePoints(Vector3 v1, Vector3 v2, Vector3 v3, float density) {
+        var count = density * TriangleSquare(v1, v2, v3);
+        var a = v2 - v1;
+        var b = v3 - v1;
+        for(int i = 0; i < count; i++) {
+            var u1 = random(1);
+            var u2 = random(1);
+            if(u1 + u2 > 1) {
+                u1 = 1 - u1;
+                u2 = 1 - u2;
+            }
+            yield return v1 + a * u1  + b * u2;
+        }
+    }
+    static float TriangleSquare(Vector3 v1, Vector3 v2, Vector3 v3) { 
+        var a = (v1 - v2).Length();
+        var b = (v1 - v3).Length();
+        var c = (v3 - v2).Length();
+        var p = (a + b + c) / 2;
+        return sqrt(p * (p - a) * (p - b) * (p - c));
     }
 
     YawPitchContoller controller = new();
