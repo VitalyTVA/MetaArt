@@ -70,7 +70,7 @@ class EmergentCube {
             var v3 = vertices[i3];
             var v4 = vertices[i4];
             noStroke();
-            c.quad3(v1, v2, v3, v4);
+            CameraExtensions.quad3(v1, v2, v3, v4);
             stroke(White);
             strokeWeight(pointSize);
             foreach(var p in points) {

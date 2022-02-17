@@ -31,7 +31,7 @@ static class CameraExtensions {
     //    var (x2, y2) = c.ToScreenCoords(p2);
     //    line(x1, y1, x2, y2);
     //}
-    public static void quad3(this Camera c, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4) {
+    public static void quad3(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4) {
         var (x1, y1, _) = p1;
         var (x2, y2, _) = p2;
         var (x3, y3, _) = p3;

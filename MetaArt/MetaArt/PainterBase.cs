@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 
 namespace MetaArt {
+    public record struct PaintFeedback(TimeSpan DrawTime);
     public abstract class PainterBase : IDisposable {
         public virtual void SetSize(int width, int height) {
             this.width = width;
@@ -34,8 +35,9 @@ namespace MetaArt {
         MethodInfo? mouseMovedMethod;
         MethodInfo? keyPressedMethod;
 
-        protected PainterBase(Type sketchType, Graphics graphics, Action invalidate) {
+        protected PainterBase(Type sketchType, Graphics graphics, Action invalidate, Action<PaintFeedback> feedback) {
             this.invalidate = invalidate;
+            this.feedback = feedback;
             Graphics = graphics;
             Sketch.Painter = this;
             
@@ -57,6 +59,7 @@ namespace MetaArt {
         }
 
         protected readonly Action invalidate;
+        private readonly Action<PaintFeedback> feedback;
         protected Queue<Action> preRenderQueue = new();
         protected Vector? pos { get; private set; }
         public void OnMouseDown(float x, float y, bool isLeft) {
@@ -146,8 +149,10 @@ namespace MetaArt {
             DeltaTime = currentTime - lastDrawTime;
             lastDrawTime = currentTime;
             SetMouse(mouseX, mouseY);
+            var drawTicks = stopwatch.ElapsedTicks;
             drawMethod?.Invoke(sketch, null);
             FrameCount++;
+            feedback(new PaintFeedback(TimeSpan.FromTicks(stopwatch.ElapsedTicks - drawTicks)));
         }
         void SettingsCore() {
             settingsMethod?.Invoke(sketch, null);

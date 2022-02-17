@@ -63,7 +63,7 @@ class LightCube {
                 byte.MaxValue * lum
             );
             fill(actualColor);
-            c.quad3(v1, v2, v3, v4);
+            CameraExtensions.quad3(v1, v2, v3, v4);
         }
     }
 

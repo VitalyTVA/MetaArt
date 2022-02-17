@@ -20,7 +20,7 @@ namespace MetaArt.Wpf {
         readonly Action<System.Drawing.Size> sketchSizeChanged;
         readonly Action<int> mouseWheel;
 
-        public SketchForm(Type sketchType, System.Drawing.Rectangle ownerRect, Action<System.Drawing.Size> sketchSizeChanged, Action<int> mouseWheel) {
+        public SketchForm(Type sketchType, System.Drawing.Rectangle ownerRect, Action<System.Drawing.Size> sketchSizeChanged, Action<int> mouseWheel, Action<PaintFeedback> feedback) {
             InitializeComponent();
             ShowInTaskbar = false;
             FormBorderStyle = FormBorderStyle.None;
@@ -30,7 +30,7 @@ namespace MetaArt.Wpf {
             this.mouseWheel = mouseWheel;
             painter = new Painter(sketchType!, skglControl1.Invalidate, _ => {
                 SetLocation(ownerRect);
-            });
+            }, feedback);
             skglControl1.MouseMove += SkglControl1_MouseMove;
             skglControl1.MouseLeave += SkglControl1_MouseLeave;
             skglControl1.KeyDown += SkglControl1_KeyDown;

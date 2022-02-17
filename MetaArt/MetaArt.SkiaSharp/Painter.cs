@@ -68,8 +68,8 @@ namespace MetaArt.Skia {
 
         readonly Action<Vector> setSize;
 
-        public Painter(Type sketchType, Action invalidate, Action<Vector> setSize) 
-            : base(sketchType, new SkiaGraphics(), invalidate) {
+        public Painter(Type sketchType, Action invalidate, Action<Vector> setSize, Action<PaintFeedback> feedback) 
+            : base(sketchType, new SkiaGraphics(), invalidate, feedback) {
             this.setSize = setSize;
         }
 

@@ -47,7 +47,7 @@ class ColorCube {
 
         foreach(var (i1, i2, i3, i4, col, vertices) in scene.GetQuads(c)) {
             fill(col);
-            c.quad3(
+            CameraExtensions.quad3(
                 vertices[i1],
                 vertices[i2],
                 vertices[i3],

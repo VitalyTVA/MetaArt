@@ -100,6 +100,18 @@ namespace MetaArt.Wpf {
                             ChangeOffset(0, delta);
                             scrollViewer.InvalidateScrollInfo();
                         }));
+                    },
+                    feedback => {
+                        Dispatcher.BeginInvoke(new Action(() => {
+                            feedbackCount++;
+                            const int rate = 60;
+                            totalDrawTime += feedback.DrawTime.TotalMilliseconds;
+                            if(feedbackCount == rate) {
+                                Window.GetWindow(this).Title = (totalDrawTime / rate).ToString();
+                                feedbackCount = 0;
+                                totalDrawTime = 0;
+                            }
+                        }));
                     });
                 form.ShowDialog();
             }));
@@ -107,6 +119,8 @@ namespace MetaArt.Wpf {
             //thread.IsBackground = true;
             thread.Start();
         }
+        int feedbackCount;
+        double totalDrawTime;
 
         System.Drawing.Size sketchSize;
         ScrollContentPresenter Presenter => FindVisualChildren<ScrollContentPresenter>(scrollViewer).Single();
