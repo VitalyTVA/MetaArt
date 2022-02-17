@@ -81,6 +81,9 @@ class LightCube {
 }
 static class Loader {
     public static Scene<T> LoadScene<T>(string fileName, float scale, Func<QuadInfo, T> getValue) {
+        return new Scene<T>(LoadModels(fileName, scale, getValue));
+    }
+    public static Model<T>[] LoadModels<T>(string fileName, float scale, Func<QuadInfo, T> getValue) {
         var asm = Assembly.GetExecutingAssembly();
         var models = ObjLoader.Load<T>(
             asm.GetManifestResourceStream(asm.GetName().Name + $".D3.Models.{fileName}.obj")!,
@@ -89,7 +92,8 @@ static class Loader {
         foreach(var item in models) {
             item.Scale = new Vector3(scale, scale, scale);
         }
-        return new Scene<T>(models);
+        return models;
     }
+
 }
 

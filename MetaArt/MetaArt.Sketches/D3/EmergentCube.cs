@@ -4,33 +4,40 @@ using Vector = MetaArt.Vector;
 
 namespace D3;
 class EmergentCube {
-    Model<int[]> cube = null!;
     Scene<int[]> scene = null!;
     void setup() {
         size(600, 400);
 
-        var tempCube = Extensions.CreateCube<object?>(100, (null, null, null, null, null, null));
+        //var sourceModels = new[] { Extensions.CreateCube<VoidType>(100, (default, default, default, default, default, default)) };
+        //var density = 0.001f;
 
-        var vertices = new List<Vector3>(tempCube.Vertices);
+        //var sourceModels = Loader.LoadModels<VoidType>("cubes", 50, info => default);
+        //var density = 2f;
+
+        var sourceModels = Loader.LoadModels<VoidType>("primitives", 50, info => default);
+        var density = 2f;
+
+        var models = sourceModels.Select(x => AddRandomPoints(x, density)).ToArray();
+        scene = new Scene<int[]>(models);
+    }
+
+    static Model<int[]> AddRandomPoints(Model<VoidType> model, float density) {
+        var vertices = new List<Vector3>(model.Vertices);
         List<Quad<int[]>> planes = new();
-
-        foreach(var (i1, i2, i3, i4, _) in tempCube.Quads) {
-            var v1 = tempCube.Vertices[i1];
-            var v2 = tempCube.Vertices[i2];
-            var v3 = tempCube.Vertices[i3];
-            var v4 = tempCube.Vertices[i4];
+        foreach(var (i1, i2, i3, i4, _) in model.Quads) {
+            var v1 = model.Vertices[i1];
+            var v2 = model.Vertices[i2];
+            var v3 = model.Vertices[i3];
+            var v4 = model.Vertices[i4];
 
             var count = vertices.Count;
-            float density = 0.001f;
             vertices.AddRange(GetTrianglePoints(v1, v2, v3, density));
             vertices.AddRange(GetTrianglePoints(v1, v3, v4, density));
 
             var pointIndices = Enumerable.Range(count, vertices.Count - count).ToArray();
             planes.Add((i1, i2, i3, i4, pointIndices));
         }
-
-        cube = new Model<int[]>(vertices.ToArray(), planes.ToArray());
-        scene = new Scene<int[]>(cube);
+        return new Model<int[]>(vertices.ToArray(), planes.ToArray()) { Scale = model.Scale };
     }
 
     static IEnumerable<Vector3> GetTrianglePoints(Vector3 v1, Vector3 v2, Vector3 v3, float density) {
@@ -73,7 +80,10 @@ class EmergentCube {
             controller.Yaw(-dx / scale);
         }
         if(isRightMousePressed) {
-            cube.Rotate(c, dx, -dy);
+            foreach(var model in scene.GetModels()) {
+                model.Rotate(c, dx, -dy);
+
+            }
         }
 
         var pointSize = 2;
