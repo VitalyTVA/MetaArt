@@ -129,7 +129,9 @@ namespace MetaArt {
         public static void arc(float x, float y, float width, float height, float start, float stop) => Graphics.arc(x, y, width, height, start, stop);
 
         public static void triangle(float x1, float y1, float x2, float y2, float x3, float y3) => Graphics.triangle(x1, y1, x2, y2, x3, y3);
+        public static void triangle(Vector v1, Vector v2, Vector v3) => triangle(v1.X, v1.Y, v2.X, v2.Y, v3.X, v3.Y);
         public static void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) => Graphics.quad(x1, y1, x2, y2, x3, y3, x4, y4);
+        public static void quad(Vector v1, Vector v2, Vector v3, Vector v4) => quad(v1.X, v1.Y, v2.X, v2.Y, v3.X, v3.Y, v4.X, v4.Y);
 
         public static void text(string str, float x, float y) => Graphics.text(str, x, y);
 
