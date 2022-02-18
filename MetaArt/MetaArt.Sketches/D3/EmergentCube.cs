@@ -14,10 +14,11 @@ class EmergentCube {
         //var sourceModels = Loader.LoadModels<VoidType>("cubes", 50, info => default);
         //var density = 0.003ff;
 
-        var sourceModels = Loader.LoadModels<VoidType>("primitives", new LoadOptions<VoidType>(scale: 50));
         var density = 0.003f;
-
-        var models = sourceModels.Select(x => AddRandomPoints(x, density)).ToArray();
+        var models = new[] {
+            Loader.LoadModels("icosphere", new LoadOptions<VoidType>(scale: 500, invert: true)).Select(x => AddRandomPoints(x, density / 5)),
+            Loader.LoadModels("primitives", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
+        }.SelectMany(x => x).ToArray();
         scene = new Scene<int[]>(models);
     }
 
@@ -95,22 +96,13 @@ class EmergentCube {
             controller.Yaw(-dx / scale);
         }
         if(isRightMousePressed) {
-            foreach(var model in scene.GetModels()) {
+            foreach(var model in scene.GetModels().Skip(1)) {
                 model.Rotate(c, dx, -dy);
 
             }
         }
 
         var pointSize = 2;
-
-        randomSeed(0);
-        var backgroundPoints = Enumerable.Range(0, 400).Select(_ => (random(-width / 2, width / 2), random(-height / 2, height / 2)));
-        stroke(White);
-        strokeWeight(pointSize);
-        foreach(var (x, y) in backgroundPoints) {
-            point(x, y);
-        }
-
         fill(Black);
 
         foreach(var (i1, i2, i3, i4, points, vertices, _) in scene.GetQuads(c)) {

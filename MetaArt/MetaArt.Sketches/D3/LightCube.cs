@@ -57,7 +57,7 @@ class LightCube {
 
         }
         if(isRightMousePressed) {
-            foreach(var item in scene.GetModels()) {
+            foreach(var item in scene.GetModels().Skip(1)) {
                 item.Rotate(c, dx, -dy);
             }
         }
