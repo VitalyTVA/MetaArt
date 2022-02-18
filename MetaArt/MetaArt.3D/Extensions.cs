@@ -9,10 +9,8 @@ public static class Extensions {
         return Vector3.Transform(new Vector3(0, 0, 1), Quaternion.Conjugate(controller.CreateRotation()));
     }
 
-    public static Camera CreateCamera(this YawPitchContoller controller) {
+    public static Camera CreateCamera(this YawPitchContoller controller, float radius, float focalDistance) {
         var q = controller.CreateRotation();
-
-        var radius = 600;
 
         var v = controller.GetDirection() * (-radius);
 
@@ -36,7 +34,7 @@ public static class Extensions {
             v,
             q,
 
-            400
+            focalDistance
         );
         return c;
 

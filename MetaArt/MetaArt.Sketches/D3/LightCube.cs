@@ -10,7 +10,7 @@ class LightCube {
     void setup() {
         size(600, 400);
 
-        scene = Loader.LoadScene<int>("primitives", 50, info => info.LineIndex);
+        scene = Loader.LoadScene<int>("primitives", 1, info => info.LineIndex);
         //scene = Loader.LoadScene<int>("cubes", 50, info => info.LineIndex);
 
         //lights.lightsController.Yaw(PI / 2);
@@ -18,6 +18,9 @@ class LightCube {
         //foreach(var item in scene.GetModels()) {
         //    item.Rotation = new Quaternion(0.41467953f, 0.323241f, 0.5681285f, -0.6330752f);
         //}
+
+        lights.lightsController.Yaw(PI / 4);
+        lights.lightsController.Pitch(-PI / 4);
     }
 
     //YawPitchContoller cameraController = new(yaw: 2.04999971f, pitch: -0.759999931f);
@@ -30,9 +33,9 @@ class LightCube {
         noStroke();
         noFill();
         background(0);
-        CameraExtensions.InitCoords();
+        CameraExtensions.InitCoords(50);
 
-        var c = cameraController.CreateCamera();
+        var c = cameraController.CreateCamera(12, 8);
         //vertices.RotateY(deltaTime / 1000f);
 
         var dx = mouseX - pmouseX;
@@ -42,6 +45,9 @@ class LightCube {
             const float scale = 200;
             cameraController.Pitch(-dy / scale);
             cameraController.Yaw(-dx / scale);
+            lights.lightsController.Pitch(-dy / scale);
+            lights.lightsController.Yaw(-dx / scale);
+
         }
         if(isRightMousePressed) {
             foreach(var item in scene.GetModels()) {

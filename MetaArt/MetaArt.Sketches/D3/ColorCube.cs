@@ -10,7 +10,7 @@ class ColorCube {
     void setup() {
         size(600, 400);
 
-        cube = Extensions.CreateCube(100, (
+        cube = Extensions.CreateCube(1, (
             front: Colors.Red,
             back: Colors.Blue,
             left: Colors.Pink,
@@ -28,9 +28,9 @@ class ColorCube {
         noStroke();
         noFill();
         background(0);
-        CameraExtensions.InitCoords();
+        CameraExtensions.InitCoords(100);
 
-        var c = cameraController.CreateCamera();
+        var c = cameraController.CreateCamera(6, 4);
         //vertices.RotateY(deltaTime / 1000f);
 
         var dx = mouseX - pmouseX;

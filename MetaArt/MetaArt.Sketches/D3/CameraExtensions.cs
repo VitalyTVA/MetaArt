@@ -21,9 +21,9 @@ static class CameraExtensions {
                 break;
         };
     }
-    public static void InitCoords() {
+    public static void InitCoords(float scaleFactor) {
         translate(width / 2, height / 2);
-        scale(1, -1);
+        scale(scaleFactor, -scaleFactor);
     }
 
     //public static void line3(this Camera c, Vector3 p1, Vector3 p2) {

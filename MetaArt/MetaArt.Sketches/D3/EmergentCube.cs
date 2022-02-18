@@ -83,9 +83,9 @@ class EmergentCube {
         noStroke();
         noFill();
         background(0);
-        CameraExtensions.InitCoords();
+        CameraExtensions.InitCoords(1);
 
-        var c = controller.CreateCamera();
+        var c = controller.CreateCamera(600, 400);
 
         var dx = mouseX - pmouseX;
         var dy = mouseY - pmouseY;
