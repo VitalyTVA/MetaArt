@@ -4,20 +4,20 @@ using static MetaArt.D3.MathFEx;
 namespace MetaArt.D3;
 
 public class Scene<T> {
-    List<(Model<T> model, Vector3[] vertices, Vector3[] normalVertices)> models = new();
+    List<(Model<T> model, Vector2[] vertices, Vector3[] normalVertices)> models = new();
     QuadRef<T>[] quads;
 
     public IEnumerable<Model<T>> GetModels() => models.Select(x => x.model);
     
     public Scene(params Model<T>[] models) {
-        this.models.AddRange(models.Select(x => (x, new Vector3[x.Vertices.Length], new Vector3[x.Vertices.Length])));
+        this.models.AddRange(models.Select(x => (x, new Vector2[x.Vertices.Length], new Vector3[x.Vertices.Length])));
         quads = models.SelectMany((x, j) => Enumerable.Range(0, x.Quads.Length).Select(i => new QuadRef<T>(j, i))).ToArray();
     }
-    public IEnumerable<(int, int, int, int, T, Vector3[], Vector3[])> GetQuads(Camera camera) {
+    public IEnumerable<(int, int, int, int, T, Vector2[], Vector3[])> GetQuads(Camera camera) {
         foreach(var (model, vertices, normalVertices) in models) {
             for(int i = 0; i < model.Vertices.Length; i++) {
                 normalVertices[i] = camera.TranslatePoint(model.GetVertex(i));
-                vertices[i] = camera.ToScreenCoords3(normalVertices[i]);
+                vertices[i] = camera.ToScreenCoords(normalVertices[i]);
             }
         }
         Array.Sort(quads, (x, y) => {
@@ -57,8 +57,8 @@ public class Scene<T> {
                     var (p1_, p2_, p3_, p4_) = GetVertices(quads[pi]);
                     var (q1_, q2_, q3_, q4_) = GetVertices(quads[qi]);
                     var intersection = Extensions.GetQuadsIntersection(
-                        (p1_.NoZ(), p2_.NoZ(), p3_.NoZ(), p4_.NoZ()),
-                        (q1_.NoZ(), q2_.NoZ(), q3_.NoZ(), q4_.NoZ())
+                        (p1_, p2_, p3_, p4_),
+                        (q1_, q2_, q3_, q4_)
                     );
                     if(intersection == null)
                         continue;
@@ -106,7 +106,7 @@ public class Scene<T> {
         //}
     }
 
-    (Vector3, Vector3, Vector3, Vector3) GetVertices(QuadRef<T> x) {
+    (Vector2, Vector2, Vector2, Vector2) GetVertices(QuadRef<T> x) {
         var (model, vertices, _) = models[x.modelIndex];
         var v1 = vertices[model.Quads[x.quadIndex].i1];
         var v2 = vertices[model.Quads[x.quadIndex].i2];

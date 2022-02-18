@@ -114,7 +114,7 @@ public static class Extensions {
             (LessOrEqual(s1, 0) && LessOrEqual(s2, 0) && LessOrEqual(s3, 0) && LessOrEqual(s4, 0) && LessOrEqual(s_cam, 0));
     }
 
-    public static Vector2 NoZ(this Vector3 v) => new Vector2(v.X, v.Y);
+    //public static Vector2 NoZ(this Vector3 v) => new Vector2(v.X, v.Y);
 
     public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) {
         if(q.v3 == q.v4) {

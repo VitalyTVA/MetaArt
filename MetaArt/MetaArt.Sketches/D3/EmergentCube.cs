@@ -102,7 +102,7 @@ class EmergentCube {
             }
         }
 
-        var pointSize = 2;
+        var pointSize = 1.5f;
         fill(Black);
 
         foreach(var (i1, i2, i3, i4, points, vertices, _) in scene.GetQuads(c)) {
@@ -115,7 +115,7 @@ class EmergentCube {
             stroke(White);
             strokeWeight(pointSize);
             foreach(var p in points) {
-                var (x, y, _) = vertices[p];
+                var (x, y) = vertices[p];
                 point(x, y);
             }
         }

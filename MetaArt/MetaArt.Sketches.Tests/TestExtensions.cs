@@ -8,7 +8,7 @@ namespace MetaArt.Sketches.Tests {
         public static Vector2 ProjectPoint(this Camera c, Vector3 point) {
             Vector3 p = c.TranslatePoint(point);
 
-            var (x, y, _) = c.ToScreenCoords3(p);
+            var (x, y) = c.ToScreenCoords(p);
             return new Vector2(x, y);
         }
         public static bool IsVisible(this Camera c, Vector3 vertex, Vector3 normal) {
