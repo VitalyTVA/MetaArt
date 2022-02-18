@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace MetaArt.D3;
 public record struct QuadInfo(int Index, int LineIndex);
-public record struct LoadOptions<T>(Func<QuadInfo, T>? getValue = null, float scale = 1);
+public record struct LoadOptions<T>(Func<QuadInfo, T>? getValue = null, float scale = 1, bool invert = false);
 public static class ObjLoader {
     public static IEnumerable<Model<T>> Load<T>(Stream stream, LoadOptions<T> options) {
         //TODO optimize
@@ -51,7 +51,8 @@ public static class ObjLoader {
                         int.Parse(split[i + 2]) - 1 - startIndex,
                         int.Parse(i + 3 < split.Length ? split[i + 3] : split[i + 2]) - 1 - startIndex
                     );
-                    //(i1, i2, i3, i4) = i3 != i4 ? (i4, i3, i2, i1) : (i3, i2, i1, i1);
+                    if(options.invert)
+                        (i1, i2, i3, i4) = i3 != i4 ? (i4, i3, i2, i1) : (i3, i2, i1, i1);
                     var quad = new Quad<T>(
                         i1, i2, i3, i4,
                         value: getValue(new QuadInfo(quads.Count, lineIndex))

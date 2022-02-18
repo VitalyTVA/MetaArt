@@ -116,6 +116,22 @@ namespace MetaArt.Sketches.Tests {
         }
 
         [Test]
+        public void Invert() {
+            var obj =
+    @"o X
+v 0 0 0
+v 1 0 0
+v 2 1 0
+v 3 3 0
+f 1 2 3 4
+f 1 2 3";
+            var model = GetModel(obj, invert: true);
+            Assert.AreEqual(2, model.Quads.Length);
+            AssertQuad(4, 3, 2, 1, model.Quads[0], (new QuadInfo(0, 6)));
+            AssertQuad(3, 2, 1, 1, model.Quads[1], (new QuadInfo(1, 7)));
+        }
+
+        [Test]
         public void Pentagon() {
             var obj =
     @"o X
@@ -187,8 +203,8 @@ f 1 2 3 4 5 6 7 8";
             AssertQuad(1, 6, 7, 8, model.Quads[2], (new QuadInfo(2, 10)));
         }
 
-        static Model<QuadInfo> GetModel(string obj) {
-            return ObjLoader.Load(obj.AsStream(), new LoadOptions<QuadInfo>(x => x)).Single();
+        static Model<QuadInfo> GetModel(string obj, bool invert = false) {
+            return ObjLoader.Load(obj.AsStream(), new LoadOptions<QuadInfo>(x => x, invert: invert)).Single();
         }
 
         IEnumerable<Model<T>> LoadModels<T>(string fileName, Func<QuadInfo, T>? getValue = null) {
