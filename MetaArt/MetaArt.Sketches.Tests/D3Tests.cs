@@ -57,7 +57,7 @@ namespace MetaArt.Sketches.Tests {
             });
             var scene = new Scene<int>(model);
 
-            var c = new Camera(new Vector3(0, 0, -100), Quaternion.Identity, 100);
+            var c = new Camera(new Vector3(0, 0, -100), Quaternion.Identity, 10);
             Assert.False(scene.GetQuads(c).Any());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, -PI / 1000));
@@ -66,7 +66,7 @@ namespace MetaArt.Sketches.Tests {
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI * 2 / 1000));
             Assert.False(scene.GetQuads(c).Any());
 
-            c = new Camera(new Vector3(0, 0, 100), Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI), 100);
+            c = new Camera(new Vector3(0, 0, 100), Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI), 10);
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI));
             Assert.False(scene.GetQuads(c).Any());
 
