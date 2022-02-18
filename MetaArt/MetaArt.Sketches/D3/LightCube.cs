@@ -10,6 +10,8 @@ class LightCube {
     void setup() {
         size(600, 400);
 
+        //scene = Loader.LoadScene<int>("cilinder", 5, info => info.LineIndex);
+
         scene = Loader.LoadScene<int>("primitives", 1, info => info.LineIndex);
         //scene = Loader.LoadScene<int>("cubes", 50, info => info.LineIndex);
 
@@ -57,18 +59,18 @@ class LightCube {
 
         var lightCalulator = lights.GetLuminocityCalulator(c);
 
-        foreach(var (i1, i2, i3, i4, _, vertices) in scene.GetQuads(c)) {
-            var v1 = vertices[i1];
-            var v2 = vertices[i2];
-            var v3 = vertices[i3];
-            var v4 = vertices[i4];
-            var lum = lightCalulator(v1, v2, v3);
+        foreach(var (i1, i2, i3, i4, _, vertices, normalVertices) in scene.GetQuads(c)) {
+            var lum = lightCalulator(normalVertices[i1], normalVertices[i2], normalVertices[i3]);
             var actualColor = color(
                 byte.MaxValue * lum,
                 byte.MaxValue * lum,
                 byte.MaxValue * lum
             );
             fill(actualColor);
+            var v1 = vertices[i1];
+            var v2 = vertices[i2];
+            var v3 = vertices[i3];
+            var v4 = vertices[i4];
             CameraExtensions.quad3(v1, v2, v3, v4);
         }
     }

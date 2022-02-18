@@ -45,7 +45,7 @@ class ColorCube {
             cube.Rotate(c, dx, -dy);
         }
 
-        foreach(var (i1, i2, i3, i4, col, vertices) in scene.GetQuads(c)) {
+        foreach(var (i1, i2, i3, i4, col, vertices, _) in scene.GetQuads(c)) {
             fill(col);
             CameraExtensions.quad3(
                 vertices[i1],

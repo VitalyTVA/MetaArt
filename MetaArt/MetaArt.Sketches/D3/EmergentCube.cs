@@ -113,7 +113,7 @@ class EmergentCube {
 
         fill(Black);
 
-        foreach(var (i1, i2, i3, i4, points, vertices) in scene.GetQuads(c)) {
+        foreach(var (i1, i2, i3, i4, points, vertices, _) in scene.GetQuads(c)) {
             var v1 = vertices[i1];
             var v2 = vertices[i2];
             var v3 = vertices[i3];

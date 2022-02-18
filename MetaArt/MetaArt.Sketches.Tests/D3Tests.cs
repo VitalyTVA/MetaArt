@@ -24,24 +24,30 @@ namespace MetaArt.Sketches.Tests {
             var scene = new Scene<int>(model);
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
-            var (i1, i2, i3, i4, val, vertices) = scene.GetQuads(c).Single();
+            var (i1, i2, i3, i4, val, vertices, normalVertices) = scene.GetQuads(c).Single();
             AssertVector(new Vector3(-40f, 40f, 150f), vertices[i1]);
             AssertVector(new Vector3(-40f, -40f, 150f), vertices[i2]);
             AssertVector(new Vector3(40f, -40f, 150f), vertices[i3]);
             AssertVector(new Vector3(40f, 40f, 150f), vertices[i4]);
+            AssertVector(new Vector3(-60f, 60f, 150f), normalVertices[i1]);
+            AssertVector(new Vector3(-60f, -60f, 150f), normalVertices[i2]);
+            AssertVector(new Vector3(60f, -60f, 150f), normalVertices[i3]);
+            AssertVector(new Vector3(60f, 60f, 150f), normalVertices[i4]);
             Assert.AreEqual(100, val);
 
             c = new Camera(new Vector3(0, 0, 160), Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI), 100);
             Assert.False(scene.GetQuads(c).Any());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI));
-            (i1, i2, i3, i4, val, vertices) = scene.GetQuads(c).Single();
+            (i1, i2, i3, i4, val, vertices, normalVertices) = scene.GetQuads(c).Single();
             AssertVector(new Vector3(-40f, 40f, 150f), vertices[i1]);
+            AssertVector(new Vector3(-60, 60f, 150f), normalVertices[i1]);
             Assert.AreEqual(100, val);
 
             model.Scale = new Vector3(2, 3, .5f);
-            (i1, i2, i3, i4, val, vertices) = scene.GetQuads(c).Single();
+            (i1, i2, i3, i4, val, vertices, normalVertices) = scene.GetQuads(c).Single();
             AssertVector(new Vector3(-77.41933f, 116.129005f, 155f), vertices[i1]);
+            AssertVector(new Vector3(-119.999985f, 180f, 155.00003f), normalVertices[i1]);
         }
 
         [Test]
