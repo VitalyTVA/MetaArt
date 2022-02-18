@@ -3,10 +3,11 @@ using System.Text.RegularExpressions;
 
 namespace MetaArt.D3;
 public record struct QuadInfo(int Index, int LineIndex);
+public record struct LoadOptions<T>(Func<QuadInfo, T>? getValue = null, float scale = 1);
 public static class ObjLoader {
-    public static IEnumerable<Model<T>> Load<T>(Stream stream, Func<QuadInfo, T>? getValue = null) {
+    public static IEnumerable<Model<T>> Load<T>(Stream stream, LoadOptions<T> options) {
         //TODO optimize
-        getValue = getValue ?? (_ => default!);
+        var getValue = options.getValue ?? (_ => default!);
         using var reader = new StreamReader(stream);
         var vertices = new List<Vector3>();
         var quads = new List<Quad<T>>();
@@ -34,7 +35,11 @@ public static class ObjLoader {
             if(l.StartsWith("v")) {
                 var split = l.Split(' ');
                 //TODO invariant culture to parse
-                vertices.Add(new Vector3(float.Parse(split[1]), float.Parse(split[2]), -float.Parse(split[3])));
+                vertices.Add(new Vector3(
+                    float.Parse(split[1]) * options.scale, 
+                    float.Parse(split[2]) * options.scale, 
+                    -float.Parse(split[3]) * options.scale
+                ));
                 continue;
             }
             if(l.StartsWith("f")) {

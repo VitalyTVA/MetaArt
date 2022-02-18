@@ -451,6 +451,7 @@ s off
 f 4 3 7 8
 f 6 2 4 8";
             Scene<int> scene = CreateScene(obj, scale: 50);
+            AssertVector(new Vector3(1, 1, 1), scene.GetModels().Single().Scale);
             foreach(var item in scene.GetModels()) {
                 item.Rotation = new Quaternion(0.41467953f, 0.323241f, 0.5681285f, -0.6330752f);
             }
@@ -939,10 +940,7 @@ f 10 2 3 11";
 
         static Scene<int> CreateScene(string objFile, float scale) {
             using var stream = objFile.AsStream();
-            var models = ObjLoader.Load(stream, info => info.Index).ToArray();
-            foreach(var item in models) {
-                item.Scale = new Vector3(scale, scale, scale);
-            }
+            var models = ObjLoader.Load(stream, new LoadOptions<int>(info => info.Index, scale)).ToArray();
             return new Scene<int>(models);
         }
     }

@@ -12,7 +12,7 @@ class LightCube {
 
         //scene = Loader.LoadScene<int>("cilinder", 5, info => info.LineIndex);
 
-        scene = Loader.LoadScene<int>("primitives", 1, info => info.LineIndex);
+        scene = Loader.LoadScene<int>("primitives", new LoadOptions<int>(info => info.LineIndex, 1));
         //scene = Loader.LoadScene<int>("cubes", 50, info => info.LineIndex);
 
         //lights.lightsController.Yaw(PI / 2);
@@ -88,18 +88,15 @@ class LightCube {
 
 }
 static class Loader {
-    public static Scene<T> LoadScene<T>(string fileName, float scale, Func<QuadInfo, T> getValue) {
-        return new Scene<T>(LoadModels(fileName, scale, getValue));
+    public static Scene<T> LoadScene<T>(string fileName, LoadOptions<T> options) {
+        return new Scene<T>(LoadModels(fileName, options));
     }
-    public static Model<T>[] LoadModels<T>(string fileName, float scale, Func<QuadInfo, T> getValue) {
+    public static Model<T>[] LoadModels<T>(string fileName, LoadOptions<T> options) {
         var asm = Assembly.GetExecutingAssembly();
-        var models = ObjLoader.Load<T>(
+        var models = ObjLoader.Load(
             asm.GetManifestResourceStream(asm.GetName().Name + $".D3.Models.{fileName}.obj")!,
-            getValue
+            options
         ).ToArray();
-        foreach(var item in models) {
-            item.Scale = new Vector3(scale, scale, scale);
-        }
         return models;
     }
 

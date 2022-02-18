@@ -188,12 +188,12 @@ f 1 2 3 4 5 6 7 8";
         }
 
         static Model<QuadInfo> GetModel(string obj) {
-            return ObjLoader.Load(obj.AsStream(), x => x).Single();
+            return ObjLoader.Load(obj.AsStream(), new LoadOptions<QuadInfo>(x => x)).Single();
         }
 
         IEnumerable<Model<T>> LoadModels<T>(string fileName, Func<QuadInfo, T>? getValue = null) {
             var asm = Assembly.GetExecutingAssembly();
-            return ObjLoader.Load<T>(asm.GetManifestResourceStream(asm.GetName().Name + $".Models.{fileName}.obj")!, getValue);
+            return ObjLoader.Load<T>(asm.GetManifestResourceStream(asm.GetName().Name + $".Models.{fileName}.obj")!, new LoadOptions<T>(getValue));
         }
 
         static void AssertQuad<T>(int i1, int i2, int i3, int i4, Quad<T> quad, T value = default!) {

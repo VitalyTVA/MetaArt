@@ -12,10 +12,10 @@ class EmergentCube {
         //var density = 0.001f;
 
         //var sourceModels = Loader.LoadModels<VoidType>("cubes", 50, info => default);
-        //var density = 2f;
+        //var density = 0.003ff;
 
-        var sourceModels = Loader.LoadModels<VoidType>("primitives", 50, info => default);
-        var density = 5f;
+        var sourceModels = Loader.LoadModels<VoidType>("primitives", new LoadOptions<VoidType>(scale: 50));
+        var density = 0.003f;
 
         var models = sourceModels.Select(x => AddRandomPoints(x, density)).ToArray();
         scene = new Scene<int[]>(models);
