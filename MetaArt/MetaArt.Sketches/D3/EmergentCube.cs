@@ -15,7 +15,7 @@ class EmergentCube {
         //var density = 2f;
 
         var sourceModels = Loader.LoadModels<VoidType>("primitives", 50, info => default);
-        var density = 2f;
+        var density = 5f;
 
         var models = sourceModels.Select(x => AddRandomPoints(x, density)).ToArray();
         scene = new Scene<int[]>(models);
@@ -41,7 +41,12 @@ class EmergentCube {
     }
 
     static IEnumerable<Vector3> GetTrianglePoints(Vector3 v1, Vector3 v2, Vector3 v3, float density) {
-        var count = density * TriangleSquare(v1, v2, v3);
+        var s = TriangleArea(v1, v2, v3);
+        var count = density * s;
+        const int N = 20;
+        if(count < N) {
+            count = randomBinomial(N, s * density / N);
+        }
         var a = v2 - v1;
         var b = v3 - v1;
         for(int i = 0; i < count; i++) {
@@ -54,7 +59,17 @@ class EmergentCube {
             yield return v1 + a * u1  + b * u2;
         }
     }
-    static float TriangleSquare(Vector3 v1, Vector3 v2, Vector3 v3) { 
+    static int randomBinomial(int count, float p) {
+        var result = 0;
+        for(int i = 0; i < count; i++) {
+            result += randomBernoulli(p) ? 1 : 0;
+        }
+        return result;
+    }
+    static bool randomBernoulli(float p) {
+        return random(1) < p;
+    }
+    static float TriangleArea(Vector3 v1, Vector3 v2, Vector3 v3) { 
         var a = (v1 - v2).Length();
         var b = (v1 - v3).Length();
         var c = (v3 - v2).Length();
