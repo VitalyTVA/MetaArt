@@ -229,7 +229,7 @@ f 1 2 3 4 5 6 7";
             return ObjLoader.Load<T>(asm.GetManifestResourceStream(asm.GetName().Name + $".Models.{fileName}.obj")!, new LoadOptions<T>(getValue));
         }
 
-        static void AssertQuad<T>(int i1, int i2, int i3, Quad<T> quad, T value = default!) {
+        static void AssertQuad<T>(int i1, int i2, int i3, Triangle<T> quad, T value = default!) {
             Assert.AreEqual(i1, quad.i1 + 1);
             Assert.AreEqual(i2, quad.i2 + 1);
             Assert.AreEqual(i3, quad.i3 + 1);

@@ -10,7 +10,7 @@ public static class ObjLoader {
         var getValue = options.getValue ?? (_ => default!);
         using var reader = new StreamReader(stream);
         var vertices = new List<Vector3>();
-        var quads = new List<Quad<T>>();
+        var quads = new List<Triangle<T>>();
         Model<T> CreateModel() => new Model<T>(vertices.ToArray(), quads.ToArray());
         int startIndex = 0;
         int lineIndex = 0;
@@ -53,12 +53,12 @@ public static class ObjLoader {
                     );
                     if(options.invert)
                         (i1, i2, i3, i4) = i3 != i4 ? (i4, i3, i2, i1) : (i3, i2, i1, i1);
-                    quads.Add(new Quad<T>(
+                    quads.Add(new Triangle<T>(
                         i1, i2, i3,
                         value: getValue(new QuadInfo(quads.Count, lineIndex))
                     ));
                     if(i3 != i4) {
-                        quads.Add(new Quad<T>(
+                        quads.Add(new Triangle<T>(
                             i1, i3, i4,
                             value: getValue(new QuadInfo(quads.Count, lineIndex))
                         ));

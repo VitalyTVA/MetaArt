@@ -13,7 +13,7 @@ public class Scene<T> {
         this.models.AddRange(models.Select(x => (x, new Vector2[x.Vertices.Length], new Vector3[x.Vertices.Length])));
         quads = models.SelectMany((x, j) => Enumerable.Range(0, x.Quads.Length).Select(i => new QuadRef<T>(j, i))).ToArray();
     }
-    public IEnumerable<(int, int, int, int, T, Vector2[], Vector3[])> GetQuads(Camera camera) {
+    public IEnumerable<(int, int, int, T, Vector2[], Vector3[])> GetTriangles(Camera camera) {
         foreach(var (model, vertices, normalVertices) in models) {
             for(int i = 0; i < model.Vertices.Length; i++) {
                 normalVertices[i] = camera.TranslatePoint(model.GetVertex(i));
@@ -91,7 +91,7 @@ public class Scene<T> {
                 var n = Extensions.GetNormal(v1, normalVertices[i2], normalVertices[i3]);
                 if(Vector3.Dot(v1, n) >= 0)
                     continue;
-                yield return (i1, i2, i3, i3, value, vertices, normalVertices);
+                yield return (i1, i2, i3, value, vertices, normalVertices);
             }
         }
 

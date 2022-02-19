@@ -66,7 +66,7 @@ class LightCube {
 
         var lightCalulator = lights.GetLuminocityCalulator(c);
 
-        foreach(var (i1, i2, i3, i4, _, vertices, normalVertices) in scene.GetQuads(c)) {
+        foreach(var (i1, i2, i3, _, vertices, normalVertices) in scene.GetTriangles(c)) {
             var lum = lightCalulator(normalVertices[i1], normalVertices[i2], normalVertices[i3]);
             var actualColor = color(
                 byte.MaxValue * lum,
@@ -77,8 +77,7 @@ class LightCube {
             var v1 = vertices[i1];
             var v2 = vertices[i2];
             var v3 = vertices[i3];
-            var v4 = vertices[i4];
-            CameraExtensions.quad3(v1, v2, v3, v4);
+            CameraExtensions.triangle(v1, v2, v3);
         }
     }
 

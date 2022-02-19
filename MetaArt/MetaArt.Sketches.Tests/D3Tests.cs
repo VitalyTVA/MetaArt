@@ -18,48 +18,44 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z),
                 new Vector3(-side, side, z),
             },
-            new Quad<int>[] {
+            new Triangle<int>[] {
                 (3, 2, 1, 100),
                 (2, 1, 0, 100),
             });
             var scene = new Scene<int>(model);
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
-            var quads = scene.GetQuads(c).ToArray();
+            var quads = scene.GetTriangles(c).ToArray();
             Assert.AreEqual(2, quads.Length);
-            var (i1, i2, i3, i4, val, vertices, normalVertices) = quads[0];
+            var (i1, i2, i3, val, vertices, normalVertices) = quads[0];
             AssertVector(new Vector2(-40f, 40f), vertices[i1]);
             AssertVector(new Vector2(-40f, -40f), vertices[i2]);
             AssertVector(new Vector2(40f, -40f), vertices[i3]);
-            AssertVector(new Vector2(40f, -40f), vertices[i4]);
             AssertVector(new Vector3(-60f, 60f, 150f), normalVertices[i1]);
             AssertVector(new Vector3(-60f, -60f, 150f), normalVertices[i2]);
             AssertVector(new Vector3(60f, -60f, 150f), normalVertices[i3]);
-            AssertVector(new Vector3(60f, -60f, 150f), normalVertices[i4]);
             Assert.AreEqual(100, val);
 
-            (i1, i2, i3, i4, val, vertices, normalVertices) = quads[1];
+            (i1, i2, i3, val, vertices, normalVertices) = quads[1];
             AssertVector(new Vector2(-40f, -40f), vertices[i1]);
             AssertVector(new Vector2(40f, -40f), vertices[i2]);
             AssertVector(new Vector2(40f, 40f), vertices[i3]);
-            AssertVector(new Vector2(40f, 40f), vertices[i4]);
             AssertVector(new Vector3(-60f, -60f, 150f), normalVertices[i1]);
             AssertVector(new Vector3(60f, -60f, 150f), normalVertices[i2]);
             AssertVector(new Vector3(60f, 60f, 150f), normalVertices[i3]);
-            AssertVector(new Vector3(60f, 60f, 150f), normalVertices[i4]);
             Assert.AreEqual(100, val);
 
             c = new Camera(new Vector3(0, 0, 160), Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI), 100);
-            Assert.False(scene.GetQuads(c).Any());
+            Assert.False(scene.GetTriangles(c).Any());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI));
-            (i1, i2, i3, i4, val, vertices, normalVertices) = scene.GetQuads(c).First();
+            (i1, i2, i3, val, vertices, normalVertices) = scene.GetTriangles(c).First();
             AssertVector(new Vector2(-40f, 40f), vertices[i1]);
             AssertVector(new Vector3(-60, 60f, 150f), normalVertices[i1]);
             Assert.AreEqual(100, val);
 
             model.Scale = new Vector3(2, 3, .5f);
-            (i1, i2, i3, i4, val, vertices, normalVertices) = scene.GetQuads(c).First();
+            (i1, i2, i3, val, vertices, normalVertices) = scene.GetTriangles(c).First();
             AssertVector(new Vector2(-77.41933f, 116.129005f), vertices[i1]);
             AssertVector(new Vector3(-119.999985f, 180f, 155f), normalVertices[i1]);
         }
@@ -72,27 +68,27 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(30, -10, -40),
                 new Vector3(30, 10, -40),
             },
-            new Quad<int>[] {
+            new Triangle<int>[] {
                 (3, 2, 1, 100),
                 (2, 1, 0, 100),
             });
             var scene = new Scene<int>(model);
 
             var c = new Camera(new Vector3(0, 0, -100), Quaternion.Identity, 10);
-            Assert.False(scene.GetQuads(c).Any());
+            Assert.False(scene.GetTriangles(c).Any());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, -PI / 1000));
-            Assert.AreEqual(2, scene.GetQuads(c).Count());
+            Assert.AreEqual(2, scene.GetTriangles(c).Count());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI * 2 / 1000));
-            Assert.AreEqual(0, scene.GetQuads(c).Count());
+            Assert.AreEqual(0, scene.GetTriangles(c).Count());
 
             c = new Camera(new Vector3(0, 0, 100), Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI), 10);
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI));
-            Assert.AreEqual(0, scene.GetQuads(c).Count());
+            Assert.AreEqual(0, scene.GetTriangles(c).Count());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, -PI * 2 / 1000));
-            Assert.AreEqual(2, scene.GetQuads(c).Count());
+            Assert.AreEqual(2, scene.GetTriangles(c).Count());
         }
 
         [Test]
@@ -110,7 +106,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z + 10),
                 new Vector3(-side, side, z + 10),
             },
-            new Quad<int>[] {
+            new Triangle<int>[] {
                 (7, 6, 5, 200),
                 (6, 5, 4, 200),
                 (3, 2, 1, 100),
@@ -119,14 +115,14 @@ namespace MetaArt.Sketches.Tests {
             var scene = new Scene<int>(model);
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
-            var vals = scene.GetQuads(c).Select(x => x.Item5);
+            var vals = scene.GetTriangles(c).Select(x => x.Item4);
             CollectionAssert.AreEqual(new[] { 200, 200, 100, 100 }, vals);
 
             c = new Camera(new Vector3(0, 0, 160), Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI), 100);
-            Assert.False(scene.GetQuads(c).Any());
+            Assert.False(scene.GetTriangles(c).Any());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI));
-            vals = scene.GetQuads(c).Select(x => x.Item5);
+            vals = scene.GetTriangles(c).Select(x => x.Item4);
             CollectionAssert.AreEqual(new[] { 200, 200, 100, 100 }, vals);
         }
         [Test]
@@ -139,7 +135,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z + 10),
                 new Vector3(-side, side, z + 10),
             },
-            new Quad<int>[] {
+            new Triangle<int>[] {
                 (3, 2, 1, 200),
                 (2, 1, 0, 200),
             });
@@ -149,14 +145,14 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z),
                 new Vector3(-side, side, z),
             },
-            new Quad<int>[] {
+            new Triangle<int>[] {
                 (3, 2, 1, 100),
                 (2, 1, 0, 100),
             });
             var scene = new Scene<int>(model1, model2);
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
-            var vals = scene.GetQuads(c).Select(x => x.Item5);
+            var vals = scene.GetTriangles(c).Select(x => x.Item4);
             CollectionAssert.AreEqual(new[] { 200, 200, 100, 100 }, vals);
         }
 
@@ -170,7 +166,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z + 10),
                 new Vector3(-side, side, z + 10),
             },
-            new Quad<int>[] {
+            new Triangle<int>[] {
                 (3, 2, 1, 200),
                 (2, 1, 0, 200),
             });
@@ -180,14 +176,14 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z),
                 new Vector3(-side, side, z),
             },
-            new Quad<int>[] {
+            new Triangle<int>[] {
                 (3, 2, 1, 100),
                 (2, 1, 0, 100),
             });
             var scene = new Scene<int>(model2, model1);
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
-            var vals = scene.GetQuads(c).Select(x => x.Item5);
+            var vals = scene.GetTriangles(c).Select(x => x.Item4);
             CollectionAssert.AreEqual(new[] { 200, 200, 100, 100 }, vals);
         }
 
@@ -297,7 +293,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, -side),
                 new Vector3(-side, side, -side),
             },
-            new Quad<int>[] {
+            new Triangle<int>[] {
                 (5, 4, 3, 0),
                 (4, 3, 2, 0),
                 (5, 4, 0, 1),
@@ -357,7 +353,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(side, side, -side),
                 new Vector3(-side, side, -side),
             },
-            new Quad<int>[] {
+            new Triangle<int>[] {
                 (3, 2, 1, 0),
                 (2, 1, 0, 0),
                 (3, 5, 4, 1),
@@ -564,7 +560,7 @@ f 6 2 4 8";
                 (new Vector3(-30, 20, 110), new Vector3(-30, 19, 110), new Vector3(30, 19, 90), new Vector3(30, 20, 90)),
                 (new Vector3(20, 30, 110), new Vector3(21, 30, 110), new Vector3(-30, -31, 90), new Vector3(-30, -30, 90))
             );
-            var e = Assert.Throws<InvalidOperationException>(() => scene.GetQuads(new Camera(new Vector3(0, 0, 0), Quaternion.Identity, 50)).ToArray());
+            var e = Assert.Throws<InvalidOperationException>(() => scene.GetTriangles(new Camera(new Vector3(0, 0, 0), Quaternion.Identity, 50)).ToArray());
             Assert.AreEqual("Cycle detected: (0, 1)", e!.Message);
         }
 
@@ -633,7 +629,7 @@ f 10 2 3 11";
         }
         static void AssertOrder(int[] epxectedOrder, Scene<int> scene, Camera? camera= null) {
             camera = camera ?? new Camera(new Vector3(0, 0, 0), Quaternion.Identity, 50);
-            var actual = scene.GetQuads(camera).Select(x => x.Item5).ToArray();
+            var actual = scene.GetTriangles(camera).Select(x => x.Item4).ToArray();
             CollectionAssert.AreEqual(epxectedOrder, actual);
         }
         static Scene<int> CreateScene(params (Vector3, Vector3, Vector3, Vector3)[] quads) {
@@ -642,8 +638,8 @@ f 10 2 3 11";
                 .ToArray();
             var quads_ = Enumerable.Range(0, quads.Length)
                 .SelectMany(i => new[] {
-                    new Quad<int>(4 * i, 4 * i + 1, 4 * i + 2, i),
-                    new Quad<int>(4 * i, 4 * i + 2, 4 * i + 3, i)
+                    new Triangle<int>(4 * i, 4 * i + 1, 4 * i + 2, i),
+                    new Triangle<int>(4 * i, 4 * i + 2, 4 * i + 3, i)
                 })
                 .ToArray();
             return new Scene<int>(new Model<int>(vertices, quads_));
@@ -685,7 +681,7 @@ f 10 2 3 11";
 
         [Test]
         public void RotateModel() {
-            var m = new Model<D3.VoidType>(new Vector3[] { }, new Quad<D3.VoidType>[] { });
+            var m = new Model<D3.VoidType>(new Vector3[] { }, new Triangle<D3.VoidType>[] { });
             var c = new Camera(new Vector3(10, 20, 30), Quaternion.CreateFromYawPitchRoll(1, 2, 3), 40);
 
             Extensions.Rotate(m, c, 0, 0);

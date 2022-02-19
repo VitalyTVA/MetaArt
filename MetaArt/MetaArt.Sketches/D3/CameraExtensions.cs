@@ -31,11 +31,10 @@ static class CameraExtensions {
     //    var (x2, y2) = c.ToScreenCoords(p2);
     //    line(x1, y1, x2, y2);
     //}
-    public static void quad3(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4) {
+    public static void triangle(Vector2 p1, Vector2 p2, Vector2 p3) {
         var (x1, y1) = p1;
         var (x2, y2) = p2;
         var (x3, y3) = p3;
-        var (x4, y4) = p4;
-        quad(x1, y1, x2, y2, x3, y3, x4, y4);
+        Sketch.triangle(x1, y1, x2, y2, x3, y3);
     }
 }

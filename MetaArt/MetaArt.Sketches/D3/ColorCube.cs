@@ -45,13 +45,12 @@ class ColorCube {
             scene.GetModels().Single().Rotate(c, dx, -dy);
         }
 
-        foreach(var (i1, i2, i3, i4, col, vertices, _) in scene.GetQuads(c)) {
+        foreach(var (i1, i2, i3, col, vertices, _) in scene.GetTriangles(c)) {
             fill(col);
-            CameraExtensions.quad3(
+            CameraExtensions.triangle(
                 vertices[i1],
                 vertices[i2],
-                vertices[i3],
-                vertices[i4]
+                vertices[i3]
             );
         }
     }

@@ -21,7 +21,7 @@ class EmergentCube {
 
     static Model<int[]> AddRandomPoints(Model<VoidType> model, float density) {
         var vertices = new List<Vector3>(model.Vertices);
-        List<Quad<int[]>> planes = new();
+        List<Triangle<int[]>> planes = new();
         foreach(var (i1, i2, i3, _) in model.Quads) {
             var v1 = model.Vertices[i1];
             var v2 = model.Vertices[i2];
@@ -100,13 +100,12 @@ class EmergentCube {
         var pointSize = 1.5f;
         fill(Black);
 
-        foreach(var (i1, i2, i3, i4, points, vertices, _) in scene.GetQuads(c)) {
+        foreach(var (i1, i2, i3, points, vertices, _) in scene.GetTriangles(c)) {
             var v1 = vertices[i1];
             var v2 = vertices[i2];
             var v3 = vertices[i3];
-            var v4 = vertices[i4];
             noStroke();
-            CameraExtensions.quad3(v1, v2, v3, v4);
+            CameraExtensions.triangle(v1, v2, v3);
             stroke(White);
             strokeWeight(pointSize);
             foreach(var p in points) {
