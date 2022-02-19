@@ -53,11 +53,16 @@ public static class ObjLoader {
                     );
                     if(options.invert)
                         (i1, i2, i3, i4) = i3 != i4 ? (i4, i3, i2, i1) : (i3, i2, i1, i1);
-                    var quad = new Quad<T>(
-                        i1, i2, i3, i4,
+                    quads.Add(new Quad<T>(
+                        i1, i2, i3,
                         value: getValue(new QuadInfo(quads.Count, lineIndex))
-                    );
-                    quads.Add(quad);
+                    ));
+                    if(i3 != i4) {
+                        quads.Add(new Quad<T>(
+                            i1, i3, i4,
+                            value: getValue(new QuadInfo(quads.Count, lineIndex))
+                        ));
+                    }
                 }
                 //TODO invariant culture to parse
                 continue;

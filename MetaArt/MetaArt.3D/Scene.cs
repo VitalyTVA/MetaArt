@@ -86,12 +86,12 @@ public class Scene<T> {
             if(writeP) {
                 var quad = quads[pi];
                 var (model, vertices, normalVertices) = models[quad.modelIndex];
-                var (i1, i2, i3, i4, value) = model.Quads[quad.quadIndex];
+                var (i1, i2, i3, value) = model.Quads[quad.quadIndex];
                 var v1 = normalVertices[i1];
                 var n = Extensions.GetNormal(v1, normalVertices[i2], normalVertices[i3]);
                 if(Vector3.Dot(v1, n) >= 0)
                     continue;
-                yield return (i1, i2, i3, i4, value, vertices, normalVertices);
+                yield return (i1, i2, i3, i3, value, vertices, normalVertices);
             }
         }
 

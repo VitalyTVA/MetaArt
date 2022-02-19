@@ -19,19 +19,33 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, side, z),
             },
             new Quad<int>[] {
-                (3, 2, 1, 0, 100),
+                (3, 2, 1, 100),
+                (2, 1, 0, 100),
             });
             var scene = new Scene<int>(model);
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
-            var (i1, i2, i3, i4, val, vertices, normalVertices) = scene.GetQuads(c).Single();
+            var quads = scene.GetQuads(c).ToArray();
+            Assert.AreEqual(2, quads.Length);
+            var (i1, i2, i3, i4, val, vertices, normalVertices) = quads[0];
             AssertVector(new Vector2(-40f, 40f), vertices[i1]);
             AssertVector(new Vector2(-40f, -40f), vertices[i2]);
             AssertVector(new Vector2(40f, -40f), vertices[i3]);
-            AssertVector(new Vector2(40f, 40f), vertices[i4]);
+            AssertVector(new Vector2(40f, -40f), vertices[i4]);
             AssertVector(new Vector3(-60f, 60f, 150f), normalVertices[i1]);
             AssertVector(new Vector3(-60f, -60f, 150f), normalVertices[i2]);
             AssertVector(new Vector3(60f, -60f, 150f), normalVertices[i3]);
+            AssertVector(new Vector3(60f, -60f, 150f), normalVertices[i4]);
+            Assert.AreEqual(100, val);
+
+            (i1, i2, i3, i4, val, vertices, normalVertices) = quads[1];
+            AssertVector(new Vector2(-40f, -40f), vertices[i1]);
+            AssertVector(new Vector2(40f, -40f), vertices[i2]);
+            AssertVector(new Vector2(40f, 40f), vertices[i3]);
+            AssertVector(new Vector2(40f, 40f), vertices[i4]);
+            AssertVector(new Vector3(-60f, -60f, 150f), normalVertices[i1]);
+            AssertVector(new Vector3(60f, -60f, 150f), normalVertices[i2]);
+            AssertVector(new Vector3(60f, 60f, 150f), normalVertices[i3]);
             AssertVector(new Vector3(60f, 60f, 150f), normalVertices[i4]);
             Assert.AreEqual(100, val);
 
@@ -39,13 +53,13 @@ namespace MetaArt.Sketches.Tests {
             Assert.False(scene.GetQuads(c).Any());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI));
-            (i1, i2, i3, i4, val, vertices, normalVertices) = scene.GetQuads(c).Single();
+            (i1, i2, i3, i4, val, vertices, normalVertices) = scene.GetQuads(c).First();
             AssertVector(new Vector2(-40f, 40f), vertices[i1]);
             AssertVector(new Vector3(-60, 60f, 150f), normalVertices[i1]);
             Assert.AreEqual(100, val);
 
             model.Scale = new Vector3(2, 3, .5f);
-            (i1, i2, i3, i4, val, vertices, normalVertices) = scene.GetQuads(c).Single();
+            (i1, i2, i3, i4, val, vertices, normalVertices) = scene.GetQuads(c).First();
             AssertVector(new Vector2(-77.41933f, 116.129005f), vertices[i1]);
             AssertVector(new Vector3(-119.999985f, 180f, 155f), normalVertices[i1]);
         }
@@ -59,7 +73,8 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(30, 10, -40),
             },
             new Quad<int>[] {
-                (3, 2, 1, 0, 100),
+                (3, 2, 1, 100),
+                (2, 1, 0, 100),
             });
             var scene = new Scene<int>(model);
 
@@ -67,17 +82,17 @@ namespace MetaArt.Sketches.Tests {
             Assert.False(scene.GetQuads(c).Any());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, -PI / 1000));
-            scene.GetQuads(c).Single();
+            Assert.AreEqual(2, scene.GetQuads(c).Count());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI * 2 / 1000));
-            Assert.False(scene.GetQuads(c).Any());
+            Assert.AreEqual(0, scene.GetQuads(c).Count());
 
             c = new Camera(new Vector3(0, 0, 100), Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI), 10);
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI));
-            Assert.False(scene.GetQuads(c).Any());
+            Assert.AreEqual(0, scene.GetQuads(c).Count());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, -PI * 2 / 1000));
-            scene.GetQuads(c).Single();
+            Assert.AreEqual(2, scene.GetQuads(c).Count());
         }
 
         [Test]
@@ -96,21 +111,23 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, side, z + 10),
             },
             new Quad<int>[] {
-                (7, 6, 5, 4, 200),
-                (3, 2, 1, 0, 100),
+                (7, 6, 5, 200),
+                (6, 5, 4, 200),
+                (3, 2, 1, 100),
+                (2, 1, 0, 100),
             });
             var scene = new Scene<int>(model);
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
             var vals = scene.GetQuads(c).Select(x => x.Item5);
-            CollectionAssert.AreEqual(new[] { 200, 100 }, vals);
+            CollectionAssert.AreEqual(new[] { 200, 200, 100, 100 }, vals);
 
             c = new Camera(new Vector3(0, 0, 160), Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI), 100);
             Assert.False(scene.GetQuads(c).Any());
 
             model.Rotate(Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI));
             vals = scene.GetQuads(c).Select(x => x.Item5);
-            CollectionAssert.AreEqual(new[] { 200, 100 }, vals);
+            CollectionAssert.AreEqual(new[] { 200, 200, 100, 100 }, vals);
         }
         [Test]
         public void Scene_TwoModels() {
@@ -123,7 +140,8 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, side, z + 10),
             },
             new Quad<int>[] {
-                (3, 2, 1, 0, 200),
+                (3, 2, 1, 200),
+                (2, 1, 0, 200),
             });
             var model2 = new Model<int>(new[] {
                 new Vector3(side, side, z),
@@ -132,13 +150,14 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, side, z),
             },
             new Quad<int>[] {
-                (3, 2, 1, 0, 100),
+                (3, 2, 1, 100),
+                (2, 1, 0, 100),
             });
             var scene = new Scene<int>(model1, model2);
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
             var vals = scene.GetQuads(c).Select(x => x.Item5);
-            CollectionAssert.AreEqual(new[] { 200, 100 }, vals);
+            CollectionAssert.AreEqual(new[] { 200, 200, 100, 100 }, vals);
         }
 
         [Test]
@@ -152,7 +171,8 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, side, z + 10),
             },
             new Quad<int>[] {
-                (3, 2, 1, 0, 200),
+                (3, 2, 1, 200),
+                (2, 1, 0, 200),
             });
             var model2 = new Model<int>(new[] {
                 new Vector3(side, side, z),
@@ -161,26 +181,27 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, side, z),
             },
             new Quad<int>[] {
-                (3, 2, 1, 0, 100),
+                (3, 2, 1, 100),
+                (2, 1, 0, 100),
             });
             var scene = new Scene<int>(model2, model1);
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
             var vals = scene.GetQuads(c).Select(x => x.Item5);
-            CollectionAssert.AreEqual(new[] { 200, 100 }, vals);
+            CollectionAssert.AreEqual(new[] { 200, 200, 100, 100 }, vals);
         }
 
         [Test]
         public void Scene_TrivialOrder() {
             AssertOrder(
-                new[] { 1, 0 }, 
+                new[] { 1, 1, 0, 0 }, 
                 CreateScene(
                     QuadXZ((-20, 100), (20, 100)),
                     QuadXZ((-20, 110), (20, 110))
                 )
             );
             AssertOrder(
-                new[] { 2, 0, 1 },
+                new[] { 2, 2, 0, 0, 1, 1 },
                 CreateScene(
                     QuadXZ((-20, 110), (20, 110)),
                     QuadXZ((-20, 100), (20, 100)),
@@ -192,7 +213,7 @@ namespace MetaArt.Sketches.Tests {
         [Test]
         public void Scene_ZOverlap_NoXOverlap1() {
             AssertOrder(
-                new[] { 0, 1 }, 
+                new[] { 0, 0, 1, 1 }, 
                 CreateScene(
                     QuadXZ((-20, 120), (-10, 80)),
                     QuadXZ((10, 110), (20, 90))
@@ -202,7 +223,7 @@ namespace MetaArt.Sketches.Tests {
         [Test]
         public void Scene_ZOverlap2_NoXOverlap2() {
             AssertOrder(
-                new[] { 0, 1 },
+                new[] { 0, 0, 1, 1 },
                 CreateScene(
                     QuadXZ_N((-10, 80), (-20, 120)),
                     QuadXZ_N((20, 90), (10, 110))
@@ -212,7 +233,7 @@ namespace MetaArt.Sketches.Tests {
         [Test]
         public void Scene_ZOverlap_NoXOverlap3() {
             AssertOrder(
-                new[] { 0, 1, 2 },
+                new[] { 0, 0, 1, 1, 2, 2 },
                 CreateScene(
                     QuadXZ((-20, 120), (-10, 80)),
                     QuadXZ((10, 110), (20, 90)),
@@ -223,7 +244,7 @@ namespace MetaArt.Sketches.Tests {
         [Test]
         public void Scene_ZOverlap_NoXOverlap4() {
             AssertOrder(
-                new[] { 0, 1 },
+                new[] { 0, 0, 1, 1 },
                 CreateScene(
                     QuadXZ((-20, 120), (0, 100)),
                     QuadXZ((0, 100), (20, 120))
@@ -234,7 +255,7 @@ namespace MetaArt.Sketches.Tests {
         [Test]
         public void Scene_ZOverlap_XOverlap_NoYOverlap1() {
             AssertOrder(
-                new[] { 0, 1 },
+                new[] { 0, 0, 1, 1 },
                 CreateScene(
                     QuadYZ_N((-10, 80), (-20, 120)),
                     QuadYZ_N((20, 90), (10, 110))
@@ -245,7 +266,7 @@ namespace MetaArt.Sketches.Tests {
         [Test]
         public void Scene_ZOverlap_XOverlap_NoYOverlap2() {
             AssertOrder(
-                new[] { 0, 1 },
+                new[] { 0, 0, 1, 1 },
                 CreateScene(
                     QuadYZ((-20, 120), (-10, 80)),
                     QuadYZ((10, 110), (20, 90))
@@ -256,7 +277,7 @@ namespace MetaArt.Sketches.Tests {
         [Test]
         public void Scene_ZOverlap2_XOverlap_ZOverlap_PBeyondQPlane() {
             AssertOrder(
-                new[] { 1, 0 },
+                new[] { 1, 1, 0, 0 },
                 CreateScene(
                     QuadXZ((-20, 120), (20, 80)),
                     QuadXZ((0, 110), (20, 130))
@@ -277,12 +298,14 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, side, -side),
             },
             new Quad<int>[] {
-                (5, 4, 3, 2, 0),
-                (5, 4, 0, 1, 1),
+                (5, 4, 3, 0),
+                (4, 3, 2, 0),
+                (5, 4, 0, 1),
+                (4, 0, 1, 1),
             });
 
             AssertOrder(
-                new[] { 1, 0 },
+                new[] { 1, 1, 0, 0 },
                 new Scene<int>(model),
                 camera: new YawPitchContoller(0.08f, 0.025f).CreateCamera(600, 400)
             );
@@ -292,7 +315,7 @@ namespace MetaArt.Sketches.Tests {
         [Test]
         public void Scene_ZOverlap2_XOverlap_ZOverlap_PBeyondQPlane3() {
             AssertOrder(
-                new[] { 0, 1 },
+                new[] { 0, 0, 1, 1 },
                 CreateScene(
                     QuadXZ((-50, 100), (-50, 149)),
                     QuadXZ((-49, 100), (-49, 150))
@@ -303,7 +326,7 @@ namespace MetaArt.Sketches.Tests {
         [Test]
         public void Scene_ZOverlap2_XOverlap_ZOverlap_PBeyondQPlane4() {
             AssertOrder(
-                new[] { 0, 1 },
+                new[] { 0, 0, 1, 1 },
                 CreateScene(
                     QuadXZ((-50, 100), (-50, 140)),
                     QuadXZ((-49, 100), (-49, 150))
@@ -314,7 +337,7 @@ namespace MetaArt.Sketches.Tests {
         [Test]
         public void Scene_ZOverlap2_XOverlap_ZOverlap_QInFrontOfPPlane() {
             AssertOrder(
-                new[] { 0, 1 },
+                new[] { 0, 0, 1, 1 },
                 CreateScene(
                     QuadXZ((-20, 120), (20, 80)),
                     QuadXZ((-20, 70), (0, 90))
@@ -335,12 +358,14 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, side, -side),
             },
             new Quad<int>[] {
-                (3, 2, 1, 0, 0),
-                (3, 5, 4, 0, 1),
+                (3, 2, 1, 0),
+                (2, 1, 0, 0),
+                (3, 5, 4, 1),
+                (5, 4, 0, 1),
             });
 
             AssertOrder(
-                new[] { 0, 1 },
+                new[] { 0, 0, 1, 1 },
                 new Scene<int>(model),
                 camera: new YawPitchContoller(0.125f, -0.515f).CreateCamera(600, 400)
             );
@@ -367,7 +392,7 @@ f 4 3 5 6
 f 11 8 10 12
 f 8 7 9 10";
             AssertOrder(
-                new[] { 2, 3, 0, 1 },
+                new[] { 5, 6, 7, 4, 0, 2, 3, 1 },
                 CreateScene(obj, scale: 50),
                 camera: new YawPitchContoller(yaw: 2.415f, pitch: 0.53f).CreateCamera(600, 400)
             );
@@ -399,7 +424,7 @@ f 2 1 5 6
 f 11 15 13 9
 f 12 11 15 16";
             AssertOrder(
-                new[] { 1, 2, 0, 3 },
+                new[] { 2, 5, 3, 0, 4, 6, 1, 7 },
                 CreateScene(obj, scale: 50),
                 camera: new YawPitchContoller(yaw: -0.9099997f, pitch: 0.7853982f).CreateCamera(600, 400)
             );
@@ -429,7 +454,7 @@ s off
 f 2 1 5 6
 f 12 11 15 16";
             AssertOrder(
-                new[] { 0, 1 },
+                new[] { 0, 1, 2, 3 },
                 CreateScene(obj, scale: 50),
                 camera: new YawPitchContoller(yaw: -0.9099997f, pitch: 0.7853982f).CreateCamera(600, 400)
             );
@@ -465,7 +490,7 @@ f 6 2 4 8";
         [Test]
         public void Scene_SwapPlanes1() {
             AssertOrder(
-                new[] { 1, 0 },
+                new[] { 1, 1, 0, 0 },
                 CreateScene(
                     QuadXZ((-20, 120), (10, 90)),
                     QuadXZ((0, 110), (10, 100))
@@ -476,7 +501,7 @@ f 6 2 4 8";
         [Test]
         public void Scene_SwapPlanes2() {
             AssertOrder(
-                new[] { 1, 0, 2 },
+                new[] { 1, 1, 0, 0, 2, 2 },
                 CreateScene(
                     QuadXZ((-20, 120), (10, 90)),
                     QuadXZ((0, 110), (10, 100)),
@@ -488,7 +513,7 @@ f 6 2 4 8";
         [Test]
         public void Scene_SwapPlanes3() {
             AssertOrder(
-                new[] { 2, 1, 0 },
+                new[] { 2, 2, 1, 1, 0, 0 },
                 CreateScene(
                     QuadXZ((-20, 120), (20, 80)),
                     QuadXZ((-18, 119), (22, 81)),
@@ -500,7 +525,7 @@ f 6 2 4 8";
         [Test]
         public void Scene_SwapPlanes4() {
             AssertOrder(
-                new[] { 2, 1, 0, 3 },
+                new[] { 2, 2, 1, 1, 0, 0, 3, 3 },
                 CreateScene(
                     QuadXZ((-20, 120), (20, 80)),
                     QuadXZ((-18, 119), (20, 80)),
@@ -513,7 +538,7 @@ f 6 2 4 8";
         [Test]
         public void Scene_SwapPlanes5() {
             AssertOrder(
-                new[] { 1, 0 },
+                new[] { 1, 1, 0, 0 },
                 CreateScene(
                     (new Vector3(-20, -30, 110), new Vector3(-19, -30, 110), new Vector3(-19, 30, 90), new Vector3(-20, 30, 90)),
                     (new Vector3(-30, 20, 110), new Vector3(-30, 19, 110), new Vector3(30, 19, 90), new Vector3(30, 20, 90))
@@ -524,7 +549,7 @@ f 6 2 4 8";
         [Test]
         public void Scene_SwapPlanes6() {
             AssertOrder(
-                new[] { 0, 1 },
+                new[] { 0, 0, 1, 1 },
                 CreateScene(
                     (new Vector3(-30, 20, 110), new Vector3(-30, 19, 110), new Vector3(30, 19, 90), new Vector3(30, 20, 90)),
                     (new Vector3(-20, -30, 110), new Vector3(-19, -30, 110), new Vector3(-19, 30, 90), new Vector3(-20, 30, 90))
@@ -566,7 +591,7 @@ f 10 2 3 11";
                 item.Rotation = new Quaternion(0.44357088f, 0.8750796f, 0.121156156f, 0.15099645f);
             }
             AssertOrder(
-                new int[] { 1, 0 },
+                new int[] { 2, 3, 1, 0 },
                 scene,
                 camera: new YawPitchContoller(yaw: -4.435f, pitch: -0.014601809f).CreateCamera(600, 400)
             );
@@ -609,14 +634,17 @@ f 10 2 3 11";
         static void AssertOrder(int[] epxectedOrder, Scene<int> scene, Camera? camera= null) {
             camera = camera ?? new Camera(new Vector3(0, 0, 0), Quaternion.Identity, 50);
             var actual = scene.GetQuads(camera).Select(x => x.Item5).ToArray();
-            Assert.AreEqual(epxectedOrder, actual);
+            CollectionAssert.AreEqual(epxectedOrder, actual);
         }
         static Scene<int> CreateScene(params (Vector3, Vector3, Vector3, Vector3)[] quads) {
             var vertices = quads
                 .SelectMany(x => new[] { x.Item1, x.Item2, x.Item3, x.Item4 })
                 .ToArray();
             var quads_ = Enumerable.Range(0, quads.Length)
-                .Select(i => new Quad<int>(4 * i, 4 * i + 1, 4 * i + 2, 4 * i + 3, i))
+                .SelectMany(i => new[] {
+                    new Quad<int>(4 * i, 4 * i + 1, 4 * i + 2, i),
+                    new Quad<int>(4 * i, 4 * i + 2, 4 * i + 3, i)
+                })
                 .ToArray();
             return new Scene<int>(new Model<int>(vertices, quads_));
         } 

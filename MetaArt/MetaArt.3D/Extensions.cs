@@ -60,27 +60,6 @@ public static class Extensions {
     public static void Rotate<T>(this Model<T> model, Quaternion rotation) {
         model.Rotation = rotation * model.Rotation;
     }
-    public static Model<T> CreateCube<T>(float side, (T front, T back, T left, T right, T top, T bottom) sides) {
-        return new Model<T>(new[] {
-            new Vector3(side, side, side),
-            new Vector3(side, -side, side),
-            new Vector3(-side, -side, side),
-            new Vector3(-side, side, side),
-
-            new Vector3(side, side, -side),
-            new Vector3(side, -side, -side),
-            new Vector3(-side, -side, -side),
-            new Vector3(-side, side, -side),
-        },
-        new Quad<T>[] {
-            (7, 6, 5, 4, sides.front),
-            (0, 1, 2, 3, sides.back),
-            (4, 5, 1, 0, sides.right),
-            (3, 2, 6, 7, sides.left),
-            (3, 7, 4, 0, sides.top),
-            (1, 5, 6, 2, sides.bottom),
-        });
-    }
     public static Vector3 GetNormal(Vector3 p1, Vector3 p2, Vector3 p3) {
         return Vector3.Cross(p3 - p2, p2 - p1);
     }

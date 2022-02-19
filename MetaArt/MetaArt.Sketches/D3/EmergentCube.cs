@@ -13,8 +13,8 @@ class EmergentCube {
             Loader.LoadModels("icosphere", new LoadOptions<VoidType>(scale: 500, invert: true)).Select(x => AddRandomPoints(x, density / 5)),
             
             //Loader.LoadModels("cubes", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
-            Loader.LoadModels("heart", new LoadOptions<VoidType>(scale: 100)).Select(x => AddRandomPoints(x, density)),
-            //Loader.LoadModels("primitives", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
+            //Loader.LoadModels("heart", new LoadOptions<VoidType>(scale: 100)).Select(x => AddRandomPoints(x, density)),
+            Loader.LoadModels("primitives", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
         }.SelectMany(x => x).ToArray();
         scene = new Scene<int[]>(models);
     }
@@ -22,18 +22,16 @@ class EmergentCube {
     static Model<int[]> AddRandomPoints(Model<VoidType> model, float density) {
         var vertices = new List<Vector3>(model.Vertices);
         List<Quad<int[]>> planes = new();
-        foreach(var (i1, i2, i3, i4, _) in model.Quads) {
+        foreach(var (i1, i2, i3, _) in model.Quads) {
             var v1 = model.Vertices[i1];
             var v2 = model.Vertices[i2];
             var v3 = model.Vertices[i3];
-            var v4 = model.Vertices[i4];
 
             var count = vertices.Count;
             vertices.AddRange(GetTrianglePoints(v1, v2, v3, density));
-            vertices.AddRange(GetTrianglePoints(v1, v3, v4, density));
 
             var pointIndices = Enumerable.Range(count, vertices.Count - count).ToArray();
-            planes.Add((i1, i2, i3, i4, pointIndices));
+            planes.Add((i1, i2, i3, pointIndices));
         }
         return new Model<int[]>(vertices.ToArray(), planes.ToArray()) { Scale = model.Scale };
     }

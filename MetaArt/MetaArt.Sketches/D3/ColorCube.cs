@@ -6,19 +6,19 @@ using Vector = MetaArt.Vector;
 namespace D3;
 class ColorCube {
     Scene<Color> scene = null!;
-    Model<Color> cube = null!;
     void setup() {
         size(600, 400);
 
-        cube = Extensions.CreateCube(1, (
-            front: Colors.Red,
-            back: Colors.Blue,
-            left: Colors.Pink,
-            right: Colors.Green,
-            top: Colors.Yellow,
-            bottom: Colors.Orange
-        ));
-        scene = new Scene<Color>(cube);
+        var colors = new[] {
+            Colors.Red,
+            Colors.Blue,
+            Colors.Pink,
+            Colors.Green,
+            Colors.Yellow,
+            Colors.Orange,
+        };
+
+        scene = Loader.LoadScene("cube", new LoadOptions<Color>(x => colors[x.Index / 2], scale: 1));
     }
 
     YawPitchContoller cameraController = new();
@@ -42,7 +42,7 @@ class ColorCube {
             cameraController.Yaw(-dx / scale);
         }
         if(isRightMousePressed) {
-            cube.Rotate(c, dx, -dy);
+            scene.GetModels().Single().Rotate(c, dx, -dy);
         }
 
         foreach(var (i1, i2, i3, i4, col, vertices, _) in scene.GetQuads(c)) {
