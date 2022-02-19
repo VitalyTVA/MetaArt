@@ -73,6 +73,7 @@ StyleCopReport.xml
 *.ilk
 *.meta
 *.obj
+*.blend1
 !**/[Mm]odels/*.obj
 *.iobj
 *.pch

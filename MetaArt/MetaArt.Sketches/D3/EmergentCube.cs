@@ -8,16 +8,13 @@ class EmergentCube {
     void setup() {
         size(600, 400);
 
-        //var sourceModels = new[] { Extensions.CreateCube<VoidType>(100, (default, default, default, default, default, default)) };
-        //var density = 0.001f;
-
-        //var sourceModels = Loader.LoadModels<VoidType>("cubes", 50, info => default);
-        //var density = 0.003ff;
-
         var density = 0.003f;
         var models = new[] {
             Loader.LoadModels("icosphere", new LoadOptions<VoidType>(scale: 500, invert: true)).Select(x => AddRandomPoints(x, density / 5)),
-            Loader.LoadModels("primitives", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
+            
+            //Loader.LoadModels("cubes", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
+            Loader.LoadModels("heart", new LoadOptions<VoidType>(scale: 100)).Select(x => AddRandomPoints(x, density)),
+            //Loader.LoadModels("primitives", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
         }.SelectMany(x => x).ToArray();
         scene = new Scene<int[]>(models);
     }

@@ -12,7 +12,8 @@ class LightCube {
 
         var models = new[] {
             Loader.LoadModels<int>("icosphere", new LoadOptions<int>(info => info.LineIndex, 10, invert: true)),
-            Loader.LoadModels<int>("primitives", new LoadOptions<int>(info => info.LineIndex, 1))
+            Loader.LoadModels<int>("heart", new LoadOptions<int>(info => info.LineIndex, 3))
+            //Loader.LoadModels<int>("primitives", new LoadOptions<int>(info => info.LineIndex, 1))
         }.SelectMany(x => x).ToArray();
         scene = new Scene<int>(models);
         //scene = Loader.LoadScene<int>("cilinder", new LoadOptions<int>(info => info.LineIndex, 5, invert: true));
