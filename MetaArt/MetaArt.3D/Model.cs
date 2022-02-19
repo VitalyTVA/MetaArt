@@ -15,7 +15,6 @@ public class Model<T> {
     public Vector3 GetVertex(int index) => Vector3.Transform(Vertices[index] * Scale, Rotation);
 }
 public record struct Quad<T>(int i1, int i2, int i3, T value) {
-    public int i4 => i3;
     public static implicit operator Quad<T>((int i1, int i2, int i3, T value) quad)
         => new Quad<T>(quad.i1, quad.i2, quad.i3, quad.value);
 }

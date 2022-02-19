@@ -773,23 +773,23 @@ f 10 2 3 11";
         [Test]
         public void PointsInside() {
             var quad = (new Vector2(1, 2), new Vector2(3, 3), new Vector2(2, 4), new Vector2(1, 4));
-            Assert.True(Extensions.PointInside(quad, new Vector2(2, 3)));
-            Assert.False(Extensions.PointInside(quad, new Vector2(1, 3)));
+            Assert.True(TestExtensions.PointInside(quad, new Vector2(2, 3)));
+            Assert.False(TestExtensions.PointInside(quad, new Vector2(1, 3)));
 
-            Assert.False(Extensions.PointInside(quad, new Vector2(0, 3)));
-            Assert.False(Extensions.PointInside(quad, new Vector2(1, 5)));
-            Assert.False(Extensions.PointInside(quad, new Vector2(3, 4)));
-            Assert.False(Extensions.PointInside(quad, new Vector2(2, 2)));
+            Assert.False(TestExtensions.PointInside(quad, new Vector2(0, 3)));
+            Assert.False(TestExtensions.PointInside(quad, new Vector2(1, 5)));
+            Assert.False(TestExtensions.PointInside(quad, new Vector2(3, 4)));
+            Assert.False(TestExtensions.PointInside(quad, new Vector2(2, 2)));
 
             quad = (new Vector2(1, 2), new Vector2(3, 3), new Vector2(2, 4), new Vector2(2, 4));
 
-            Assert.True(Extensions.PointInside(quad, new Vector2(2, 3)));
+            Assert.True(TestExtensions.PointInside(quad, new Vector2(2, 3)));
 
-            Assert.False(Extensions.PointInside(quad, new Vector2(1, 3)));
-            Assert.False(Extensions.PointInside(quad, new Vector2(0, 3)));
-            Assert.False(Extensions.PointInside(quad, new Vector2(1, 5)));
-            Assert.False(Extensions.PointInside(quad, new Vector2(3, 4)));
-            Assert.False(Extensions.PointInside(quad, new Vector2(2, 2)));
+            Assert.False(TestExtensions.PointInside(quad, new Vector2(1, 3)));
+            Assert.False(TestExtensions.PointInside(quad, new Vector2(0, 3)));
+            Assert.False(TestExtensions.PointInside(quad, new Vector2(1, 5)));
+            Assert.False(TestExtensions.PointInside(quad, new Vector2(3, 4)));
+            Assert.False(TestExtensions.PointInside(quad, new Vector2(2, 2)));
         }
 
         [Test]
@@ -934,7 +934,7 @@ f 10 2 3 11";
                 (new Vector2(1, 1), new Vector2(1, 2), new Vector2(2, 2), new Vector2(2, 1)))
             );
 
-            Assert.AreEqual(new Vector2(1, 1), Extensions.GetQuadsIntersection(
+            Assert.AreEqual(new Vector2(1, 1), TestExtensions.GetQuadsIntersection(
                 (new Vector2(0, 0), new Vector2(4, 0), new Vector2(4, 4), new Vector2(0, 4)),
                 (new Vector2(1, 1), new Vector2(1, 2), new Vector2(2, 2), new Vector2(2, 1)))
             );
@@ -943,7 +943,7 @@ f 10 2 3 11";
         [Test]
         public void GetIntersection1() {
             var quad = (new Vector2(1, 2), new Vector2(3, 3), new Vector2(2, 4), new Vector2(1, 4));
-            Assert.AreEqual(new Vector2(2, 3), Extensions.GetQuadsIntersection(quad,
+            Assert.AreEqual(new Vector2(2, 3), TestExtensions.GetQuadsIntersection(quad,
                 (new Vector2(2, 3), new Vector2(3, 1), new Vector2(4, 3), new Vector2(4, 4))));
         }
 
@@ -953,8 +953,8 @@ f 10 2 3 11";
             var quad2 = (new Vector2(0, 0), new Vector2(-1, 0), new Vector2(-1, -1), new Vector2(0, -1));
             Assert.False(TestExtensions.Intersects(quad1, quad2));
             Assert.False(TestExtensions.Intersects(quad2, quad1));
-            Assert.Null(Extensions.GetQuadsIntersection(quad1, quad2));
-            Assert.Null(Extensions.GetQuadsIntersection(quad2, quad1));
+            Assert.Null(TestExtensions.GetQuadsIntersection(quad1, quad2));
+            Assert.Null(TestExtensions.GetQuadsIntersection(quad2, quad1));
         }
         [Test]
         public void GetIntersection_SideTouch() {
@@ -962,8 +962,8 @@ f 10 2 3 11";
             var quad2 = (new Vector2(0, 0), new Vector2(-1, 0), new Vector2(-1, 1), new Vector2(0, 1));
             Assert.False(TestExtensions.Intersects(quad1, quad2));
             Assert.False(TestExtensions.Intersects(quad2, quad1));
-            Assert.Null(Extensions.GetQuadsIntersection(quad1, quad2));
-            Assert.Null(Extensions.GetQuadsIntersection(quad2, quad1));
+            Assert.Null(TestExtensions.GetQuadsIntersection(quad1, quad2));
+            Assert.Null(TestExtensions.GetQuadsIntersection(quad2, quad1));
         }
 
         static Scene<int> CreateScene(string objFile, float scale) {

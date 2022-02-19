@@ -54,7 +54,19 @@ namespace MetaArt.Sketches.Tests {
         public static bool FloatEqual(float x, float y) => Math.Abs(x - y) < delta;
 
         public static bool Intersects((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q1, (Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q2) {
-            return Extensions.GetQuadsIntersection(q1, q2) != null;
+            return GetQuadsIntersection(q1, q2) != null;
         }
+
+        public static Vector2? GetQuadsIntersection((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q1, (Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q2) {
+            return Extensions.GetQuadsIntersection((q1.v1, q1.v2, q1.v3), (q2.v1, q2.v2, q2.v3)) ??
+                            Extensions.GetQuadsIntersection((q1.v1, q1.v2, q1.v4), (q2.v1, q2.v2, q2.v3)) ??
+                            Extensions.GetQuadsIntersection((q1.v1, q1.v2, q1.v3), (q2.v1, q2.v2, q2.v4)) ??
+                            Extensions.GetQuadsIntersection((q1.v1, q1.v2, q1.v4), (q2.v1, q2.v2, q2.v4));
+        }
+
+        public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) {
+            return Extensions.PointInside((q.v1, q.v2, q.v3), p) || Extensions.PointInside((q.v1, q.v2, q.v4), p);
+        }
+
     }
 }

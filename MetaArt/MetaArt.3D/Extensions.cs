@@ -79,34 +79,27 @@ public static class Extensions {
         y = v.Y;
     }
 
-    public static bool VerticesOnSameSideOfPlane((Vector3 v1, Vector3 v2, Vector3 v3) plane, (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) vertices, bool cameraOnSameSide) {
+    public static bool VerticesOnSameSideOfPlane((Vector3 v1, Vector3 v2, Vector3 v3) plane, (Vector3 v1, Vector3 v2, Vector3 v3) vertices, bool cameraOnSameSide) {
         var n = Vector3.Normalize(GetNormal(plane.v1, plane.v2, plane.v3));
         var s1 = Vector3.Dot(n, (plane.v1 - vertices.v1));
         var s2 = Vector3.Dot(n, (plane.v1 - vertices.v2));
         var s3 = Vector3.Dot(n, (plane.v1 - vertices.v3));
-        var s4 = Vector3.Dot(n, (plane.v1 - vertices.v4));
         var s_cam = Vector3.Dot(n, plane.v1); //camera is at origin here
         if(!cameraOnSameSide)
             s_cam = -s_cam;
-        return (GreaterOrEqual(s1, 0) && GreaterOrEqual(s2, 0) && GreaterOrEqual(s3, 0) && GreaterOrEqual(s4, 0) && GreaterOrEqual(s_cam, 0))
+        return (GreaterOrEqual(s1, 0) && GreaterOrEqual(s2, 0) && GreaterOrEqual(s3, 0) && GreaterOrEqual(s_cam, 0))
             ||
-            (LessOrEqual(s1, 0) && LessOrEqual(s2, 0) && LessOrEqual(s3, 0) && LessOrEqual(s4, 0) && LessOrEqual(s_cam, 0));
+            (LessOrEqual(s1, 0) && LessOrEqual(s2, 0) && LessOrEqual(s3, 0) && LessOrEqual(s_cam, 0));
     }
 
     //public static Vector2 NoZ(this Vector3 v) => new Vector2(v.X, v.Y);
 
-    public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) {
-        if(q.v3 == q.v4) {
-            return PointsOnSameSideOfLine((q.v1, q.v2), (q.v3, p, p))
-                && PointsOnSameSideOfLine((q.v2, q.v3), (q.v1, p, p))
-                && PointsOnSameSideOfLine((q.v3, q.v1), (q.v2, p, p));
-        }
-        return PointsOnSameSideOfLine((q.v1, q.v2), (q.v3, q.v4, p))
-            && PointsOnSameSideOfLine((q.v2, q.v3), (q.v1, q.v4, p))
-            && PointsOnSameSideOfLine((q.v3, q.v4), (q.v1, q.v2, p))
-            && PointsOnSameSideOfLine((q.v4, q.v1), (q.v2, q.v3, p));
+    public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3) q, Vector2 p) {
+        return PointsOnSameSideOfLine((q.v1, q.v2), (q.v3, p, p))
+            && PointsOnSameSideOfLine((q.v2, q.v3), (q.v1, p, p))
+            && PointsOnSameSideOfLine((q.v3, q.v1), (q.v2, p, p));
     }
-    public static Vector2? GetPointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) {
+    public static Vector2? GetPointInside((Vector2 v1, Vector2 v2, Vector2 v3) q, Vector2 p) {
         return PointInside(q, p) ? p : default(Vector2?);
     }
     public static bool PointsOnSameSideOfLine((Vector2 v1, Vector2 v2) line, (Vector2 v1, Vector2 v2, Vector2 v3) points) {
@@ -132,36 +125,20 @@ public static class Extensions {
         return Greater(ua, 0) && Less(ua, 1) && Greater(ub, 0) && Less(ub, 1);
     }
 
-    public static Vector2? GetQuadsIntersection((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q1, (Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q2) {
+    public static Vector2? GetQuadsIntersection((Vector2 v1, Vector2 v2, Vector2 v3) q1, (Vector2 v1, Vector2 v2, Vector2 v3) q2) {
         //TODO Test all variants
         var intersection =
             GetPointInside(q1, q2.v1)
             ?? GetPointInside(q1, q2.v2)
             ?? GetPointInside(q1, q2.v3)
-            ?? GetPointInside(q1, q2.v4)
             ?? GetPointInside(q2, q1.v1)
             ?? GetPointInside(q2, q1.v2)
             ?? GetPointInside(q2, q1.v3)
-            ?? GetPointInside(q2, q1.v4)
             ?? GetSegmentsIntesection((q1.v1, q1.v2), (q2.v1, q2.v2))
             ?? GetSegmentsIntesection((q1.v1, q1.v2), (q2.v2, q2.v3))
-            ?? GetSegmentsIntesection((q1.v1, q1.v2), (q2.v3, q2.v4))
-            ?? GetSegmentsIntesection((q1.v1, q1.v2), (q2.v4, q2.v1))
 
             ?? GetSegmentsIntesection((q1.v2, q1.v3), (q2.v1, q2.v2))
-            ?? GetSegmentsIntesection((q1.v2, q1.v3), (q2.v2, q2.v3))
-            ?? GetSegmentsIntesection((q1.v2, q1.v3), (q2.v3, q2.v4))
-            ?? GetSegmentsIntesection((q1.v2, q1.v3), (q2.v4, q2.v1))
-
-            ?? GetSegmentsIntesection((q1.v3, q1.v4), (q2.v1, q2.v2))
-            ?? GetSegmentsIntesection((q1.v3, q1.v4), (q2.v2, q2.v3))
-            ?? GetSegmentsIntesection((q1.v3, q1.v4), (q2.v3, q2.v4))
-            ?? GetSegmentsIntesection((q1.v3, q1.v4), (q2.v4, q2.v1))
-
-            ?? GetSegmentsIntesection((q1.v4, q1.v1), (q2.v1, q2.v2))
-            ?? GetSegmentsIntesection((q1.v4, q1.v1), (q2.v2, q2.v3))
-            ?? GetSegmentsIntesection((q1.v4, q1.v1), (q2.v3, q2.v4))
-            ?? GetSegmentsIntesection((q1.v4, q1.v1), (q2.v4, q2.v1));
+            ?? GetSegmentsIntesection((q1.v2, q1.v3), (q2.v2, q2.v3));
         return intersection;
     }
 
