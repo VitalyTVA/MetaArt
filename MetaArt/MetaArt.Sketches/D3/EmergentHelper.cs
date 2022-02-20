@@ -42,7 +42,7 @@ public static class EmergentHelper {
             var pointIndices = Enumerable.Range(count, vertices.Count - count).ToArray();
             planes.Add((i1, i2, i3, pointIndices));
         }
-        return new Model<int[]>(vertices.ToArray(), planes.ToArray()) { Scale = model.Scale };
+        return new Model<int[]>(vertices.ToArray(), planes.ToArray(), id: model.Id) { Scale = model.Scale };
     }
 
     static IEnumerable<Vector3> GetTrianglePoints(Vector3 v1, Vector3 v2, Vector3 v3, float density) {
