@@ -4,7 +4,7 @@ using MetaArt.D3;
 using Vector = MetaArt.Vector;
 
 namespace D3;
-class LightCube {
+class Light {
     Scene<int> scene = null!;
 
     void setup() {
@@ -12,10 +12,13 @@ class LightCube {
 
         var models = new[] {
             Loader.LoadModels<int>("icosphere", new LoadOptions<int>(info => info.LineIndex, 10, invert: true)),
+
             //Loader.LoadModels<int>("monkey", new LoadOptions<int>(info => info.LineIndex, 3))
+            //Loader.LoadModels<int>("heart_broken", new LoadOptions<int>(info => info.LineIndex, 3))
             //Loader.LoadModels<int>("heart", new LoadOptions<int>(info => info.LineIndex, 3))
             Loader.LoadModels<int>("primitives", new LoadOptions<int>(info => info.LineIndex, 1))
         }.SelectMany(x => x).ToArray();
+        //models.Last().Translate = Vector3.UnitX * 1;
         scene = new Scene<int>(models);
         //scene = Loader.LoadScene<int>("cilinder", new LoadOptions<int>(info => info.LineIndex, 5, invert: true));
 
@@ -44,7 +47,6 @@ class LightCube {
         background(0);
         CameraExtensions.InitCoords(50);
 
-        var c = cameraController.CreateCamera(12, 8);
         //vertices.RotateY(deltaTime / 1000f);
 
         var dx = mouseX - pmouseX;
@@ -58,6 +60,7 @@ class LightCube {
             lights.lightsController.Yaw(-dx / scale);
 
         }
+        var c = cameraController.CreateCamera(12, 8);
         if(isRightMousePressed) {
             foreach(var item in scene.GetModels().Skip(1)) {
                 item.Rotate(c, dx, -dy);

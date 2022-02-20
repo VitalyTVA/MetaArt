@@ -36,6 +36,8 @@ namespace MetaArt {
         public static float mouseY { get => Painter.mouseY; set => Painter.mouseY = value; }
         public static float pmouseX => Painter.pmouseX;
         public static float pmouseY => Painter.pmouseY;
+        public static float mouseXOffset => mouseX - pmouseX;
+        public static float mouseYOffset => mouseY - pmouseY;
         public static char key => Painter.key;
         public static bool isMousePressed => Painter.isMousePressed;
         public static bool isLeftMousePressed => Painter.isLeftMousePressed;

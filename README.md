@@ -24,6 +24,9 @@ http://compgraph.tpu.ru/priority.htm#:~:text=%D0%90%D0%BB%D0%B3%D0%BE%D1%80%D0%B
 obj compression
 https://products.aspose.app/3d/ru/compression/obj
 
+music sequensors
+https://habr.com/ru/company/audiomania/blog/651485/
+
 void setup()
 {
 size(600, 600);

@@ -4,6 +4,11 @@ using System.Numerics;
 namespace D3;
 
 static class CameraExtensions {
+    public static void MoveOnShpereOnMousePressed(YawPitchContoller controller) {
+        const float scale = 200;
+        controller.Pitch(-mouseYOffset / scale);
+        controller.Yaw(-mouseXOffset / scale);
+    }
     public static void MoveOnShepeOnKeyPressed(YawPitchContoller controller) {
         float step = PI / 60;
         switch(key) {
