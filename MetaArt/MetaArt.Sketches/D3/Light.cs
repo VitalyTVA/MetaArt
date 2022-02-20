@@ -20,10 +20,6 @@ class Light {
         }.SelectMany(x => x).ToArray();
         //models.Last().Translate = Vector3.UnitX * 1;
         scene = new Scene<int>(models);
-        //scene = Loader.LoadScene<int>("cilinder", new LoadOptions<int>(info => info.LineIndex, 5, invert: true));
-
-        //scene = Loader.LoadScene<int>("primitives", new LoadOptions<int>(info => info.LineIndex, 1));
-        //scene = Loader.LoadScene<int>("cubes", 50, info => info.LineIndex);
 
         //lights.lightsController.Yaw(PI / 2);
 

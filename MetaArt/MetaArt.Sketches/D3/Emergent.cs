@@ -14,7 +14,8 @@ class Emergent {
             
             //Loader.LoadModels("cubes", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
             //Loader.LoadModels("heart_broken", new LoadOptions<VoidType>(scale: 150)).Select(x => x.AddRandomPoints(density / 1.5f)),
-            Loader.LoadModels("heart", new LoadOptions<VoidType>(scale: 150)).Select(x => x.AddRandomPoints(density / 1.5f)),
+            Loader.LoadModels("heart", new LoadOptions<VoidType>(scale: 150, rotation: Quaternion.CreateFromAxisAngle(Vector3.UnitX, -PI / 2)))
+                .Select(x => x.AddRandomPoints(density / 1.5f)),
             //Loader.LoadModels("primitives", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
         }.SelectMany(x => x).ToArray();
         //models.Last().Translate = Vector3.UnitX * 10;

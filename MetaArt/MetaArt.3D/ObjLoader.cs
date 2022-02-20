@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace MetaArt.D3;
 public record struct TriInfo(int Index, int LineIndex);
-public record struct LoadOptions<T>(Func<TriInfo, T>? getValue = null, float scale = 1, bool invert = false);
+public record struct LoadOptions<T>(Func<TriInfo, T>? getValue = null, float scale = 1, Quaternion? rotation = null, bool invert = false);
 public static class ObjLoader {
     public static Model<T>[] Load<T>(Stream stream, LoadOptions<T> options) {
         return Load<T>(stream, options, out bool _);
@@ -43,11 +43,14 @@ public static class ObjLoader {
             if(l.StartsWith("v")) {
                 var split = l.Split(' ');
                 //TODO invariant culture to parse
-                vertices.Add(new Vector3(
-                    float.Parse(split[1]) * options.scale, 
-                    float.Parse(split[2]) * options.scale, 
+                Vector3 vertice = new Vector3(
+                    float.Parse(split[1]) * options.scale,
+                    float.Parse(split[2]) * options.scale,
                     -float.Parse(split[3]) * options.scale
-                ));
+                );
+                if(options.rotation is not null)
+                    vertice = Vector3.Transform(vertice, options.rotation.Value);
+                vertices.Add(vertice);
                 continue;
             }
             if(l.StartsWith("f")) {

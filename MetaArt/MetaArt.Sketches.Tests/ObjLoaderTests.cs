@@ -164,6 +164,20 @@ f 1 2 3";
         }
 
         [Test]
+        public void Rotate() {
+            var obj =
+    @"o X
+v 1 0 0
+v 0 2 0
+v 0 0 3
+f 1 2 3";
+            var model = GetModel(obj, rotation: Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2));
+            AssertVector(new Vector3(1f, 0f, 0f), model.Vertices[0]);
+            AssertVector(new Vector3(0f, 0f, 2f), model.Vertices[1]);
+            AssertVector(new Vector3(0f, 3f, 0f), model.Vertices[2]);
+        }
+
+        [Test]
         public void Pentagon() {
             var obj =
     @"o X
@@ -220,8 +234,8 @@ f 1 2 3 4 5 6 7";
             AssertTri(1, 6, 7, model.Tris[4], (new TriInfo(4, 9)));
         }
 
-        static Model<TriInfo> GetModel(string obj, bool invert = false) {
-            return ObjLoader.Load(obj.AsStream(), new LoadOptions<TriInfo>(x => x, invert: invert)).Single();
+        static Model<TriInfo> GetModel(string obj, bool invert = false, Quaternion? rotation = null) {
+            return ObjLoader.Load(obj.AsStream(), new LoadOptions<TriInfo>(x => x, invert: invert, rotation: rotation)).Single();
         }
 
         IEnumerable<Model<T>> LoadModels<T>(string fileName, Func<TriInfo, T>? getValue = null) {
@@ -306,8 +320,8 @@ f 4 5 6";
             var models = ObjLoader.Load(s, new LoadOptions<TriInfo>(getValue: x => x), out bool allowDuplicateVerticesInSeparateObjects).ToArray();
             var verticesArray = allowDuplicateVerticesInSeparateObjects
                 ? models.Select(x => x.Vertices).ToArray()
-                : new[] { 
-                    models.SelectMany(x => x.Vertices).ToArray() 
+                : new[] {
+                    models.SelectMany(x => x.Vertices).ToArray()
                 };
             foreach(var vertices in verticesArray) {
                 for(int i = 0; i < vertices.Length; i++) {
@@ -319,6 +333,6 @@ f 4 5 6";
             }
         }
 
-        class DuplicateVerticesException : Exception {}
+        class DuplicateVerticesException : Exception { }
     }
 }
