@@ -67,7 +67,7 @@ public class Scene<T> {
                         var ip = Extensions.PlaneLineIntersection((p1, p2, p3), castPoint);
                         var iq = Extensions.PlaneLineIntersection((q1, q2, q3), castPoint);
                         if(Greater(ip.LengthSquared(), iq.LengthSquared()))
-                            continue;   
+                            continue;
                     }
                 }
                 if(swaps.Contains((pi, qi))) {
@@ -97,12 +97,12 @@ public class Scene<T> {
 
         //foreach(var (modelIndex, quadIndex) in quads) {
         //    var (model, vertices, normalVertices) = models[modelIndex];
-        //    var (i1, i2, i3, i4, value) = model.Quads[quadIndex];
+        //    var (i1, i2, i3, value) = model.Quads[quadIndex];
         //    var v1 = normalVertices[i1];
         //    var n = Extensions.GetNormal(v1, normalVertices[i2], normalVertices[i3]);
         //    if(Vector3.Dot(v1, n) >= 0)
         //        continue;
-        //    yield return (i1, i2, i3, i4, value, vertices);
+        //    yield return (i1, i2, i3, value, vertices, normalVertices);
         //}
     }
 

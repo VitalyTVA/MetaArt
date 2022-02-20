@@ -242,7 +242,7 @@ f 1 2 3 4 5 6 7";
             var names = asm
                 .GetManifestResourceNames()
                 .Where(x => x.EndsWith(".obj"))
-                .Where(x => !x.EndsWith("monkey.obj"))
+                //.Where(x => !x.EndsWith("monkey.obj"))
                 .ToArray();
             CollectionAssert.IsNotEmpty(names.Where(x => x.EndsWith("cubes.obj")));
             foreach(var name in names) {
