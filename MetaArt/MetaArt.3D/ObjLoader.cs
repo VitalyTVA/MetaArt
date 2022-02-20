@@ -44,25 +44,18 @@ public static class ObjLoader {
             }
             if(l.StartsWith("f")) {
                 var split = l.Substring(2).Split(' ');
-                for(int i = 0; i + 2 < split.Length; i += 2) {
-                    var (i1, i2, i3, i4) = (
+                for(int i = 0; i + 2 < split.Length; i += 1) {
+                    var (i1, i2, i3) = (
                         int.Parse(split[0]) - 1 - startIndex,
                         int.Parse(split[i + 1]) - 1 - startIndex,
-                        int.Parse(split[i + 2]) - 1 - startIndex,
-                        int.Parse(i + 3 < split.Length ? split[i + 3] : split[i + 2]) - 1 - startIndex
+                        int.Parse(split[i + 2]) - 1 - startIndex
                     );
                     if(options.invert)
-                        (i1, i2, i3, i4) = i3 != i4 ? (i4, i3, i2, i1) : (i3, i2, i1, i1);
+                        (i1, i3) = (i3, i1);
                     quads.Add(new Triangle<T>(
                         i1, i2, i3,
                         value: getValue(new QuadInfo(quads.Count, lineIndex))
                     ));
-                    if(i3 != i4) {
-                        quads.Add(new Triangle<T>(
-                            i1, i3, i4,
-                            value: getValue(new QuadInfo(quads.Count, lineIndex))
-                        ));
-                    }
                 }
                 //TODO invariant culture to parse
                 continue;

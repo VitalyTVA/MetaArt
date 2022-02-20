@@ -158,8 +158,8 @@ f 1 2 3 4
 f 1 2 3";
             var model = GetModel(obj, invert: true);
             Assert.AreEqual(3, model.Quads.Length);
-            AssertQuad(4, 3, 2, model.Quads[0], (new QuadInfo(0, 6)));
-            AssertQuad(4, 2, 1, model.Quads[1], (new QuadInfo(1, 6)));
+            AssertQuad(3, 2, 1, model.Quads[0], (new QuadInfo(0, 6)));
+            AssertQuad(4, 3, 1, model.Quads[1], (new QuadInfo(1, 6)));
             AssertQuad(3, 2, 1, model.Quads[2], (new QuadInfo(2, 7)));
         }
 
