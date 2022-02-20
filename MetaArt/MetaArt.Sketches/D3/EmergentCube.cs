@@ -13,8 +13,8 @@ class EmergentCube {
             Loader.LoadModels("icosphere", new LoadOptions<VoidType>(scale: 500, invert: true)).Select(x => AddRandomPoints(x, density / 5)),
             
             //Loader.LoadModels("cubes", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
-            //Loader.LoadModels("heart", new LoadOptions<VoidType>(scale: 100)).Select(x => AddRandomPoints(x, density)),
-            Loader.LoadModels("primitives", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
+            Loader.LoadModels("heart", new LoadOptions<VoidType>(scale: 150)).Select(x => AddRandomPoints(x, density / 1.5f)),
+            //Loader.LoadModels("primitives", new LoadOptions<VoidType>(scale: 50)).Select(x => AddRandomPoints(x, density)),
         }.SelectMany(x => x).ToArray();
         scene = new Scene<int[]>(models);
     }
