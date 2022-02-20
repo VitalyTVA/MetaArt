@@ -58,10 +58,10 @@ namespace MetaArt.Sketches.Tests {
         }
 
         public static Vector2? GetQuadsIntersection((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q1, (Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q2) {
-            return Extensions.GetQuadsIntersection((q1.v1, q1.v2, q1.v3), (q2.v1, q2.v2, q2.v3)) ??
-                            Extensions.GetQuadsIntersection((q1.v1, q1.v2, q1.v4), (q2.v1, q2.v2, q2.v3)) ??
-                            Extensions.GetQuadsIntersection((q1.v1, q1.v2, q1.v3), (q2.v1, q2.v2, q2.v4)) ??
-                            Extensions.GetQuadsIntersection((q1.v1, q1.v2, q1.v4), (q2.v1, q2.v2, q2.v4));
+            return Extensions.GetTrisIntersection((q1.v1, q1.v2, q1.v3), (q2.v1, q2.v2, q2.v3)) ??
+                            Extensions.GetTrisIntersection((q1.v1, q1.v2, q1.v4), (q2.v1, q2.v2, q2.v3)) ??
+                            Extensions.GetTrisIntersection((q1.v1, q1.v2, q1.v3), (q2.v1, q2.v2, q2.v4)) ??
+                            Extensions.GetTrisIntersection((q1.v1, q1.v2, q1.v4), (q2.v1, q2.v2, q2.v4));
         }
 
         public static bool PointInside((Vector2 v1, Vector2 v2, Vector2 v3, Vector2 v4) q, Vector2 p) {

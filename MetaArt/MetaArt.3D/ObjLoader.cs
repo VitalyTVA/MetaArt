@@ -2,16 +2,16 @@
 using System.Text.RegularExpressions;
 
 namespace MetaArt.D3;
-public record struct QuadInfo(int Index, int LineIndex);
-public record struct LoadOptions<T>(Func<QuadInfo, T>? getValue = null, float scale = 1, bool invert = false);
+public record struct TriInfo(int Index, int LineIndex);
+public record struct LoadOptions<T>(Func<TriInfo, T>? getValue = null, float scale = 1, bool invert = false);
 public static class ObjLoader {
     public static IEnumerable<Model<T>> Load<T>(Stream stream, LoadOptions<T> options) {
         //TODO optimize
         var getValue = options.getValue ?? (_ => default!);
         using var reader = new StreamReader(stream);
         var vertices = new List<Vector3>();
-        var quads = new List<Triangle<T>>();
-        Model<T> CreateModel() => new Model<T>(vertices.ToArray(), quads.ToArray());
+        var tris = new List<Tri<T>>();
+        Model<T> CreateModel() => new Model<T>(vertices.ToArray(), tris.ToArray());
         int startIndex = 0;
         int lineIndex = 0;
         while(!reader.EndOfStream) {
@@ -24,7 +24,7 @@ public static class ObjLoader {
                     yield return CreateModel();
                 startIndex += vertices.Count;
                 vertices.Clear();
-                quads.Clear();
+                tris.Clear();
                 continue;
             }
             if(l.StartsWith("s")) {
@@ -52,9 +52,9 @@ public static class ObjLoader {
                     );
                     if(options.invert)
                         (i1, i3) = (i3, i1);
-                    quads.Add(new Triangle<T>(
+                    tris.Add(new Tri<T>(
                         i1, i2, i3,
-                        value: getValue(new QuadInfo(quads.Count, lineIndex))
+                        value: getValue(new TriInfo(tris.Count, lineIndex))
                     ));
                 }
                 //TODO invariant culture to parse

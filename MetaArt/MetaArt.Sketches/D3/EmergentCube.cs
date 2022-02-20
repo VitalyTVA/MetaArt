@@ -21,8 +21,8 @@ class EmergentCube {
 
     static Model<int[]> AddRandomPoints(Model<VoidType> model, float density) {
         var vertices = new List<Vector3>(model.Vertices);
-        List<Triangle<int[]>> planes = new();
-        foreach(var (i1, i2, i3, _) in model.Quads) {
+        List<Tri<int[]>> planes = new();
+        foreach(var (i1, i2, i3, _) in model.Tris) {
             var v1 = model.Vertices[i1];
             var v2 = model.Vertices[i2];
             var v3 = model.Vertices[i3];

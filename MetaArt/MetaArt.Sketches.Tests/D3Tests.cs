@@ -18,16 +18,16 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z),
                 new Vector3(-side, side, z),
             },
-            new Triangle<int>[] {
+            new Tri<int>[] {
                 (3, 2, 1, 100),
                 (2, 1, 0, 100),
             });
             var scene = new Scene<int>(model);
 
             var c = new Camera(new Vector3(0, 0, -160), Quaternion.Identity, 100);
-            var quads = scene.GetTriangles(c).ToArray();
-            Assert.AreEqual(2, quads.Length);
-            var (i1, i2, i3, val, vertices, normalVertices) = quads[0];
+            var tris = scene.GetTriangles(c).ToArray();
+            Assert.AreEqual(2, tris.Length);
+            var (i1, i2, i3, val, vertices, normalVertices) = tris[0];
             AssertVector(new Vector2(-40f, 40f), vertices[i1]);
             AssertVector(new Vector2(-40f, -40f), vertices[i2]);
             AssertVector(new Vector2(40f, -40f), vertices[i3]);
@@ -36,7 +36,7 @@ namespace MetaArt.Sketches.Tests {
             AssertVector(new Vector3(60f, -60f, 150f), normalVertices[i3]);
             Assert.AreEqual(100, val);
 
-            (i1, i2, i3, val, vertices, normalVertices) = quads[1];
+            (i1, i2, i3, val, vertices, normalVertices) = tris[1];
             AssertVector(new Vector2(-40f, -40f), vertices[i1]);
             AssertVector(new Vector2(40f, -40f), vertices[i2]);
             AssertVector(new Vector2(40f, 40f), vertices[i3]);
@@ -68,7 +68,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(30, -10, -40),
                 new Vector3(30, 10, -40),
             },
-            new Triangle<int>[] {
+            new Tri<int>[] {
                 (3, 2, 1, 100),
                 (2, 1, 0, 100),
             });
@@ -106,7 +106,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z + 10),
                 new Vector3(-side, side, z + 10),
             },
-            new Triangle<int>[] {
+            new Tri<int>[] {
                 (7, 6, 5, 200),
                 (6, 5, 4, 200),
                 (3, 2, 1, 100),
@@ -135,7 +135,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z + 10),
                 new Vector3(-side, side, z + 10),
             },
-            new Triangle<int>[] {
+            new Tri<int>[] {
                 (3, 2, 1, 200),
                 (2, 1, 0, 200),
             });
@@ -145,7 +145,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z),
                 new Vector3(-side, side, z),
             },
-            new Triangle<int>[] {
+            new Tri<int>[] {
                 (3, 2, 1, 100),
                 (2, 1, 0, 100),
             });
@@ -166,7 +166,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z + 10),
                 new Vector3(-side, side, z + 10),
             },
-            new Triangle<int>[] {
+            new Tri<int>[] {
                 (3, 2, 1, 200),
                 (2, 1, 0, 200),
             });
@@ -176,7 +176,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, z),
                 new Vector3(-side, side, z),
             },
-            new Triangle<int>[] {
+            new Tri<int>[] {
                 (3, 2, 1, 100),
                 (2, 1, 0, 100),
             });
@@ -293,7 +293,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(-side, -side, -side),
                 new Vector3(-side, side, -side),
             },
-            new Triangle<int>[] {
+            new Tri<int>[] {
                 (5, 4, 3, 0),
                 (4, 3, 2, 0),
                 (5, 4, 0, 1),
@@ -353,7 +353,7 @@ namespace MetaArt.Sketches.Tests {
                 new Vector3(side, side, -side),
                 new Vector3(-side, side, -side),
             },
-            new Triangle<int>[] {
+            new Tri<int>[] {
                 (3, 2, 1, 0),
                 (2, 1, 0, 0),
                 (3, 5, 4, 1),
@@ -638,8 +638,8 @@ f 10 2 3 11";
                 .ToArray();
             var quads_ = Enumerable.Range(0, quads.Length)
                 .SelectMany(i => new[] {
-                    new Triangle<int>(4 * i, 4 * i + 1, 4 * i + 2, i),
-                    new Triangle<int>(4 * i, 4 * i + 2, 4 * i + 3, i)
+                    new Tri<int>(4 * i, 4 * i + 1, 4 * i + 2, i),
+                    new Tri<int>(4 * i, 4 * i + 2, 4 * i + 3, i)
                 })
                 .ToArray();
             return new Scene<int>(new Model<int>(vertices, quads_));
@@ -681,7 +681,7 @@ f 10 2 3 11";
 
         [Test]
         public void RotateModel() {
-            var m = new Model<D3.VoidType>(new Vector3[] { }, new Triangle<D3.VoidType>[] { });
+            var m = new Model<D3.VoidType>(new Vector3[] { }, new Tri<D3.VoidType>[] { });
             var c = new Camera(new Vector3(10, 20, 30), Quaternion.CreateFromYawPitchRoll(1, 2, 3), 40);
 
             Extensions.Rotate(m, c, 0, 0);

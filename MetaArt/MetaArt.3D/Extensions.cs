@@ -125,7 +125,7 @@ public static class Extensions {
         return Greater(ua, 0) && Less(ua, 1) && Greater(ub, 0) && Less(ub, 1);
     }
 
-    public static Vector2? GetQuadsIntersection((Vector2 v1, Vector2 v2, Vector2 v3) q1, (Vector2 v1, Vector2 v2, Vector2 v3) q2) {
+    public static Vector2? GetTrisIntersection((Vector2 v1, Vector2 v2, Vector2 v3) q1, (Vector2 v1, Vector2 v2, Vector2 v3) q2) {
         //TODO Test all variants
         var intersection =
             GetPointInside(q1, q2.v1)
