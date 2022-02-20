@@ -16,7 +16,8 @@ public static class ObjLoader {
         var tris = new List<Tri<T>>();
         allowDuplicateVerticesInSeparateObjects = false;
         var models = new List<Model<T>>();
-        void CreateModel() => models.Add(new Model<T>(vertices.ToArray(), tris.ToArray()));
+        string? id = null;
+        void CreateModel() => models.Add(new Model<T>(vertices.ToArray(), tris.ToArray(), id));
         int startIndex = 0;
         int lineIndex = 0;
         while(!reader.EndOfStream) {
@@ -30,6 +31,7 @@ public static class ObjLoader {
             if(l.StartsWith("o")) {
                 if(vertices.Any())
                     CreateModel();
+                id = l.Substring(2);
                 startIndex += vertices.Count;
                 vertices.Clear();
                 tris.Clear();

@@ -8,7 +8,9 @@ public class Scene<T> {
     TriRef<T>[] tris;
 
     public IEnumerable<Model<T>> GetModels() => models.Select(x => x.model);
-    
+
+    public Model<T> this[string id] => models.First(x => x.model.Id == id).model; //TODO use dictionary
+
     public Scene(params Model<T>[] models) {
         this.models.AddRange(models.Select(x => (x, new Vector2[x.Vertices.Length], new Vector3[x.Vertices.Length])));
         tris = models.SelectMany((x, j) => Enumerable.Range(0, x.Tris.Length).Select(i => new TriRef<T>(j, i))).ToArray();

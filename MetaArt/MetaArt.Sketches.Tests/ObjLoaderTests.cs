@@ -147,6 +147,26 @@ namespace MetaArt.Sketches.Tests {
         }
 
         [Test]
+        public void Id() {
+            var obj =
+@"o X
+v 0 0 0
+v 0 1 0
+v 0 0 1
+f 1 2 3
+o Y
+v 1 0 0
+v 0 2 0
+v 0 0 3
+f 1 2 3";
+            var models = GetModels(obj);
+            var scene = new Scene<TriInfo>(models);
+            Assert.AreEqual(models[0], scene["X"]);
+            Assert.AreEqual(models[1], scene["Y"]);
+            Assert.Throws<InvalidOperationException>(() => { var t = scene["Z"]; });
+        }
+
+        [Test]
         public void Invert() {
             var obj =
     @"o X
@@ -156,7 +176,7 @@ v 2 1 0
 v 3 3 0
 f 1 2 3 4
 f 1 2 3";
-            var model = GetModel(obj, invert: true);
+            var model = GetModel(obj, new LoadOptions<TriInfo>(invert: true));
             Assert.AreEqual(3, model.Tris.Length);
             AssertTri(3, 2, 1, model.Tris[0], (new TriInfo(0, 6)));
             AssertTri(4, 3, 1, model.Tris[1], (new TriInfo(1, 6)));
@@ -171,7 +191,7 @@ v 1 0 0
 v 0 2 0
 v 0 0 3
 f 1 2 3";
-            var model = GetModel(obj, rotation: Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2));
+            var model = GetModel(obj, new LoadOptions<TriInfo>(rotation: Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2)));
             AssertVector(new Vector3(1f, 0f, 0f), model.Vertices[0]);
             AssertVector(new Vector3(0f, 0f, 2f), model.Vertices[1]);
             AssertVector(new Vector3(0f, 3f, 0f), model.Vertices[2]);
@@ -234,8 +254,14 @@ f 1 2 3 4 5 6 7";
             AssertTri(1, 6, 7, model.Tris[4], (new TriInfo(4, 9)));
         }
 
-        static Model<TriInfo> GetModel(string obj, bool invert = false, Quaternion? rotation = null) {
-            return ObjLoader.Load(obj.AsStream(), new LoadOptions<TriInfo>(x => x, invert: invert, rotation: rotation)).Single();
+        static Model<TriInfo> GetModel(string obj, LoadOptions<TriInfo> options = default) {
+            return GetModels(obj, options).Single();
+        }
+
+        static Model<TriInfo>[] GetModels(string obj, LoadOptions<TriInfo> options = default) {
+            if(options.getValue is null)
+                options = options with { getValue = (x => x) };
+            return ObjLoader.Load(obj.AsStream(), options);
         }
 
         IEnumerable<Model<T>> LoadModels<T>(string fileName, Func<TriInfo, T>? getValue = null) {

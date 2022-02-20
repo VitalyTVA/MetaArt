@@ -1,7 +1,7 @@
 #AllowDuplicateVerticesInSeparateObjects
 # Blender v3.0.1 OBJ File: 'heart_broken.blend'
 # www.blender.org
-o Plane
+o Left
 v -0.708414 -0.650354 -0.000000
 v 0.000000 -1.265923 -0.000000
 v -0.639540 1.495326 0.000000
@@ -152,7 +152,7 @@ f 51 50 30
 f 50 49 29
 f 49 28 29
 f 29 30 50
-o Plane.001
+o Right
 v 0.000000 -1.265923 -0.000000
 v 0.000000 -0.903515 0.293517
 v 0.708414 -0.650354 -0.000000
