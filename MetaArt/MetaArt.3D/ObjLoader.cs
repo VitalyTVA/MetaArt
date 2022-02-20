@@ -5,23 +5,31 @@ namespace MetaArt.D3;
 public record struct TriInfo(int Index, int LineIndex);
 public record struct LoadOptions<T>(Func<TriInfo, T>? getValue = null, float scale = 1, bool invert = false);
 public static class ObjLoader {
-    public static IEnumerable<Model<T>> Load<T>(Stream stream, LoadOptions<T> options) {
+    public static Model<T>[] Load<T>(Stream stream, LoadOptions<T> options) {
+        return Load<T>(stream, options, out bool _);
+    }
+    public static Model<T>[] Load<T>(Stream stream, LoadOptions<T> options, out bool allowDuplicateVerticesInSeparateObjects) {
         //TODO optimize
         var getValue = options.getValue ?? (_ => default!);
         using var reader = new StreamReader(stream);
         var vertices = new List<Vector3>();
         var tris = new List<Tri<T>>();
-        Model<T> CreateModel() => new Model<T>(vertices.ToArray(), tris.ToArray());
+        allowDuplicateVerticesInSeparateObjects = false;
+        var models = new List<Model<T>>();
+        void CreateModel() => models.Add(new Model<T>(vertices.ToArray(), tris.ToArray()));
         int startIndex = 0;
         int lineIndex = 0;
         while(!reader.EndOfStream) {
             var l = reader.ReadLine();
             lineIndex++;
-            if(l.StartsWith("#"))
+            if(l.StartsWith("#")) {
+                if(l == "#AllowDuplicateVerticesInSeparateObjects")
+                    allowDuplicateVerticesInSeparateObjects = true;
                 continue;
+            }
             if(l.StartsWith("o")) {
                 if(vertices.Any())
-                    yield return CreateModel();
+                    CreateModel();
                 startIndex += vertices.Count;
                 vertices.Clear();
                 tris.Clear();
@@ -61,6 +69,7 @@ public static class ObjLoader {
                 continue;
             }
         }
-        yield return CreateModel();
+        CreateModel();
+        return models.ToArray();
     }
 }

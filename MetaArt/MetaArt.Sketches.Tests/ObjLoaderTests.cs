@@ -275,13 +275,46 @@ f 4 5 6";
             Assert.Throws<DuplicateVerticesException>(() => ValidateModels(obj.AsStream()));
         }
 
+        [Test]
+        public void DuplicateVerticesDetection_AllowDuplicateVerticesInSeparateObjects() {
+            var obj =
+@"#AllowDuplicateVerticesInSeparateObjects
+o X
+v 0 0 0
+v 0 0 0.000001
+v 0 0 1
+v 0 1 0
+f 1 3 4";
+            Assert.Throws<DuplicateVerticesException>(() => ValidateModels(obj.AsStream()));
+
+            obj =
+@"#AllowDuplicateVerticesInSeparateObjects
+o X
+v 0 0 0
+v 0 0 1
+v 0 1 0
+f 1 2 3
+o y
+v 0 0.00001 0
+v 0 0 1
+v 0 1 0
+f 4 5 6";
+            ValidateModels(obj.AsStream());
+        }
+
         static void ValidateModels(Stream s) {
-            var models = ObjLoader.Load(s, new LoadOptions<TriInfo>(getValue: x => x)).ToArray();
-            var vertices = models.SelectMany(x => x.Vertices).ToArray();
-            for(int i = 0; i < vertices.Length; i++) {
-                for(int j = i + 1; j < vertices.Length; j++) {
-                    if(Vector3.DistanceSquared(vertices[i], vertices[j]) < 0.0001)
-                        throw new DuplicateVerticesException();
+            var models = ObjLoader.Load(s, new LoadOptions<TriInfo>(getValue: x => x), out bool allowDuplicateVerticesInSeparateObjects).ToArray();
+            var verticesArray = allowDuplicateVerticesInSeparateObjects
+                ? models.Select(x => x.Vertices).ToArray()
+                : new[] { 
+                    models.SelectMany(x => x.Vertices).ToArray() 
+                };
+            foreach(var vertices in verticesArray) {
+                for(int i = 0; i < vertices.Length; i++) {
+                    for(int j = i + 1; j < vertices.Length; j++) {
+                        if(Vector3.DistanceSquared(vertices[i], vertices[j]) < 0.0001)
+                            throw new DuplicateVerticesException();
+                    }
                 }
             }
         }

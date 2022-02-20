@@ -58,6 +58,11 @@ namespace MetaArt.Sketches.Tests {
             (i1, i2, i3, val, vertices, normalVertices) = scene.GetTriangles(c).First();
             AssertVector(new Vector2(-77.41933f, 116.129005f), vertices[i1]);
             AssertVector(new Vector3(-119.999985f, 180f, 155f), normalVertices[i1]);
+
+            model.Translate = new Vector3(1, 2, 3);
+            (i1, i2, i3, val, vertices, normalVertices) = scene.GetTriangles(c).First();
+            AssertVector(new Vector2(-79.60524f, 119.73682f), vertices[i1]);
+            AssertVector(new Vector3(-120.999985f, 182f, 152.00003f), normalVertices[i1]);
         }
 
         [Test]
