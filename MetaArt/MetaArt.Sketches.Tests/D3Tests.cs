@@ -737,6 +737,17 @@ f 10 2 3 11";
         }
 
         [Test]
+        public void ShepereCameraControllerTest_PitchMax() {
+            var controller = new YawPitchContoller(pitchMax: PI / 2);
+
+            controller.Pitch(-2);
+            AssertVector(new Vector3(0f, -1f, 0f), controller.GetDirection());
+
+            controller.Pitch(3.5f);
+            AssertVector(new Vector3(0f, 1f, 0f), controller.GetDirection());
+        }
+
+        [Test]
         public void RangesOverlappring() {
             Assert.True(RangesAreApart((1, 2), (3, 4)));
             Assert.True(RangesAreApart((3, 4), (1, 2)));
