@@ -751,9 +751,11 @@ f 10 2 3 11";
         public void ShepereCameraControllerTest_SetYaw() {
             var controller = new YawPitchContoller();
             controller.SetYaw(1);
+            Assert.AreEqual(1, controller.Yaw);
             AssertVector(new Vector3(-0.841471f, 0f, 0.5403023f), controller.GetDirection());
 
             controller.SetYaw(-1);
+            Assert.AreEqual(-1, controller.Yaw);
             AssertVector(new Vector3(0.841471f, 0f, 0.5403023f), controller.GetDirection());
         }
         [Test]
