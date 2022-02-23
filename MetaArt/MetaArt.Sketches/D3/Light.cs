@@ -27,8 +27,8 @@ class Light {
         //    item.Rotation = new Quaternion(0.41467953f, 0.323241f, 0.5681285f, -0.6330752f);
         //}
 
-        lights.lightsController.Yaw(PI / 4);
-        lights.lightsController.Pitch(-PI / 4);
+        lights.lightsController.ChangeYaw(PI / 4);
+        lights.lightsController.ChangePitch(-PI / 4);
     }
 
     //YawPitchContoller cameraController = new(yaw: 2.04999971f, pitch: -0.759999931f);
@@ -50,10 +50,10 @@ class Light {
 
         if(isLeftMousePressed) {
             const float scale = 200;
-            cameraController.Pitch(-dy / scale);
-            cameraController.Yaw(-dx / scale);
-            lights.lightsController.Pitch(-dy / scale);
-            lights.lightsController.Yaw(-dx / scale);
+            cameraController.ChangePitch(-dy / scale);
+            cameraController.ChangeYaw(-dx / scale);
+            lights.lightsController.ChangePitch(-dy / scale);
+            lights.lightsController.ChangeYaw(-dx / scale);
 
         }
         var c = cameraController.CreateCamera(12, 8);

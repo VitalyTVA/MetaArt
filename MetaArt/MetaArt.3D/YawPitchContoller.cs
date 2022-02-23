@@ -13,10 +13,12 @@ public class YawPitchContoller {
         this.pitchMax = pitchMax;
     }
 
-    public void Yaw(float yawDelta) {
-        yaw += yawDelta;
+    public void SetYaw(float yaw) => this.yaw = yaw;
+
+    public void ChangeYaw(float yawDelta) {
+        SetYaw(yaw + yawDelta);
     }
-    public void Pitch(float pitchDelta) {
+    public void ChangePitch(float pitchDelta) {
         pitch += pitchDelta;
         pitch = Constrain(pitch, -pitchMax, pitchMax);
     }

@@ -38,8 +38,8 @@ class ColorCube {
 
         if(isLeftMousePressed) {
             const float scale = 200;
-            cameraController.Pitch(-dy / scale);
-            cameraController.Yaw(-dx / scale);
+            cameraController.ChangePitch(-dy / scale);
+            cameraController.ChangeYaw(-dx / scale);
         }
         if(isRightMousePressed) {
             scene.GetModels().Single().Rotate(c, dx, -dy);

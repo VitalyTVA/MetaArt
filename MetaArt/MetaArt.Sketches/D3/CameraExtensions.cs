@@ -6,23 +6,23 @@ namespace D3;
 static class CameraExtensions {
     public static void MoveOnShpereOnMousePressed(YawPitchContoller controller) {
         const float scale = 200;
-        controller.Pitch(-mouseYOffset / scale);
-        controller.Yaw(-mouseXOffset / scale);
+        controller.ChangePitch(-mouseYOffset / scale);
+        controller.ChangeYaw(-mouseXOffset / scale);
     }
     public static void MoveOnShepeOnKeyPressed(YawPitchContoller controller) {
         float step = PI / 60;
         switch(key) {
             case 'a':
-                controller.Yaw(-step);
+                controller.ChangeYaw(-step);
                 break;
             case 'd':
-                controller.Yaw(step);
+                controller.ChangeYaw(step);
                 break;
             case 'w':
-                controller.Pitch(-step);
+                controller.ChangePitch(-step);
                 break;
             case 's':
-                controller.Pitch(step);
+                controller.ChangePitch(step);
                 break;
         };
     }
