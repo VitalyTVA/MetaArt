@@ -50,3 +50,8 @@ void draw() {
         }
         println("" + (millis() - time));
 }
+
+baikal bubbles
+three bodies emulation (arcanoid)
+plaing cards
+tunnel like in https://habr.com/ru/post/656325/
