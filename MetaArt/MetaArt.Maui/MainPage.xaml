@@ -4,12 +4,35 @@
              xmlns:controls="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls"
              x:Class="MetaArt.Maui.MainPage">
 			 
-    <Grid RowDefinitions="Auto,*">
-        <ListView HeightRequest="200" x:Name="list">
+    <Grid RowDefinitions="*">
+        <CollectionView x:Name="list" IsGrouped="True">
 
-
-        </ListView>
-        <controls:SKCanvasView Grid.Row="1" x:Name="view"/>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="10">
+                        <Label Grid.Row="1"
+                               Grid.Column="1"
+                               Text="{Binding Name}"
+                               VerticalOptions="End" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate>
+                    <Label Text="{Binding Name}"
+                           BackgroundColor="LightGray"
+                           FontSize="18"
+                           FontAttributes="Bold" />
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+            <CollectionView.ItemsLayout>
+               <GridItemsLayout Orientation="Vertical"
+                                Span="3"
+                                VerticalItemSpacing="10"
+                                HorizontalItemSpacing="10" />
+            </CollectionView.ItemsLayout>
+        </CollectionView>
+        
 
     </Grid>
  

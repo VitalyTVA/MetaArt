@@ -7,72 +7,51 @@ namespace MetaArt.Maui;
 
 public partial class MainPage : ContentPage
 {
-	int count = 0;
-
+    List<SketchDisplayInfo> sketches;
 	public MainPage()
 	{
 		InitializeComponent();
 
-        var sketches = new[] {
+        sketches = new[] {
                 typeof(Sketches),
                 typeof(SkiaSketch),
             }.SelectMany(x => SketchDisplayInfo.LoadSketches(x.Assembly)).ToList();
 
-        this.list.ItemsSource = sketches;
+        var groups = sketches.GroupBy(x => x.Category, (key, values) => new SketchGroup(key, values)).ToArray();
 
-        var painter = default(Painter);
+        this.list.ItemsSource = groups;
+        this.list.SelectionMode = SelectionMode.Single;
 
-        this.list.ItemSelected += (o, e) => {
-            painter?.Dispose();
-            var info = (SketchDisplayInfo)list.SelectedItem;
-            painter = new Painter(
-                info.Type,
-                () =>
-                {
-                    this.Dispatcher.Dispatch(this.view.InvalidateSurface);
-                    //this.view.InvalidateSurface();
-                }, size => { }, feedback => { }
-            );
-            this.view.InvalidateSurface();
-            count = 0;
-        };
+        this.list.SelectionChanged += (o, e) => {
+            Shell.Current.GoToAsync(new ShellNavigationState("sketch"),
+                new Dictionary<string, object>() { { nameof(SkecthPage.Sketch), new SketchNavInfo((SketchDisplayInfo)list.SelectedItem, sketches) } });
 
-
-        this.view.PaintSurface += (o, e) => {
-            painter?.PaintSurface(e.Surface);
-
-            /*
-            using (SKPaint paint = new SKPaint())
-            {
-                paint.Color = SKColors.Blue;
-                paint.IsAntialias = true;
-                paint.StrokeWidth = 15;
-                paint.Style = SKPaintStyle.Stroke;
-                e.Surface.Canvas.DrawCircle(200 + count++, 200, 100, paint); //arguments are x position, y position, radius, and paint
-            }
-            this.Dispatcher.Dispatch(this.view.InvalidateSurface);
-            */
-
-        };
-        this.view.EnableTouchEvents = true;
-        this.view.Touch += (o, e) => {
-            if (e.ActionType == SkiaSharp.Views.Maui.SKTouchAction.Pressed) painter?.OnMouseDown(e.Location.X, e.Location.Y, isLeft: false);
-            if (e.ActionType == SkiaSharp.Views.Maui.SKTouchAction.Moved) painter?.OnMouseOver(e.Location.X, e.Location.Y);
-            if (e.ActionType == SkiaSharp.Views.Maui.SKTouchAction.Moved)
-            {
-                painter?.OnMouseUp(e.Location.X, e.Location.Y);
-                painter?.OnMouseLeave();
-            }
-            e.Handled = true;
-            
-        };
+        }; 
 
     }
 
-	private void OnCounterClicked(object sender, EventArgs e)
-	{
-		count++;
-	}
+    protected override void OnNavigatedTo(NavigatedToEventArgs args)
+    {
+        base.OnNavigatedTo(args);
+        var name = Preferences.Get("SketchName", default(string));
+        Preferences.Remove("SketchName");
+        if (name != null)
+        {
+            var info = sketches.FirstOrDefault(x => x.Name == name);
+            if (info != null)
+                list.SelectedItem = info;
+        }
+
+    }
 }
+public record SketchNavInfo(SketchDisplayInfo Current,  List<SketchDisplayInfo> Lists);
+public class SketchGroup : List<SketchDisplayInfo>
+{
+    public string Name { get; private set; }
 
-
+    public SketchGroup(string name, IEnumerable<SketchDisplayInfo> sketches)
+        : base(sketches)
+    {
+        Name = name;
+    }
+}
