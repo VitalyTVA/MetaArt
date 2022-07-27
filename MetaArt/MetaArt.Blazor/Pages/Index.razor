@@ -83,10 +83,17 @@ div.scrollable {
         first = true;
         viewStyle = "height:1080px; width:1920px;";
         StateHasChanged();
-        painter = new Painter(info.Type, () => { }, size => {
-            viewStyle = $"height:{painter!.Height}px; width:{painter!.Width}px;";
-            StateHasChanged();
-        }, _ => { });
+        painter = new Painter(
+            info.Type,
+            () => { },
+            size => {
+                viewStyle = $"height:{painter!.Height}px; width:{painter!.Width}px;";
+                StateHasChanged();
+            },
+            _ => {
+            },
+            displayDensity: 1
+        );
 
     }
     void SelectGroup(IGrouping<string, SketchDisplayInfo> group) {

@@ -68,8 +68,15 @@ public partial class SkecthPage : ContentPage
 #else
                 this.Dispatcher.Dispatch(this.view.InvalidateSurface);
 #endif
-            }, size => { }, feedback => { }
+            },
+            size => {
+            },
+            feedback => { },
+            displayDensity: (float)DeviceDisplay.MainDisplayInfo.Density
         );
+
+        painter.SetSize((int)view.CanvasSize.Width, (int)view.CanvasSize.Height);
+
         this.view.InvalidateSurface();
         this.title.Text = info.Name;
         currentSketch = info;

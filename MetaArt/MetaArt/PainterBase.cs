@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetaArt {
     public record struct PaintFeedback(TimeSpan DrawTime);
     public abstract class PainterBase : IDisposable {
-        public virtual void SetSize(int width, int height) {
+        public void SetSize(int width, int height) {
             this.width = width;
             this.height = height;
         }
@@ -35,12 +35,15 @@ namespace MetaArt {
         MethodInfo? mouseMovedMethod;
         MethodInfo? keyPressedMethod;
 
-        protected PainterBase(Type sketchType, Graphics graphics, Action invalidate, Action<PaintFeedback> feedback) {
+        internal readonly float displayDensity;
+
+        protected PainterBase(Type sketchType, Graphics graphics, Action invalidate, Action<PaintFeedback> feedback, float displayDensity) {
             this.invalidate = invalidate;
             this.feedback = feedback;
             Graphics = graphics;
             Sketch.Painter = this;
-            
+            this.displayDensity = displayDensity;
+
             sketch = Activator.CreateInstance(sketchType);
             drawMethod = GetSkecthMethod(sketch.GetType(), "draw");
             setupwMethod = GetSkecthMethod(sketch.GetType(), "setup");

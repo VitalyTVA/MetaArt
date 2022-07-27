@@ -101,6 +101,8 @@ namespace MetaArt {
         public static BlendMode DIFFERENCE => BlendMode.Difference;
         public static void blendMode(BlendMode blendMode) => Graphics.blendMode(blendMode);
 
+        public static float displayDensity() => Painter.displayDensity;
+
         public static void pushMatrix() => Graphics.pushMatrix();
         public static void popMatrix() => Graphics.popMatrix();
         public static void push() => Graphics.push();
