@@ -11,4 +11,10 @@
     <ProjectReference Include="..\MetaArt\MetaArt.csproj" />
   </ItemGroup>
 
+   <ItemGroup>
+    <EmbeddedResource Include="Assets\*.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\" />
+  </ItemGroup>
 </Project>

@@ -35,22 +35,25 @@ namespace MetaArt.Skia {
                 invalidate();
                 return;
             }
+            void TakeSnapshot() {
+                if (draw != null)
+                    draw.Dispose();
+                draw = null;
+                if (!fullRedraw)
+                    draw = surface.Snapshot();
+            };
             SKSurface = surface;
             if(!setUp) {
                 Sketch.background(255 / 2);
                 Setup();
-                if(draw != null)
-                    draw.Dispose();
-                draw = surface.Snapshot();
+                TakeSnapshot();
                 setSize(new Vector(Width, Height));
                 setUp = true;
                 invalidate();
             } else {
                 Draw();
                 drawn = true;
-                if(draw != null)
-                    draw.Dispose();
-                draw = surface.Snapshot();
+                TakeSnapshot();
                 if(!NoLoop)
                     invalidate();
             }

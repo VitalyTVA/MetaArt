@@ -13,7 +13,7 @@ public partial class MainPage : ContentPage
 		InitializeComponent();
 
         sketches = new[] {
-                typeof(ThatButtonAgain.GameElement),
+                typeof(ThatButtonAgain.Element),
                 typeof(Sketches),
                 typeof(SkiaSketch),
             }.SelectMany(x => SketchDisplayInfo.LoadSketches(x.Assembly)).ToList();

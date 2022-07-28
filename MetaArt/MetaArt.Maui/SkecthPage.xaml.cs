@@ -71,7 +71,9 @@ public partial class SkecthPage : ContentPage
             },
             size => {
             },
-            feedback => { },
+            feedback => {
+                fpsLabel.Text = feedback.DrawTime.TotalMilliseconds.ToString();
+            },
             displayDensity: (float)DeviceDisplay.MainDisplayInfo.Density
         );
 

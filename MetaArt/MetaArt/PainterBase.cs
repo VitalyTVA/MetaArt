@@ -25,6 +25,8 @@ namespace MetaArt {
         public bool NoLoop { get; set; }
         public bool HasDraw => drawMethod != null;
         public Graphics Graphics { get; }
+        protected bool fullRedraw = false;
+        public void FullRedraw() => fullRedraw = true;
 
         MethodInfo? drawMethod;
         MethodInfo? setupwMethod;
