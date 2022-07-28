@@ -1,4 +1,6 @@
-﻿namespace ThatButtonAgain;
+﻿using System.Diagnostics;
+
+namespace ThatButtonAgain;
 class Level1 {
 
     Game game = null!;
@@ -22,6 +24,7 @@ class Level1 {
             });
             index++;
         }
+        noLoop();
     }
 
     void draw()
@@ -84,6 +87,8 @@ class Level1 {
         xOffset = mouseX - bx;
         yOffset = mouseY - by;
         */
+        game.Press(new SKPoint(mouseX, mouseY));
+        loop();
     }
 
     void mouseDragged()
@@ -95,21 +100,37 @@ class Level1 {
             by = mouseY - yOffset;
         }
         */
+        game.Drag(new SKPoint(mouseX, mouseY));
     }
 
     void mouseReleased()
     {
         //locked = false;
+        game.Release();
+        noLoop();
     }
 }
 
 public class Game {
     readonly int width, height;
 
+    InputState inputState;
+    readonly NoInputState noInputState;
+
+
     public Game(int width, int height)
     {
         this.width = width;
         this.height = height;
+        this.inputState = this.noInputState = new NoInputState(point => {
+            for (int i = elements.Count - 1; i >= 0; i--) {
+                var element = elements[i];
+                if (element.Rect.Contains(point)) {
+                    return (element.GetPressState(point, noInputState!) ?? inputState)!;
+                }
+            }
+            return noInputState!;
+        });
     }
 
     List<Element> elements = new();
@@ -117,10 +138,21 @@ public class Game {
     public IEnumerable<Element> Elements => elements;
 
     public void AddElement(Element element) => elements.Add(element);
+
+    public void Press(SKPoint point) {
+        inputState = inputState.Press(point);
+    }
+    public void Drag(SKPoint point) {
+        inputState = inputState.Drag(point);
+    }
+    public void Release() {
+        inputState = inputState.Release();
+    }
 }
 
 public abstract class Element {
     public SKRect Rect { get; set; }
+    public virtual InputState? GetPressState(SKPoint startPoint, NoInputState releaseState) => null;
 }
 
 public class Button : Element {
@@ -129,4 +161,65 @@ public class Button : Element {
 
 public class Letter : Element {
     public char Value { get; set; }
+    public override InputState? GetPressState(SKPoint startPoint, NoInputState releaseState) {
+        var startRect = Rect;
+        return new DragInputState(startPoint, delta => {
+            var newRect = startRect;
+            newRect.Offset(delta);
+            Rect = newRect;
+            //Debug.WriteLine(delta.ToString());
+        }, releaseState);
+    }
 }
+
+public abstract class InputState {
+    public abstract InputState Press(SKPoint point);
+    public abstract InputState Release();
+    public abstract InputState Drag(SKPoint point);
+}
+
+public class NoInputState : InputState {
+    readonly Func<SKPoint, InputState> getPressState;
+
+    public NoInputState(Func<SKPoint, InputState> getPressState) {
+        this.getPressState = getPressState;
+    }
+
+    public override InputState Drag(SKPoint point) {
+        return this;
+    }
+
+    public override InputState Press(SKPoint point) {
+        return getPressState(point);
+    }
+
+    public override InputState Release() {
+        throw new InvalidOperationException();
+    }
+}
+
+public class DragInputState : InputState {
+    readonly SKPoint startPoint;
+    readonly Action<SKPoint> onDrag;
+    readonly InputState releaseState;
+
+    public DragInputState(SKPoint startPoint, Action<SKPoint> onDrag, InputState releaseState) {
+        this.startPoint = startPoint;
+        this.onDrag = onDrag;
+        this.releaseState = releaseState;
+    }
+
+    public override InputState Drag(SKPoint point) {
+        onDrag(point - startPoint);
+        return this;
+    }
+
+    public override InputState Press(SKPoint point) {
+        throw new InvalidOperationException();
+    }
+
+    public override InputState Release() {
+        return releaseState;
+    }
+}
+

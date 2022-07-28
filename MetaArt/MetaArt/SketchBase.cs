@@ -51,6 +51,7 @@ namespace MetaArt {
             Painter.SetSize(width, height);
         }
         public static void noLoop() => Painter.NoLoop = true;
+        public static void loop() => Painter.NoLoop = false;
         public static void noSmooth() => Graphics.noSmooth();
         public static void fullRedraw() => Painter.FullRedraw();
 

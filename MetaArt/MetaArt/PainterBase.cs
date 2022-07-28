@@ -7,8 +7,10 @@ using System.Reflection;
 
 namespace MetaArt {
     public record struct PaintFeedback(TimeSpan DrawTime);
-    public abstract class PainterBase : IDisposable {
-        public void SetSize(int width, int height) {
+    public abstract class PainterBase : IDisposable
+    {
+        public void SetSize(int width, int height)
+        {
             this.width = width;
             this.height = height;
         }
@@ -20,9 +22,17 @@ namespace MetaArt {
         public int Millis() => (int)stopwatch.ElapsedMilliseconds;
 
         public readonly object sketch;
-        public Assembly Assembly =>sketch.GetType().Assembly;
+        public Assembly Assembly => sketch.GetType().Assembly;
 
-        public bool NoLoop { get; set; }
+        private bool noLoop;
+        public bool NoLoop
+        {
+            get => noLoop; set
+            {
+                noLoop = value;
+                invalidate();
+            }
+        }
         public bool HasDraw => drawMethod != null;
         public Graphics Graphics { get; }
         protected bool fullRedraw = false;
@@ -39,7 +49,8 @@ namespace MetaArt {
 
         internal readonly float displayDensity;
 
-        protected PainterBase(Type sketchType, Graphics graphics, Action invalidate, Action<PaintFeedback> feedback, float displayDensity) {
+        protected PainterBase(Type sketchType, Graphics graphics, Action invalidate, Action<PaintFeedback> feedback, float displayDensity)
+        {
             this.invalidate = invalidate;
             this.feedback = feedback;
             Graphics = graphics;
@@ -59,7 +70,8 @@ namespace MetaArt {
             SettingsCore();
         }
 
-        internal static MethodInfo GetSkecthMethod(Type type, string name) {
+        internal static MethodInfo GetSkecthMethod(Type type, string name)
+        {
             return type.GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
@@ -67,38 +79,47 @@ namespace MetaArt {
         private readonly Action<PaintFeedback> feedback;
         protected Queue<Action> preRenderQueue = new();
         protected Vector? pos { get; private set; }
-        public void OnMouseDown(float x, float y, bool isLeft) {
+        public void OnMouseDown(float x, float y, bool isLeft)
+        {
             isMousePressed = true;
             this.isLeft = isLeft;
-            preRenderQueue.Enqueue(() => {
+            preRenderQueue.Enqueue(() =>
+            {
                 MousePressedCore(x, y);
             });
             invalidate();
         }
-        public void OnMouseUp(float x, float y) {
+        public void OnMouseUp(float x, float y)
+        {
             isMousePressed = false;
-            preRenderQueue.Enqueue(() => {
+            preRenderQueue.Enqueue(() =>
+            {
                 MouseReleasedCore(x, y);
             });
             invalidate();
         }
-        public void OnMouseOver(float x, float y) {
+        public void OnMouseOver(float x, float y)
+        {
             pos = new Vector(x, y);
             var pressedValue = isMousePressed;
-            preRenderQueue.Enqueue(() => {
-                if(pressedValue)
+            preRenderQueue.Enqueue(() =>
+            {
+                if (pressedValue)
                     MouseDraggedCore(x, y);
                 else
                     MouseMovedCore(x, y);
             });
             invalidate();
         }
-        public void OnMouseLeave() {
+        public void OnMouseLeave()
+        {
             pos = null;
             invalidate();
         }
-        public void OnKeyPress(char key) {
-            preRenderQueue.Enqueue(() => {
+        public void OnKeyPress(char key)
+        {
+            preRenderQueue.Enqueue(() =>
+            {
                 KeyPressedCore(key);
             });
             invalidate();
@@ -107,39 +128,45 @@ namespace MetaArt {
         Stopwatch stopwatch = new();
         private bool disposedValue;
 
-        void MouseMovedCore(float mouseX, float mouseY) {
-            if(mouseMovedMethod == null)
+        void MouseMovedCore(float mouseX, float mouseY)
+        {
+            if (mouseMovedMethod == null)
                 return;
             SetMouse(mouseX, mouseY);
             mouseMovedMethod.Invoke(sketch, null);
         }
-        void MouseDraggedCore(float mouseX, float mouseY) {
-            if(mouseDraggedMethod == null)
+        void MouseDraggedCore(float mouseX, float mouseY)
+        {
+            if (mouseDraggedMethod == null)
                 return;
             SetMouse(mouseX, mouseY);
             mouseDraggedMethod.Invoke(sketch, null);
         }
 
-        void MousePressedCore(float mouseX, float mouseY) {
-            if(mousePressedMethod == null)
+        void MousePressedCore(float mouseX, float mouseY)
+        {
+            if (mousePressedMethod == null)
                 return;
             SetMouse(mouseX, mouseY);
             mousePressedMethod.Invoke(sketch, null);
         }
-        void MouseReleasedCore(float mouseX, float mouseY) {
-            if(mouseReleasedMethod == null)
+        void MouseReleasedCore(float mouseX, float mouseY)
+        {
+            if (mouseReleasedMethod == null)
                 return;
             SetMouse(mouseX, mouseY);
             mouseReleasedMethod.Invoke(sketch, null);
         }
-        void KeyPressedCore(char key) {
-            if(keyPressedMethod == null)
+        void KeyPressedCore(char key)
+        {
+            if (keyPressedMethod == null)
                 return;
             this.key = key;
             keyPressedMethod.Invoke(sketch, null);
         }
 
-        private void SetMouse(float? mouseX, float? mouseY) {
+        private void SetMouse(float? mouseX, float? mouseY)
+        {
             pmouseX = this.mouseX;
             pmouseY = this.mouseY;
             this.mouseX = mouseX ?? this.mouseX;
@@ -149,7 +176,8 @@ namespace MetaArt {
         int lastDrawTime = 0;
         public int DeltaTime { get; private set; }
         public int FrameCount { get; private set; }
-        protected void DrawCore(float? mouseX, float? mouseY) {
+        protected void DrawCore(float? mouseX, float? mouseY)
+        {
             var currentTime = (int)stopwatch.ElapsedMilliseconds;
             DeltaTime = currentTime - lastDrawTime;
             lastDrawTime = currentTime;
@@ -159,30 +187,37 @@ namespace MetaArt {
             FrameCount++;
             feedback(new PaintFeedback(TimeSpan.FromTicks(stopwatch.ElapsedTicks - drawTicks)));
         }
-        void SettingsCore() {
+        void SettingsCore()
+        {
             settingsMethod?.Invoke(sketch, null);
         }
-        protected void SetupCore() {
+        protected void SetupCore()
+        {
             stopwatch.Start();
             setupwMethod?.Invoke(sketch, null);
         }
 
-        protected virtual void Dispose(bool disposing) {
-            if(!disposedValue) {
-                if(disposing) {
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
                     Sketch.ClearPainter();
                 }
                 disposedValue = true;
             }
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
         protected TimeSpan? frameDistance;
-        public void SetFPS(float fps) {
-            this.frameDistance = TimeSpan.FromMilliseconds(1000 / fps);    
+        public void SetFPS(float fps)
+        {
+            this.frameDistance = TimeSpan.FromMilliseconds(1000 / fps);
         }
 
         internal float mouseX;
@@ -201,9 +236,11 @@ namespace MetaArt {
         float maxColorValue3 = 255;
         float maxColorValueA = 255;
 
-        internal Color color(float v1, float v2, float v3, float? a = null) {
+        internal Color color(float v1, float v2, float v3, float? a = null)
+        {
             a = a ?? maxColorValueA;
-            return _colorMode switch {
+            return _colorMode switch
+            {
                 ColorMode.RGB => new Color(
                     (byte)Sketch.map(v1, 0, maxColorValue1, 0, 255),
                     (byte)Sketch.map(v2, 0, maxColorValue2, 0, 255),
@@ -214,9 +251,11 @@ namespace MetaArt {
                 _ => throw new NotImplementedException(),
             };
         }
-        internal Color color(float v, float? a = null) {
+        internal Color color(float v, float? a = null)
+        {
             a = a ?? maxColorValueA;
-            return _colorMode switch {
+            return _colorMode switch
+            {
                 ColorMode.RGB => new Color(
                     (byte)Sketch.map(v, 0, maxColorValue1, 0, 255),
                     (byte)Sketch.map(v, 0, maxColorValue2, 0, 255),
@@ -227,7 +266,8 @@ namespace MetaArt {
                 _ => throw new NotImplementedException(),
             };
         }
-        Color FromHsv(float h, float s, float v, float a) {
+        Color FromHsv(float h, float s, float v, float a)
+        {
             h /= maxColorValue1;
             s /= maxColorValue2;
             v /= maxColorValue3;
@@ -235,16 +275,19 @@ namespace MetaArt {
             float red = v;
             float green = v;
             float blue = v;
-            if(Math.Abs(s) > 0.001f) {
+            if (Math.Abs(s) > 0.001f)
+            {
                 h *= 6f;
-                if(Math.Abs(h - 6f) < 0.001f) {
+                if (Math.Abs(h - 6f) < 0.001f)
+                {
                     h = 0f;
                 }
                 int num = (int)h;
                 float num2 = v * (1f - s);
                 float num3 = v * (1f - s * (h - (float)num));
                 float num4 = v * (1f - s * (1f - (h - (float)num)));
-                switch(num) {
+                switch (num)
+                {
                     case 0:
                         red = v;
                         green = num4;
@@ -280,14 +323,16 @@ namespace MetaArt {
             return new Color((byte)(255 * red), (byte)(255 * green), (byte)(255 * blue), (byte)(255 * a));
         }
 
-        internal void colorMode(ColorMode mode, float max) {
+        internal void colorMode(ColorMode mode, float max)
+        {
             _colorMode = mode;
             maxColorValue1 = max;
             maxColorValue2 = max;
             maxColorValue3 = max;
             maxColorValueA = max;
         }
-        internal void colorMode(ColorMode mode, float max1, float max2, float max3) {
+        internal void colorMode(ColorMode mode, float max1, float max2, float max3)
+        {
             _colorMode = mode;
             maxColorValue1 = max1;
             maxColorValue2 = max2;
@@ -299,13 +344,16 @@ namespace MetaArt {
         internal void RandomSeed(int seed) => rnd = new(seed);
 
         Pixels? pixelsContainer;
+
         internal Color[] pixels => pixelsContainer!.PixelsArray;
-        internal void loadPixels() {
-            if(pixelsContainer != null)
+        internal void loadPixels()
+        {
+            if (pixelsContainer != null)
                 throw new InvalidOperationException(); //TODO infomative exception
             pixelsContainer = Graphics.loadPixels();
         }
-        internal void updatePixels() {
+        internal void updatePixels()
+        {
             pixelsContainer!.UpdatePixelsAndDispose();
             pixelsContainer = null;
         }
