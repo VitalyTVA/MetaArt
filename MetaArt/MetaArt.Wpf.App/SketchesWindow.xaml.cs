@@ -31,6 +31,7 @@ namespace MetaArt.Wpf {
             InitializeComponent();
 
             var sketches = new[] {
+                "MetaArt.ThatButtonAgain.dll",
                 "MetaArt.Sketches.dll",
                 "MetaArt.Sketches.Skia.dll",
             }

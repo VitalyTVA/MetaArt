@@ -234,6 +234,8 @@ namespace MetaArt {
         public static float textAscent() => Graphics.textAscent();
         public static float textDescent() => Graphics.textDescent();
         public static float textWidth(string text) => Graphics.textWidth(text);
+
+        public static DeviceType deviceType() => Painter.deviceType;
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {
@@ -248,4 +250,5 @@ namespace MetaArt {
     public enum ColorMode { RGB, HSB }
     public enum TextAlign { LEFT, CENTER, RIGHT }
     public enum TextVerticalAlign { BASELINE, CENTER }
+    public enum DeviceType { Desktop, Mobile }
 }

@@ -49,13 +49,16 @@ namespace MetaArt {
 
         internal readonly float displayDensity;
 
-        protected PainterBase(Type sketchType, Graphics graphics, Action invalidate, Action<PaintFeedback> feedback, float displayDensity)
+        internal readonly DeviceType deviceType;
+
+        protected PainterBase(Type sketchType, Graphics graphics, Action invalidate, Action<PaintFeedback> feedback, float displayDensity, DeviceType deviceType)
         {
             this.invalidate = invalidate;
             this.feedback = feedback;
             Graphics = graphics;
             Sketch.Painter = this;
             this.displayDensity = displayDensity;
+            this.deviceType = deviceType;
 
             sketch = Activator.CreateInstance(sketchType);
             drawMethod = GetSkecthMethod(sketch.GetType(), "draw");

@@ -30,7 +30,7 @@ namespace MetaArt.Wpf {
             this.mouseWheel = mouseWheel;
             painter = new Painter(sketchType!, skglControl1.Invalidate, _ => {
                 SetLocation(ownerRect);
-            }, feedback);
+            }, feedback, displayDensity: 1, deviceType: DeviceType.Desktop);
             skglControl1.MouseMove += SkglControl1_MouseMove;
             skglControl1.MouseLeave += SkglControl1_MouseLeave;
             skglControl1.KeyDown += SkglControl1_KeyDown;

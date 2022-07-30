@@ -6,7 +6,8 @@ class Level1 {
     Game game = null!;
     void setup()
     {
-        //size(640, 360);
+        if(deviceType() == DeviceType.Desktop)
+            size(400, 700);
         fullRedraw();
         textFont(createFont("SourceCodePro-Regular.ttf", 30));
         textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
