@@ -24,8 +24,9 @@ public partial class SkecthPage : ContentPage
     public SkecthPage()
 	{
 		InitializeComponent();
-
-        this.view.HasRenderLoop = true;
+        if (Device.RuntimePlatform == Device.iOS) {
+            this.view.HasRenderLoop = true;
+        }
         this.view.PaintSurface += (o, e) => {
             if (painter == null) {
                 //Dispatcher.BeginInvokeOnMainThread(() => {
@@ -37,6 +38,7 @@ public partial class SkecthPage : ContentPage
 
             painter?.PaintSurface(e.Surface);
         };
+        
         this.view.EnableTouchEvents = true;
         this.view.Touch += (o, e) => {
             if (e.ActionType == SkiaSharp.Views.Forms.SKTouchAction.Pressed) {
@@ -63,9 +65,10 @@ public partial class SkecthPage : ContentPage
             info.Type,
             () =>
             {
-                //if (Device.RuntimePlatform == Device.Android) {
-                //    this.view.InvalidateSurface();
-                //}
+                if (Device.RuntimePlatform == Device.Android) {
+                    //this.view.InvalidateSurface();
+                    this.Dispatcher.BeginInvokeOnMainThread(this.view.InvalidateSurface);
+                }
 #if ANDROID
                 //this.view.InvalidateSurface();
 #else
@@ -85,7 +88,9 @@ public partial class SkecthPage : ContentPage
         painter.SetSize((int)view.CanvasSize.Width, (int)view.CanvasSize.Height);
 
         this.view.InvalidateSurface();
-        //this.title.Text = info.Name;
+        this.Dispatcher.BeginInvokeOnMainThread(() => {
+            this.title.Text = info.Name;
+        });
         currentSketch = info;
         
     }
@@ -95,16 +100,23 @@ public partial class SkecthPage : ContentPage
 
     //}
     protected override bool OnBackButtonPressed() {
+        DisposePainter();
+        return base.OnBackButtonPressed();
+    }
+
+    private void DisposePainter() {
         painter?.Dispose();
         painter = null;
-        return base.OnBackButtonPressed();
     }
 
     void Button_Clicked(System.Object sender, System.EventArgs e) {
         var list = Sketch!.Lists;
         var index = list.IndexOf(currentSketch!) - 1;
         if (index < 0) index = list.Count - 1;
-        ShowSketch(list[index]);
+        DisposePainter();
+        this.Sketch = new SketchNavInfo(list[index], this.Sketch!.Lists);
+        view.InvalidateSurface();
+        //ShowSketch(list[index]);
     }
 
     void Button_Clicked_1(System.Object sender, System.EventArgs e)
@@ -112,7 +124,10 @@ public partial class SkecthPage : ContentPage
         var list = Sketch!.Lists;
         var index = list.IndexOf(currentSketch!) + 1;
         if (index >= list.Count) index = list.Count;
-        ShowSketch(list[index]);
+        DisposePainter();
+        this.Sketch = new SketchNavInfo(list[index], this.Sketch!.Lists);
+        view.InvalidateSurface();
+        //ShowSketch(list[index]);
     }
 }
 
