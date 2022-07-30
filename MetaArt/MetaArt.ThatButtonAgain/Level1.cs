@@ -4,22 +4,32 @@ namespace ThatButtonAgain;
 class Level1 {
 
     Game game = null!;
-
     void setup()
     {
         //size(640, 360);
         fullRedraw();
-        textFont(createFont("SourceCodePro-Regular.ttf", 100));
+        textFont(createFont("SourceCodePro-Regular.ttf", 30));
         textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
         rectMode(CORNER);
         game = new Game(width, height);
-        game.AddElement(new Button { Rect = SKRect.Create(100, 100, 400, 200) });
+
+        const int buttonWidth = 100;
+        const int buttonHeight = 50;
+
+        game.AddElement(new Button {
+            Rect = new SKRect(
+                width / displayDensity() / 2 - buttonWidth / 2,
+                height / displayDensity() / 2 - buttonHeight / 2,
+                width / displayDensity() / 2 + buttonWidth / 2,
+                height / displayDensity() / 2 + buttonHeight / 2
+            )
+        });
 
         int index = 0;
         foreach (var letter in "TOUCH")
         {
             game.AddElement(new Letter() {
-                Rect = SKRect.Create(110 + index * 150, 110, 100, 100),
+                Rect = SKRect.Create(110 + index * 70, 110, 50, 50),
                 Value = letter
             });
             index++;
@@ -30,9 +40,9 @@ class Level1 {
     void draw()
     {
         background(0);
+        scale(displayDensity(), displayDensity());
 
-        foreach (var item in game.Elements)
-        {
+        foreach (var item in game.Elements) {
             switch (item) {
                 case Button:
                     fill(White);
@@ -42,7 +52,7 @@ class Level1 {
                     fill(new Color(255, 0, 0));
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     fill(new Color(0, 255, 0));
-                    text(l.Value.ToString(), item.Rect.MidX, item.Rect.MidY - 10);
+                    text(l.Value.ToString(), item.Rect.MidX, item.Rect.MidY);
                     break;
             }
         }
@@ -87,7 +97,7 @@ class Level1 {
         xOffset = mouseX - bx;
         yOffset = mouseY - by;
         */
-        game.Press(new SKPoint(mouseX, mouseY));
+        game.Press(new SKPoint(mouseX / displayDensity(), mouseY / displayDensity()));
         loop();
     }
 
@@ -100,7 +110,7 @@ class Level1 {
             by = mouseY - yOffset;
         }
         */
-        game.Drag(new SKPoint(mouseX, mouseY));
+        game.Drag(new SKPoint(mouseX / displayDensity(), mouseY / displayDensity()));
     }
 
     void mouseReleased()

@@ -24,6 +24,11 @@ public partial class SkecthPage : ContentPage
 		InitializeComponent();
 
         this.view.PaintSurface += (o, e) => {
+            if (painter == null) {
+                var (info, _) = Sketch!;
+                ShowSketch(info);
+            }
+
             painter?.PaintSurface(e.Surface);
         };
         this.view.EnableTouchEvents = true;
@@ -48,8 +53,8 @@ public partial class SkecthPage : ContentPage
         base.OnNavigatedTo(args);
         //        painter?.Dispose();
 
-        var (info, _) = Sketch!;
-        ShowSketch(info);
+        //var (info, _) = Sketch!;
+        //ShowSketch(info);
 
     }
 
@@ -72,7 +77,7 @@ public partial class SkecthPage : ContentPage
             size => {
             },
             feedback => {
-                fpsLabel.Text = feedback.DrawTime.TotalMilliseconds.ToString();
+                fpsLabel.Text = ((int)feedback.DrawTime.TotalMilliseconds).ToString();
             },
             displayDensity: (float)DeviceDisplay.MainDisplayInfo.Density
         );
