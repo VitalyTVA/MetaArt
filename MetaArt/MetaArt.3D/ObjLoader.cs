@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Globalization;
+using System.Numerics;
 using System.Text.RegularExpressions;
 
 namespace MetaArt.D3;
@@ -46,9 +47,9 @@ public static class ObjLoader {
                 var split = l.Split(' ');
                 //TODO invariant culture to parse
                 Vector3 vertice = new Vector3(
-                    float.Parse(split[1]) * options.scale,
-                    float.Parse(split[2]) * options.scale,
-                    -float.Parse(split[3]) * options.scale
+                    float.Parse(split[1], CultureInfo.InvariantCulture) * options.scale,
+                    float.Parse(split[2], CultureInfo.InvariantCulture) * options.scale,
+                    -float.Parse(split[3], CultureInfo.InvariantCulture) * options.scale
                 );
                 if(options.rotation is not null)
                     vertice = Vector3.Transform(vertice, options.rotation.Value);
@@ -59,9 +60,9 @@ public static class ObjLoader {
                 var split = l.Substring(2).Split(' ');
                 for(int i = 0; i + 2 < split.Length; i += 1) {
                     var (i1, i2, i3) = (
-                        int.Parse(split[0]) - 1 - startIndex,
-                        int.Parse(split[i + 1]) - 1 - startIndex,
-                        int.Parse(split[i + 2]) - 1 - startIndex
+                        int.Parse(split[0], CultureInfo.InvariantCulture) - 1 - startIndex,
+                        int.Parse(split[i + 1], CultureInfo.InvariantCulture) - 1 - startIndex,
+                        int.Parse(split[i + 2], CultureInfo.InvariantCulture) - 1 - startIndex
                     );
                     if(options.invert)
                         (i1, i3) = (i3, i1);

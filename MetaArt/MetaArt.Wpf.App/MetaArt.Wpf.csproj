@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -8,10 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="2.88.0-preview.179" />
+    <PackageReference Include="SkiaSharp" Version="2.88.1-preview.91" />
 	<PackageReference Include="OpenTK" Version="3.1.0" NoWarn="NU1701" />
 	<PackageReference Include="OpenTK.GLControl" Version="3.1.0" NoWarn="NU1701" />
-	<PackageReference Include="SkiaSharp.Views.WindowsForms" Version="2.88.0-preview.179" />
+	<PackageReference Include="SkiaSharp.Views.WindowsForms" Version="22.88.1-preview.91" />
   </ItemGroup>
 
   <ItemGroup>

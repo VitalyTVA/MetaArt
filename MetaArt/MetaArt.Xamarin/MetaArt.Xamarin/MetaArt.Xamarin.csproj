@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2196" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
+    <PackageReference Include="SkiaSharp.Views.Forms" Version="2.88.1-preview.91" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\MetaArt.3D\MetaArt.3D.csproj" />
+    <ProjectReference Include="..\..\MetaArt.Sketches.Skia\MetaArt.Sketches.Skia.csproj" />
+    <ProjectReference Include="..\..\MetaArt.Sketches\MetaArt.Sketches.csproj" />
+    <ProjectReference Include="..\..\MetaArt.SkiaSharp\MetaArt.Skia.csproj" />
+    <ProjectReference Include="..\..\MetaArt.ThatButtonAgain\MetaArt.ThatButtonAgain.csproj" />
+    <ProjectReference Include="..\..\MetaArt\MetaArt.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="SkiaSharp.Views.Forms" />
+  </ItemGroup>
+</Project>

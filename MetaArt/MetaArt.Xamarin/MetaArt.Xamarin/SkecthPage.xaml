@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:controls="clr-namespace:SkiaSharp.Views.Forms;assembly=SkiaSharp.Views.Forms" 
+             x:Class="MetaArt.Xamarin.SkecthPage">
+    <!--<Shell.TitleView>
+        <Grid ColumnDefinitions="*,Auto">
+            <Label x:Name="title" />
+
+            <StackLayout Grid.Column="1" Orientation="Horizontal">
+                <Label x:Name="fpsLabel" WidthRequest="100"/>
+                <Button Text="&lt;" Clicked="Button_Clicked"/>
+                <Button Text=">" Clicked="Button_Clicked_1"/>
+            </StackLayout>
+        </Grid>
+    </Shell.TitleView>-->
+    <Grid BackgroundColor="LightBlue" Padding="10" RowDefinitions="Auto,*">
+                <Grid ColumnDefinitions="*,Auto">
+            <Label x:Name="title" />
+
+            <StackLayout Grid.Column="1" Orientation="Horizontal">
+                <Label x:Name="fpsLabel" WidthRequest="100"/>
+                <Button Text="&lt;" Clicked="Button_Clicked"/>
+                <Button Text=">" Clicked="Button_Clicked_1"/>
+            </StackLayout>
+        </Grid>
+        <controls:SKGLView x:Name="view" Grid.Row="1"/>
+    </Grid>
+</ContentPage>
+
