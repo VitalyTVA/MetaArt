@@ -79,7 +79,8 @@ public partial class SkecthPage : ContentPage
             feedback => {
                 fpsLabel.Text = ((int)feedback.DrawTime.TotalMilliseconds).ToString();
             },
-            displayDensity: (float)DeviceDisplay.MainDisplayInfo.Density
+            displayDensity: (float)DeviceDisplay.MainDisplayInfo.Density,
+            deviceType: DeviceType.Mobile
         );
 
         painter.SetSize((int)view.CanvasSize.Width, (int)view.CanvasSize.Height);
