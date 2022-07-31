@@ -6,33 +6,44 @@ namespace ThatButtonAgain;
 class Level1 {
 
     Game game = null!;
+    float letterVerticalOffset;
     void setup()
     {
         if(deviceType() == DeviceType.Desktop)
             size(400, 700);
         fullRedraw();
-        textFont(createFont("SourceCodePro-Regular.ttf", 30));
         textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
         rectMode(CORNER);
         game = new Game(width, height);
 
-        const int buttonWidth = 100;
-        const int buttonHeight = 50;
+        var buttonWidth = game.width * Constants.ButtonRelativeWidth;
+        var buttonHeight = buttonWidth * Constants.ButtonHeightRatio;
+        var letterSize = buttonHeight * Constants.LetterHeightRatio;
+        textFont(createFont("SourceCodePro-Regular.ttf", letterSize));
+        var letterDragBoxSize = buttonHeight * Constants.LetterDragBoxRatio;
+        letterVerticalOffset = letterSize * Constants.LetterVerticalOffsetRatio;
 
-        game.AddElement(new Button {
+        var letterHorzStep = buttonWidth * Constants.LetterHorizontalStepRatio;
+
+
+        var button = new Button {
             Rect = new Rect(
                 width / displayDensity() / 2 - buttonWidth / 2,
                 height / displayDensity() / 2 - buttonHeight / 2,
                 buttonWidth,
                 buttonHeight
             )
-        });
+        };
+        game.AddElement(button);
 
         int index = 0;
         foreach (var letter in "TOUCH")
         {
             game.AddElement(new Letter() {
-                Rect = new Rect(110 + index * 70, 110, 50, 50),
+                Rect = Rect.FromCenter(
+                    button.Rect.Mid + new Vector2(( index - 2) * letterHorzStep, 0), 
+                    new Vector2(letterDragBoxSize, letterDragBoxSize)
+                ),
                 Value = letter
             });
             index++;
@@ -42,77 +53,34 @@ class Level1 {
 
     void draw()
     {
-        background(0);
+        background(Constants.Background);
         scale(displayDensity(), displayDensity());
+        noStroke();
 
         foreach (var item in game.Elements) {
             switch (item) {
-                case Button:
-                    fill(White);
+                case Button b:
+                    fill(b.IsPressed ? Constants.ButtonBackPressed : Constants.ButtonBackNormal);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     break;
                 case Letter l:
-                    fill(new Color(255, 0, 0));
+                    fill(Constants.LetterDragBox);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
-                    fill(new Color(0, 255, 0));
-                    text(l.Value.ToString(), item.Rect.MidX, item.Rect.MidY);
+                    fill(Constants.LetterColor);
+                    text(l.Value.ToString(), item.Rect.MidX, item.Rect.MidY - letterVerticalOffset);
                     break;
             }
         }
-
-
-        /*
-        // Test if the cursor is over the box 
-        if (mouseX > bx - boxSize && mouseX < bx + boxSize &&
-            mouseY > by - boxSize && mouseY < by + boxSize)
-        {
-            overBox = true;
-            if (!locked)
-            {
-                stroke(255);
-                fill(153);
-            }
-        }
-        else
-        {
-            stroke(153);
-            fill(153);
-            overBox = false;
-        }
-
-        // Draw the box
-        rect(bx, by, boxSize, boxSize);
-        */
     }
 
     void mousePressed()
     {
-        /*
-        if (overBox)
-        {
-            locked = true;
-            fill(255, 255, 255);
-        }
-        else
-        {
-            locked = false;
-        }
-        xOffset = mouseX - bx;
-        yOffset = mouseY - by;
-        */
         game.Press(new System.Numerics.Vector2(mouseX / displayDensity(), mouseY / displayDensity()));
         loop();
     }
 
     void mouseDragged()
     {
-        /*
-        if (locked)
-        {
-            bx = mouseX - xOffset;
-            by = mouseY - yOffset;
-        }
-        */
         game.Drag(new Vector2(mouseX / displayDensity(), mouseY / displayDensity()));
     }
 
@@ -121,6 +89,23 @@ class Level1 {
         //locked = false;
         game.Release();
         noLoop();
+    }
+
+    static class Constants {
+        public static float ButtonRelativeWidth => 0.6f;
+        public static float ButtonHeightRatio => 1f / 3f;
+
+        public static float LetterHeightRatio => 3f / 4f;
+        public static float LetterVerticalOffsetRatio => 1f / 8f;
+        public static float LetterDragBoxRatio => 3f / 4f;
+        public static float LetterHorizontalStepRatio => 0.17f;
+
+
+        public static Color LetterColor => new Color(0, 0, 0);
+        public static Color LetterDragBox => new Color(120, 0, 0, 10);
+        public static Color Background => new Color(100, 100, 100);
+        public static Color ButtonBackNormal => new Color(255, 255, 255);
+        public static Color ButtonBackPressed => new Color(200, 200, 200);
     }
 }
 

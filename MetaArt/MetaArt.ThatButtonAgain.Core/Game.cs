@@ -1,7 +1,7 @@
 ﻿
 namespace MetaArt.Core;
 public class Game {
-    readonly int width, height;
+    public readonly int width, height;
 
     InputState inputState;
     readonly NoInputState noInputState;
@@ -40,10 +40,13 @@ public class Game {
 }
 
 public record struct Rect(Vector2 Location, Vector2 Size) {
+    public static Rect FromCenter(Vector2 center, Vector2 size) => new Rect(center - size / 2, size);
+
     public float Left => Location.X;
     public float Top => Location.Y;
     public float Width => Size.X;
     public float Height => Size.Y;
+    public Vector2 Mid => Location + Size / 2;
     public float MidX => Location.X + Size.X / 2;
     public float MidY => Location.Y + Size.Y / 2;
 
@@ -67,6 +70,15 @@ public abstract class Element {
 
 public class Button : Element {
     public bool IsEnabled { get; set; }
+    public bool IsPressed { get; set; }
+    public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
+        return new TapInputState(
+            () => {
+                Debug.WriteLine("Click");
+            },
+            setState: isPressed => IsPressed = isPressed,
+            releaseState);
+    }
 }
 
 public class Letter : Element {
@@ -127,6 +139,33 @@ public class DragInputState : InputState {
     }
 
     public override InputState Release() {
+        return releaseState;
+    }
+}
+
+public class TapInputState : InputState {
+    readonly Action onTap;
+    readonly Action<bool> setState;
+    readonly InputState releaseState;
+
+    public TapInputState(Action onTap, Action<bool> setState, InputState releaseState) {
+        this.onTap = onTap;
+        this.setState = setState;
+        this.releaseState = releaseState;
+        setState(true);
+    }
+
+    public override InputState Drag(Vector2 point) {
+        return this;
+    }
+
+    public override InputState Press(Vector2 point) {
+        throw new InvalidOperationException();
+    }
+
+    public override InputState Release() {
+        setState(false);
+        onTap();
         return releaseState;
     }
 }
