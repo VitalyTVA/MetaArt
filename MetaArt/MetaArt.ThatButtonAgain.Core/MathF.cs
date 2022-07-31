@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace MetaArt.D3;
+namespace MetaArt.Core;
 public static class MathFEx {
     public const float PI = (float)Math.PI;
     const float delta = 0.0002f;
