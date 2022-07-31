@@ -181,14 +181,19 @@ namespace MetaArt {
         public int FrameCount { get; private set; }
         protected void DrawCore(float? mouseX, float? mouseY)
         {
-            var currentTime = (int)stopwatch.ElapsedMilliseconds;
-            DeltaTime = currentTime - lastDrawTime;
-            lastDrawTime = currentTime;
-            SetMouse(mouseX, mouseY);
-            var drawTicks = stopwatch.ElapsedTicks;
-            drawMethod?.Invoke(sketch, null);
-            FrameCount++;
-            feedback(new PaintFeedback(TimeSpan.FromTicks(stopwatch.ElapsedTicks - drawTicks)));
+            try {
+                var currentTime = (int)stopwatch.ElapsedMilliseconds;
+                DeltaTime = currentTime - lastDrawTime;
+                lastDrawTime = currentTime;
+                SetMouse(mouseX, mouseY);
+                var drawTicks = stopwatch.ElapsedTicks;
+                drawMethod?.Invoke(sketch, null);
+                FrameCount++;
+                feedback(new PaintFeedback(TimeSpan.FromTicks(stopwatch.ElapsedTicks - drawTicks)));
+            } catch(Exception e) {
+                var ignore = e;
+                throw;
+            }
         }
         void SettingsCore()
         {

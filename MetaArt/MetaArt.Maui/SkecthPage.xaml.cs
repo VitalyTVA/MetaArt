@@ -23,13 +23,25 @@ public partial class SkecthPage : ContentPage
 	{
 		InitializeComponent();
 
+#if ANDROID
+        //this.view.InvalidateSurface();
+#elif IOS
+        this.view.HasRenderLoop = true;
+#endif
+
         this.view.PaintSurface += (o, e) => {
+#if IOS
+            if (view.CanvasSize.IsEmpty)
+                return;
+#endif
             if (painter == null) {
                 var (info, _) = Sketch!;
                 ShowSketch(info);
+                return;
             }
 
             painter?.PaintSurface(e.Surface);
+            //e.Surface.Canvas.();
         };
         this.view.EnableTouchEvents = true;
         this.view.Touch += (o, e) => {
@@ -58,6 +70,11 @@ public partial class SkecthPage : ContentPage
 
     }
 
+    private void DisposePainter() {
+        painter?.Dispose();
+        painter = null;
+    }
+
     SketchDisplayInfo? currentSketch;
     private void ShowSketch(SketchDisplayInfo info)
     {
@@ -69,15 +86,17 @@ public partial class SkecthPage : ContentPage
             () =>
             {
 #if ANDROID
-                this.view.InvalidateSurface();
-#else
                 this.Dispatcher.Dispatch(this.view.InvalidateSurface);
+#elif IOS
+                //this.Dispatcher.Dispatch(this.view.InvalidateSurface);
 #endif
             },
             size => {
             },
             feedback => {
+#if IOS
                 fpsLabel.Text = ((int)feedback.DrawTime.TotalMilliseconds).ToString();
+#endif
             },
             displayDensity: (float)DeviceDisplay.MainDisplayInfo.Density,
             deviceType: DeviceType.Mobile
@@ -86,15 +105,17 @@ public partial class SkecthPage : ContentPage
         painter.SetSize((int)view.CanvasSize.Width, (int)view.CanvasSize.Height);
 
         this.view.InvalidateSurface();
-        this.title.Text = info.Name;
+        this.Dispatcher.Dispatch(() => {
+            this.title.Text = info.Name;
+        });
         currentSketch = info;
     }
 
     protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
     {
         base.OnNavigatedFrom(args);
-        painter?.Dispose();
-        painter = null;
+        DisposePainter();
+        this.view.HasRenderLoop = false;
     }
 
     void Button_Clicked(System.Object sender, System.EventArgs e)
@@ -102,7 +123,10 @@ public partial class SkecthPage : ContentPage
         var (_, list) = Sketch!;
         var index = list.IndexOf(currentSketch!) - 1;
         if (index < 0) index = list.Count - 1;
-        ShowSketch(list[index]);
+        DisposePainter();
+        this.Sketch = new SketchNavInfo(list[index], this.Sketch!.Lists);
+        view.InvalidateSurface();
+        //ShowSketch(list[index]);
     }
 
     void Button_Clicked_1(System.Object sender, System.EventArgs e)
@@ -110,7 +134,10 @@ public partial class SkecthPage : ContentPage
         var (_, list) = Sketch!;
         var index = list.IndexOf(currentSketch!) + 1;
         if (index >= list.Count) index = list.Count;
-        ShowSketch(list[index]);
+        DisposePainter();
+        this.Sketch = new SketchNavInfo(list[index], this.Sketch!.Lists);
+        view.InvalidateSurface();
+        //ShowSketch(list[index]);
     }
 }
 

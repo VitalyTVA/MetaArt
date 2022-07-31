@@ -15,7 +15,7 @@
         </Grid>
     </Shell.TitleView>
     <Grid BackgroundColor="LightBlue" Padding="10">
-        <controls:SKCanvasView Grid.Row="1" x:Name="view"/>
+       <controls:SKGLView x:Name="view"/>
     </Grid>
 </ContentPage>
 

@@ -30,9 +30,12 @@ public partial class MainPage : ContentPage
         }; 
 
     }
+    bool loaded = false;
 
     protected override void OnNavigatedTo(NavigatedToEventArgs args)
     {
+        if (loaded) return;
+        loaded = true;
         base.OnNavigatedTo(args);
         var name = Preferences.Get("SketchName", default(string));
         Preferences.Remove("SketchName");
