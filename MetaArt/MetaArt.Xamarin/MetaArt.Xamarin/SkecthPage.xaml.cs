@@ -1,4 +1,5 @@
 ﻿using MetaArt.Skia;
+using SkiaSharp;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -29,10 +30,9 @@ public partial class SkecthPage : ContentPage
         }
         this.view.PaintSurface += (o, e) => {
             if (painter == null) {
-                //Dispatcher.BeginInvokeOnMainThread(() => {
-                   var info = Sketch!.Current;
-                    ShowSketch(info);
-                //});
+                var info = Sketch!.Current;
+                ShowSketch(info);
+                e.Surface.Canvas.Clear(SKColors.Black);
                 return;
             }
 
@@ -75,8 +75,6 @@ public partial class SkecthPage : ContentPage
                 //this.Dispatcher.BeginInvokeOnMainThread(this.view.InvalidateSurface);
 #endif
             },
-            size => {
-            },
             feedback => {
                 if (Device.RuntimePlatform == Device.iOS) {
                     fpsLabel.Text = ((int)feedback.DrawTime.TotalMilliseconds).ToString();
@@ -85,8 +83,8 @@ public partial class SkecthPage : ContentPage
             displayDensity: (float)DeviceDisplay.MainDisplayInfo.Density,
             deviceType: DeviceType.Mobile
         );
-
         painter.SetSize((int)view.CanvasSize.Width, (int)view.CanvasSize.Height);
+        painter.Setup();
 
         this.view.InvalidateSurface();
         this.Dispatcher.BeginInvokeOnMainThread(() => {

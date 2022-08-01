@@ -37,6 +37,7 @@ public partial class SkecthPage : ContentPage
             if (painter == null) {
                 var (info, _) = Sketch!;
                 ShowSketch(info);
+                e.Surface.Canvas.Clear(SkiaSharp.SKColors.Black);
                 return;
             }
 
@@ -91,8 +92,6 @@ public partial class SkecthPage : ContentPage
                 //this.Dispatcher.Dispatch(this.view.InvalidateSurface);
 #endif
             },
-            size => {
-            },
             feedback => {
 #if IOS
                 fpsLabel.Text = ((int)feedback.DrawTime.TotalMilliseconds).ToString();
@@ -103,6 +102,7 @@ public partial class SkecthPage : ContentPage
         );
 
         painter.SetSize((int)view.CanvasSize.Width, (int)view.CanvasSize.Height);
+        painter.Setup();
 
         this.view.InvalidateSurface();
         this.Dispatcher.Dispatch(() => {
