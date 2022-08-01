@@ -222,11 +222,6 @@ namespace MetaArt {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-        protected TimeSpan? frameDistance;
-        public void SetFPS(float fps)
-        {
-            this.frameDistance = TimeSpan.FromMilliseconds(1000 / fps);
-        }
 
         internal float mouseX;
         internal float mouseY;

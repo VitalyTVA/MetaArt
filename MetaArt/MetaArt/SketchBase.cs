@@ -206,8 +206,6 @@ namespace MetaArt {
         public static void loadPixels() => Painter.loadPixels();
         public static void updatePixels() => Painter.updatePixels();
 
-        public static void frameRate(float fps) => Painter.SetFPS(fps);
-
         public static PImage loadImage(string filename) {
             var stream = GetStream(filename);
             return Graphics.createImage(stream);

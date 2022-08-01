@@ -18,7 +18,6 @@ class RecursiveTree {
 
     void draw() {
         background(0);
-        frameRate(30);
         stroke(255);
         // Let's pick an angle 0 to 90 degrees based on the mouse position
         float a = (mouseX / (float)width) * 90f;

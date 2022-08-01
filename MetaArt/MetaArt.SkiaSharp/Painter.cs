@@ -23,7 +23,6 @@ namespace MetaArt.Skia {
         SKImage? draw;
         bool drawn = false;
 
-        DateTime? lastFrame;
         public void PaintSurface(SKSurface surface) {
             if(draw != null) {
                 surface.Canvas.DrawImage(draw, 0, 0);
@@ -31,10 +30,6 @@ namespace MetaArt.Skia {
                     return;
             }
             surface.Canvas.Translate(.5f, .5f);
-            if(frameDistance != null && lastFrame != null && (DateTime.Now - lastFrame) < frameDistance.Value.Add(TimeSpan.FromMilliseconds(-3))) {
-                invalidate();
-                return;
-            }
             void TakeSnapshot() {
                 if (draw != null)
                     draw.Dispose();
@@ -57,7 +52,6 @@ namespace MetaArt.Skia {
                 if(!NoLoop)
                     invalidate();
             }
-            lastFrame = DateTime.Now;
         }
 
         SKSurface? sKSurface;

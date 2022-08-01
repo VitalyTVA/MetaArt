@@ -19,7 +19,6 @@ class Bounce {
     void setup() {
         size(640, 360);
         noStroke();
-        frameRate(30);
         ellipseMode(RADIUS);
         // Set the starting position of the shape
         xpos = width / 2;

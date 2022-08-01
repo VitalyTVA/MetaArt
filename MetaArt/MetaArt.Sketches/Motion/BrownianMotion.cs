@@ -19,7 +19,6 @@ class BrownianMotion {
             ax[i] = width / 2;
             ay[i] = height / 2;
         }
-        frameRate(30);
     }
 
     void draw() {
