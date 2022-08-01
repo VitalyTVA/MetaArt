@@ -10,7 +10,6 @@ class Mandelbrot {
     void setup() {
         size(640, 360);
         noLoop();
-        background(0);
     }
 
     void draw() {

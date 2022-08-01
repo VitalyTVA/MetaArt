@@ -6,10 +6,11 @@ class GetSetPixels {
     void setup() {
         size(640, 360);
         noLoop();
-        background(0);
     }
 
     void draw() {
+        background(0);
+
         var stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
         using var shot = Surface.Snapshot();

@@ -2,10 +2,12 @@
 class MousePressed {
     void setup() {
         size(200, 200);
-        background(150);
     }
 
     void draw() {
+        if(frameCount == 0) {
+            background(150);
+        }
         // This is a trick to create a motion blur,
         // Instead of clearing each frame with pure black,
         // we use black with (N/255)% opacity

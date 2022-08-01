@@ -29,7 +29,6 @@ class KeyboardFunctions {
         size(640, 360);
         noStroke();
         colorMode(HSB, numChars);
-        background(numChars / 2);
         // Set a hue value for each key
         for(int i = 0; i < numChars; i++) {
             colors[i] = color(i, numChars, numChars);

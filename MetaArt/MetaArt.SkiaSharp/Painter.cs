@@ -19,7 +19,6 @@ namespace MetaArt.Skia {
             invalidate();
         }
 
-        bool setUp = false;
         SKImage? draw;
         bool drawn = false;
 
@@ -30,28 +29,16 @@ namespace MetaArt.Skia {
                     return;
             }
             surface.Canvas.Translate(.5f, .5f);
-            void TakeSnapshot() {
-                if (draw != null)
-                    draw.Dispose();
-                draw = null;
-                if (!fullRedraw)
-                    draw = surface.Snapshot();
-            };
             SKSurface = surface;
-            if(!setUp) {
-                Sketch.background(255 / 2);
-                Setup();
-                TakeSnapshot();
-                setSize(new Vector(Width, Height));
-                setUp = true;
+            Draw();
+            drawn = true;
+            if(draw != null)
+                draw.Dispose();
+            draw = null;
+            if(!fullRedraw)
+                draw = surface.Snapshot();
+            if(!NoLoop)
                 invalidate();
-            } else {
-                Draw();
-                drawn = true;
-                TakeSnapshot();
-                if(!NoLoop)
-                    invalidate();
-            }
         }
 
         SKSurface? sKSurface;
@@ -63,17 +50,15 @@ namespace MetaArt.Skia {
             }
         }
 
-        readonly Action<Vector> setSize;
 
-        public Painter(Type sketchType, Action invalidate, Action<Vector> setSize, Action<PaintFeedback> feedback, float displayDensity, DeviceType deviceType) 
+        public Painter(Type sketchType, Action invalidate, Action<PaintFeedback> feedback, float displayDensity, DeviceType deviceType) 
             : base(sketchType, new SkiaGraphics(), invalidate, feedback, displayDensity, deviceType) {
-            this.setSize = setSize;
         }
 
         void ClearSurface() {
             sKSurface = null;
         }
-        void Setup() {
+        public void Setup() {
             SetupCore();
             ClearSurface();
         }

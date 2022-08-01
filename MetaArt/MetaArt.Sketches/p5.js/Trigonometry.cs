@@ -6,8 +6,7 @@ class Trigonometry {
     void setup() {
         size(400, 400);
 
-        // We set the background to black when the canvas is setup
-        background(Black);
+
     }
 
     //// On window resize, update the canvas size
@@ -21,6 +20,11 @@ class Trigonometry {
 
     // Render loop that draws shapes
     void draw() {
+        if(frameCount == 0) {
+            // We set the background to black when the canvas is setup
+            background(Black);
+            return;
+        }
         // This is a trick to create a motion blur,
         // Instead of clearing each frame with pure black,
         // we use black with (N/255)% opacity

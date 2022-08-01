@@ -5,11 +5,6 @@ class HeavyAnimations {
         size(400, 400);
     }
 
-    void setup() {
-        background(150);
-    }
-
-
     void draw() {
         Thread.Sleep(500);
         background(Black);

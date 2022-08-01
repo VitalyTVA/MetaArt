@@ -80,22 +80,19 @@ div.scrollable {
 
         painter?.Dispose();
         selectedSkecth = info;
-        first = true;
-        viewStyle = "height:1080px; width:1920px;";
+        //viewStyle = "height:1080px; width:1920px;";
         StateHasChanged();
         painter = new Painter(
             info.Type,
             () => { },
-            size => {
-                viewStyle = $"height:{painter!.Height}px; width:{painter!.Width}px;";
-                StateHasChanged();
-            },
             _ => {
             },
             displayDensity: 1,
             deviceType: DeviceType.Desktop
         );
-
+        painter.Setup();
+        viewStyle = $"height:{painter!.Height}px; width:{painter!.Width}px;";
+        StateHasChanged();
     }
     void SelectGroup(IGrouping<string, SketchDisplayInfo> group) {
         selectedGroup = group;
@@ -110,15 +107,7 @@ div.scrollable {
 
     void OnKeyPress(KeyboardEventArgs e) => painter.OnKeyPress(e.Key[0]);
 
-    bool first = true;
     void OnPaintSurface(SKPaintGLSurfaceEventArgs e) {
-        if(first) {
-            e.Surface.Canvas.Clear();
-            viewStyle = "height:1080px; width:1920px;";
-            StateHasChanged();
-            first = false;
-            return;
-        }
         if(painter == null) return;
 
         painter.PaintSurface(e.Surface);

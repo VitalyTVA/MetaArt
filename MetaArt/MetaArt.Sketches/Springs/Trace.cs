@@ -2,7 +2,6 @@
 class Trace {
     void setup() {
         size(600, 600);
-        background(0);
 
         var setups = new[] { 
             //Simulations.createUnbalancedSpringPendulum(),

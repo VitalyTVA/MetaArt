@@ -12,10 +12,12 @@ class MousePressed {
         size(640, 360);
         noSmooth();
         fill(126);
-        background(102);
     }
 
     void draw() {
+        if(frameCount == 0) {
+            background(102);
+        }
         if(isMousePressed) {
             stroke(255);
         } else {

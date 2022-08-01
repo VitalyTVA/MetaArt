@@ -6,15 +6,14 @@ class BlurredLine {
 	SKPoint[] p = null!;
     void setup() {
         size(400, 400);
-        background(0);
 
         p = Enumerable.Range(0, 20).Select(x => new SKPoint(x * 20, height / 2)).ToArray();
 	}
 
     void draw() {
-		
+        background(0);
 
-		noFill();
+        noFill();
         stroke(255, 5);
         for(int j = 0; j < 1000; j++) {
             using var path = Curve.CreateSpline(p);

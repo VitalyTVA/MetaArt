@@ -13,7 +13,6 @@ class Keyboard {
     void setup() {
         size(640, 360);
         noStroke();
-        background(0);
         rectWidth = width / 4;
     }
 

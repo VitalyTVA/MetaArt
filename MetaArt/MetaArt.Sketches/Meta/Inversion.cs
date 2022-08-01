@@ -15,6 +15,9 @@ class Inversion {
     float lastPressedY;
     float r = 100;
     void draw() {
+        if(frameCount == 0) {
+            background(0);
+        }
         translate(width / 2, height / 2);
         circle(0, 0, r  * 2);
         if(isMousePressed) {
