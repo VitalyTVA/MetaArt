@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using MetaArt.Core;
 using MetaArt.D3;
 using Vector = MetaArt.Vector;
 
@@ -46,44 +47,6 @@ class Level1 {
 
         var c = controller.CreateCamera(600, 400);
         EmergentHelper.Render(scene, c);
-    }
-}
-
-class AnimationsController {
-    readonly List<IAnimation> animations;
-
-    public AnimationsController(IAnimation[] animations) {
-        this.animations = animations.ToList();
-    }
-
-    public void Next(TimeSpan deltaTime) {
-        foreach(var animation in animations.ToArray()) {
-            bool finished = !animation.Next(deltaTime);
-            if(finished)
-                animations.Remove(animation);
-        }
-    }
-}
-
-public interface IAnimation {
-    bool Next(TimeSpan deltaTime);
-}
-
-public sealed class Animation<T, TTarget> : IAnimation {
-    public TimeSpan Duration { get; init; }
-    public T From { get; init; } = default!;
-    public T To { get; init; } = default!;
-    public TTarget Target { get; init; } = default!;
-    public Action<TTarget, T> SetValue { get; init; } = null!;
-    public Func<(T from, T to), float, T> Lerp { get; init; } = null!;
-
-    TimeSpan time = TimeSpan.Zero;
-    public bool Next(TimeSpan deltaTime) {
-        time += deltaTime;
-        float amount = min(1, (float)(time.TotalMilliseconds / Duration.TotalMilliseconds));
-        var value = Lerp((From, To), amount);
-        SetValue(Target, value);
-        return amount < 1;
     }
 }
 

@@ -14,7 +14,7 @@ public class Game {
         this.inputState = this.noInputState = new NoInputState(point => {
             for (int i = elements.Count - 1; i >= 0; i--) {
                 var element = elements[i];
-                if (element.Rect.Contains(point)) {
+                if(element.HitTestVisible && element.Rect.Contains(point)) {
                     return (element.GetPressState(point, noInputState!) ?? inputState)!;
                 }
             }
@@ -26,7 +26,13 @@ public class Game {
 
     public IEnumerable<Element> Elements => elements;
 
-    public void AddElement(Element element) => elements.Add(element);
+    public void AddElement(Element element) {
+        elements.Add(element);
+    }
+    public void RemoveElement(Element element) {
+        elements.Remove(element);
+    }
+    public void ClearElements() => elements.Clear();
 
     public void Press(Vector2 point) {
         inputState = inputState.Press(point);
@@ -38,43 +44,29 @@ public class Game {
         inputState = inputState.Release();
     }
 }
-
-public record struct Rect(Vector2 Location, Vector2 Size) {
-    public static Rect FromCenter(Vector2 center, Vector2 size) => new Rect(center - size / 2, size);
-
-    public float Left => Location.X;
-    public float Top => Location.Y;
-    public float Width => Size.X;
-    public float Height => Size.Y;
-    public Vector2 Mid => Location + Size / 2;
-    public float MidX => Location.X + Size.X / 2;
-    public float MidY => Location.Y + Size.Y / 2;
-
-    public Rect(float left, float top, float width, float height)
-        : this(new Vector2(left, top), new Vector2(width, height)) { }
-
-    public Rect Offset(Vector2 offset) 
-        => new Rect(Location + offset, Size);
-
-    public bool Contains(Vector2 point) => 
-        MathFEx.LessOrEqual(Location.X, point.X) &&
-        MathFEx.LessOrEqual(Location.Y, point.Y) &&
-        MathFEx.LessOrEqual(point.X, Location.X + Size.X) &&
-        MathFEx.LessOrEqual(point.Y, Location.Y + Size.Y);
-}
-
 public abstract class Element {
     public Rect Rect { get; set; }
+    public bool HitTestVisible { get; set; }
     public virtual InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) => null;
+}
+
+public class FadeOutElement : Element {
+    public float Opacity { get; set; }
+    public FadeOutElement() {
+        HitTestVisible = true;
+    }
 }
 
 public class Button : Element {
     public bool IsEnabled { get; set; }
     public bool IsPressed { get; set; }
+    public Action Click { get; init; } = null!;
     public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
         return new TapInputState(
+            this,
             () => {
-                Debug.WriteLine("Click");
+                Click();
+                //Debug.WriteLine("Click");
             },
             setState: isPressed => IsPressed = isPressed,
             releaseState);
@@ -114,7 +106,7 @@ public class NoInputState : InputState {
     }
 
     public override InputState Release() {
-        throw new InvalidOperationException();
+        return this;
     }
 }
 
@@ -144,11 +136,13 @@ public class DragInputState : InputState {
 }
 
 public class TapInputState : InputState {
+    readonly Element element;
     readonly Action onTap;
     readonly Action<bool> setState;
     readonly InputState releaseState;
 
-    public TapInputState(Action onTap, Action<bool> setState, InputState releaseState) {
+    public TapInputState(Element element, Action onTap, Action<bool> setState, InputState releaseState) {
+        this.element = element;
         this.onTap = onTap;
         this.setState = setState;
         this.releaseState = releaseState;
@@ -156,6 +150,10 @@ public class TapInputState : InputState {
     }
 
     public override InputState Drag(Vector2 point) {
+        if(!element.Rect.Contains(point)) {
+            setState(false);
+            return releaseState;
+        }
         return this;
     }
 

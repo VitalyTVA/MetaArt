@@ -6,53 +6,120 @@ namespace ThatButtonAgain;
 public class Level1 {
 
     Game game = null!;
+    AnimationsController animations = null!;
     float letterVerticalOffset;
-    void setup()
-    {
+    float buttonWidth;
+    float buttonHeight;
+    float letterSize;
+    float letterDragBoxSize;
+    float letterHorzStep;
+    void setup() {
         if(deviceType() == DeviceType.Desktop)
             size(400, 700);
         fullRedraw();
         textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
         rectMode(CORNER);
         game = new Game(width / displayDensity(), height / displayDensity());
+        animations = new(new IAnimation[0]);
 
-        var buttonWidth = game.width * Constants.ButtonRelativeWidth;
-        var buttonHeight = buttonWidth * Constants.ButtonHeightRatio;
-        var letterSize = buttonHeight * Constants.LetterHeightRatio;
+        buttonWidth = game.width * Constants.ButtonRelativeWidth;
+        buttonHeight = buttonWidth * Constants.ButtonHeightRatio;
+        letterSize = buttonHeight * Constants.LetterHeightRatio;
         textFont(createFont("SourceCodePro-Regular.ttf", letterSize));
-        var letterDragBoxSize = buttonHeight * Constants.LetterDragBoxRatio;
+        letterDragBoxSize = buttonHeight * Constants.LetterDragBoxRatio;
         letterVerticalOffset = letterSize * Constants.LetterVerticalOffsetRatio;
+        letterHorzStep = buttonWidth * Constants.LetterHorizontalStepRatio;
 
-        var letterHorzStep = buttonWidth * Constants.LetterHorizontalStepRatio;
+        SetUpLevel1();
+    }
 
 
-        var button = new Button {
-            Rect = new Rect(
-                game.width / 2 - buttonWidth / 2,
-                game.height / 2 - buttonHeight / 2,
-                buttonWidth,
-                buttonHeight
-            )
+    void SetFadeIn() {
+        var element = new FadeOutElement() { Opacity = 255 };
+        var animation = new Animation<float, FadeOutElement> {
+            Duration = Constants.FadeOutDuration,
+            From =255,
+            To = 0,
+            Target = element,
+            SetValue = (target, value) => target.Opacity = value,
+            Lerp = (range, amt) => lerp(range.from, range.to, amt),
+            OnEnd = () => {
+                game.RemoveElement(element);
+            }
         };
+        animations.AddAnimation(animation);
+        game.AddElement(element);
+    }
+
+    Letter CreateLetter(Button button, int index, char letter) {
+        return new Letter() {
+            Rect = Rect.FromCenter(
+                            button.Rect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
+                            new Vector2(letterDragBoxSize, letterDragBoxSize)
+                        ),
+            Value = letter,
+        };
+    }
+
+    Button CreateButton() {
+        return new Button {
+            Rect = new Rect(
+                        game.width / 2 - buttonWidth / 2,
+                        game.height / 2 - buttonHeight / 2,
+                        buttonWidth,
+                        buttonHeight
+                    ),
+            HitTestVisible = true,
+            Click = () => {
+                var element = new FadeOutElement();
+                var animation = new Animation<float, FadeOutElement> {
+                    Duration = Constants.FadeOutDuration,
+                    From = 0,
+                    To = 255,
+                    Target = element,
+                    SetValue = (target, value) => target.Opacity = value,
+                    Lerp = (range, amt) => lerp(range.from, range.to, amt),
+                    OnEnd = () => {
+                        SetUpLevel2();
+                    }
+                };
+                animations.AddAnimation(animation);
+                game.AddElement(element);
+            }
+        };
+    }
+
+    void SetUpLevel2() {
+        game.ClearElements();
+        var button = CreateButton();
         game.AddElement(button);
 
         int index = 0;
-        foreach (var letter in "TOUCH")
-        {
-            game.AddElement(new Letter() {
-                Rect = Rect.FromCenter(
-                    button.Rect.Mid + new Vector2(( index - 2) * letterHorzStep, 0), 
-                    new Vector2(letterDragBoxSize, letterDragBoxSize)
-                ),
-                Value = letter
-            });
+        foreach(var letter in "LEVEL") {
+            game.AddElement(CreateLetter(button, index, letter));
             index++;
         }
-        noLoop();
+
+        SetFadeIn();
+    }
+
+    void SetUpLevel1() {
+        game.ClearElements();
+        var button = CreateButton();
+        game.AddElement(button);
+
+        int index = 0;
+        foreach(var letter in "TOUCH") {
+            game.AddElement(CreateLetter(button, index, letter));
+            index++;
+        }
+
+        SetFadeIn();
     }
 
     void draw()
     {
+        animations.Next(TimeSpan.FromMilliseconds(deltaTime));
         background(Constants.Background);
         scale(displayDensity(), displayDensity());
         noStroke();
@@ -69,14 +136,24 @@ public class Level1 {
                     fill(Constants.LetterColor);
                     text(l.Value.ToString(), item.Rect.MidX, item.Rect.MidY - letterVerticalOffset);
                     break;
+                case FadeOutElement f:
+                    fill(0, f.Opacity);
+                    rect(0, 0, game.width, game.height);
+                    break;
+                default:
+                    throw new NotImplementedException();
             }
         }
+        //if(isLeftMousePressed || animations.HasAnimations)
+        //    loop();
+        //else
+        //    noLoop();
     }
 
     void mousePressed()
     {
         game.Press(new System.Numerics.Vector2(mouseX / displayDensity(), mouseY / displayDensity()));
-        loop();
+        //loop();
     }
 
     void mouseDragged()
@@ -88,7 +165,7 @@ public class Level1 {
     {
         //locked = false;
         game.Release();
-        noLoop();
+        //noLoop();
     }
 
     static class Constants {
@@ -106,6 +183,9 @@ public class Level1 {
         public static Color Background => new Color(100, 100, 100);
         public static Color ButtonBackNormal => new Color(255, 255, 255);
         public static Color ButtonBackPressed => new Color(200, 200, 200);
+
+        //public static Color FadeOutColor = new Color(0, 0, 0);
+        public static readonly TimeSpan FadeOutDuration = TimeSpan.FromMilliseconds(500);
     }
 }
 
