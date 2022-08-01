@@ -29,8 +29,10 @@ namespace MetaArt {
         {
             get => noLoop; set
             {
+                if(noLoop == value) return;
                 noLoop = value;
-                invalidate();
+                if(!noLoop)
+                    invalidate();
             }
         }
         public bool HasDraw => drawMethod != null;

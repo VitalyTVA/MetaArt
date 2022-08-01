@@ -28,7 +28,7 @@ namespace MetaArt.Wpf {
             this.ownerRect = ownerRect;
             this.sketchSizeChanged = sketchSizeChanged;
             this.mouseWheel = mouseWheel;
-            painter = new Painter(sketchType!, skglControl1.Invalidate, feedback, displayDensity: 1, deviceType: DeviceType.Desktop);
+            painter = new Painter(sketchType!, () => skglControl1.Invalidate(), feedback, displayDensity: 1, deviceType: DeviceType.Desktop);
             painter.Setup();
             skglControl1.MouseMove += SkglControl1_MouseMove;
             skglControl1.MouseLeave += SkglControl1_MouseLeave;
@@ -121,14 +121,5 @@ namespace MetaArt.Wpf {
         }
     }
     class MyControl : SKGLControl {
-        Graphics? g;
-        protected override void OnPaint(PaintEventArgs e) {
-            base.OnPaint(e);
-            g = e.Graphics;
-        }
-        public void ForcePaint() {
-            base.OnPaint(new PaintEventArgs(g!, Rectangle.Empty));
-        }
     }
-
 }

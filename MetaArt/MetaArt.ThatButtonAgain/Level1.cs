@@ -144,10 +144,10 @@ public class Level1 {
                     throw new NotImplementedException();
             }
         }
-        //if(isLeftMousePressed || animations.HasAnimations)
-        //    loop();
-        //else
-        //    noLoop();
+        if(isLeftMousePressed || animations.HasAnimations)
+            loop();
+        else
+            noLoop();
     }
 
     void mousePressed()
