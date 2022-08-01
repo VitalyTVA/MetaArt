@@ -23,17 +23,12 @@ public partial class SkecthPage : ContentPage
 	{
 		InitializeComponent();
 
-#if ANDROID
-        //this.view.InvalidateSurface();
-#elif IOS
-        this.view.HasRenderLoop = true;
-#endif
-
         this.view.PaintSurface += (o, e) => {
 #if IOS
             if (view.CanvasSize.IsEmpty)
                 return;
 #endif
+            if (Sketch == null) return;
             if (painter == null) {
                 var (info, _) = Sketch!;
                 ShowSketch(info);
@@ -89,7 +84,7 @@ public partial class SkecthPage : ContentPage
 #if ANDROID
                 this.Dispatcher.Dispatch(this.view.InvalidateSurface);
 #elif IOS
-                //this.Dispatcher.Dispatch(this.view.InvalidateSurface);
+                this.view.InvalidateSurface();
 #endif
             },
             feedback => {
@@ -115,7 +110,7 @@ public partial class SkecthPage : ContentPage
     {
         base.OnNavigatedFrom(args);
         DisposePainter();
-        this.view.HasRenderLoop = false;
+        this.Sketch = null;
     }
 
     void Button_Clicked(System.Object sender, System.EventArgs e)

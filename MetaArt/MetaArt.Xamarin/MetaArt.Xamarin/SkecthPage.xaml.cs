@@ -25,10 +25,11 @@ public partial class SkecthPage : ContentPage
     public SkecthPage()
 	{
 		InitializeComponent();
-        if (Device.RuntimePlatform == Device.iOS) {
-            this.view.HasRenderLoop = true;
-        }
+        //if (Device.RuntimePlatform == Device.iOS) {
+        //    this.view.HasRenderLoop = true;
+        //}
         this.view.PaintSurface += (o, e) => {
+            if (Sketch == null) return;
             if (painter == null) {
                 var info = Sketch!.Current;
                 ShowSketch(info);
@@ -68,12 +69,9 @@ public partial class SkecthPage : ContentPage
                 if (Device.RuntimePlatform == Device.Android) {
                     //this.view.InvalidateSurface();
                     this.Dispatcher.BeginInvokeOnMainThread(this.view.InvalidateSurface);
+                } else {
+                    this.view.InvalidateSurface();
                 }
-#if ANDROID
-                //this.view.InvalidateSurface();
-#else
-                //this.Dispatcher.BeginInvokeOnMainThread(this.view.InvalidateSurface);
-#endif
             },
             feedback => {
                 if (Device.RuntimePlatform == Device.iOS) {
@@ -100,6 +98,7 @@ public partial class SkecthPage : ContentPage
     //}
     protected override bool OnBackButtonPressed() {
         DisposePainter();
+        this.Sketch = null;
         return base.OnBackButtonPressed();
     }
 
