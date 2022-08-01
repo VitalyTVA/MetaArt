@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Numerics;
 
 namespace ThatButtonAgain;
-class Level1 {
+public class Level1 {
 
     Game game = null!;
     float letterVerticalOffset;
@@ -14,7 +14,7 @@ class Level1 {
         fullRedraw();
         textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
         rectMode(CORNER);
-        game = new Game(width, height);
+        game = new Game(width / displayDensity(), height / displayDensity());
 
         var buttonWidth = game.width * Constants.ButtonRelativeWidth;
         var buttonHeight = buttonWidth * Constants.ButtonHeightRatio;
@@ -28,8 +28,8 @@ class Level1 {
 
         var button = new Button {
             Rect = new Rect(
-                width / displayDensity() / 2 - buttonWidth / 2,
-                height / displayDensity() / 2 - buttonHeight / 2,
+                game.width / 2 - buttonWidth / 2,
+                game.height / 2 - buttonHeight / 2,
                 buttonWidth,
                 buttonHeight
             )
