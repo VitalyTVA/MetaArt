@@ -77,7 +77,13 @@ namespace MetaArt {
 
         internal static MethodInfo GetSkecthMethod(Type type, string name)
         {
-            return type.GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic);
+            while(type != null) {
+                var method = type.GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic);
+                if(method != null)
+                    return method;
+                type = type.BaseType;
+            }
+            return null!;
         }
 
         protected readonly Action invalidate;

@@ -17,7 +17,7 @@ namespace MetaArt {
     }
     public class SketchGroup {
         public static bool IsSketchType(Type type) {
-            return !type.IsAbstract && PainterBase.GetSkecthMethod(type, "draw") != null || PainterBase.GetSkecthMethod(type, "setup") != null;
+            return !type.IsAbstract && PainterBase.GetSkecthMethod(type, "draw") != null;
         }
 
         public static SketchGroup FromNamespace(string @namespace, Assembly assembly) { 

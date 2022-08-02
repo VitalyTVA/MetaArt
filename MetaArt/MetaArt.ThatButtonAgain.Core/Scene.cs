@@ -1,13 +1,13 @@
 ﻿
 namespace MetaArt.Core;
-public class Game {
+public class Scene {
     public readonly float width, height;
 
     InputState inputState;
     readonly NoInputState noInputState;
 
 
-    public Game(float width, float height)
+    public Scene(float width, float height)
     {
         this.width = width;
         this.height = height;
