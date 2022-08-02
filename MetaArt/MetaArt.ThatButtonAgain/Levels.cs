@@ -14,7 +14,7 @@ public abstract class LevelBase {
         if(deviceType() == DeviceType.Desktop)
             size(400, 700);
         fullRedraw();
-        textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
+        
         rectMode(CORNER);
         controller = new GameController(width / displayDensity(), height / displayDensity());
 
@@ -43,7 +43,13 @@ public abstract class LevelBase {
                     fill(Colors.LetterDragBox);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     fill(Colors.LetterColor);
+                    textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
                     text(l.Value.ToString(), item.Rect.MidX, item.Rect.MidY - controller.letterVerticalOffset);
+                    break;
+                case Text t:
+                    fill(Colors.LetterColor);
+                    textAlign(TextAlign.LEFT, TextVerticalAlign.CENTER);
+                    text(t.Value.ToString(), item.Rect.Left, item.Rect.Top);
                     break;
                 case FadeOutElement f:
                     fill(0, f.Opacity);

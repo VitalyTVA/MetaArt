@@ -51,17 +51,16 @@ namespace ThatButtonAgain {
         }
 
         void Level_DragLettersOntoButton() {
-            scene.ClearElements();
             var button = CreateButton();
             scene.AddElement(button);
 
             var points = new[] {
-            (-2.1f, 2.3f),
-            (-1.5f, -2.7f),
-            (.7f, -1.5f),
-            (1.3f, 3.4f),
-            (2.3f, -3.4f),
-        };
+                (-2.1f, 2.3f),
+                (-1.5f, -2.7f),
+                (.7f, -1.5f),
+                (1.3f, 3.4f),
+                (2.3f, -3.4f),
+            };
 
             CreateLetters((letter, index) => {
                 float margin = letterDragBoxSize * 2;
@@ -77,7 +76,6 @@ namespace ThatButtonAgain {
         }
 
         void Level_TrivialClick() {
-            scene.ClearElements();
             var button = CreateButton();
             scene.AddElement(button);
 
@@ -109,9 +107,7 @@ namespace ThatButtonAgain {
                         Target = element,
                         SetValue = (target, value) => target.Opacity = value,
                         Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
-                        OnEnd = () => {
-                            Level_DragLettersOntoButton();
-                        }
+                        OnEnd = NextLevel
                     };
                     animations.AddAnimation(animation);
                     scene.AddElement(element);
@@ -136,9 +132,17 @@ namespace ThatButtonAgain {
         int levelIndex = 0;
         public void SetLevel(int level) {
             levelIndex = Math.Min(level, levels.Length - 1);
+            
+            scene.ClearElements();
+            scene.AddElement(new Text { 
+                Value = levelIndex.ToString(),
+                Rect = new Rect(letterSize * Constants.LetterIndexOffsetRatioX, letterSize * Constants.LetterIndexOffsetRatioY, 0, 0)
+            });
             levels[levelIndex]();
         }
-        void NextLevel() => SetLevel(levelIndex + 1);
+        void NextLevel() {
+            SetLevel(levelIndex + 1);
+        }
     }
     static class Constants {
         public static float ButtonRelativeWidth => 0.6f;
@@ -151,6 +155,9 @@ namespace ThatButtonAgain {
 
         //public static Color FadeOutColor = new Color(0, 0, 0);
         public static readonly TimeSpan FadeOutDuration = TimeSpan.FromMilliseconds(500);
+
+        public static float LetterIndexOffsetRatioX => .3f;
+        public static float LetterIndexOffsetRatioY => .5f;
     }
 }
 

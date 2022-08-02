@@ -73,6 +73,10 @@ public class Button : Element {
     }
 }
 
+public class Text : Element {
+    public string Value { get; set; } = null!;
+}
+
 public class Letter : Element {
     public char Value { get; set; }
     public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
