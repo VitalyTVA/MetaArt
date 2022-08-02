@@ -24,6 +24,9 @@ public static class MathFEx {
             return false;
 
         return true;
-        
     }
+
+    static readonly Random rnd = new Random(0);
+    public static float Random(float low, float high) => Lerp(low, high, (float)rnd.NextDouble());
+    public static float Lerp(float start, float stop, float amt) => start * (1 - amt) + stop * amt;
 }

@@ -38,7 +38,7 @@ public class Level1 {
         var element = new FadeOutElement() { Opacity = 255 };
         var animation = new Animation<float, FadeOutElement> {
             Duration = Constants.FadeOutDuration,
-            From =255,
+            From = 255,
             To = 0,
             Target = element,
             SetValue = (target, value) => target.Opacity = value,
@@ -51,15 +51,6 @@ public class Level1 {
         game.AddElement(element);
     }
 
-    Letter CreateLetter(Button button, int index, char letter) {
-        return new Letter() {
-            Rect = Rect.FromCenter(
-                            button.Rect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
-                            new Vector2(letterDragBoxSize, letterDragBoxSize)
-                        ),
-            Value = letter,
-        };
-    }
 
     Button CreateButton() {
         return new Button {
@@ -94,11 +85,14 @@ public class Level1 {
         var button = CreateButton();
         game.AddElement(button);
 
-        int index = 0;
-        foreach(var letter in "LEVEL") {
-            game.AddElement(CreateLetter(button, index, letter));
-            index++;
-        }
+        CreateLetters((letter, index) => {
+            float margin = letterDragBoxSize * 2;
+            letter.Rect = Rect.FromCenter(
+                            new Vector2(MathFEx.Random(margin, game.width - margin), MathFEx.Random(margin, game.height - margin)),
+                            new Vector2(letterDragBoxSize, letterDragBoxSize)
+                        );
+            letter.HitTestVisible = true;
+        });
 
         SetFadeIn();
     }
@@ -108,13 +102,26 @@ public class Level1 {
         var button = CreateButton();
         game.AddElement(button);
 
-        int index = 0;
-        foreach(var letter in "TOUCH") {
-            game.AddElement(CreateLetter(button, index, letter));
-            index++;
-        }
+        CreateLetters((letter, index) => {
+            letter.Rect = Rect.FromCenter(
+                            button.Rect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
+                            new Vector2(letterDragBoxSize, letterDragBoxSize)
+                        );
+        });
 
         SetFadeIn();
+    }
+
+    void CreateLetters(Action<Letter, int> setUp) {
+        int index = 0;
+        foreach (var value in "TOUCH") {
+            var letter = new Letter() {
+                Value = value,
+            };
+            setUp(letter, index);
+            game.AddElement(letter);
+            index++;
+        }
     }
 
     void draw()
@@ -144,7 +151,7 @@ public class Level1 {
                     throw new NotImplementedException();
             }
         }
-        if(isLeftMousePressed || animations.HasAnimations)
+        if(isMousePressed || animations.HasAnimations)
             loop();
         else
             noLoop();
