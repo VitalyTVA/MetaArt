@@ -25,9 +25,9 @@ public partial class SkecthPage : ContentPage
     public SkecthPage()
 	{
 		InitializeComponent();
-        //if (Device.RuntimePlatform == Device.iOS) {
-        //    this.view.HasRenderLoop = true;
-        //}
+        if (Device.RuntimePlatform == Device.iOS) {
+            this.view.HasRenderLoop = true;
+        }
         this.view.PaintSurface += (o, e) => {
             if (Sketch == null) return;
             if (painter == null) {
@@ -70,7 +70,7 @@ public partial class SkecthPage : ContentPage
                     //this.view.InvalidateSurface();
                     this.Dispatcher.BeginInvokeOnMainThread(this.view.InvalidateSurface);
                 } else {
-                    this.view.InvalidateSurface();
+                    //this.view.InvalidateSurface();
                 }
             },
             feedback => {

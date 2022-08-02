@@ -25,7 +25,7 @@
     public class AnimationsController {
         readonly List<IAnimation> animations;
         //readonly Action<bool> updateState;
-        public bool HasAnimations => animations.Any();
+        //public bool HasAnimations => animations.Any();
         public AnimationsController(IAnimation[] animations/*, Action<bool> updateState*/) {
             this.animations = animations.ToList();
             //this.updateState = updateState;

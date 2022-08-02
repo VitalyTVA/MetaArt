@@ -22,7 +22,9 @@ public partial class SkecthPage : ContentPage
     public SkecthPage()
 	{
 		InitializeComponent();
-
+#if IOS
+        view.HasRenderLoop = true;
+#endif
         this.view.PaintSurface += (o, e) => {
 #if IOS
             if (view.CanvasSize.IsEmpty)
@@ -84,7 +86,7 @@ public partial class SkecthPage : ContentPage
 #if ANDROID
                 this.Dispatcher.Dispatch(this.view.InvalidateSurface);
 #elif IOS
-                this.view.InvalidateSurface();
+                //this.view.InvalidateSurface();
 #endif
             },
             feedback => {
