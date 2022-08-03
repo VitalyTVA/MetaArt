@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MetaArt.SkiaSharp\MetaArt.Skia.csproj" />
-    <ProjectReference Include="..\MetaArt.ThatButtonAgain.Core\MetaArt.Core.csproj" />
+    <ProjectReference Include="..\MetaArt.Core\MetaArt.Core.csproj" />
     <ProjectReference Include="..\MetaArt\MetaArt.csproj" />
   </ItemGroup>
 

@@ -10,6 +10,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\MetaArt.ThatButtonAgain.Core\MetaArt.Core.csproj" />
+	  <ProjectReference Include="..\MetaArt.Core\MetaArt.Core.csproj" />
 	</ItemGroup>
 </Project>
