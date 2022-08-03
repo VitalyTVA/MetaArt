@@ -58,14 +58,15 @@ public class FadeOutElement : Element {
 }
 
 public class Button : Element {
-    public bool IsEnabled { get; set; }
+    public bool IsEnabled { get; set; } = true;
     public bool IsPressed { get; set; }
     public Action Click { get; init; } = null!;
     public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
         return new TapInputState(
             this,
             () => {
-                Click();
+                if(IsEnabled)
+                    Click();
                 //Debug.WriteLine("Click");
             },
             setState: isPressed => IsPressed = isPressed,
@@ -77,12 +78,29 @@ public class Text : Element {
     public string Value { get; set; } = null!;
 }
 
-public class Letter : Element {
+public abstract class LetterBase : Element {
     public char Value { get; set; }
+}
+
+public class Letter : LetterBase { 
+}
+
+public class DragableLetter : LetterBase {
+    public Vector2 TargetDragPoint { get; set; }
+    public float SnapDistance { get; set; }
+    bool allowDrag = true;
     public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
+        if(!allowDrag)
+            return null;
         var startRect = Rect;
         return new DragInputState(startPoint, delta => {
-            Rect = startRect.Offset(delta);
+            Rect newRect = startRect.Offset(delta);
+            if((newRect.Location - TargetDragPoint).LengthSquared() <= SnapDistance * SnapDistance) {
+                newRect = new Rect(TargetDragPoint, newRect.Size);
+                allowDrag = false;
+                HitTestVisible = false;
+            }
+            Rect = newRect;
             //Debug.WriteLine(delta.ToString());
         }, releaseState);
     }

@@ -52,6 +52,7 @@ namespace ThatButtonAgain {
 
         void Level_DragLettersOntoButton() {
             var button = CreateButton();
+            button.IsEnabled = false;
             scene.AddElement(button);
 
             var points = new[] {
@@ -62,32 +63,42 @@ namespace ThatButtonAgain {
                 (2.3f, -3.4f),
             };
 
-            CreateLetters((letter, index) => {
+            var letters = CreateLetters<DragableLetter>((letter, index) => {
                 float margin = letterDragBoxSize * 2;
                 letter.Rect = Rect.FromCenter(
                     //TODO Ensure letter box is within bounds
                     new Vector2(button.Rect.MidX + letterDragBoxSize * points[index].Item1, button.Rect.MidY + letterDragBoxSize * points[index].Item2),
                     new Vector2(letterDragBoxSize, letterDragBoxSize)
                 );
+                letter.TargetDragPoint = GetLetterTargetRect(index, button.Rect).Location;
                 letter.HitTestVisible = true;
+                letter.SnapDistance = letterSize * Constants.LetterSnapDistanceRatio;
             });
 
             SetFadeIn();
+
+            animations.AddAnimation(new WaitConditionAnimation(
+                condition: () => letters.All(l => MathFEx.VectorsEqual(l.Rect.Location, l.TargetDragPoint)),
+                end: () => button.IsEnabled = true
+            ));
         }
 
         void Level_TrivialClick() {
             var button = CreateButton();
             scene.AddElement(button);
 
-            CreateLetters((letter, index) => {
-                letter.Rect = Rect.FromCenter(
-                                button.Rect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
-                                new Vector2(letterDragBoxSize, letterDragBoxSize)
-                            );
+            CreateLetters<Letter>((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, button.Rect);
             });
 
             SetFadeIn();
         }
+
+        Rect GetLetterTargetRect(int index, Rect buttonRect) =>
+            Rect.FromCenter(
+                buttonRect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
+                new Vector2(letterDragBoxSize, letterDragBoxSize)
+            );
 
         Button CreateButton() {
             return new Button {
@@ -115,16 +126,19 @@ namespace ThatButtonAgain {
             };
         }
 
-        void CreateLetters(Action<Letter, int> setUp) {
+        TLetter[] CreateLetters<TLetter>(Action<TLetter, int> setUp) where TLetter : LetterBase, new() {
             int index = 0;
+            var letters = new TLetter[5];
             foreach(var value in "TOUCH") {
-                var letter = new Letter() {
+                var letter = new TLetter() {
                     Value = value,
                 };
                 setUp(letter, index);
                 scene.AddElement(letter);
+                letters[index] = letter;
                 index++;
             }
+            return letters;
         }
 
         readonly Action[] levels;
@@ -158,6 +172,7 @@ namespace ThatButtonAgain {
 
         public static float LetterIndexOffsetRatioX => .3f;
         public static float LetterIndexOffsetRatioY => .5f;
+        public static float LetterSnapDistanceRatio => .2f;
     }
 }
 

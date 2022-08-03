@@ -36,10 +36,12 @@ public abstract class LevelBase {
         foreach (var item in controller.scene.Elements) {
             switch (item) {
                 case Button b:
-                    fill(b.IsPressed ? Colors.ButtonBackPressed : Colors.ButtonBackNormal);
+                    fill(b.IsPressed 
+                        ? (b.IsEnabled ? Colors.ButtonBackPressed : Colors.ButtonBackPressedDisabled) 
+                        : Colors.ButtonBackNormal);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     break;
-                case Letter l:
+                case LetterBase l:
                     fill(Colors.LetterDragBox);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     fill(Colors.LetterColor);
@@ -89,6 +91,7 @@ public abstract class LevelBase {
         public static Color Background => new Color(100, 100, 100);
         public static Color ButtonBackNormal => new Color(255, 255, 255);
         public static Color ButtonBackPressed => new Color(200, 200, 200);
+        public static Color ButtonBackPressedDisabled => new Color(200, 0, 0);
     }
 }
 

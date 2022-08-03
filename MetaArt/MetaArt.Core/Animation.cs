@@ -3,6 +3,21 @@
         bool Next(TimeSpan deltaTime);
         void End();
     }
+    public sealed class WaitConditionAnimation : IAnimation {
+        readonly Func<bool> condition;
+        readonly Action end;
+
+        public WaitConditionAnimation(Func<bool> condition, Action end) {
+            this.condition = condition;
+            this.end = end;
+        }
+        void IAnimation.End() {
+            end();
+        }
+        bool IAnimation.Next(TimeSpan deltaTime) {
+            return !condition();
+        }
+    }
     public sealed class Animation<T, TTarget> : IAnimation {
         public TimeSpan Duration { get; init; }
         public T From { get; init; } = default!;
