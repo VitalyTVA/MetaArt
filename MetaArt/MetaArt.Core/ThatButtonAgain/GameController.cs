@@ -24,16 +24,17 @@ namespace ThatButtonAgain {
             letterHorzStep = buttonWidth * Constants.LetterHorizontalStepRatio;
 
             levels = new[] {
-            Level_TrivialClick,
-            Level_DragLettersOntoButton,
-        };
+                Level_TrivialClick,
+                Level_DragLettersOntoButton,
+                Level_16xClick,
+            };
         }
 
         public void NextFrame(float deltaTime) {
             animations.Next(TimeSpan.FromMilliseconds(deltaTime));
         }
 
-        void SetFadeIn() {
+        void StartFadeIn() {
             var element = new FadeOutElement() { Opacity = 255 };
             var animation = new Animation<float, FadeOutElement> {
                 Duration = Constants.FadeOutDuration,
@@ -50,8 +51,17 @@ namespace ThatButtonAgain {
             scene.AddElement(element);
         }
 
+        void Level_TrivialClick() {
+            var button = CreateButton(StartNextLevelAnimation);
+            scene.AddElement(button);
+
+            CreateLetters<Letter>((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, button.Rect);
+            });
+        }
+
         void Level_DragLettersOntoButton() {
-            var button = CreateButton();
+            var button = CreateButton(StartNextLevelAnimation);
             button.IsEnabled = false;
             scene.AddElement(button);
 
@@ -74,24 +84,53 @@ namespace ThatButtonAgain {
                 letter.HitTestVisible = true;
                 letter.SnapDistance = letterSize * Constants.LetterSnapDistanceRatio;
             });
-
-            SetFadeIn();
-
             animations.AddAnimation(new WaitConditionAnimation(
                 condition: () => letters.All(l => MathFEx.VectorsEqual(l.Rect.Location, l.TargetDragPoint)),
                 end: () => button.IsEnabled = true
             ));
         }
 
-        void Level_TrivialClick() {
-            var button = CreateButton();
+        void Level_16xClick() {
+            var words = new[] {
+                "Touch", //16
+                "ToucH", 
+                "TouCh", 
+                "TouCH", 
+                "ToUch", 
+                "ToUcH", 
+                "ToUCh", 
+                "ToUCH", 
+
+                "TOuch", //24
+                "TOucH", 
+                "TOuCh", 
+                "TOuCH",
+                "TOUch",
+                "TOUcH",
+                "TOUCh",
+                "TOUCH", //32
+            };
+            int clickIndex = 0;
+            Letter[] letters = null!;
+            void SetLetters() {
+                for(int i = 0; i < 5; i++) {
+                    letters[i].Value = words![clickIndex][i]; 
+                }
+            };
+            var button = CreateButton(() => {
+                if(clickIndex < words.Length - 1) { 
+                    clickIndex++;
+                    SetLetters();
+                } else {
+                    StartNextLevelAnimation();
+                }
+            });
             scene.AddElement(button);
 
-            CreateLetters<Letter>((letter, index) => {
+            letters = CreateLetters<Letter>((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
             });
-
-            SetFadeIn();
+            SetLetters();
         }
 
         Rect GetLetterTargetRect(int index, Rect buttonRect) =>
@@ -100,7 +139,7 @@ namespace ThatButtonAgain {
                 new Vector2(letterDragBoxSize, letterDragBoxSize)
             );
 
-        Button CreateButton() {
+        Button CreateButton(Action click) {
             return new Button {
                 Rect = new Rect(
                             scene.width / 2 - buttonWidth / 2,
@@ -109,21 +148,23 @@ namespace ThatButtonAgain {
                             buttonHeight
                         ),
                 HitTestVisible = true,
-                Click = () => {
-                    var element = new FadeOutElement();
-                    var animation = new Animation<float, FadeOutElement> {
-                        Duration = Constants.FadeOutDuration,
-                        From = 0,
-                        To = 255,
-                        Target = element,
-                        SetValue = (target, value) => target.Opacity = value,
-                        Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
-                        OnEnd = NextLevel
-                    };
-                    animations.AddAnimation(animation);
-                    scene.AddElement(element);
-                }
+                Click = click
             };
+        }
+
+        void StartNextLevelAnimation() {
+            var element = new FadeOutElement();
+            var animation = new Animation<float, FadeOutElement> {
+                Duration = Constants.FadeOutDuration,
+                From = 0,
+                To = 255,
+                Target = element,
+                SetValue = (target, value) => target.Opacity = value,
+                Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
+                OnEnd = NextLevel
+            };
+            animations.AddAnimation(animation);
+            scene.AddElement(element);
         }
 
         TLetter[] CreateLetters<TLetter>(Action<TLetter, int> setUp) where TLetter : LetterBase, new() {
@@ -153,6 +194,7 @@ namespace ThatButtonAgain {
                 Rect = new Rect(letterSize * Constants.LetterIndexOffsetRatioX, letterSize * Constants.LetterIndexOffsetRatioY, 0, 0)
             });
             levels[levelIndex]();
+            StartFadeIn();
         }
         void NextLevel() {
             SetLevel(levelIndex + 1);

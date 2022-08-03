@@ -98,8 +98,10 @@ public abstract class LevelBase {
 class Level0 : LevelBase {
     protected override int LevelIndex => 0;
 }
-
 class Level1 : LevelBase {
     protected override int LevelIndex => 1;
+}
+class Level2 : LevelBase {
+    protected override int LevelIndex => 2;
 }
 
