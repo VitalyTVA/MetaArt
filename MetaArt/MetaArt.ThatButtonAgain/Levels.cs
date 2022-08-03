@@ -55,7 +55,7 @@ public abstract class LevelBase {
                     break;
                 case FadeOutElement f:
                     fill(0, f.Opacity);
-                    rect(0, 0, controller.scene.width, controller.scene.height);
+                    rect(f.Rect.Left, f.Rect.Top, f.Rect.Width, f.Rect.Height);
                     break;
                 default:
                     throw new NotImplementedException();

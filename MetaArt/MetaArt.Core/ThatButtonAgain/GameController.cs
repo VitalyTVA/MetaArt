@@ -34,23 +34,6 @@ namespace ThatButtonAgain {
             animations.Next(TimeSpan.FromMilliseconds(deltaTime));
         }
 
-        void StartFadeIn() {
-            var element = new FadeOutElement() { Opacity = 255 };
-            var animation = new Animation<float, FadeOutElement> {
-                Duration = Constants.FadeOutDuration,
-                From = 255,
-                To = 0,
-                Target = element,
-                SetValue = (target, value) => target.Opacity = value,
-                Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
-                OnEnd = () => {
-                    scene.RemoveElement(element);
-                }
-            };
-            animations.AddAnimation(animation);
-            scene.AddElement(element);
-        }
-
         void Level_TrivialClick() {
             var button = CreateButton(StartNextLevelAnimation);
             scene.AddElement(button);
@@ -152,19 +135,26 @@ namespace ThatButtonAgain {
             };
         }
 
-        void StartNextLevelAnimation() {
-            var element = new FadeOutElement();
+
+        void StartFade(float from, float to, Action end) {
+            var element = new FadeOutElement() { Rect = new Rect(0, 0, scene.width, scene.height), Opacity = from };
             var animation = new Animation<float, FadeOutElement> {
                 Duration = Constants.FadeOutDuration,
-                From = 0,
-                To = 255,
+                From = from,
+                To = to,
                 Target = element,
                 SetValue = (target, value) => target.Opacity = value,
                 Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
-                OnEnd = NextLevel
+                OnEnd = () => {
+                    scene.RemoveElement(element);
+                    end();
+                }
             };
             animations.AddAnimation(animation);
             scene.AddElement(element);
+        }
+        void StartNextLevelAnimation() {
+            StartFade(0, 255, NextLevel);
         }
 
         TLetter[] CreateLetters<TLetter>(Action<TLetter, int> setUp) where TLetter : LetterBase, new() {
@@ -194,7 +184,7 @@ namespace ThatButtonAgain {
                 Rect = new Rect(letterSize * Constants.LetterIndexOffsetRatioX, letterSize * Constants.LetterIndexOffsetRatioY, 0, 0)
             });
             levels[levelIndex]();
-            StartFadeIn();
+            StartFade(255, 0, () => { });
         }
         void NextLevel() {
             SetLevel(levelIndex + 1);

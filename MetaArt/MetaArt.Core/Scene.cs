@@ -101,6 +101,7 @@ public class DragableLetter : LetterBase {
                 HitTestVisible = false;
             }
             Rect = newRect;
+            return allowDrag;
             //Debug.WriteLine(delta.ToString());
         }, releaseState);
     }
@@ -134,18 +135,19 @@ public class NoInputState : InputState {
 
 public class DragInputState : InputState {
     readonly Vector2 startPoint;
-    readonly Action<Vector2> onDrag;
+    readonly Func<Vector2, bool> onDrag;
     readonly InputState releaseState;
 
-    public DragInputState(Vector2 startPoint, Action<Vector2> onDrag, InputState releaseState) {
+    public DragInputState(Vector2 startPoint, Func<Vector2, bool> onDrag, InputState releaseState) {
         this.startPoint = startPoint;
         this.onDrag = onDrag;
         this.releaseState = releaseState;
     }
 
     public override InputState Drag(Vector2 point) {
-        onDrag(point - startPoint);
-        return this;
+        if(onDrag(point - startPoint))
+            return this;
+        return releaseState;
     }
 
     public override InputState Press(Vector2 point) {
