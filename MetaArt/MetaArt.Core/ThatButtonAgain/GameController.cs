@@ -27,6 +27,7 @@ namespace ThatButtonAgain {
                 Level_TrivialClick,
                 Level_DragLettersOntoButton,
                 Level_16xClick,
+                Level_RotationsGroup,
             };
         }
 
@@ -68,7 +69,7 @@ namespace ThatButtonAgain {
                 letter.SnapDistance = letterSize * Constants.LetterSnapDistanceRatio;
             });
             animations.AddAnimation(new WaitConditionAnimation(
-                condition: () => letters.All(l => MathFEx.VectorsEqual(l.Rect.Location, l.TargetDragPoint)),
+                condition: GetAreLettersInPlaceCheck(button.Rect, letters),
                 end: () => button.IsEnabled = true
             ));
         }
@@ -116,6 +117,73 @@ namespace ThatButtonAgain {
             SetLetters();
         }
 
+        void Level_RotationsGroup() {
+            var button = CreateButton(StartNextLevelAnimation);
+            button.HitTestVisible = false;
+            scene.AddElement(button);
+
+            //01234
+            //21034
+            //21430
+            //41230
+            //43210
+            var indices = new[] { 4, 3, 2, 1, 0 };
+            PressActionLetter[] letters = null!;
+            bool rotating = false;
+            letters = CreateLetters<PressActionLetter>((letter, index) => {
+                letter.Rect = GetLetterTargetRect(indices[index], button.Rect);
+                letter.OnPress = () => {
+                    if(rotating)
+                        return;
+
+                    var leftLetter = letters!.OrderByDescending(x => x.Rect.Left).FirstOrDefault(x => MathFEx.Less(x.Rect.Left, letter.Rect.Left));
+                    var rightLetter = letters!.OrderBy(x => x.Rect.Left).FirstOrDefault(x => MathFEx.Greater(x.Rect.Left, letter.Rect.Left));
+                    if(leftLetter == null || rightLetter == null)
+                        return;
+
+                    rotating = true;
+
+                    void AddRotateAnimation(float fromAngle, float toAngle, PressActionLetter sideLetter) {
+                        var animation = new RotateAnimation {
+                            Duration = Constants.RotateAroundLetterDuration,
+                            From = fromAngle,
+                            To = toAngle,
+                            Center = letter.Rect.Mid,
+                            Radius = (sideLetter.Rect.Mid - letter.Rect.Mid).Length(),
+                            SetLocation = center => {
+                                sideLetter.Rect = Rect.FromCenter(center, sideLetter.Rect.Size);
+                            },
+                            OnEnd = () => rotating = false
+                        };
+                        animations.AddAnimation(animation);
+                    };
+
+                    AddRotateAnimation(MathFEx.PI * 2, MathFEx.PI, rightLetter);
+                    AddRotateAnimation(MathFEx.PI, 0, leftLetter);
+                };
+                letter.HitTestVisible = true;
+            });
+
+            animations.AddAnimation(new WaitConditionAnimation(
+                condition: GetAreLettersInPlaceCheck(button.Rect, letters),
+                end: () => {
+                    button.HitTestVisible = true;
+                    foreach(var item in letters) {
+                        item.HitTestVisible = false;
+                    }
+                }));
+        }
+
+        Func<bool> GetAreLettersInPlaceCheck(Rect buttonRect, LetterBase[] letters) {
+            var targetLocations = GetLettersTargetLocations(buttonRect);
+            return () => letters.Select((l, i) => (l, i)).All(x => MathFEx.VectorsEqual(x.l.Rect.Location, targetLocations[x.i]));
+        }
+
+        Vector2[] GetLettersTargetLocations(Rect buttonRect) => 
+            Enumerable.Range(0, 5)
+                .Select(index => GetLetterTargetRect(index, buttonRect).Location)
+                .ToArray();
+
         Rect GetLetterTargetRect(int index, Rect buttonRect) =>
             Rect.FromCenter(
                 buttonRect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
@@ -138,12 +206,11 @@ namespace ThatButtonAgain {
 
         void StartFade(float from, float to, Action end) {
             var element = new FadeOutElement() { Rect = new Rect(0, 0, scene.width, scene.height), Opacity = from };
-            var animation = new Animation<float, FadeOutElement> {
+            var animation = new LerpAnimation<float> {
                 Duration = Constants.FadeOutDuration,
                 From = from,
                 To = to,
-                Target = element,
-                SetValue = (target, value) => target.Opacity = value,
+                SetValue = value => element.Opacity = value,
                 Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
                 OnEnd = () => {
                     scene.RemoveElement(element);
@@ -200,7 +267,8 @@ namespace ThatButtonAgain {
         public static float LetterHorizontalStepRatio => 0.17f;
 
         //public static Color FadeOutColor = new Color(0, 0, 0);
-        public static readonly TimeSpan FadeOutDuration = TimeSpan.FromMilliseconds(500);
+        public static TimeSpan FadeOutDuration => TimeSpan.FromMilliseconds(500);
+        public static TimeSpan RotateAroundLetterDuration => TimeSpan.FromMilliseconds(500);
 
         public static float LetterIndexOffsetRatioX => .3f;
         public static float LetterIndexOffsetRatioY => .5f;

@@ -104,4 +104,7 @@ class Level1 : LevelBase {
 class Level2 : LevelBase {
     protected override int LevelIndex => 2;
 }
+class Level3 : LevelBase {
+    protected override int LevelIndex => 3;
+}
 

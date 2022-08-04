@@ -52,34 +52,31 @@ class Level1 {
 
 public static class Animations {
     public static IAnimation CreateModelTranslate<TValue>(Model<TValue> model, Vector3 delta, TimeSpan duration) {
-        return new Animation<Vector3, Model<TValue>> {
+        return new LerpAnimation<Vector3> {
             Duration = duration,
             From = model.Translate,
             To = model.Translate + delta,
-            Target = model,
-            SetValue = (target, value) => target.Translate = value,
+            SetValue = value => model.Translate = value,
             Lerp = Lerp
         };
     }
 
     public static IAnimation CreateModelScale<TValue>(Model<TValue> model, Vector3 delta, TimeSpan duration) {
-        return new Animation<Vector3, Model<TValue>> {
+        return new LerpAnimation<Vector3> {
             Duration = duration,
             From = model.Scale,
             To = model.Scale + delta,
-            Target = model,
-            SetValue = (target, value) => target.Scale = value,
+            SetValue = value => model.Scale = value,
             Lerp = Lerp
         };
     }
 
     public static IAnimation CreateCameraControllerYaw(YawPitchContoller controller, float delta, TimeSpan duration) {
-        return new Animation<float, YawPitchContoller> {
+        return new LerpAnimation<float> {
             Duration = duration,
             From = controller.Yaw,
             To = controller.Yaw + delta,
-            Target = controller,
-            SetValue = (target, value) => target.SetYaw(value),
+            SetValue = value => controller.SetYaw(value),
             Lerp = (range, value) => Sketch.lerp(range.from, range.to, value)
         };
     }

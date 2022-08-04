@@ -107,6 +107,16 @@ public class DragableLetter : LetterBase {
     }
 }
 
+public class PressActionLetter : LetterBase {
+    public Action OnPress { get; set; } = null!;
+    public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
+        if(HitTestVisible) {
+            OnPress();
+        }
+        return null;
+    }
+}
+
 public abstract class InputState {
     public abstract InputState Press(Vector2 point);
     public abstract InputState Release();
