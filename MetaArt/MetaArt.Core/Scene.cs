@@ -52,6 +52,35 @@ public class Scene {
     }
 }
 public abstract class Element {
+    protected Func<Vector2, NoInputState, DragInputState?> GetAnchorAndSnapDragStateFactory(
+        Func<float> getAnchorDistance,
+        Func<(float snapDistance, Vector2 snapPoint)?> getSnapInfo) {
+        bool allowDrag = true;
+        bool anchored = true;
+        return (startPoint, releaseState) => {
+            if (!allowDrag)
+                return null;
+
+            var startRect = Rect;
+            return new DragInputState(startPoint, delta => {
+                Rect newRect = startRect;
+                var anchorDistance = getAnchorDistance();
+                if (!anchored || delta.LengthSquared() >= anchorDistance * anchorDistance) {
+                    newRect = newRect.Offset(delta);
+                    anchored = false;
+                }
+                var snapInfo = getSnapInfo();
+                if (snapInfo != null && (newRect.Location - snapInfo.Value.snapPoint).LengthSquared() <= snapInfo.Value.snapDistance * snapInfo.Value.snapDistance) {
+                    newRect = new Rect(snapInfo.Value.snapPoint, newRect.Size);
+                    allowDrag = false;
+                    HitTestVisible = false;
+                }
+                Rect = newRect;
+                return allowDrag;
+            }, releaseState);
+        };
+    }
+
     public Rect Rect { get; set; }
     public bool HitTestVisible { get; set; }
     public virtual InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) => null;
@@ -95,54 +124,28 @@ public class Letter : LetterBase {
 public class DragableLetter : LetterBase {
     public Vector2 TargetDragPoint { get; set; }
     public float SnapDistance { get; set; }
-    bool allowDrag = true;
+    readonly Func<Vector2, NoInputState, DragInputState?> getDragState;
+    public DragableLetter() {
+        getDragState = GetAnchorAndSnapDragStateFactory(() => 0, () => (SnapDistance, TargetDragPoint));
+    }
     public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
-        if(!allowDrag)
-            return null;
-        var startRect = Rect;
-        return new DragInputState(startPoint, delta => {
-            Rect newRect = startRect.Offset(delta);
-            if((newRect.Location - TargetDragPoint).LengthSquared() <= SnapDistance * SnapDistance) {
-                newRect = new Rect(TargetDragPoint, newRect.Size);
-                allowDrag = false;
-                HitTestVisible = false;
-            }
-            Rect = newRect;
-            return allowDrag;
-            //Debug.WriteLine(delta.ToString());
-        }, releaseState);
+        return getDragState(startPoint, releaseState);
     }
 }
 
 public class DragableButton : Element {
     public float AnchorDistance { get; set; }
 
-    public Vector2? TargetDragPoint { get; set; }
-    public float SnapDistance { get; set; }
-    bool allowDrag = true;
+    public (float, Vector2)? SnapInfo { get; set; }
+
+    readonly Func<Vector2, NoInputState, DragInputState?> getDragState;
 
     public DragableButton() {
+        getDragState = GetAnchorAndSnapDragStateFactory(() => AnchorDistance, () => SnapInfo);
         HitTestVisible = true;
     }
     public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
-        if(!allowDrag)
-            return null;
-
-        var startRect = Rect;
-        return new DragInputState(startPoint, delta => {
-            Rect newRect = startRect;
-            if(delta.LengthSquared() >= AnchorDistance * AnchorDistance) {
-                newRect = newRect.Offset(delta);
-                AnchorDistance = 0;
-            }
-            if(TargetDragPoint != null && (newRect.Location - TargetDragPoint.Value).LengthSquared() <= SnapDistance * SnapDistance) {
-                newRect = new Rect(TargetDragPoint.Value, newRect.Size);
-                allowDrag = false;
-                HitTestVisible = false;
-            }
-            Rect = newRect;
-            return allowDrag;
-        }, releaseState);
+        return getDragState(startPoint, releaseState);
     }
 }
 

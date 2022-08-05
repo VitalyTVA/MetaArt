@@ -193,8 +193,7 @@ namespace ThatButtonAgain {
                 condition: () => letters.All(l => !l.Rect.Intersects(dragableButton.Rect)),
                 end: () => {
                     scene.SendToBack(dragableButton);
-                    dragableButton.SnapDistance = snapDistance;
-                    dragableButton.TargetDragPoint = buttonRect.Location;
+                    dragableButton.SnapInfo = (snapDistance, buttonRect.Location);
                     animations.AddAnimation(new WaitConditionAnimation(
                         condition: () => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location),
                         end: () => {
