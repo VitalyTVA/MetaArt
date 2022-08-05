@@ -159,8 +159,8 @@ namespace ThatButtonAgain {
                         animations.AddAnimation(animation);
                     };
 
-                    AddRotateAnimation(MathFEx.PI * 2, MathFEx.PI, rightLetter);
-                    AddRotateAnimation(MathFEx.PI, 0, leftLetter);
+                    AddRotateAnimation(0, MathFEx.PI, rightLetter);
+                    AddRotateAnimation(MathFEx.PI, MathFEx.PI * 2, leftLetter);
                 };
                 letter.HitTestVisible = true;
             });
