@@ -29,6 +29,7 @@ namespace ThatButtonAgain {
                 Level_16xClick,
                 Level_RotationsGroup,
                 Level_LettersBehindButton,
+                Level_ClickInsteadOfTouch,
             };
         }
 
@@ -203,6 +204,42 @@ namespace ThatButtonAgain {
                 }));
         }
 
+        void Level_ClickInsteadOfTouch() {
+            var button = CreateButton(StartNextLevelAnimation);
+            button.HitTestVisible = false;
+            scene.AddElement(button);
+
+            var letters = CreateLetters<InflateLetter>((letter, index) => {
+                float margin = letterDragBoxSize * 2;
+                letter.Rect = GetLetterTargetRect(index, button.Rect);
+                letter.HitTestVisible = true;
+                LerpAnimation<float> animation = null!;
+                letter.OnPress = () => {
+                    animation = new() {
+                        From = 1,
+                        To = 2,
+                        Duration = Constants.InflateButtonDuration,
+                        Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
+                        OnEnd = () => {
+                            letter.Value = "TOUCH"[index];
+                            letter.Scale = 1;
+                            letter.HitTestVisible = false;
+                        },
+                        SetValue = value => letter.Scale = value
+                    };
+                    animations.AddAnimation(animation);
+                };
+                letter.OnRelease = () => {
+                    animations.RemoveAnimation(animation);
+                    letter.Scale = 1;
+                };
+            }, "CLICK");
+            animations.AddAnimation(new WaitConditionAnimation(
+                condition: () => letters.Select((l, i) => (l, i)).All(x => x.l.Value == "TOUCH"[x.i]),
+                end: () => button.HitTestVisible = true
+            ));
+        }
+
         Func<bool> GetAreLettersInPlaceCheck(Rect buttonRect, LetterBase[] letters) {
             var targetLocations = GetLettersTargetLocations(buttonRect);
             return () => letters.Select((l, i) => (l, i)).All(x => MathFEx.VectorsEqual(x.l.Rect.Location, targetLocations[x.i]));
@@ -256,10 +293,10 @@ namespace ThatButtonAgain {
             StartFade(0, 255, NextLevel);
         }
 
-        TLetter[] CreateLetters<TLetter>(Action<TLetter, int> setUp) where TLetter : LetterBase, new() {
+        TLetter[] CreateLetters<TLetter>(Action<TLetter, int> setUp, string word = "TOUCH") where TLetter : LetterBase, new() {
             int index = 0;
             var letters = new TLetter[5];
-            foreach(var value in "TOUCH") {
+            foreach(var value in word) {
                 var letter = new TLetter() {
                     Value = value,
                 };
@@ -301,6 +338,7 @@ namespace ThatButtonAgain {
         //public static Color FadeOutColor = new Color(0, 0, 0);
         public static TimeSpan FadeOutDuration => TimeSpan.FromMilliseconds(500);
         public static TimeSpan RotateAroundLetterDuration => TimeSpan.FromMilliseconds(500);
+        public static TimeSpan InflateButtonDuration => TimeSpan.FromMilliseconds(1500);
 
         public static float LetterIndexOffsetRatioX => .3f;
         public static float LetterIndexOffsetRatioY => .5f;

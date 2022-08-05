@@ -70,7 +70,10 @@
             animations.Add(animation);
             //UpdateState();
         }
-
+        public void RemoveAnimation(IAnimation animation) {
+            animations.Remove(animation);
+            //UpdateState();
+        }
         //private void UpdateState() {
         //    updateState(animations.Any());
         //}

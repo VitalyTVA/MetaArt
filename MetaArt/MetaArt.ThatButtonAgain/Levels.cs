@@ -45,6 +45,17 @@ public abstract class LevelBase {
                     fill(Colors.ButtonBackNormal);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     break;
+                case InflateLetter inflateLetter:
+                    pushMatrix();
+                    translate(item.Rect.MidX, item.Rect.MidY);
+                    scale(inflateLetter.Scale, inflateLetter.Scale);
+                    //fill(Colors.LetterDragBox);
+                    //rect(0, 0, item.Rect.Width, item.Rect.Height);
+                    fill(Colors.LetterColor);
+                    textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
+                    text(inflateLetter.Value.ToString(), 0, -controller.letterVerticalOffset);
+                    popMatrix();
+                    break;
                 case LetterBase l:
                     fill(Colors.LetterDragBox);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
@@ -113,5 +124,8 @@ class Level3 : LevelBase {
 }
 class Level4 : LevelBase {
     protected override int LevelIndex => 4;
+}
+class Level5 : LevelBase {
+    protected override int LevelIndex => 5;
 }
 

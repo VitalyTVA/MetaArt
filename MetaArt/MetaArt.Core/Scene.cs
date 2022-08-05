@@ -151,12 +151,22 @@ public class DragableButton : Element {
 
 public class PressActionLetter : LetterBase {
     public Action OnPress { get; set; } = null!;
+    public Action OnRelease { get; set; } = null!;
     public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
-        if(HitTestVisible) {
-            OnPress();
-        }
-        return null;
+        if(!HitTestVisible)
+            return null;
+        OnPress();
+        return new TapInputState(
+            this,
+            () => { },
+            setState: isPressed => { if(!isPressed) OnRelease?.Invoke(); },
+            releaseState
+        );
     }
+}
+
+public class InflateLetter : PressActionLetter {
+    public float Scale { get; set; } = 1;
 }
 
 public abstract class InputState {
