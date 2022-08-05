@@ -209,12 +209,17 @@ namespace ThatButtonAgain {
             button.HitTestVisible = false;
             scene.AddElement(button);
 
+            var indices = new[] { 0, 4, 2, 1 };
+            int replaceIndex = 0;
+
             var letters = CreateLetters<InflateLetter>((letter, index) => {
                 float margin = letterDragBoxSize * 2;
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
                 letter.HitTestVisible = true;
                 LerpAnimation<float> animation = null!;
                 letter.OnPress = () => {
+                    if(replaceIndex == indices.Length || indices[replaceIndex] != index)
+                        return;
                     animation = new() {
                         From = 1,
                         To = 2,
@@ -224,6 +229,7 @@ namespace ThatButtonAgain {
                             letter.Value = "TOUCH"[index];
                             letter.Scale = 1;
                             letter.HitTestVisible = false;
+                            replaceIndex++;
                         },
                         SetValue = value => letter.Scale = value
                     };
@@ -235,9 +241,13 @@ namespace ThatButtonAgain {
                 };
             }, "CLICK");
             animations.AddAnimation(new WaitConditionAnimation(
-                condition: () => letters.Select((l, i) => (l, i)).All(x => x.l.Value == "TOUCH"[x.i]),
-                end: () => button.HitTestVisible = true
-            ));
+                condition: () => replaceIndex == 4,
+                end: () => {
+                    button.HitTestVisible = true;
+                    foreach(var item in letters) {
+                        item.HitTestVisible = false;
+                    }
+                }));
         }
 
         Func<bool> GetAreLettersInPlaceCheck(Rect buttonRect, LetterBase[] letters) {
