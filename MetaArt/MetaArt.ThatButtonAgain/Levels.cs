@@ -41,6 +41,10 @@ public abstract class LevelBase {
                         : Colors.ButtonBackNormal);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     break;
+                case DragableButton b:
+                    fill(Colors.ButtonBackNormal);
+                    rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
+                    break;
                 case LetterBase l:
                     fill(Colors.LetterDragBox);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
@@ -106,5 +110,8 @@ class Level2 : LevelBase {
 }
 class Level3 : LevelBase {
     protected override int LevelIndex => 3;
+}
+class Level4 : LevelBase {
+    protected override int LevelIndex => 4;
 }
 

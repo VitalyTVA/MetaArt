@@ -28,6 +28,7 @@ namespace ThatButtonAgain {
                 Level_DragLettersOntoButton,
                 Level_16xClick,
                 Level_RotationsGroup,
+                Level_LettersBehindButton,
             };
         }
 
@@ -174,6 +175,35 @@ namespace ThatButtonAgain {
                 }));
         }
 
+        void Level_LettersBehindButton() {
+           var buttonRect = GetButtonRect();
+
+            var letters = CreateLetters<Letter>((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, buttonRect);
+            });
+
+            float snapDistance = buttonHeight * Constants.ButtonAnchorDistanceRatio;
+            var dragableButton = new DragableButton { 
+                Rect = buttonRect,
+                AnchorDistance = snapDistance,
+            };
+            scene.AddElement(dragableButton);
+
+            animations.AddAnimation(new WaitConditionAnimation(
+                condition: () => letters.All(l => !l.Rect.Intersects(dragableButton.Rect)),
+                end: () => {
+                    scene.SendToBack(dragableButton);
+                    dragableButton.SnapDistance = snapDistance;
+                    dragableButton.TargetDragPoint = buttonRect.Location;
+                    animations.AddAnimation(new WaitConditionAnimation(
+                        condition: () => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location),
+                        end: () => {
+                            scene.RemoveElement(dragableButton);
+                            scene.AddElementBehind(CreateButton(NextLevel));
+                        }));
+                }));
+        }
+
         Func<bool> GetAreLettersInPlaceCheck(Rect buttonRect, LetterBase[] letters) {
             var targetLocations = GetLettersTargetLocations(buttonRect);
             return () => letters.Select((l, i) => (l, i)).All(x => MathFEx.VectorsEqual(x.l.Rect.Location, targetLocations[x.i]));
@@ -192,17 +222,20 @@ namespace ThatButtonAgain {
 
         Button CreateButton(Action click) {
             return new Button {
-                Rect = new Rect(
-                            scene.width / 2 - buttonWidth / 2,
-                            scene.height / 2 - buttonHeight / 2,
-                            buttonWidth,
-                            buttonHeight
-                        ),
+                Rect = GetButtonRect(),
                 HitTestVisible = true,
                 Click = click
             };
         }
 
+        Rect GetButtonRect() {
+            return new Rect(
+                                        scene.width / 2 - buttonWidth / 2,
+                                        scene.height / 2 - buttonHeight / 2,
+                                        buttonWidth,
+                                        buttonHeight
+                                    );
+        }
 
         void StartFade(float from, float to, Action end) {
             var element = new FadeOutElement() { Rect = new Rect(0, 0, scene.width, scene.height), Opacity = from };
@@ -273,6 +306,7 @@ namespace ThatButtonAgain {
         public static float LetterIndexOffsetRatioX => .3f;
         public static float LetterIndexOffsetRatioY => .5f;
         public static float LetterSnapDistanceRatio => .2f;
+        public static float ButtonAnchorDistanceRatio => .2f;
     }
 }
 

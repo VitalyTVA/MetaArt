@@ -29,10 +29,17 @@ public class Scene {
     public void AddElement(Element element) {
         elements.Add(element);
     }
-    public void RemoveElement(Element element) {
-        elements.Remove(element);
+    public void AddElementBehind(Element element) {
+        elements.Insert(0, element);
+    }
+    public bool RemoveElement(Element element) {
+        return elements.Remove(element);
     }
     public void ClearElements() => elements.Clear();
+    public void SendToBack(Element element) {
+        if(!RemoveElement(element)) throw new InvalidOperationException();
+        AddElementBehind(element);
+    }
 
     public void Press(Vector2 point) {
         inputState = inputState.Press(point);
@@ -103,6 +110,38 @@ public class DragableLetter : LetterBase {
             Rect = newRect;
             return allowDrag;
             //Debug.WriteLine(delta.ToString());
+        }, releaseState);
+    }
+}
+
+public class DragableButton : Element {
+    public float AnchorDistance { get; set; }
+
+    public Vector2? TargetDragPoint { get; set; }
+    public float SnapDistance { get; set; }
+    bool allowDrag = true;
+
+    public DragableButton() {
+        HitTestVisible = true;
+    }
+    public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
+        if(!allowDrag)
+            return null;
+
+        var startRect = Rect;
+        return new DragInputState(startPoint, delta => {
+            Rect newRect = startRect;
+            if(delta.LengthSquared() >= AnchorDistance * AnchorDistance) {
+                newRect = newRect.Offset(delta);
+                AnchorDistance = 0;
+            }
+            if(TargetDragPoint != null && (newRect.Location - TargetDragPoint.Value).LengthSquared() <= SnapDistance * SnapDistance) {
+                newRect = new Rect(TargetDragPoint.Value, newRect.Size);
+                allowDrag = false;
+                HitTestVisible = false;
+            }
+            Rect = newRect;
+            return allowDrag;
         }, releaseState);
     }
 }

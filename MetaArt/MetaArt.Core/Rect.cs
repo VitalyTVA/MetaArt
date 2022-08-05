@@ -22,6 +22,10 @@ namespace MetaArt.Core {
             MathFEx.LessOrEqual(Location.Y, point.Y) &&
             MathFEx.LessOrEqual(point.X, Location.X + Size.X) &&
             MathFEx.LessOrEqual(point.Y, Location.Y + Size.Y);
+
+        public bool Intersects(Rect rect) => 
+            Contains(rect.Location) || Contains(rect.Location + rect.Size) || 
+            rect.Contains(Location) || rect.Contains(Location + Size);
     }
 }
 
