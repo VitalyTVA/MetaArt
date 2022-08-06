@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Media;
 
 namespace MetaArt.Wpf {
     public partial class SketchForm : Form {
@@ -28,7 +29,13 @@ namespace MetaArt.Wpf {
             this.ownerRect = ownerRect;
             this.sketchSizeChanged = sketchSizeChanged;
             this.mouseWheel = mouseWheel;
-            painter = new Painter(sketchType!, () => skglControl1.Invalidate(), feedback, displayDensity: 1, deviceType: DeviceType.Desktop);
+            painter = new Painter(
+                sketchType!, 
+                () => skglControl1.Invalidate(), 
+                feedback, displayDensity: 1, 
+                deviceType: DeviceType.Desktop,
+                createSoundFile: CreateSoundFile
+            );
             painter.Setup();
             skglControl1.MouseMove += SkglControl1_MouseMove;
             skglControl1.MouseLeave += SkglControl1_MouseLeave;
@@ -42,7 +49,25 @@ namespace MetaArt.Wpf {
             Width = Screen.PrimaryScreen.WorkingArea.Width;
             Height = Screen.PrimaryScreen.WorkingArea.Height;
         }
+        class WpfSoundFile : SoundFile {
+            readonly SimpleAudioPlayerImplementation player;
 
+            public WpfSoundFile(SimpleAudioPlayerImplementation player) {
+                this.player = player;
+            }
+            public override void play() {
+                player.Play();
+            }
+        }
+        static SoundFile CreateSoundFile(Stream stream) {
+            //System.Media.SoundPlayer player = new System.Media.SoundPlayer(stream);
+            //player.Load();
+            //return new WpfSoundFile(player);
+
+            var player = new SimpleAudioPlayerImplementation();
+            player.Load(stream);
+            return new WpfSoundFile(player);
+        }
         protected override void OnHandleCreated(EventArgs e) {
             base.OnHandleCreated(e);
             SetLocation(ownerRect);

@@ -88,11 +88,17 @@ div.scrollable {
             _ => {
             },
             displayDensity: 1,
-            deviceType: DeviceType.Desktop
-        );
+            deviceType: DeviceType.Desktop,
+            createSoundFile: _ => new BlazorSoundFile()
+    );
         painter.Setup();
         viewStyle = $"height:{painter!.Height}px; width:{painter!.Width}px;";
         StateHasChanged();
+    }
+    class BlazorSoundFile : SoundFile {
+        public override void play() {
+            throw new NotImplementedException();
+        }
     }
     void SelectGroup(IGrouping<string, SketchDisplayInfo> group) {
         selectedGroup = group;
