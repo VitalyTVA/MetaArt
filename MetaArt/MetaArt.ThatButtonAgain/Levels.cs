@@ -9,6 +9,7 @@ public abstract class LevelBase {
     protected abstract int LevelIndex { get; }
 
     GameController controller = null!;
+    SoundFile win = null!;
 
     void setup() {
         if(deviceType() == DeviceType.Desktop)
@@ -16,11 +17,23 @@ public abstract class LevelBase {
         fullRedraw();
         
         rectMode(CORNER);
-        controller = new GameController(width / displayDensity(), height / displayDensity());
+        controller = new GameController(
+            width / displayDensity(),
+            height / displayDensity(),
+            playSound: kind => {
+                switch(kind) {
+                    case SoundKind.Win:
+                        win.play();
+                        break;
+                    default:
+                        throw new InvalidOperationException("Unknown sound");
+                }
+            }
+        );
 
 
         textFont(createFont("SourceCodePro-Regular.ttf", controller.letterSize));
-
+        win = createSound("Win1.wav");
 
         controller.SetLevel(LevelIndex);
     }

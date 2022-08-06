@@ -52,9 +52,17 @@ namespace MetaArt {
         internal readonly float displayDensity;
 
         internal readonly DeviceType deviceType;
+        internal readonly Func<Stream, SoundFile> createSoundFile;
 
-        protected PainterBase(Type sketchType, Graphics graphics, Action invalidate, Action<PaintFeedback> feedback, float displayDensity, DeviceType deviceType)
-        {
+        protected PainterBase(
+            Type sketchType,
+            Graphics graphics,
+            Action invalidate,
+            Action<PaintFeedback> feedback,
+            float displayDensity,
+            DeviceType deviceType,
+            Func<Stream, SoundFile> createSoundFile
+        ) {
             this.invalidate = invalidate;
             this.feedback = feedback;
             Graphics = graphics;
@@ -73,6 +81,8 @@ namespace MetaArt {
             keyPressedMethod = GetSkecthMethod(sketch.GetType(), "keyPressed");
 
             SettingsCore();
+
+            this.createSoundFile = createSoundFile;
         }
 
         internal static MethodInfo GetSkecthMethod(Type type, string name)

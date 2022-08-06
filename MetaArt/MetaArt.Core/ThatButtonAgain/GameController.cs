@@ -2,6 +2,9 @@
 using System.Numerics;
 
 namespace ThatButtonAgain {
+    public enum SoundKind {
+        Win,
+    }
     public class GameController {
         public readonly Scene scene;
         readonly AnimationsController animations = new(new IAnimation[0]);
@@ -12,8 +15,9 @@ namespace ThatButtonAgain {
         public readonly float letterSize;
         readonly float letterDragBoxSize;
         readonly float letterHorzStep;
+        readonly Action<SoundKind> playSound;
 
-        public GameController(float width, float height) {
+        public GameController(float width, float height, Action<SoundKind> playSound) {
             scene = new Scene(width, height);
 
             buttonWidth = scene.width * Constants.ButtonRelativeWidth;
@@ -32,6 +36,7 @@ namespace ThatButtonAgain {
                 Level_ClickInsteadOfTouch,
                 Level_RandomButton,
             };
+            this.playSound = playSound;
         }
 
         public void NextFrame(float deltaTime) {
@@ -200,7 +205,7 @@ namespace ThatButtonAgain {
                         condition: deltaTime => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location),
                         end: () => {
                             scene.RemoveElement(dragableButton);
-                            scene.AddElementBehind(CreateButton(NextLevel));
+                            scene.AddElementBehind(CreateButton(StartNextLevelAnimation));
                         }));
                 }));
         }
@@ -341,7 +346,8 @@ namespace ThatButtonAgain {
             scene.AddElement(element);
         }
         void StartNextLevelAnimation() {
-            StartFade(0, 255, NextLevel);
+            StartFade(0, 255, () => SetLevel(levelIndex + 1));
+            playSound(SoundKind.Win);
         }
 
         TLetter[] CreateLetters<TLetter>(Action<TLetter, int> setUp, string word = "TOUCH") where TLetter : LetterBase, new() {
@@ -360,7 +366,6 @@ namespace ThatButtonAgain {
         }
 
         readonly Action[] levels;
-
         int levelIndex = 0;
         public void SetLevel(int level) {
             levelIndex = Math.Min(level, levels.Length - 1);
@@ -372,9 +377,6 @@ namespace ThatButtonAgain {
             });
             levels[levelIndex]();
             StartFade(255, 0, () => { });
-        }
-        void NextLevel() {
-            SetLevel(levelIndex + 1);
         }
     }
     static class Constants {

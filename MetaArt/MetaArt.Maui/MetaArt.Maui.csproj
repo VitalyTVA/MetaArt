@@ -48,10 +48,12 @@
 	<ItemGroup>
 	  <None Remove="SkiaSharp.Views.Maui.Controls" />
 	  <None Remove="SkiaSharp.Views.Maui.Controls.Compatibility" />
+	  <None Remove="Xam.Plugin.SimpleAudioPlayer" />
 	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="2.88.1-preview.91" />
 	  <PackageReference Include="SkiaSharp.Views.Maui.Controls.Compatibility" Version="2.88.1-preview.91" />
+	  <PackageReference Include="Xam.Plugin.SimpleAudioPlayer" Version="1.6.0" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\MetaArt\MetaArt.csproj" />

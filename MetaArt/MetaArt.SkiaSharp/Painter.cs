@@ -51,8 +51,14 @@ namespace MetaArt.Skia {
         }
 
 
-        public Painter(Type sketchType, Action invalidate, Action<PaintFeedback> feedback, float displayDensity, DeviceType deviceType) 
-            : base(sketchType, new SkiaGraphics(), invalidate, feedback, displayDensity, deviceType) {
+        public Painter(
+            Type sketchType,
+            Action invalidate,
+            Action<PaintFeedback> feedback,
+            float displayDensity,
+            DeviceType deviceType,
+            Func<Stream, SoundFile> createSoundFile
+        ) : base(sketchType, new SkiaGraphics(), invalidate, feedback, displayDensity, deviceType, createSoundFile) {
         }
 
         void ClearSurface() {

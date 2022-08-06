@@ -1,4 +1,5 @@
 ﻿using MetaArt.Skia;
+using Plugin.SimpleAudioPlayer;
 using SkiaSharp;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -79,7 +80,8 @@ public partial class SkecthPage : ContentPage
                 }
             },
             displayDensity: (float)DeviceDisplay.MainDisplayInfo.Density,
-            deviceType: DeviceType.Mobile
+            deviceType: DeviceType.Mobile,
+            createSoundFile: CreateSoundFile
         );
         painter.SetSize((int)view.CanvasSize.Width, (int)view.CanvasSize.Height);
         painter.Setup();
@@ -89,9 +91,22 @@ public partial class SkecthPage : ContentPage
             this.title.Text = info.Name;
         });
         currentSketch = info;
-        
     }
+    class XamarinSoundFile : SoundFile {
+        readonly ISimpleAudioPlayer player;
 
+        public XamarinSoundFile(ISimpleAudioPlayer player) {
+            this.player = player;
+        }
+        public override void play() {
+            player.Play();
+        }
+    }
+    static SoundFile CreateSoundFile(Stream stream) {
+        ISimpleAudioPlayer player = Plugin.SimpleAudioPlayer.CrossSimpleAudioPlayer.CreateSimpleAudioPlayer();
+        player.Load(stream);
+        return new XamarinSoundFile(player);
+    } 
     //protected override void OnNavigatedFrom(NavigationEventArgs e) {
     //    base.OnNavigatedFrom(args);
 

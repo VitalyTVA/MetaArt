@@ -1,4 +1,5 @@
 ﻿using MetaArt.Skia;
+using Plugin.SimpleAudioPlayer;
 
 namespace MetaArt.Maui;
 
@@ -95,7 +96,8 @@ public partial class SkecthPage : ContentPage
 #endif
             },
             displayDensity: (float)DeviceDisplay.MainDisplayInfo.Density,
-            deviceType: DeviceType.Mobile
+            deviceType: DeviceType.Mobile,
+            createSoundFile: CreateSoundFile
         );
 
         painter.SetSize((int)view.CanvasSize.Width, (int)view.CanvasSize.Height);
@@ -107,7 +109,31 @@ public partial class SkecthPage : ContentPage
         });
         currentSketch = info;
     }
+#if !ANDROID
+    class MauiSoundFile : SoundFile {
+        public override void play() {
+        }
+    }
+    static SoundFile CreateSoundFile(Stream stream) {
+        return new MauiSoundFile();
+    }
+#else
+    class MauiSoundFile : SoundFile {
+        readonly ISimpleAudioPlayer player;
 
+        public MauiSoundFile(ISimpleAudioPlayer player) {
+            this.player = player;
+        }
+        public override void play() {
+            player.Play();
+        }
+    }
+    static SoundFile CreateSoundFile(Stream stream) {
+        ISimpleAudioPlayer player = Plugin.SimpleAudioPlayer.CrossSimpleAudioPlayer.CreateSimpleAudioPlayer();
+        player.Load(stream);
+        return new MauiSoundFile(player);
+    }
+#endif
     protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
     {
         base.OnNavigatedFrom(args);

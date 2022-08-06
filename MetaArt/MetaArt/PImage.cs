@@ -7,6 +7,8 @@ namespace MetaArt {
 	public abstract class PImage {
     }
     public abstract class PFont {
-
+    }
+    public abstract class SoundFile {
+        public abstract void play();
     }
 }
