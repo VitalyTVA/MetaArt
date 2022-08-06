@@ -33,7 +33,7 @@ public abstract class LevelBase {
         scale(displayDensity(), displayDensity());
         noStroke();
 
-        foreach (var item in controller.scene.Elements) {
+        foreach (var item in controller.scene.VisibleElements) {
             switch (item) {
                 case Button b:
                     fill(b.IsPressed 
@@ -127,5 +127,8 @@ class Level4 : LevelBase {
 }
 class Level5 : LevelBase {
     protected override int LevelIndex => 5;
+}
+class Level6 : LevelBase {
+    protected override int LevelIndex => 6;
 }
 

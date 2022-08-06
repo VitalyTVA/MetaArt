@@ -30,6 +30,7 @@ namespace ThatButtonAgain {
                 Level_RotationsGroup,
                 Level_LettersBehindButton,
                 Level_ClickInsteadOfTouch,
+                Level_RandomButton,
             };
         }
 
@@ -191,12 +192,12 @@ namespace ThatButtonAgain {
             scene.AddElement(dragableButton);
 
             animations.AddAnimation(new WaitConditionAnimation(
-                condition: () => letters.All(l => !l.Rect.Intersects(dragableButton.Rect)),
+                condition: deltaTime => letters.All(l => !l.Rect.Intersects(dragableButton.Rect)),
                 end: () => {
                     scene.SendToBack(dragableButton);
                     dragableButton.SnapInfo = (snapDistance, buttonRect.Location);
                     animations.AddAnimation(new WaitConditionAnimation(
-                        condition: () => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location),
+                        condition: deltaTime => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location),
                         end: () => {
                             scene.RemoveElement(dragableButton);
                             scene.AddElementBehind(CreateButton(NextLevel));
@@ -241,7 +242,7 @@ namespace ThatButtonAgain {
                 };
             }, "CLICK");
             animations.AddAnimation(new WaitConditionAnimation(
-                condition: () => replaceIndex == 4,
+                condition: deltaTime => replaceIndex == 4,
                 end: () => {
                     button.HitTestVisible = true;
                     foreach(var item in letters) {
@@ -250,9 +251,49 @@ namespace ThatButtonAgain {
                 }));
         }
 
-        Func<bool> GetAreLettersInPlaceCheck(Rect buttonRect, LetterBase[] letters) {
+        void Level_RandomButton() {
+
+            var button = CreateButton(StartNextLevelAnimation);
+            scene.AddElement(button);
+            var letters = CreateLetters<Letter>((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, button.Rect);
+            });
+
+            void SetVisibility(bool visible) {
+                button!.IsVisible = visible;
+                foreach(var letter in letters!) {
+                    letter.IsVisible = visible;
+                }
+            }
+
+            SetVisibility(false);
+
+            var appearInterval = Constants.MinButtonAppearInterval;
+
+            void StartWaitButton() {
+                animations.AddAnimation(WaitConditionAnimation.WaitTime(
+                    TimeSpan.FromMilliseconds(MathFEx.Random(Constants.MinButtonInvisibleInterval, Constants.MaxButtonInvisibleInterval)),
+                    () => {
+                        SetVisibility(true);
+                        animations.AddAnimation(WaitConditionAnimation.WaitTime(
+                            TimeSpan.FromMilliseconds(appearInterval),
+                            () => {
+                                appearInterval = Math.Min(appearInterval + Constants.ButtonAppearIntervalIncrease, Constants.MaxButtonAppearInterval);
+                                SetVisibility(false);
+                                StartWaitButton();
+                            }
+                        ));
+                    }
+                ));
+            };
+
+            StartWaitButton();
+
+        }
+
+        Func<TimeSpan, bool> GetAreLettersInPlaceCheck(Rect buttonRect, LetterBase[] letters) {
             var targetLocations = GetLettersTargetLocations(buttonRect);
-            return () => letters.Select((l, i) => (l, i)).All(x => MathFEx.VectorsEqual(x.l.Rect.Location, targetLocations[x.i]));
+            return deltaTime => letters.Select((l, i) => (l, i)).All(x => MathFEx.VectorsEqual(x.l.Rect.Location, targetLocations[x.i]));
         }
 
         Vector2[] GetLettersTargetLocations(Rect buttonRect) => 
@@ -354,6 +395,12 @@ namespace ThatButtonAgain {
         public static float LetterIndexOffsetRatioY => .5f;
         public static float LetterSnapDistanceRatio => .2f;
         public static float ButtonAnchorDistanceRatio => .2f;
+
+        public static float MinButtonInvisibleInterval => 1000;
+        public static float MaxButtonInvisibleInterval => 5000;
+        public static float MinButtonAppearInterval => 200;
+        public static float MaxButtonAppearInterval => 500;
+        public static float ButtonAppearIntervalIncrease => 25;
     }
 }
 

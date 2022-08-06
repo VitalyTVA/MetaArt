@@ -14,7 +14,7 @@ public class Scene {
         this.inputState = this.noInputState = new NoInputState(point => {
             for (int i = elements.Count - 1; i >= 0; i--) {
                 var element = elements[i];
-                if(element.HitTestVisible && element.Rect.Contains(point)) {
+                if(element.IsVisible && element.HitTestVisible && element.Rect.Contains(point)) {
                     return (element.GetPressState(point, noInputState!) ?? inputState)!;
                 }
             }
@@ -24,7 +24,7 @@ public class Scene {
 
     List<Element> elements = new();
 
-    public IEnumerable<Element> Elements => elements;
+    public IEnumerable<Element> VisibleElements => elements.Where(x => x.IsVisible);
 
     public void AddElement(Element element) {
         elements.Add(element);
@@ -83,6 +83,7 @@ public abstract class Element {
 
     public Rect Rect { get; set; }
     public bool HitTestVisible { get; set; }
+    public bool IsVisible { get; set; } = true;
     public virtual InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) => null;
 }
 
@@ -249,7 +250,8 @@ public class TapInputState : InputState {
 
     public override InputState Release() {
         setState(false);
-        onTap();
+        if(element.IsVisible)
+            onTap();
         return releaseState;
     }
 }

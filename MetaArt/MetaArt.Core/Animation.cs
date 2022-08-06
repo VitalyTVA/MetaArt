@@ -4,10 +4,18 @@
         void End();
     }
     public sealed class WaitConditionAnimation : IAnimation {
-        readonly Func<bool> condition;
+        public static WaitConditionAnimation WaitTime(TimeSpan time, Action end) {
+            var totalTime = TimeSpan.Zero;
+            return new WaitConditionAnimation(deltaTime => {
+                totalTime += deltaTime;
+                return totalTime > time;
+            }, end);
+        }
+
+        readonly Func<TimeSpan, bool> condition;
         readonly Action end;
 
-        public WaitConditionAnimation(Func<bool> condition, Action end) {
+        public WaitConditionAnimation(Func<TimeSpan, bool> condition, Action end) {
             this.condition = condition;
             this.end = end;
         }
@@ -15,7 +23,7 @@
             end();
         }
         bool IAnimation.Next(TimeSpan deltaTime) {
-            return !condition();
+            return !condition(deltaTime);
         }
     }
 
