@@ -35,6 +35,7 @@ namespace ThatButtonAgain {
                 Level_LettersBehindButton,
                 Level_ClickInsteadOfTouch,
                 Level_RandomButton,
+                Level_ReflectedButton,
             };
             this.playSound = playSound;
         }
@@ -65,16 +66,18 @@ namespace ThatButtonAgain {
                 (2.3f, -3.4f),
             };
 
-            var letters = CreateLetters<DragableLetter>((letter, index) => {
+            var letters = CreateLetters<Letter>((letter, index) => {
                 float margin = letterDragBoxSize * 2;
                 letter.Rect = Rect.FromCenter(
                     //TODO Ensure letter box is within bounds
                     new Vector2(button.Rect.MidX + letterDragBoxSize * points[index].Item1, button.Rect.MidY + letterDragBoxSize * points[index].Item2),
                     new Vector2(letterDragBoxSize, letterDragBoxSize)
                 );
-                letter.TargetDragPoint = GetLetterTargetRect(index, button.Rect).Location;
                 letter.HitTestVisible = true;
-                letter.SnapDistance = letterSize * Constants.LetterSnapDistanceRatio;
+                letter.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
+                    letter, 
+                    () => 0, () => (letterSize * Constants.LetterSnapDistanceRatio, GetLetterTargetRect(index, button.Rect).Location)
+                );
             });
             animations.AddAnimation(new WaitConditionAnimation(
                 condition: GetAreLettersInPlaceCheck(button.Rect, letters),
@@ -136,11 +139,11 @@ namespace ThatButtonAgain {
             //41230
             //43210
             var indices = new[] { 4, 3, 2, 1, 0 };
-            PressActionLetter[] letters = null!;
+            Letter[] letters = null!;
             bool rotating = false;
-            letters = CreateLetters<PressActionLetter>((letter, index) => {
+            letters = CreateLetters<Letter>((letter, index) => {
                 letter.Rect = GetLetterTargetRect(indices[index], button.Rect);
-                letter.OnPress = () => {
+                var onPress = () => {
                     if(rotating)
                         return;
 
@@ -151,7 +154,7 @@ namespace ThatButtonAgain {
 
                     rotating = true;
 
-                    void AddRotateAnimation(float fromAngle, float toAngle, PressActionLetter sideLetter) {
+                    void AddRotateAnimation(float fromAngle, float toAngle, Letter sideLetter) {
                         var animation = new RotateAnimation {
                             Duration = Constants.RotateAroundLetterDuration,
                             From = fromAngle,
@@ -169,6 +172,7 @@ namespace ThatButtonAgain {
                     AddRotateAnimation(0, MathFEx.PI, rightLetter);
                     AddRotateAnimation(MathFEx.PI, MathFEx.PI * 2, leftLetter);
                 };
+                letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, () => { });
                 letter.HitTestVisible = true;
             });
 
@@ -188,19 +192,20 @@ namespace ThatButtonAgain {
             var letters = CreateLetters<Letter>((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, buttonRect);
             });
-
+            (float, Vector2)? snapInfo = default;
             float snapDistance = buttonHeight * Constants.ButtonAnchorDistanceRatio;
             var dragableButton = new DragableButton { 
                 Rect = buttonRect,
-                AnchorDistance = snapDistance,
             };
+            dragableButton.GetPressState = Element.GetAnchorAndSnapDragStateFactory(dragableButton, () => snapDistance, () => snapInfo);
+
             scene.AddElement(dragableButton);
 
             animations.AddAnimation(new WaitConditionAnimation(
                 condition: deltaTime => letters.All(l => !l.Rect.Intersects(dragableButton.Rect)),
                 end: () => {
                     scene.SendToBack(dragableButton);
-                    dragableButton.SnapInfo = (snapDistance, buttonRect.Location);
+                    snapInfo = (snapDistance, buttonRect.Location);
                     animations.AddAnimation(new WaitConditionAnimation(
                         condition: deltaTime => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location),
                         end: () => {
@@ -223,7 +228,7 @@ namespace ThatButtonAgain {
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
                 letter.HitTestVisible = true;
                 LerpAnimation<float> animation = null!;
-                letter.OnPress = () => {
+                var onPress = () => {
                     if(replaceIndex == indices.Length || indices[replaceIndex] != index)
                         return;
                     animation = new() {
@@ -241,10 +246,12 @@ namespace ThatButtonAgain {
                     };
                     animations.AddAnimation(animation);
                 };
-                letter.OnRelease = () => {
+                var onRelease = () => {
                     animations.RemoveAnimation(animation);
                     letter.Scale = 1;
                 };
+                letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, onRelease);
+
             }, "CLICK");
             animations.AddAnimation(new WaitConditionAnimation(
                 condition: deltaTime => replaceIndex == 4,
@@ -296,7 +303,21 @@ namespace ThatButtonAgain {
 
         }
 
-        Func<TimeSpan, bool> GetAreLettersInPlaceCheck(Rect buttonRect, LetterBase[] letters) {
+        void Level_ReflectedButton() {
+            var buttonRect = GetButtonRect();
+
+            float snapDistance = buttonHeight * Constants.ButtonAnchorDistanceRatio;
+            var dragableButton = new DragableButton {
+                Rect = buttonRect,
+            };
+            scene.AddElement(dragableButton);
+
+            var letters = CreateLetters<Letter>((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, buttonRect);
+            });
+        }
+
+        Func<TimeSpan, bool> GetAreLettersInPlaceCheck(Rect buttonRect, Letter[] letters) {
             var targetLocations = GetLettersTargetLocations(buttonRect);
             return deltaTime => letters.Select((l, i) => (l, i)).All(x => MathFEx.VectorsEqual(x.l.Rect.Location, targetLocations[x.i]));
         }
@@ -313,11 +334,22 @@ namespace ThatButtonAgain {
             );
 
         Button CreateButton(Action click) {
-            return new Button {
+            var button = new Button {
                 Rect = GetButtonRect(),
                 HitTestVisible = true,
-                Click = click
             };
+            button.GetPressState = (startPoint, releaseState) => {
+                return new TapInputState(
+                    button,
+                    () => {
+                        if(button.IsEnabled)
+                            click();
+                    },
+                    setState: isPressed => button.IsPressed = isPressed,
+                    releaseState
+                );
+            };
+            return button;
         }
 
         Rect GetButtonRect() {
@@ -350,7 +382,7 @@ namespace ThatButtonAgain {
             playSound(SoundKind.Win);
         }
 
-        TLetter[] CreateLetters<TLetter>(Action<TLetter, int> setUp, string word = "TOUCH") where TLetter : LetterBase, new() {
+        TLetter[] CreateLetters<TLetter>(Action<TLetter, int> setUp, string word = "TOUCH") where TLetter : Letter, new() {
             int index = 0;
             var letters = new TLetter[5];
             foreach(var value in word) {

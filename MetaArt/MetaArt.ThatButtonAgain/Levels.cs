@@ -69,7 +69,7 @@ public abstract class LevelBase {
                     text(inflateLetter.Value.ToString(), 0, -controller.letterVerticalOffset);
                     popMatrix();
                     break;
-                case LetterBase l:
+                case Letter l:
                     fill(Colors.LetterDragBox);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     fill(Colors.LetterColor);
@@ -143,5 +143,8 @@ class Level5 : LevelBase {
 }
 class Level6 : LevelBase {
     protected override int LevelIndex => 6;
+}
+class Level7 : LevelBase {
+    protected override int LevelIndex => 7;
 }
 

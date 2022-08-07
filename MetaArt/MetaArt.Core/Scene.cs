@@ -15,7 +15,7 @@ public class Scene {
             for (int i = elements.Count - 1; i >= 0; i--) {
                 var element = elements[i];
                 if(element.IsVisible && element.HitTestVisible && element.Rect.Contains(point)) {
-                    return (element.GetPressState(point, noInputState!) ?? inputState)!;
+                    return (element.GetPressState?.Invoke(point, noInputState!) ?? inputState)!;
                 }
             }
             return noInputState!;
@@ -52,16 +52,17 @@ public class Scene {
     }
 }
 public abstract class Element {
-    protected Func<Vector2, NoInputState, DragInputState?> GetAnchorAndSnapDragStateFactory(
+     public static Func<Vector2, NoInputState, InputState> GetAnchorAndSnapDragStateFactory(
+        Element element,
         Func<float> getAnchorDistance,
         Func<(float snapDistance, Vector2 snapPoint)?> getSnapInfo) {
         bool allowDrag = true;
         bool anchored = true;
         return (startPoint, releaseState) => {
             if (!allowDrag)
-                return null;
+                return releaseState;
 
-            var startRect = Rect;
+            var startRect = element.Rect;
             return new DragInputState(startPoint, delta => {
                 Rect newRect = startRect;
                 var anchorDistance = getAnchorDistance();
@@ -73,18 +74,38 @@ public abstract class Element {
                 if (snapInfo != null && (newRect.Location - snapInfo.Value.snapPoint).LengthSquared() <= snapInfo.Value.snapDistance * snapInfo.Value.snapDistance) {
                     newRect = new Rect(snapInfo.Value.snapPoint, newRect.Size);
                     allowDrag = false;
-                    HitTestVisible = false;
+                    element.HitTestVisible = false;
                 }
-                Rect = newRect;
+                element.Rect = newRect;
                 return allowDrag;
             }, releaseState);
+        };
+    }
+
+     public static Func<Vector2, NoInputState, InputState> GetPressReleaseStateFactory(
+        Element element,
+        Action onPress,
+        Action onRelease
+     ) {
+        return (startPoint, releaseState) => {
+            if(!element.HitTestVisible)
+                return releaseState;
+            onPress();
+            return new TapInputState(
+                element,
+                () => { },
+                setState: isPressed => {
+                    if(!isPressed) onRelease?.Invoke();
+                },
+                releaseState
+            );
         };
     }
 
     public Rect Rect { get; set; }
     public bool HitTestVisible { get; set; }
     public bool IsVisible { get; set; } = true;
-    public virtual InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) => null;
+    public Func<Vector2, NoInputState, InputState>? GetPressState { get; set; }
 }
 
 public class FadeOutElement : Element {
@@ -97,76 +118,25 @@ public class FadeOutElement : Element {
 public class Button : Element {
     public bool IsEnabled { get; set; } = true;
     public bool IsPressed { get; set; }
-    public Action Click { get; init; } = null!;
-    public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
-        return new TapInputState(
-            this,
-            () => {
-                if(IsEnabled)
-                    Click();
-                //Debug.WriteLine("Click");
-            },
-            setState: isPressed => IsPressed = isPressed,
-            releaseState);
-    }
 }
 
 public class Text : Element {
     public string Value { get; set; } = null!;
 }
 
-public abstract class LetterBase : Element {
+
+public class Letter : Element {
     public char Value { get; set; }
 }
 
-public class Letter : LetterBase { 
-}
-
-public class DragableLetter : LetterBase {
-    public Vector2 TargetDragPoint { get; set; }
-    public float SnapDistance { get; set; }
-    readonly Func<Vector2, NoInputState, DragInputState?> getDragState;
-    public DragableLetter() {
-        getDragState = GetAnchorAndSnapDragStateFactory(() => 0, () => (SnapDistance, TargetDragPoint));
-    }
-    public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
-        return getDragState(startPoint, releaseState);
-    }
-}
-
 public class DragableButton : Element {
-    public float AnchorDistance { get; set; }
-
-    public (float, Vector2)? SnapInfo { get; set; }
-
-    readonly Func<Vector2, NoInputState, DragInputState?> getDragState;
-
     public DragableButton() {
-        getDragState = GetAnchorAndSnapDragStateFactory(() => AnchorDistance, () => SnapInfo);
         HitTestVisible = true;
     }
-    public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
-        return getDragState(startPoint, releaseState);
-    }
 }
 
-public class PressActionLetter : LetterBase {
-    public Action OnPress { get; set; } = null!;
-    public Action OnRelease { get; set; } = null!;
-    public override InputState? GetPressState(Vector2 startPoint, NoInputState releaseState) {
-        if(!HitTestVisible)
-            return null;
-        OnPress();
-        return new TapInputState(
-            this,
-            () => { },
-            setState: isPressed => { if(!isPressed) OnRelease?.Invoke(); },
-            releaseState
-        );
-    }
-}
 
-public class InflateLetter : PressActionLetter {
+public class InflateLetter : Letter {
     public float Scale { get; set; } = 1;
 }
 
