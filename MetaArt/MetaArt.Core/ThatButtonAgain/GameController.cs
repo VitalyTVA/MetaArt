@@ -54,7 +54,7 @@ namespace ThatButtonAgain {
             var button = CreateButton(StartNextLevelAnimation);
             scene.AddElement(button);
 
-            CreateLetters<Letter>((letter, index) => {
+            CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
             });
         }
@@ -72,7 +72,7 @@ namespace ThatButtonAgain {
                 (2.3f, -3.4f),
             };
 
-            var letters = CreateLetters<Letter>((letter, index) => {
+            var letters = CreateLetters((letter, index) => {
                 float margin = letterDragBoxSize * 2;
                 letter.Rect = Rect.FromCenter(
                     //TODO Ensure letter box is within bounds
@@ -132,7 +132,7 @@ namespace ThatButtonAgain {
             });
             scene.AddElement(button);
 
-            letters = CreateLetters<Letter>((letter, index) => {
+            letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
             });
             SetLetters();
@@ -151,7 +151,7 @@ namespace ThatButtonAgain {
             var indices = new[] { 4, 3, 2, 1, 0 };
             Letter[] letters = null!;
             bool rotating = false;
-            letters = CreateLetters<Letter>((letter, index) => {
+            letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(indices[index], button.Rect);
                 var onPress = () => {
                     if(rotating)
@@ -199,7 +199,7 @@ namespace ThatButtonAgain {
         void Level_LettersBehindButton() {
            var buttonRect = GetButtonRect();
 
-            var letters = CreateLetters<Letter>((letter, index) => {
+            var letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, buttonRect);
             });
             (float, Vector2)? snapInfo = default;
@@ -234,7 +234,7 @@ namespace ThatButtonAgain {
             var indices = new[] { 0, 4, 2, 1 };
             int replaceIndex = 0;
 
-            var letters = CreateLetters<Letter>((letter, index) => {
+            var letters = CreateLetters((letter, index) => {
                 float margin = letterDragBoxSize * 2;
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
                 letter.HitTestVisible = true;
@@ -279,7 +279,7 @@ namespace ThatButtonAgain {
 
             var button = CreateButton(StartNextLevelAnimation);
             scene.AddElement(button);
-            var letters = CreateLetters<Letter>((letter, index) => {
+            var letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
             });
 
@@ -330,7 +330,7 @@ namespace ThatButtonAgain {
                     Rect = buttonRect.Offset(offset),
                 };
                 scene.AddElement(button);
-                var letters = CreateLetters<Letter>((letter, index) => {
+                var letters = CreateLetters((letter, index) => {
                     letter.Rect = GetLetterTargetRect(index, button.Rect);
                     letter.Scale = new Vector2(flipH ? -1 : 1, flipV ? -1 : 1);
                 }, word);
@@ -431,7 +431,7 @@ namespace ThatButtonAgain {
                 }
             };
 
-            letters = CreateLetters<Letter>((letter, index) => {
+            letters = CreateLetters((letter, index) => {
                 letter.HitTestVisible = true;
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
                 letter.GetPressState = (startPoint, releaseState) => {
@@ -544,11 +544,11 @@ namespace ThatButtonAgain {
             playSound(SoundKind.Win1);
         }
 
-        TLetter[] CreateLetters<TLetter>(Action<TLetter, int> setUp, string word = "TOUCH") where TLetter : Letter, new() {
+        Letter[] CreateLetters(Action<Letter, int> setUp, string word = "TOUCH") {
             int index = 0;
-            var letters = new TLetter[5];
+            var letters = new Letter[5];
             foreach(var value in word) {
-                var letter = new TLetter() {
+                var letter = new Letter() {
                     Value = value,
                 };
                 setUp(letter, index);
