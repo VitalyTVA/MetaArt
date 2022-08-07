@@ -18,7 +18,8 @@ namespace ThatButtonAgain {
         readonly float buttonWidth;
         readonly float buttonHeight;
         public readonly float letterSize;
-        readonly float letterDragBoxSize;
+        readonly float letterDragBoxHeight;
+        readonly float letterDragBoxWidth;
         readonly float letterHorzStep;
         readonly Action<SoundKind> playSound;
 
@@ -28,7 +29,8 @@ namespace ThatButtonAgain {
             buttonWidth = scene.width * Constants.ButtonRelativeWidth;
             buttonHeight = buttonWidth * Constants.ButtonHeightRatio;
             letterSize = buttonHeight * Constants.LetterHeightRatio;
-            letterDragBoxSize = buttonHeight * Constants.LetterDragBoxRatio;
+            letterDragBoxHeight = buttonHeight * Constants.LetterDragBoxHeightRatio;
+            letterDragBoxWidth = buttonHeight * Constants.LetterDragBoxWidthRatio;
             letterVerticalOffset = letterSize * Constants.LetterVerticalOffsetRatio;
             letterHorzStep = buttonWidth * Constants.LetterHorizontalStepRatio;
 
@@ -73,11 +75,10 @@ namespace ThatButtonAgain {
             };
 
             var letters = CreateLetters((letter, index) => {
-                float margin = letterDragBoxSize * 2;
                 letter.Rect = Rect.FromCenter(
                     //TODO Ensure letter box is within bounds
-                    new Vector2(button.Rect.MidX + letterDragBoxSize * points[index].Item1, button.Rect.MidY + letterDragBoxSize * points[index].Item2),
-                    new Vector2(letterDragBoxSize, letterDragBoxSize)
+                    new Vector2(button.Rect.MidX + letterDragBoxWidth * points[index].Item1, button.Rect.MidY + letterDragBoxHeight * points[index].Item2),
+                    new Vector2(letterDragBoxWidth, letterDragBoxHeight)
                 );
                 letter.HitTestVisible = true;
                 letter.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
@@ -235,7 +236,6 @@ namespace ThatButtonAgain {
             int replaceIndex = 0;
 
             var letters = CreateLetters((letter, index) => {
-                float margin = letterDragBoxSize * 2;
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
                 letter.HitTestVisible = true;
                 LerpAnimation<float> animation = null!;
@@ -417,10 +417,10 @@ namespace ThatButtonAgain {
 
             int value = 0b00000;
             var vectors = new[] {
-                0b11001,
+                0b11001,//--
                 0b01010,
-                0b10100,
-                0b10010,
+                0b10100,//--
+                0b10010,//--
                 0b00101
             };
             const int target = 0b11111;
@@ -486,7 +486,7 @@ namespace ThatButtonAgain {
         Rect GetLetterTargetRect(int index, Rect buttonRect) =>
             Rect.FromCenter(
                 buttonRect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
-                new Vector2(letterDragBoxSize, letterDragBoxSize)
+                new Vector2(letterDragBoxWidth, letterDragBoxHeight)
             );
 
         Button CreateButton(Action click) {
@@ -578,9 +578,10 @@ namespace ThatButtonAgain {
         public static float ButtonHeightRatio => 1f / 3f;
 
         public static float LetterHeightRatio => 3f / 4f;
-        public static float LetterVerticalOffsetRatio => 1f / 8f;
-        public static float LetterDragBoxRatio => 3f / 4f;
-        public static float LetterHorizontalStepRatio => 0.17f;
+        public static float LetterVerticalOffsetRatio => 0.16f;
+        public static float LetterDragBoxHeightRatio => 0.9f;
+        public static float LetterDragBoxWidthRatio => 0.57f;
+        public static float LetterHorizontalStepRatio => 0.18f;
 
         //public static Color FadeOutColor = new Color(0, 0, 0);
         public static TimeSpan FadeOutDuration => TimeSpan.FromMilliseconds(500);
