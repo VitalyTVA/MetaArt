@@ -126,6 +126,7 @@ public class Text : Element {
 
 
 public class Letter : Element {
+    public float Scale { get; set; } = 1;
     public char Value { get; set; }
 }
 
@@ -133,11 +134,6 @@ public class DragableButton : Element {
     public DragableButton() {
         HitTestVisible = true;
     }
-}
-
-
-public class InflateLetter : Letter {
-    public float Scale { get; set; } = 1;
 }
 
 public abstract class InputState {

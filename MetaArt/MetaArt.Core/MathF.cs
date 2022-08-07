@@ -13,6 +13,7 @@ public static class MathFEx {
     public static bool LessOrEqual(float x, float y) => x - delta < y;
     public static bool Greater(float x, float y) => x - delta > y;
     public static bool Less(float x, float y) => x + delta < y;
+    public static bool FloatsEqual(float x, float y) => Math.Abs(x - y) < delta;
 
     public static bool RangesAreApart((float from, float to) r1, (float from, float to) r2) {
 #if DEBUG

@@ -223,7 +223,7 @@ namespace ThatButtonAgain {
             var indices = new[] { 0, 4, 2, 1 };
             int replaceIndex = 0;
 
-            var letters = CreateLetters<InflateLetter>((letter, index) => {
+            var letters = CreateLetters<Letter>((letter, index) => {
                 float margin = letterDragBoxSize * 2;
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
                 letter.HitTestVisible = true;

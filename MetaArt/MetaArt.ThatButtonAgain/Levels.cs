@@ -58,23 +58,20 @@ public abstract class LevelBase {
                     fill(Colors.ButtonBackNormal);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     break;
-                case InflateLetter inflateLetter:
+                case Letter l:
+                    if(MathFEx.FloatsEqual(l.Scale, 1)) {
+                        fill(Colors.LetterDragBox);
+                        rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
+                    }
                     pushMatrix();
                     translate(item.Rect.MidX, item.Rect.MidY);
-                    scale(inflateLetter.Scale, inflateLetter.Scale);
+                    scale(l.Scale, l.Scale);
                     //fill(Colors.LetterDragBox);
                     //rect(0, 0, item.Rect.Width, item.Rect.Height);
                     fill(Colors.LetterColor);
                     textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
-                    text(inflateLetter.Value.ToString(), 0, -controller.letterVerticalOffset);
+                    text(l.Value.ToString(), 0, -controller.letterVerticalOffset);
                     popMatrix();
-                    break;
-                case Letter l:
-                    fill(Colors.LetterDragBox);
-                    rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
-                    fill(Colors.LetterColor);
-                    textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
-                    text(l.Value.ToString(), item.Rect.MidX, item.Rect.MidY - controller.letterVerticalOffset);
                     break;
                 case Text t:
                     fill(Colors.LetterColor);
