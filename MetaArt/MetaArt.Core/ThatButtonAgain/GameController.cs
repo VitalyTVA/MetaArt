@@ -41,6 +41,7 @@ namespace ThatButtonAgain {
                 Level_ClickInsteadOfTouch,
                 Level_RandomButton,
                 Level_ReflectedButton,
+                Level_Mod2Vectors,
             };
             this.playSound = playSound;
         }
@@ -405,6 +406,57 @@ namespace ThatButtonAgain {
             };
 
             ReplaceWithRealButtonWhenInPlace(flippedHV.button.Rect, normal.button);
+        }
+
+        void Level_Mod2Vectors() {
+            Letter[] letters = null!;
+
+            var button = CreateButton(StartNextLevelAnimation);
+            button.HitTestVisible = false;
+            scene.AddElement(button);
+
+            int value = 0b00000;
+            var vectors = new[] {
+                0b11001,
+                0b01010,
+                0b10100,
+                0b10010,
+                0b00101
+            };
+            const int target = 0b11111;
+            void SetLetters() {
+                for(int i = 0; i < 5; i++) {
+                    bool isCapitalLetter = (value & (1 << (4 - i))) > 0;
+                    letters[i].Value = (isCapitalLetter ? "TOUCH" : "touch")[i];
+                }
+            };
+
+            letters = CreateLetters<Letter>((letter, index) => {
+                letter.HitTestVisible = true;
+                letter.Rect = GetLetterTargetRect(index, button.Rect);
+                letter.GetPressState = (startPoint, releaseState) => {
+                    return new TapInputState(
+                        button,
+                        () => {
+                            playSound(SoundKind.DisabledClick);
+                            value ^= vectors[index];
+                            SetLetters();
+                            if(value == target) {
+                                foreach(var item in letters) {
+                                    item.HitTestVisible = false;
+                                }
+                                button.HitTestVisible = true;
+                            }
+                        },
+                        setState: isPressed => {
+                            button.IsPressed = isPressed;
+                        },
+                        releaseState
+                    );
+                };
+
+            });
+            SetLetters();
         }
 
         void OnElementSnap(Element element) {

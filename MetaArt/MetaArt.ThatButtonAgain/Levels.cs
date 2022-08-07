@@ -139,4 +139,7 @@ class Level6 : LevelBase {
 class Level7 : LevelBase {
     protected override int LevelIndex => 7;
 }
+class Level8 : LevelBase {
+    protected override int LevelIndex => 8;
+}
 
