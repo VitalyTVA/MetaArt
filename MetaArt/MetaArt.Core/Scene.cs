@@ -52,10 +52,13 @@ public class Scene {
     }
 }
 public abstract class Element {
-     public static Func<Vector2, NoInputState, InputState> GetAnchorAndSnapDragStateFactory(
-        Element element,
-        Func<float> getAnchorDistance,
-        Func<(float snapDistance, Vector2 snapPoint)?> getSnapInfo) {
+    public static Func<Vector2, NoInputState, InputState> GetAnchorAndSnapDragStateFactory(
+       Element element,
+       Func<float> getAnchorDistance,
+       Func<(float snapDistance, Vector2 snapPoint)?> getSnapInfo,
+       Action? onMove = null,
+       Func<Rect, Vector2>? coerceRectLocation = null
+     ) {
         bool allowDrag = true;
         bool anchored = true;
         return (startPoint, releaseState) => {
@@ -76,13 +79,24 @@ public abstract class Element {
                     allowDrag = false;
                     element.HitTestVisible = false;
                 }
+                if(coerceRectLocation != null)
+                    newRect = new Rect(coerceRectLocation(newRect), newRect.Size);
                 element.Rect = newRect;
+                onMove?.Invoke();
                 return allowDrag;
             }, releaseState);
         };
     }
+    public static Action CreateSetOffsetAction(Element parent, Element[] children) {
+        var pairs = children.Select(element => (element, parentOffset: element.Rect.Location - parent.Rect.Location)).ToArray();
+        return () => {
+            foreach(var (element, parentOffset) in pairs) {
+                element.Rect = new Rect(parent.Rect.Location + parentOffset, element.Rect.Size);
+            }
+        };
+    }
 
-     public static Func<Vector2, NoInputState, InputState> GetPressReleaseStateFactory(
+    public static Func<Vector2, NoInputState, InputState> GetPressReleaseStateFactory(
         Element element,
         Action onPress,
         Action onRelease
@@ -126,8 +140,13 @@ public class Text : Element {
 
 
 public class Letter : Element {
-    public float Scale { get; set; } = 1;
+    public static Vector2 NoScale = new Vector2(1, 1);
+    public Vector2 Scale { get; set; }
     public char Value { get; set; }
+
+    public Letter() {
+        Scale = NoScale;
+    }
 }
 
 public class DragableButton : Element {

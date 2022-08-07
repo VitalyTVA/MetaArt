@@ -206,12 +206,7 @@ namespace ThatButtonAgain {
                 end: () => {
                     scene.SendToBack(dragableButton);
                     snapInfo = (snapDistance, buttonRect.Location);
-                    animations.AddAnimation(new WaitConditionAnimation(
-                        condition: deltaTime => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location),
-                        end: () => {
-                            scene.RemoveElement(dragableButton);
-                            scene.AddElementBehind(CreateButton(StartNextLevelAnimation));
-                        }));
+                    ReplaceWithRealButtonWhenInPlace(buttonRect, dragableButton);
                 }));
         }
 
@@ -238,17 +233,17 @@ namespace ThatButtonAgain {
                         Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
                         OnEnd = () => {
                             letter.Value = "TOUCH"[index];
-                            letter.Scale = 1;
+                            letter.Scale = Letter.NoScale;
                             letter.HitTestVisible = false;
                             replaceIndex++;
                         },
-                        SetValue = value => letter.Scale = value
+                        SetValue = value => letter.Scale = new Vector2(value, value)
                     };
                     animations.AddAnimation(animation);
                 };
                 var onRelease = () => {
                     animations.RemoveAnimation(animation);
-                    letter.Scale = 1;
+                    letter.Scale = Letter.NoScale;
                 };
                 letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, onRelease);
 
@@ -304,17 +299,104 @@ namespace ThatButtonAgain {
         }
 
         void Level_ReflectedButton() {
-            var buttonRect = GetButtonRect();
+            Action<bool, bool> syncButtons = null!;
 
-            float snapDistance = buttonHeight * Constants.ButtonAnchorDistanceRatio;
-            var dragableButton = new DragableButton {
-                Rect = buttonRect,
+
+            (DragableButton button, Letter[] letters, Action syncLettersOnMoveAction) CreateButtonAndLetters(
+                Vector2 offset, 
+                string word, 
+                bool flipV, 
+                bool flipH
+            ) {
+                Rect buttonRect = GetButtonRect();
+                var button = new DragableButton {
+                    Rect = buttonRect.Offset(offset),
+                };
+                scene.AddElement(button);
+                var letters = CreateLetters<Letter>((letter, index) => {
+                    letter.Rect = GetLetterTargetRect(index, button.Rect);
+                    letter.Scale = new Vector2(flipH ? -1 : 1, flipV ? -1 : 1);
+                }, word);
+                Action syncLettersOnMoveAction = Element.CreateSetOffsetAction(button, letters);
+                button.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
+                    button,
+                    () => (flipH && flipV) ? buttonHeight * Constants.ButtonAnchorDistanceRatio : 0,
+                    () => (flipH || flipV) ? null : (buttonHeight * Constants.ButtonAnchorDistanceRatio, buttonRect.Location),
+                    onMove: () => { 
+                        syncLettersOnMoveAction();
+                        syncButtons(flipV, flipH);
+                    },
+                    coerceRectLocation: rect => {
+                        if(rect.Left < 0 && rect.Top < 0) {
+                            if(rect.Left < rect.Top)
+                                return new Vector2(rect.Left, 0);
+                            else
+                                return new Vector2(0, rect.Top);
+                        }
+                        return rect.Location;
+                    }
+                );
+                return (button, letters, syncLettersOnMoveAction);
+            }
+
+            var invisiblePosition = new Vector2(-3000, -3000);
+            var flippedHV = CreateButtonAndLetters(new Vector2(0, 0), "HCUOT", flipV: true, flipH: true);
+            var flippedH = CreateButtonAndLetters(invisiblePosition, "HCUOT", flipV: false, flipH: true);
+            var flippedV = CreateButtonAndLetters(invisiblePosition, "TOUCH", flipV: true, flipH: false);
+
+            var normal = CreateButtonAndLetters(invisiblePosition, "TOUCH", flipV: false, flipH: false);
+
+            void SyncLocations(
+                DragableButton movingButton,
+                (DragableButton button, Letter[] letters, Action syncLettersOnMoveAction) horizontal,
+                (DragableButton button, Letter[] letters, Action syncLettersOnMoveAction) vertical
+            ) {
+                horizontal.button.Rect = new Rect(invisiblePosition, horizontal.button.Rect.Size);
+                vertical.button.Rect = new Rect(invisiblePosition, vertical.button.Rect.Size);
+
+                if(movingButton.Rect.Left + movingButton.Rect.Width > scene.width)
+                    horizontal.button.Rect = movingButton.Rect.Offset(new Vector2(-scene.width, 0));
+                else if(movingButton.Rect.Left < 0)
+                    horizontal.button.Rect = movingButton.Rect.Offset(new Vector2(scene.width, 0));
+
+                else if(movingButton.Rect.Top + movingButton.Rect.Height > scene.height)
+                    vertical.button.Rect = movingButton.Rect.Offset(new Vector2(0, - scene.height));
+                else if(movingButton.Rect.Top < 0)
+                    vertical.button.Rect = movingButton.Rect.Offset(new Vector2(0, scene.height));
+
+                horizontal.syncLettersOnMoveAction();
+                vertical.syncLettersOnMoveAction();
+            }
+
+            syncButtons = (flipV, flipH) => {
+                switch((flipV, flipH)) {
+                    case (true, true):
+                        SyncLocations(flippedHV.button, flippedH, flippedV);
+                        break;
+                    case (true, false):
+                        SyncLocations(flippedV.button, normal, flippedHV);
+                        break;
+                    case (false, true):
+                        SyncLocations(flippedH.button, flippedHV, normal);
+                        break;
+                    case (false, false):
+                        SyncLocations(normal.button, flippedV, flippedH);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
             };
-            scene.AddElement(dragableButton);
 
-            var letters = CreateLetters<Letter>((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, buttonRect);
-            });
+            ReplaceWithRealButtonWhenInPlace(flippedHV.button.Rect, normal.button);
+        }
+
+        void ReplaceWithRealButtonWhenInPlace(Rect buttonRect, DragableButton dragableButton) {
+            animations.AddAnimation(new WaitConditionAnimation(
+                condition: deltaTime => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location),
+                end: () => {
+                    scene.RemoveElement(dragableButton);
+                    scene.AddElementBehind(CreateButton(StartNextLevelAnimation));
+                }));
         }
 
         Func<TimeSpan, bool> GetAreLettersInPlaceCheck(Rect buttonRect, Letter[] letters) {

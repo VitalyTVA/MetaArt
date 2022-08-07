@@ -59,13 +59,13 @@ public abstract class LevelBase {
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     break;
                 case Letter l:
-                    if(MathFEx.FloatsEqual(l.Scale, 1)) {
+                    if(MathFEx.VectorsEqual(l.Scale, Letter.NoScale)) {
                         fill(Colors.LetterDragBox);
                         rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     }
                     pushMatrix();
                     translate(item.Rect.MidX, item.Rect.MidY);
-                    scale(l.Scale, l.Scale);
+                    scale(l.Scale.X, l.Scale.Y);
                     //fill(Colors.LetterDragBox);
                     //rect(0, 0, item.Rect.Width, item.Rect.Height);
                     fill(Colors.LetterColor);
