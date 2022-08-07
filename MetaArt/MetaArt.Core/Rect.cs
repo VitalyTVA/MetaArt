@@ -4,7 +4,9 @@ namespace MetaArt.Core {
         public static Rect FromCenter(Vector2 center, Vector2 size) => new Rect(center - size / 2, size);
 
         public float Left => Location.X;
+        public float Right => Left + Width;
         public float Top => Location.Y;
+        public float Bottom => Top + Height;
         public float Width => Size.X;
         public float Height => Size.Y;
         public Vector2 Mid => Location + Size / 2;

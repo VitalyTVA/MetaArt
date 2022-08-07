@@ -76,7 +76,9 @@ namespace ThatButtonAgain {
                 letter.HitTestVisible = true;
                 letter.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
                     letter, 
-                    () => 0, () => (letterSize * Constants.LetterSnapDistanceRatio, GetLetterTargetRect(index, button.Rect).Location)
+                    () => 0, 
+                    () => (letterSize * Constants.LetterSnapDistanceRatio, GetLetterTargetRect(index, button.Rect).Location),
+                    coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds)
                 );
             });
             animations.AddAnimation(new WaitConditionAnimation(
@@ -197,7 +199,12 @@ namespace ThatButtonAgain {
             var dragableButton = new DragableButton { 
                 Rect = buttonRect,
             };
-            dragableButton.GetPressState = Element.GetAnchorAndSnapDragStateFactory(dragableButton, () => snapDistance, () => snapInfo);
+            dragableButton.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
+                dragableButton, 
+                () => snapDistance, 
+                () => snapInfo,
+                coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds.Inflate(dragableButton.Rect.Size * Constants.ButtonOutOfBoundDragRatio))
+            );
 
             scene.AddElement(dragableButton);
 
@@ -517,6 +524,8 @@ namespace ThatButtonAgain {
         public static float MinButtonAppearInterval => 200;
         public static float MaxButtonAppearInterval => 500;
         public static float ButtonAppearIntervalIncrease => 25;
+
+        public static float ButtonOutOfBoundDragRatio => 0.7f;
     }
 }
 

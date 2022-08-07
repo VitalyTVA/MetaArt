@@ -35,4 +35,18 @@ public static class MathFEx {
     public static float Lerp(float start, float stop, float amt) => start * (1 - amt) + stop * amt;
 
     public static bool VectorsEqual(Vector2 v1, Vector2 v2) => LessOrEqual((v1 - v2).LengthSquared(), 0);
+
+    public static Vector2 GetRestrictedLocation(this Rect rect, Rect containingRect) { 
+        var location = rect.Location;
+        location.X = Max(location.X, containingRect.Left);
+        location.Y = Max(location.Y, containingRect.Top);
+        location.X -= Max(0, rect.Right - containingRect.Right);
+        location.Y -= Max(0, rect.Bottom - containingRect.Bottom);
+        return location;
+    }
+
+    public static Rect Inflate(this Rect rect, Vector2 size) {
+        return new Rect(rect.Location - size, rect.Size + size * 2);
+    }
+
 }

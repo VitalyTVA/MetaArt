@@ -2,6 +2,7 @@
 namespace MetaArt.Core;
 public class Scene {
     public readonly float width, height;
+    public Rect Bounds => new Rect(0, 0, width, height);
 
     InputState inputState;
     readonly NoInputState noInputState;
@@ -199,7 +200,7 @@ public class DragInputState : InputState {
     }
 
     public override InputState Press(Vector2 point) {
-        throw new InvalidOperationException();
+        return releaseState; // throw new InvalidOperationException();
     }
 
     public override InputState Release() {
