@@ -44,7 +44,9 @@ public static class MathFEx {
         location.Y -= Max(0, rect.Bottom - containingRect.Bottom);
         return location;
     }
-
+    public static Rect GetRestrictedRect(this Rect rect, Rect containingRect) {
+        return new Rect(rect.GetRestrictedLocation(containingRect), rect.Size);
+    }
     public static Rect Inflate(this Rect rect, Vector2 size) {
         return new Rect(rect.Location - size, rect.Size + size * 2);
     }
