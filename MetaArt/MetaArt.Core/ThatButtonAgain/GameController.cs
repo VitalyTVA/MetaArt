@@ -96,47 +96,7 @@ namespace ThatButtonAgain {
         }
 
         void Level_16xClick() {
-            var words = new[] {
-                "Touch", //16
-                "ToucH", 
-                "TouCh", 
-                "TouCH", 
-                "ToUch", 
-                "ToUcH", 
-                "ToUCh", 
-                "ToUCH", 
-
-                "TOuch", //24
-                "TOucH", 
-                "TOuCh", 
-                "TOuCH",
-                "TOUch",
-                "TOUcH",
-                "TOUCh",
-                "TOUCH", //32
-            };
-            int clickIndex = 0;
-            Letter[] letters = null!;
-            void SetLetters() {
-                for(int i = 0; i < 5; i++) {
-                    letters[i].Value = words![clickIndex][i]; 
-                }
-            };
-            var button = CreateButton(() => {
-                if(clickIndex < words.Length - 1) { 
-                    clickIndex++;
-                    SetLetters();
-                    playSound(SoundKind.DisabledClick);
-                } else {
-                    StartNextLevelAnimation();
-                }
-            });
-            scene.AddElement(button);
-
-            letters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, button.Rect);
-            });
-            SetLetters();
+            SetupCapitalLettersSwitchLevel(0b10000, (value, index) => value + 1);
         }
 
         void Level_RotationsGroup() {
@@ -409,13 +369,6 @@ namespace ThatButtonAgain {
         }
 
         void Level_Mod2Vectors() {
-            Letter[] letters = null!;
-
-            var button = CreateButton(StartNextLevelAnimation);
-            button.HitTestVisible = false;
-            scene.AddElement(button);
-
-            int value = 0b00000;
             var vectors = new[] {
                 0b11001,//--
                 0b01010,
@@ -423,6 +376,17 @@ namespace ThatButtonAgain {
                 0b10010,//--
                 0b00101
             };
+            SetupCapitalLettersSwitchLevel(0b00000, (value, index) => value ^ vectors[index]);
+        }
+
+        void SetupCapitalLettersSwitchLevel(int initialValue, Func<int, int, int> changeValue) {
+            Letter[] letters = null!;
+
+            var button = CreateButton(StartNextLevelAnimation);
+            button.HitTestVisible = false;
+            scene.AddElement(button);
+
+            int value = initialValue;
             const int target = 0b11111;
             void SetLetters() {
                 for(int i = 0; i < 5; i++) {
@@ -439,7 +403,7 @@ namespace ThatButtonAgain {
                         button,
                         () => {
                             playSound(SoundKind.DisabledClick);
-                            value ^= vectors[index];
+                            value = changeValue(value, index);
                             SetLetters();
                             if(value == target) {
                                 foreach(var item in letters) {
