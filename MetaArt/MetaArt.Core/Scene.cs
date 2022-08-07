@@ -57,6 +57,7 @@ public abstract class Element {
        Element element,
        Func<float> getAnchorDistance,
        Func<(float snapDistance, Vector2 snapPoint)?> getSnapInfo,
+       Action<Element> onElementSnap,
        Action? onMove = null,
        Func<Rect, Vector2>? coerceRectLocation = null
      ) {
@@ -78,7 +79,7 @@ public abstract class Element {
                 if (snapInfo != null && (newRect.Location - snapInfo.Value.snapPoint).LengthSquared() <= snapInfo.Value.snapDistance * snapInfo.Value.snapDistance) {
                     newRect = new Rect(snapInfo.Value.snapPoint, newRect.Size);
                     allowDrag = false;
-                    element.HitTestVisible = false;
+                    onElementSnap(element);
                 }
                 if(coerceRectLocation != null)
                     newRect = new Rect(coerceRectLocation(newRect), newRect.Size);

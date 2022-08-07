@@ -9,7 +9,7 @@ public abstract class LevelBase {
     protected abstract int LevelIndex { get; }
 
     GameController controller = null!;
-    SoundFile win = null!;
+    Dictionary<SoundKind, SoundFile> sounds = new();
 
     void setup() {
         if(deviceType() == DeviceType.Desktop)
@@ -20,20 +20,15 @@ public abstract class LevelBase {
         controller = new GameController(
             width / displayDensity(),
             height / displayDensity(),
-            playSound: kind => {
-                switch(kind) {
-                    case SoundKind.Win:
-                        win.play();
-                        break;
-                    default:
-                        throw new InvalidOperationException("Unknown sound");
-                }
-            }
+            playSound: kind => sounds[kind].play()
         );
 
 
         textFont(createFont("SourceCodePro-Regular.ttf", controller.letterSize));
-        win = createSound("Win1.wav");
+
+        sounds = Enum.GetValues(typeof(SoundKind))
+            .Cast<SoundKind>()
+            .ToDictionary(x => x, x => createSound(x + ".wav"));
 
         controller.SetLevel(LevelIndex);
     }

@@ -3,7 +3,12 @@ using System.Numerics;
 
 namespace ThatButtonAgain {
     public enum SoundKind {
-        Win,
+        Win1,
+        DisabledClick,
+        ErrorClick,
+        Snap,
+        SuccessSwitch,
+        Swap,
     }
     public class GameController {
         public readonly Scene scene;
@@ -78,6 +83,7 @@ namespace ThatButtonAgain {
                     letter, 
                     () => 0, 
                     () => (letterSize * Constants.LetterSnapDistanceRatio, GetLetterTargetRect(index, button.Rect).Location),
+                    OnElementSnap,
                     coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds)
                 );
             });
@@ -118,6 +124,7 @@ namespace ThatButtonAgain {
                 if(clickIndex < words.Length - 1) { 
                     clickIndex++;
                     SetLetters();
+                    playSound(SoundKind.DisabledClick);
                 } else {
                     StartNextLevelAnimation();
                 }
@@ -155,7 +162,7 @@ namespace ThatButtonAgain {
                         return;
 
                     rotating = true;
-
+                    playSound(SoundKind.Swap);
                     void AddRotateAnimation(float fromAngle, float toAngle, Letter sideLetter) {
                         var animation = new RotateAnimation {
                             Duration = Constants.RotateAroundLetterDuration,
@@ -203,6 +210,7 @@ namespace ThatButtonAgain {
                 dragableButton, 
                 () => snapDistance, 
                 () => snapInfo,
+                OnElementSnap,
                 coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds.Inflate(dragableButton.Rect.Size * Constants.ButtonOutOfBoundDragRatio))
             );
 
@@ -243,6 +251,7 @@ namespace ThatButtonAgain {
                             letter.Scale = Letter.NoScale;
                             letter.HitTestVisible = false;
                             replaceIndex++;
+                            playSound(SoundKind.SuccessSwitch);
                         },
                         SetValue = value => letter.Scale = new Vector2(value, value)
                     };
@@ -329,6 +338,7 @@ namespace ThatButtonAgain {
                     button,
                     () => (flipH && flipV) ? buttonHeight * Constants.ButtonAnchorDistanceRatio : 0,
                     () => (flipH || flipV) ? null : (buttonHeight * Constants.ButtonAnchorDistanceRatio, buttonRect.Location),
+                    OnElementSnap,
                     onMove: () => { 
                         syncLettersOnMoveAction();
                         syncButtons(flipV, flipH);
@@ -397,6 +407,11 @@ namespace ThatButtonAgain {
             ReplaceWithRealButtonWhenInPlace(flippedHV.button.Rect, normal.button);
         }
 
+        void OnElementSnap(Element element) {
+            element.HitTestVisible = false;
+            playSound(SoundKind.Snap);
+        }
+
         void ReplaceWithRealButtonWhenInPlace(Rect buttonRect, DragableButton dragableButton) {
             animations.AddAnimation(new WaitConditionAnimation(
                 condition: deltaTime => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location),
@@ -434,7 +449,13 @@ namespace ThatButtonAgain {
                         if(button.IsEnabled)
                             click();
                     },
-                    setState: isPressed => button.IsPressed = isPressed,
+                    setState: isPressed => {
+                        if(isPressed == button.IsPressed)
+                            return;
+                        button.IsPressed = isPressed;
+                        if(isPressed && !button.IsEnabled)
+                            playSound(SoundKind.ErrorClick);
+                    },
                     releaseState
                 );
             };
@@ -468,7 +489,7 @@ namespace ThatButtonAgain {
         }
         void StartNextLevelAnimation() {
             StartFade(0, 255, () => SetLevel(levelIndex + 1));
-            playSound(SoundKind.Win);
+            playSound(SoundKind.Win1);
         }
 
         TLetter[] CreateLetters<TLetter>(Action<TLetter, int> setUp, string word = "TOUCH") where TLetter : Letter, new() {

@@ -34,6 +34,7 @@ namespace MetaArt.Wpf {
                 var fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), $"{++index}.wav");
                 using(var fileStream = File.OpenWrite(fileName)) audioStream.CopyTo(fileStream);
 
+                player.Volume = 0;
                 player.Open(new Uri(fileName));
                 player.MediaEnded += OnPlaybackEnded;
             }
@@ -72,6 +73,7 @@ namespace MetaArt.Wpf {
         }
 
         public void Play() {
+            player.Volume = .5;
             if(player == null || player.Source == null)
                 return;
 
