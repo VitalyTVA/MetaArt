@@ -82,10 +82,9 @@ namespace ThatButtonAgain {
 
             var letters = CreateLetters((letter, index) => {
                 letter.Rect = Rect.FromCenter(
-                    //TODO Ensure letter box is within bounds
                     new Vector2(button.Rect.MidX + letterDragBoxWidth * points[index].Item1, button.Rect.MidY + letterDragBoxHeight * points[index].Item2),
                     new Vector2(letterDragBoxWidth, letterDragBoxHeight)
-                );
+                ).GetRestrictedRect(scene.Bounds);
                 letter.HitTestVisible = true;
                 letter.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
                     letter, 
@@ -260,9 +259,18 @@ namespace ThatButtonAgain {
 
             var appearInterval = Constants.MinButtonAppearInterval;
 
+            bool firstAppear = true;
+            float GetWaitTime() {
+                if(firstAppear) {
+                    firstAppear = false;
+                    return Constants.MinButtonInvisibleInterval * 2;
+                }
+                return MathFEx.Random(Constants.MinButtonInvisibleInterval, Constants.MaxButtonInvisibleInterval);   
+            }
+
             void StartWaitButton() {
                 animations.AddAnimation(WaitConditionAnimation.WaitTime(
-                    TimeSpan.FromMilliseconds(MathFEx.Random(Constants.MinButtonInvisibleInterval, Constants.MaxButtonInvisibleInterval)),
+                    TimeSpan.FromMilliseconds(GetWaitTime()),
                     () => {
                         SetVisibility(true);
                         animations.AddAnimation(WaitConditionAnimation.WaitTime(
