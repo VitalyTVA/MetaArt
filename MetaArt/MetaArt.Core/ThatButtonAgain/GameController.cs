@@ -4,11 +4,16 @@ using System.Numerics;
 namespace ThatButtonAgain {
     public enum SoundKind {
         Win1,
+        Cthulhu,
         DisabledClick,
         ErrorClick,
         Snap,
         SuccessSwitch,
         Swap,
+        Hover,
+    }
+    public enum SvgKind {
+        Cthulhu,
     }
     public class GameController {
         public readonly Scene scene;
@@ -44,6 +49,7 @@ namespace ThatButtonAgain {
                 Level_RandomButton,
                 Level_ReflectedButton,
                 Level_Mod2Vectors,
+                Level_FindWord,
             };
             this.playSound = playSound;
         }
@@ -379,6 +385,117 @@ namespace ThatButtonAgain {
             SetupCapitalLettersSwitchLevel(0b00000, (value, index) => value ^ vectors[index]);
         }
 
+        void Level_FindWord() {
+            bool winLevel = false;
+            var button = CreateButton(() => {
+                if(winLevel)
+                    StartNextLevelAnimation();
+                else {
+                    scene.ClearElements();
+                    scene.AddElement(new SvgElement(SvgKind.Cthulhu) {
+                        Rect = Rect.FromCenter(
+                            new Vector2(scene.width / 2, scene.height / 2), 
+                            new Vector2(scene.width * Constants.CthulhuWidthScaleRatio)
+                        )
+                    });
+                    StartCthulhuReloadLevelAnimation();
+                }
+            });
+            button.Rect = Rect.Empty;
+            button.HitTestVisible = false;
+            scene.AddElement(button);
+
+            var buttonRect = GetButtonRect();
+
+            const int letterCount = 9;
+            var chars = new[] {
+                "LOKUHTOKU",
+                "HCLICKOUT",
+                "CTHLUOLUT",
+                "KUKHIUTKL",
+                "OUOLHKOTH",
+                "LTUHKHULT",
+                "TICHIOCLH",
+                "KCTHULHUI",
+                "TOUKCILCH"
+            };
+
+            var letters = new Letter[letterCount, letterCount];
+            for(int i = 0; i < letterCount; i++) {
+                for(int j = 0; j < letterCount; j++) {
+                    var value = chars[j][i];
+                    var letter = new Letter {
+                        Value = value,
+                        Rect = GetLetterTargetRect(i - (letterCount - 5) / 2, buttonRect, squared: true)
+                            .Offset(new Vector2(0, (j - letterCount / 2) * letterDragBoxWidth)),
+                        HitTestVisible = true,
+                        Scale = new Vector2(Constants.FindWordLetterScale),
+                    };
+                    (int, int) GetLetterPosition(Letter letter) {
+                        for(int i = 0; i < letterCount; i++) {
+                            for(int j = 0; j < letterCount; j++) {
+                                if(letters![i, j] == letter) {
+                                    return (i, j);
+                                }
+                            }
+                        }
+                        throw new InvalidOperationException();
+                    }
+                    letter.GetPressState = (startPoint, releaseState)
+                        => {
+                            var hovered = new List<(Letter, int, int)>();
+                            return new HoverInputState(
+                                scene,
+                                letter,
+                                element => {
+                                    if(element is Letter l && !hovered.Any(x => x.Item1 == l)) {
+                                        var (i, j) = GetLetterPosition(l);
+                                        if(hovered.Count == 0
+                                        || hovered.Count == 1
+                                        || (i == hovered[0].Item2 && i == hovered[0].Item2)
+                                        || (j == hovered[0].Item3 && j == hovered[0].Item3)
+                                        ) {
+                                            hovered.Add((l, i, j));
+                                            playSound(SoundKind.Hover);
+                                        }
+                                        button.Rect = hovered
+                                            .Skip(1)
+                                            .Aggregate(hovered[0].Item1.Rect, (rect, x) => rect.ContainingRect(x.Item1.Rect))
+                                            .Inflate(new Vector2(Constants.ContainingButtonInflateValue));
+                                    }
+                                },
+                                onRelease: () => {
+                                    var result = hovered
+                                        .OrderBy(x => x.Item2)
+                                        .ThenBy(x => x.Item3)
+                                        .Select(x => x.Item1.Value);
+                                    bool win = Enumerable.SequenceEqual(result, "TOUCH".Select(x => x));
+                                    bool fail = Enumerable.SequenceEqual(result, "CTHULHU".Select(x => x));
+                                    if(win || fail) {
+                                        winLevel = win;
+                                        for(int i = 0; i < letterCount; i++) {
+                                            for(int j = 0; j < letterCount; j++) {
+                                                if(!hovered.Any(x => x.Item1 == letters[i, j])) {
+                                                    scene.RemoveElement(letters[i, j]);
+                                                } else {
+                                                    letters[i, j].HitTestVisible = false;
+                                                }
+                                            }
+                                        }
+                                        button.HitTestVisible = true;
+                                    } else {
+                                        button.Rect = Rect.Empty;
+                                    }
+                                },
+                                releaseState: releaseState
+                            );
+                        };
+                    letters[i, j] = letter;
+                    scene.AddElement(letter);
+                }
+            }
+        }
+
         void SetupCapitalLettersSwitchLevel(int initialValue, Func<int, int, int> changeValue) {
             Letter[] letters = null!;
 
@@ -447,10 +564,10 @@ namespace ThatButtonAgain {
                 .Select(index => GetLetterTargetRect(index, buttonRect).Location)
                 .ToArray();
 
-        Rect GetLetterTargetRect(int index, Rect buttonRect) =>
+        Rect GetLetterTargetRect(int index, Rect buttonRect, bool squared = false) =>
             Rect.FromCenter(
                 buttonRect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
-                new Vector2(letterDragBoxWidth, letterDragBoxHeight)
+                new Vector2(letterDragBoxWidth, squared ? letterDragBoxWidth : letterDragBoxHeight)
             );
 
         Button CreateButton(Action click) {
@@ -487,10 +604,10 @@ namespace ThatButtonAgain {
                                     );
         }
 
-        void StartFade(float from, float to, Action end) {
+        void StartFade(float from, float to, Action end, TimeSpan duration) {
             var element = new FadeOutElement() { Rect = new Rect(0, 0, scene.width, scene.height), Opacity = from };
             var animation = new LerpAnimation<float> {
-                Duration = Constants.FadeOutDuration,
+                Duration = duration,
                 From = from,
                 To = to,
                 SetValue = value => element.Opacity = value,
@@ -504,8 +621,12 @@ namespace ThatButtonAgain {
             scene.AddElement(element);
         }
         void StartNextLevelAnimation() {
-            StartFade(0, 255, () => SetLevel(levelIndex + 1));
+            StartFade(0, 255, () => SetLevel(levelIndex + 1), Constants.FadeOutDuration);
             playSound(SoundKind.Win1);
+        }
+        void StartCthulhuReloadLevelAnimation() {
+            StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutCthulhuDuration);
+            playSound(SoundKind.Cthulhu);
         }
 
         Letter[] CreateLetters(Action<Letter, int> setUp, string word = "TOUCH") {
@@ -534,7 +655,7 @@ namespace ThatButtonAgain {
                 Rect = new Rect(letterSize * Constants.LetterIndexOffsetRatioX, letterSize * Constants.LetterIndexOffsetRatioY, 0, 0)
             });
             levels[levelIndex]();
-            StartFade(255, 0, () => { });
+            StartFade(255, 0, () => { }, Constants.FadeOutDuration);
         }
     }
     static class Constants {
@@ -549,6 +670,7 @@ namespace ThatButtonAgain {
 
         //public static Color FadeOutColor = new Color(0, 0, 0);
         public static TimeSpan FadeOutDuration => TimeSpan.FromMilliseconds(500);
+        public static TimeSpan FadeOutCthulhuDuration => TimeSpan.FromMilliseconds(3000);
         public static TimeSpan RotateAroundLetterDuration => TimeSpan.FromMilliseconds(500);
         public static TimeSpan InflateButtonDuration => TimeSpan.FromMilliseconds(1500);
 
@@ -564,6 +686,11 @@ namespace ThatButtonAgain {
         public static float ButtonAppearIntervalIncrease => 25;
 
         public static float ButtonOutOfBoundDragRatio => 0.7f;
+
+        public static float FindWordLetterScale => .75f;
+        public static float ContainingButtonInflateValue => 2;
+
+        public static float CthulhuWidthScaleRatio = .7f;
     }
 }
 

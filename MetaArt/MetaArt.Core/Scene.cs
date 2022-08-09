@@ -1,4 +1,6 @@
 ﻿
+using ThatButtonAgain;
+
 namespace MetaArt.Core;
 public class Scene {
     public readonly float width, height;
@@ -8,19 +10,25 @@ public class Scene {
     readonly NoInputState noInputState;
 
 
-    public Scene(float width, float height)
-    {
+    public Scene(float width, float height) {
         this.width = width;
         this.height = height;
         this.inputState = this.noInputState = new NoInputState(point => {
-            for (int i = elements.Count - 1; i >= 0; i--) {
-                var element = elements[i];
-                if(element.IsVisible && element.HitTestVisible && element.Rect.Contains(point)) {
-                    return (element.GetPressState?.Invoke(point, noInputState!) ?? inputState)!;
-                }
-            }
+            var element = HitTest(point);
+            if(element != null)
+                return (element.GetPressState?.Invoke(point, noInputState!) ?? inputState)!;
             return noInputState!;
         });
+    }
+
+    public Element? HitTest(Vector2 point) {
+        for(int i = elements.Count - 1; i >= 0; i--) {
+            var element = elements[i];
+            if(element.IsVisible && element.HitTestVisible && element.Rect.Contains(point)) {
+                return element;
+            }
+        }
+        return null;
     }
 
     List<Element> elements = new();
@@ -124,6 +132,14 @@ public abstract class Element {
     public Func<Vector2, NoInputState, InputState>? GetPressState { get; set; }
 }
 
+public class SvgElement : Element {
+    public readonly SvgKind Kind;
+
+    public SvgElement(SvgKind kind) {
+        Kind = kind;
+    }
+}
+
 public class FadeOutElement : Element {
     public float Opacity { get; set; }
     public FadeOutElement() {
@@ -205,6 +221,37 @@ public class DragInputState : InputState {
     }
 
     public override InputState Release() {
+        return releaseState;
+    }
+}
+
+public class HoverInputState : InputState {
+    readonly Scene scene;
+    readonly Action<Element> onHover;
+    readonly Action onRelease;
+    readonly InputState releaseState;
+
+    public HoverInputState(Scene scene, Element element, Action<Element> onHover, Action onRelease, InputState releaseState) {
+        this.scene = scene;
+        this.onHover = onHover;
+        this.onRelease = onRelease;
+        this.releaseState = releaseState;
+        onHover(element);
+    }
+
+    public override InputState Drag(Vector2 point) {
+        var element = scene.HitTest(point);
+        if(element != null)
+            onHover(element);
+        return this;
+    }
+
+    public override InputState Press(Vector2 point) {
+        throw new InvalidOperationException();
+    }
+
+    public override InputState Release() {
+        onRelease();
         return releaseState;
     }
 }

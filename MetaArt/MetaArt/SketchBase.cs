@@ -210,7 +210,7 @@ namespace MetaArt {
             var stream = GetStream(filename);
             return Graphics.createImage(stream);
         }
-        static System.IO.Stream GetStream(string filename) {
+        public static System.IO.Stream GetStream(string filename) {
             return Painter.Assembly.GetManifestResourceStream(Painter.Assembly.GetName().Name + ".Assets." + filename);
         }
 

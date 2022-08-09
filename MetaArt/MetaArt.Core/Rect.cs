@@ -1,7 +1,9 @@
 ﻿
 namespace MetaArt.Core {
     public record struct Rect(Vector2 Location, Vector2 Size) {
+        public static readonly Rect Empty = new Rect(0, 0, 0, 0);
         public static Rect FromCenter(Vector2 center, Vector2 size) => new Rect(center - size / 2, size);
+        public static Rect FromLTRB(float left, float top, float right, float bottom) => new Rect(left, top, right - left, bottom - top);
 
         public float Left => Location.X;
         public float Right => Left + Width;
@@ -28,6 +30,15 @@ namespace MetaArt.Core {
         public bool Intersects(Rect rect) => 
             Contains(rect.Location) || Contains(rect.Location + rect.Size) || 
             rect.Contains(Location) || rect.Contains(Location + Size);
+
+        public Rect ContainingRect(Rect other) {
+            return FromLTRB(
+                MathFEx.Min(Left, other.Left),
+                MathFEx.Min(Top, other.Top),
+                MathFEx.Max(Right, other.Right),
+                MathFEx.Max(Bottom, other.Bottom)
+            );
+        }
     }
 }
 

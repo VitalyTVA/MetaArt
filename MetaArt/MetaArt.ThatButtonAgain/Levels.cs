@@ -10,6 +10,7 @@ public abstract class LevelBase {
 
     GameController controller = null!;
     Dictionary<SoundKind, SoundFile> sounds = new();
+    Dictionary<SvgKind, SkiaSharp.Extended.Svg.SKSvg> svgs = new();
 
     void setup() {
         if(deviceType() == DeviceType.Desktop)
@@ -29,6 +30,14 @@ public abstract class LevelBase {
         sounds = Enum.GetValues(typeof(SoundKind))
             .Cast<SoundKind>()
             .ToDictionary(x => x, x => createSound(x + ".wav"));
+
+        svgs = Enum.GetValues(typeof(SvgKind))
+            .Cast<SvgKind>()
+            .ToDictionary(x => x, x => {
+                var svg = new SkiaSharp.Extended.Svg.SKSvg();
+                svg.Load(GetStream(x + ".svg"));
+                return svg;
+            });
 
         controller.SetLevel(LevelIndex);
     }
@@ -77,6 +86,16 @@ public abstract class LevelBase {
                     fill(0, f.Opacity);
                     rect(f.Rect.Left, f.Rect.Top, f.Rect.Width, f.Rect.Height);
                     break;
+                case SvgElement s:
+                    var svg = svgs[s.Kind];
+                    float scaleX = s.Rect.Width / svg.Picture.CullRect.Width;
+                    float scaleY = s.Rect.Height / svg.Picture.CullRect.Height;
+                    var matrix = SKMatrix.CreateScale(scaleX, scaleY);
+                    pushMatrix();
+                    translate(s.Rect.Left, s.Rect.Top);
+                    ((MetaArt.Skia.SkiaGraphics)MetaArt.Internal.Graphics.GraphicsInstance).Canvas.DrawPicture(svg.Picture, ref matrix);
+                    popMatrix();
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -107,8 +126,9 @@ public abstract class LevelBase {
 
     static class Colors {
         public static Color LetterColor => new Color(0, 0, 0);
+        //public static Color LetterColorInactive => new Color(70, 70, 70);
         public static Color LetterDragBox => new Color(120, 0, 0, 10);
-        public static Color Background => new Color(100, 100, 100);
+        public static Color Background => new Color(150, 150, 150);
         public static Color ButtonBackNormal => new Color(255, 255, 255);
         public static Color ButtonBackPressed => new Color(200, 200, 200);
         public static Color ButtonBackPressedDisabled => new Color(200, 0, 0);
@@ -142,4 +162,6 @@ class Level7 : LevelBase {
 class Level8 : LevelBase {
     protected override int LevelIndex => 8;
 }
-
+class Level9 : LevelBase {
+    protected override int LevelIndex => 9;
+}
