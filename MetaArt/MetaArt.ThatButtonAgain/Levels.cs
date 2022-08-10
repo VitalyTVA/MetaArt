@@ -72,15 +72,14 @@ public abstract class LevelBase {
                     scale(l.Scale.X, l.Scale.Y);
                     //fill(Colors.LetterDragBox);
                     //rect(0, 0, item.Rect.Width, item.Rect.Height);
-                    fill(Colors.LetterColor);
+                    fill(
+                        lerp(Colors.UIElementColor.Red, Colors.LetterColor.Red, l.ActiveRatio),
+                        lerp(Colors.UIElementColor.Green, Colors.LetterColor.Green, l.ActiveRatio),
+                        lerp(Colors.UIElementColor.Blue, Colors.LetterColor.Blue, l.ActiveRatio)
+                    );
                     textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
                     text(l.Value.ToString(), 0, -controller.letterVerticalOffset);
                     popMatrix();
-                    break;
-                case Text t:
-                    fill(Colors.LetterColor);
-                    textAlign(TextAlign.LEFT, TextVerticalAlign.CENTER);
-                    text(t.Value.ToString(), item.Rect.Left, item.Rect.Top);
                     break;
                 case FadeOutElement f:
                     fill(0, f.Opacity);
@@ -126,7 +125,7 @@ public abstract class LevelBase {
 
     static class Colors {
         public static Color LetterColor => new Color(0, 0, 0);
-        //public static Color LetterColorInactive => new Color(70, 70, 70);
+        public static Color UIElementColor => new Color(70, 70, 70);
         public static Color LetterDragBox => new Color(120, 0, 0, 10);
         public static Color Background => new Color(150, 150, 150);
         public static Color ButtonBackNormal => new Color(255, 255, 255);
@@ -164,4 +163,7 @@ class Level8 : LevelBase {
 }
 class Level9 : LevelBase {
     protected override int LevelIndex => 9;
+}
+class Level10 : LevelBase {
+    protected override int LevelIndex => 10;
 }

@@ -50,6 +50,7 @@ namespace ThatButtonAgain {
                 Level_ReflectedButton,
                 Level_Mod2Vectors,
                 Level_FindWord,
+                Level_10,
             };
             this.playSound = playSound;
         }
@@ -85,14 +86,7 @@ namespace ThatButtonAgain {
                     new Vector2(button.Rect.MidX + letterDragBoxWidth * points[index].Item1, button.Rect.MidY + letterDragBoxHeight * points[index].Item2),
                     new Vector2(letterDragBoxWidth, letterDragBoxHeight)
                 ).GetRestrictedRect(scene.Bounds);
-                letter.HitTestVisible = true;
-                letter.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
-                    letter, 
-                    () => 0, 
-                    () => (letterSize * Constants.LetterSnapDistanceRatio, GetLetterTargetRect(index, button.Rect).Location),
-                    OnElementSnap,
-                    coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds)
-                );
+                MakeDraggableButton(letter, index, button);
             });
             animations.AddAnimation(new WaitConditionAnimation(
                 condition: GetAreLettersInPlaceCheck(button.Rect, letters),
@@ -504,6 +498,50 @@ namespace ThatButtonAgain {
             }
         }
 
+        void Level_10() {
+            var button = CreateButton(StartNextLevelAnimation);
+            button.IsEnabled = false;
+            scene.AddElement(button);
+
+            var letters = CreateLetters((letter, index) => {
+            letter.Rect = GetLetterTargetRect(index, button.Rect);
+                if(index == 1) {
+                    SetUpLevelIndexButton(letter, new Vector2(levelNumberElementRect.Right, levelNumberElementRect.Top));
+                    var targetLocation = GetLetterTargetRect(index, button.Rect).Location;
+                    var initialLocation = letter.Rect.Location;
+                    float initialScale = letter.Scale.X;
+                    var initialSize = letter.Rect.Size;
+                    MakeDraggableButton(
+                        letter, 
+                        index, 
+                        button, 
+                        onMove: () => {
+                            var amount = 1 - (targetLocation - letter.Rect.Location).Length() / (targetLocation - initialLocation).Length();
+                            letter.ActiveRatio = amount;
+                            letter.Scale = new Vector2(MathFEx.Lerp(initialScale, 1, amount));
+                            letter.Rect = letter.Rect.SetSize(Vector2.Lerp(initialSize, new Vector2(letterDragBoxWidth, letterDragBoxHeight), amount));
+                        }
+                    );
+                }
+            });
+            animations.AddAnimation(new WaitConditionAnimation(
+                condition: GetAreLettersInPlaceCheck(button.Rect, letters),
+                end: () => button.IsEnabled = true
+            ));
+        }
+
+        void MakeDraggableButton(Letter letter, int index, Button button, Action? onMove = null) {
+            letter.HitTestVisible = true;
+            letter.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
+                letter,
+                () => 0,
+                () => (letterSize * Constants.LetterSnapDistanceRatio, GetLetterTargetRect(index, button.Rect).Location),
+                OnElementSnap,
+                onMove: onMove,
+                coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds)
+            );
+        }
+
         void SetupCapitalLettersSwitchLevel(int initialValue, Func<int, int, int> changeValue) {
             Letter[] letters = null!;
 
@@ -654,16 +692,31 @@ namespace ThatButtonAgain {
 
         readonly Action[] levels;
         int levelIndex = 0;
+        Rect levelNumberElementRect;
         public void SetLevel(int level) {
             levelIndex = Math.Min(level, levels.Length - 1);
             
             scene.ClearElements();
-            scene.AddElement(new Text { 
-                Value = levelIndex.ToString(),
-                Rect = new Rect(letterSize * Constants.LetterIndexOffsetRatioX, letterSize * Constants.LetterIndexOffsetRatioY, 0, 0)
-            });
+            var levelNumberElement = new Letter {
+                Value = (levelIndex != 10 ? levelIndex : 1).ToString().Single(),
+            };
+            SetUpLevelIndexButton(
+                levelNumberElement, 
+                new Vector2(letterSize * Constants.LetterIndexOffsetRatioX, letterSize * Constants.LetterIndexOffsetRatioY)
+            );
+            levelNumberElementRect = levelNumberElement.Rect;
+            scene.AddElement(levelNumberElement);
             levels[levelIndex]();
             StartFade(255, 0, () => { }, Constants.FadeOutDuration);
+        }
+        void SetUpLevelIndexButton(Letter letter, Vector2 location) {
+            letter.Rect = new Rect(
+                location,
+                new Vector2(letterDragBoxWidth * Constants.LevelLetterRatio, letterDragBoxHeight * Constants.LevelLetterRatio)
+            );
+            letter.ActiveRatio = 0;
+            letter.Scale = new Vector2(Constants.LevelLetterRatio);
+
         }
     }
     static class Constants {
@@ -676,14 +729,17 @@ namespace ThatButtonAgain {
         public static float LetterDragBoxWidthRatio => 0.57f;
         public static float LetterHorizontalStepRatio => 0.18f;
 
+        public static float LevelLetterRatio => 0.75f;
+
         //public static Color FadeOutColor = new Color(0, 0, 0);
         public static TimeSpan FadeOutDuration => TimeSpan.FromMilliseconds(500);
         public static TimeSpan FadeOutCthulhuDuration => TimeSpan.FromMilliseconds(3000);
         public static TimeSpan RotateAroundLetterDuration => TimeSpan.FromMilliseconds(500);
         public static TimeSpan InflateButtonDuration => TimeSpan.FromMilliseconds(1500);
 
-        public static float LetterIndexOffsetRatioX => .3f;
-        public static float LetterIndexOffsetRatioY => .5f;
+        public static float LetterIndexOffsetRatioX => .2f;
+        public static float LetterIndexOffsetRatioY => .2f;
+
         public static float LetterSnapDistanceRatio => .2f;
         public static float ButtonAnchorDistanceRatio => .2f;
 

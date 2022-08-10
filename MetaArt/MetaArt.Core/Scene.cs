@@ -152,15 +152,11 @@ public class Button : Element {
     public bool IsPressed { get; set; }
 }
 
-public class Text : Element {
-    public string Value { get; set; } = null!;
-}
-
-
 public class Letter : Element {
     public static Vector2 NoScale = new Vector2(1, 1);
     public Vector2 Scale { get; set; }
     public char Value { get; set; }
+    public float ActiveRatio { get; set; } = 1;
 
     public Letter() {
         Scale = NoScale;

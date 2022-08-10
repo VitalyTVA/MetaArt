@@ -21,6 +21,12 @@ namespace MetaArt.Core {
         public Rect Offset(Vector2 offset)
             => new Rect(Location + offset, Size);
 
+        public Rect SetLocation(Vector2 location)
+            => new Rect(location, Size);
+
+        public Rect SetSize(Vector2 size)
+            => new Rect(Location, size);
+
         public bool Contains(Vector2 point) =>
             MathFEx.LessOrEqual(Location.X, point.X) &&
             MathFEx.LessOrEqual(Location.Y, point.Y) &&
