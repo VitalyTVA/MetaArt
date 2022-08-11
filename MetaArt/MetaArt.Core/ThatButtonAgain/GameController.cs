@@ -51,6 +51,8 @@ namespace ThatButtonAgain {
                 Level_Mod2Vectors,
                 Level_FindWord,
                 Level_10,
+                Level_11,
+                Level_12_____,
             };
             this.playSound = playSound;
         }
@@ -86,7 +88,7 @@ namespace ThatButtonAgain {
                     new Vector2(button.Rect.MidX + letterDragBoxWidth * points[index].Item1, button.Rect.MidY + letterDragBoxHeight * points[index].Item2),
                     new Vector2(letterDragBoxWidth, letterDragBoxHeight)
                 ).GetRestrictedRect(scene.Bounds);
-                MakeDraggableButton(letter, index, button);
+                MakeDraggableLetter(letter, index, button);
             });
             animations.AddAnimation(new WaitConditionAnimation(
                 condition: GetAreLettersInPlaceCheck(button.Rect, letters),
@@ -157,19 +159,19 @@ namespace ThatButtonAgain {
         }
 
         void Level_LettersBehindButton() {
-           var buttonRect = GetButtonRect();
+            var buttonRect = GetButtonRect();
 
             var letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, buttonRect);
             });
             (float, Vector2)? snapInfo = default;
-            float snapDistance = buttonHeight * Constants.ButtonAnchorDistanceRatio;
-            var dragableButton = new DragableButton { 
+            float snapDistance = GetSnapDistance();
+            var dragableButton = new DragableButton {
                 Rect = buttonRect,
             };
             dragableButton.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
-                dragableButton, 
-                () => snapDistance, 
+                dragableButton,
+                () => snapDistance,
                 () => snapInfo,
                 OnElementSnap,
                 coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds.Inflate(dragableButton.Rect.Size * Constants.ButtonOutOfBoundDragRatio))
@@ -184,6 +186,10 @@ namespace ThatButtonAgain {
                     snapInfo = (snapDistance, buttonRect.Location);
                     ReplaceWithRealButtonWhenInPlace(buttonRect, dragableButton);
                 }));
+        }
+
+        private float GetSnapDistance() {
+            return buttonHeight * Constants.ButtonAnchorDistanceRatio;
         }
 
         void Level_ClickInsteadOfTouch() {
@@ -305,8 +311,8 @@ namespace ThatButtonAgain {
                 Action syncLettersOnMoveAction = Element.CreateSetOffsetAction(button, letters);
                 button.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
                     button,
-                    () => (flipH && flipV) ? buttonHeight * Constants.ButtonAnchorDistanceRatio : 0,
-                    () => (flipH || flipV) ? null : (buttonHeight * Constants.ButtonAnchorDistanceRatio, buttonRect.Location),
+                    () => (flipH && flipV) ? GetSnapDistance() : 0,
+                    () => (flipH || flipV) ? null : (GetSnapDistance(), buttonRect.Location),
                     OnElementSnap,
                     onMove: () => { 
                         syncLettersOnMoveAction();
@@ -511,7 +517,7 @@ namespace ThatButtonAgain {
                     var initialLocation = letter.Rect.Location;
                     float initialScale = letter.Scale.X;
                     var initialSize = letter.Rect.Size;
-                    MakeDraggableButton(
+                    MakeDraggableLetter(
                         letter, 
                         index, 
                         button, 
@@ -530,7 +536,67 @@ namespace ThatButtonAgain {
             ));
         }
 
-        void MakeDraggableButton(Letter letter, int index, Button button, Action? onMove = null) {
+        void Level_11() {
+            bool win = false;
+            var button = CreateButton(() => {
+                if(win)
+                    StartNextLevelAnimation();
+                else
+                    StartNextLevelFalseAnimation();
+            });
+            scene.AddElement(button);
+
+            var letters = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, button.Rect);
+            }, "TOUCH0");
+            letters[1].Opacity = 0;
+
+            void SetZeroDigit() {
+                letters.Last().Rect = letters![1].Rect;
+                letters.Last().HitTestVisible = true;
+            }
+            SetZeroDigit();
+            var maxDistance = buttonWidth * Constants.ZeroDigitMaxDragDistance;
+            var minDistance = buttonHeight;
+            letters.Last().GetPressState = Element.GetAnchorAndSnapDragStateFactory(
+                letters.Last(),
+                () => GetSnapDistance(),
+                () => null,
+                OnElementSnap,
+                onMove: () => {
+                    var amount = win 
+                        ? 1
+                        : Math.Min(maxDistance, (letters[1].Rect.Location - letters.Last().Rect.Location).Length() - minDistance) / maxDistance;
+                    amount = Math.Max(0, amount);
+                    letters[1].Opacity = amount;
+                    if(MathFEx.FloatsEqual(amount, 1)) {
+                        if(!win)
+                            playSound(SoundKind.SuccessSwitch);
+                        win = true;
+                        scene.RemoveElement(letters.Last());
+                    }
+                },
+                coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds),
+                onRelease: () => {
+                    if(win)
+                        return;
+                    playSound(SoundKind.ErrorClick);
+                    SetZeroDigit();
+                },
+                onClick: StartNextLevelFalseAnimation
+            );
+        }
+
+        void Level_12_____() {
+            var button = CreateButton(StartNextLevelAnimation);
+            scene.AddElement(button);
+
+            //var letters = CreateLetters((letter, index) => {
+            //    letter.Rect = GetLetterTargetRect(index, button.Rect);
+            //});
+        }
+
+        void MakeDraggableLetter(Letter letter, int index, Button button, Action? onMove = null) {
             letter.HitTestVisible = true;
             letter.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
                 letter,
@@ -670,6 +736,10 @@ namespace ThatButtonAgain {
             StartFade(0, 255, () => SetLevel(levelIndex + 1), Constants.FadeOutDuration);
             playSound(SoundKind.Win1);
         }
+        void StartNextLevelFalseAnimation() {
+            StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutDuration);
+            playSound(SoundKind.Win1);
+        }
         void StartCthulhuReloadLevelAnimation() {
             StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutCthulhuDuration);
             playSound(SoundKind.Cthulhu);
@@ -677,7 +747,7 @@ namespace ThatButtonAgain {
 
         Letter[] CreateLetters(Action<Letter, int> setUp, string word = "TOUCH") {
             int index = 0;
-            var letters = new Letter[5];
+            var letters = new Letter[word.Length];
             foreach(var value in word) {
                 var letter = new Letter() {
                     Value = value,
@@ -697,15 +767,22 @@ namespace ThatButtonAgain {
             levelIndex = Math.Min(level, levels.Length - 1);
             
             scene.ClearElements();
-            var levelNumberElement = new Letter {
-                Value = (levelIndex != 10 ? levelIndex : 1).ToString().Single(),
-            };
-            SetUpLevelIndexButton(
-                levelNumberElement, 
-                new Vector2(letterSize * Constants.LetterIndexOffsetRatioX, letterSize * Constants.LetterIndexOffsetRatioY)
-            );
-            levelNumberElementRect = levelNumberElement.Rect;
-            scene.AddElement(levelNumberElement);
+            int digitIndex = 0;
+            foreach(var digit in (levelIndex != 10 ? levelIndex : 1).ToString()) {
+                var levelNumberElement = new Letter {
+                    Value = digit,
+                };
+                SetUpLevelIndexButton(
+                    levelNumberElement,
+                    new Vector2(
+                        letterSize * Constants.LetterIndexOffsetRatioX + digitIndex * letterDragBoxWidth * Constants.LevelLetterRatio, 
+                        letterSize * Constants.LetterIndexOffsetRatioY
+                    )
+                );
+                levelNumberElementRect = levelNumberElement.Rect;
+                scene.AddElement(levelNumberElement);
+                digitIndex++;
+            }
             levels[levelIndex]();
             StartFade(255, 0, () => { }, Constants.FadeOutDuration);
         }
@@ -755,6 +832,8 @@ namespace ThatButtonAgain {
         public static float ContainingButtonInflateValue => 2;
 
         public static float CthulhuWidthScaleRatio = .7f;
+
+        public static float ZeroDigitMaxDragDistance => 0.75f;
     }
 }
 

@@ -56,8 +56,8 @@ public class Scene {
     public void Drag(Vector2 point) {
         inputState = inputState.Drag(point);
     }
-    public void Release() {
-        inputState = inputState.Release();
+    public void Release(Vector2 point) {
+        inputState = inputState.Release(point);
     }
 }
 public abstract class Element {
@@ -67,7 +67,9 @@ public abstract class Element {
        Func<(float snapDistance, Vector2 snapPoint)?> getSnapInfo,
        Action<Element> onElementSnap,
        Action? onMove = null,
-       Func<Rect, Vector2>? coerceRectLocation = null
+       Func<Rect, Vector2>? coerceRectLocation = null,
+       Action? onRelease = null,
+       Action? onClick = null
      ) {
         bool allowDrag = true;
         bool anchored = true;
@@ -76,10 +78,15 @@ public abstract class Element {
                 return releaseState;
 
             var startRect = element.Rect;
+
+            bool IsSnapped(Vector2 delta) {
+                var anchorDistance = getAnchorDistance();
+                return anchored && delta.LengthSquared() < anchorDistance * anchorDistance;
+            }
+
             return new DragInputState(startPoint, delta => {
                 Rect newRect = startRect;
-                var anchorDistance = getAnchorDistance();
-                if (!anchored || delta.LengthSquared() >= anchorDistance * anchorDistance) {
+                if (!IsSnapped(delta)) {
                     newRect = newRect.Offset(delta);
                     anchored = false;
                 }
@@ -94,6 +101,11 @@ public abstract class Element {
                 element.Rect = newRect;
                 onMove?.Invoke();
                 return allowDrag;
+            }, delta => {
+                if(IsSnapped(delta)) { 
+                    onClick?.Invoke();
+                }
+                onRelease?.Invoke();
             }, releaseState);
         };
     }
@@ -157,6 +169,7 @@ public class Letter : Element {
     public Vector2 Scale { get; set; }
     public char Value { get; set; }
     public float ActiveRatio { get; set; } = 1;
+    public float Opacity { get; set; } = 1;
 
     public Letter() {
         Scale = NoScale;
@@ -171,7 +184,7 @@ public class DragableButton : Element {
 
 public abstract class InputState {
     public abstract InputState Press(Vector2 point);
-    public abstract InputState Release();
+    public abstract InputState Release(Vector2 point);
     public abstract InputState Drag(Vector2 point);
 }
 
@@ -190,7 +203,7 @@ public class NoInputState : InputState {
         return getPressState(point);
     }
 
-    public override InputState Release() {
+    public override InputState Release(Vector2 point) {
         return this;
     }
 }
@@ -198,11 +211,13 @@ public class NoInputState : InputState {
 public class DragInputState : InputState {
     readonly Vector2 startPoint;
     readonly Func<Vector2, bool> onDrag;
+    readonly Action<Vector2> onRelease;
     readonly InputState releaseState;
 
-    public DragInputState(Vector2 startPoint, Func<Vector2, bool> onDrag, InputState releaseState) {
+    public DragInputState(Vector2 startPoint, Func<Vector2, bool> onDrag, Action<Vector2> onRelease, InputState releaseState) {
         this.startPoint = startPoint;
         this.onDrag = onDrag;
+        this.onRelease = onRelease;
         this.releaseState = releaseState;
     }
 
@@ -216,7 +231,8 @@ public class DragInputState : InputState {
         return releaseState; // throw new InvalidOperationException();
     }
 
-    public override InputState Release() {
+    public override InputState Release(Vector2 point) {
+        onRelease(point - startPoint);
         return releaseState;
     }
 }
@@ -246,7 +262,7 @@ public class HoverInputState : InputState {
         throw new InvalidOperationException();
     }
 
-    public override InputState Release() {
+    public override InputState Release(Vector2 point) {
         onRelease();
         return releaseState;
     }
@@ -278,7 +294,7 @@ public class TapInputState : InputState {
         throw new InvalidOperationException();
     }
 
-    public override InputState Release() {
+    public override InputState Release(Vector2 point) {
         setState(false);
         if(element.IsVisible)
             onTap();

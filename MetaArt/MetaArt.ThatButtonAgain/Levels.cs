@@ -72,11 +72,12 @@ public abstract class LevelBase {
                     scale(l.Scale.X, l.Scale.Y);
                     //fill(Colors.LetterDragBox);
                     //rect(0, 0, item.Rect.Width, item.Rect.Height);
-                    fill(
+                    fill(color(
                         lerp(Colors.UIElementColor.Red, Colors.LetterColor.Red, l.ActiveRatio),
                         lerp(Colors.UIElementColor.Green, Colors.LetterColor.Green, l.ActiveRatio),
-                        lerp(Colors.UIElementColor.Blue, Colors.LetterColor.Blue, l.ActiveRatio)
-                    );
+                        lerp(Colors.UIElementColor.Blue, Colors.LetterColor.Blue, l.ActiveRatio),
+                        l.Opacity * 255
+                    ));
                     textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
                     text(l.Value.ToString(), 0, -controller.letterVerticalOffset);
                     popMatrix();
@@ -119,7 +120,7 @@ public abstract class LevelBase {
     void mouseReleased()
     {
         //locked = false;
-        controller.scene.Release();
+        controller.scene.Release(new System.Numerics.Vector2(mouseX / displayDensity(), mouseY / displayDensity()));
         //noLoop();
     }
 
@@ -166,4 +167,10 @@ class Level9 : LevelBase {
 }
 class Level10 : LevelBase {
     protected override int LevelIndex => 10;
+}
+class Level11 : LevelBase {
+    protected override int LevelIndex => 11;
+}
+class Level12 : LevelBase {
+    protected override int LevelIndex => 12;
 }
