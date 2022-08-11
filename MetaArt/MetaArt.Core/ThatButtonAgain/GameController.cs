@@ -549,11 +549,11 @@ namespace ThatButtonAgain {
             var letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
             }, "TOUCH0");
-            letters[1].Opacity = 0;
 
             void SetZeroDigit() {
                 letters.Last().Rect = letters![1].Rect;
                 letters.Last().HitTestVisible = true;
+                letters[1].Opacity = 0;
             }
             SetZeroDigit();
             var maxDistance = buttonWidth * Constants.ZeroDigitMaxDragDistance;
