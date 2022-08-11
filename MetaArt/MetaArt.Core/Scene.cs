@@ -68,7 +68,7 @@ public abstract class Element {
        Action<Element> onElementSnap,
        Action? onMove = null,
        Func<Rect, Vector2>? coerceRectLocation = null,
-       Action? onRelease = null,
+       Func<bool>? onRelease = null,
        Action? onClick = null
      ) {
         bool allowDrag = true;
@@ -105,7 +105,7 @@ public abstract class Element {
                 if(IsSnapped(delta)) { 
                     onClick?.Invoke();
                 }
-                onRelease?.Invoke();
+                anchored = onRelease?.Invoke() ?? false;
             }, releaseState);
         };
     }

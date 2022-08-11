@@ -579,9 +579,10 @@ namespace ThatButtonAgain {
                 coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds),
                 onRelease: () => {
                     if(win)
-                        return;
+                        return false;
                     playSound(SoundKind.ErrorClick);
                     SetZeroDigit();
+                    return true;
                 },
                 onClick: StartNextLevelFalseAnimation
             );
