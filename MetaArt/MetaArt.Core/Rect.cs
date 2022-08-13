@@ -37,6 +37,9 @@ namespace MetaArt.Core {
             Contains(rect.Location) || Contains(rect.Location + rect.Size) || 
             rect.Contains(Location) || rect.Contains(Location + Size);
 
+        public bool Contains(Rect rect) => 
+            Contains(rect.Location) && Contains(rect.Location + rect.Size);
+
         public Rect ContainingRect(Rect other) {
             return FromLTRB(
                 MathFEx.Min(Left, other.Left),

@@ -52,7 +52,7 @@ namespace ThatButtonAgain {
                 Level_FindWord,
                 Level_10,
                 Level_11,
-                Level_12_____,
+                Level_ScrollLetters,
             };
             this.playSound = playSound;
         }
@@ -588,10 +588,173 @@ namespace ThatButtonAgain {
             );
         }
 
-        void Level_12_____() {
+        void Level_ScrollLetters() {
             var button = CreateButton(StartNextLevelAnimation);
+            button.HitTestVisible = false;
             scene.AddElement(button);
+            var lineHeight = letterDragBoxHeight;
+            var linesCount = (int)Math.Ceiling(scene.height / lineHeight + 1) + 1;
+            var positions = "CLICK".Select(x => (float)((byte)x - (byte)'A')).ToArray();
+            var expectedPositions = "TOUCH".Select(x => (float)((byte)x - (byte)'A')).ToArray();
+            var offsets = new float[5];
+            var letters = new Letter[linesCount, 5];
 
+            //trivial, 2 steps, C leter stays inplace
+            //2 +12
+            //1 +3
+            var changes = new[] {
+                new [] { 1, 0, 0, -1, 0 }, //confusing
+                new [] { 1, 1, 0, 0, -1 },
+                new [] { -1, 0, 1, 0, 0 },
+                new [] { 1, 0, -1, 1, 0 }, //confusing
+                new [] { 0, 1, -1, 0, 1 },
+            };
+
+            /*
+            //hardest, irregular increase, 3 steps, C letter stays inplace
+            //2 +12
+            //1 +3
+            //0  -3 or 4 +3
+            var changes = new[] {
+                new [] { 1, 0, 0, 0, -1 },
+                new [] { 2, 1, 0, 0, -2 },
+                new [] { -1, 0, 1, 0, 0 },
+                new [] { 1, 0, -1, 1, 0 }, //confusing
+                new [] { -1, 0, 0, 0, 1 },
+            };
+            
+
+            //hard, regular increase, 3 steps, C letter stays inplace
+            //2 +12
+            //4 -6
+            //1 -3
+            var changes = new[] {
+                new [] { 1, 0, -1, 0, 1 }, //confusing
+                new [] { -1, 1, 0, 0, -1 },
+                new [] { -1, 0, 1, 0, 0 },
+                new [] { 1, 0, -1, 1, 0 }, //confusing
+                new [] { 0, -1, 0, 0, 1 },
+            };
+            
+            //very hard, regular increase, 3 steps, C letter moves
+            //2 +12
+            //3 -3
+            //4 -3
+            var changes = new[] {
+                new [] { 1, 0, -1, 0, 1 }, //confusing
+                new [] { -1, 1, 0, 1, 0 }, //confusing
+                new [] { -1, 0, 1, 0, 0 },
+                new [] { -1, 0, 0, 1, 0 },
+                new [] { 0, -1, 0, -1, 1 },
+            };
+
+            //extreme, irregular increase, 4 steps, C letter moves
+            //3 +3
+            //2 +6
+            //1 +3
+            //4 -3
+
+            var changes = new[] {
+                new [] { 1, 0, -1, 0, 1 }, //confusing
+                new [] { 0, 1, 0, -1, 0 },
+                new [] { -2, 0, 1, 0, 0 },
+                new [] { 0, 0, 2, 1, 0 },
+                new [] { -1, 0, 0, 0, 1 },
+            };
+            */
+
+            for(int line = 0; line < linesCount; line++) {
+                for(int column = 0; column < 5; column++) {
+                    var letter = new Letter {
+                        //Rect = GetLetterTargetRect(i , button.Rect)
+                        //    .Offset(new Vector2(0, (j - letterCount / 2) * lineHeight)),
+                        HitTestVisible = true,
+                        Scale = new Vector2(Constants.ScrollLettersLetterScale),
+                    };
+
+                    var actualColumn = column;
+
+                    void SetOffsetAndArrange(float offset) {
+                        for(int col = 0; col < 5; col++) {
+                            offsets![col] = changes![actualColumn][col] * offset;
+                        }
+                        ArrangeLetters();
+                    }
+
+                    float GetOffset(Vector2 delta) => -delta.Y / lineHeight;
+
+                    letter.GetPressState = (starPoint, releaseState) => {
+                        return new DragInputState(
+                            starPoint, 
+                            onDrag: delta => {
+                                SetOffsetAndArrange(GetOffset(delta));
+                                return true;
+                            },
+                            onRelease: delta => {
+                                var from = GetOffset(delta);
+                                var to = (float)Math.Round(from);
+                                var animation = new LerpAnimation<float> {
+                                    Duration = TimeSpan.FromMilliseconds(300 * (float)Math.Abs(from - to)),
+                                    From = from,
+                                    To = to,
+                                    SetValue = val => SetOffsetAndArrange(val),
+                                    Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
+                                    OnEnd = () => {
+                                        for(int i = 0; i < 5; i++) {
+                                            positions[i] = GetNormalizedPosition(positions[i] + offsets[i]);
+                                            offsets[i] = 0;
+                                        }
+                                        if(positions.Zip(expectedPositions, (x, y) => MathFEx.FloatsEqual(x, y)).All(x => x)) {
+                                            playSound(SoundKind.SuccessSwitch);
+                                            button.HitTestVisible = true;
+                                            for(int line = 0; line < linesCount; line++) {
+                                                for(int column = 0; column < 5; column++) {
+                                                    var letter = letters[line, column];
+                                                    letter.HitTestVisible = false;
+                                                    if(!button.Rect.Contains(letter.Rect))
+                                                        scene.RemoveElement(letter);
+                                                }
+                                            }
+                                        } else {
+                                            playSound(SoundKind.ErrorClick);
+                                        }
+                                    }
+                                };
+                                //TODO disable input while UI animations
+                                animations.AddAnimation(animation);
+
+                            },
+                            releaseState);
+                    
+                    };
+
+                    letters[line, column] = letter;
+                    scene.AddElement(letter);
+                }
+            }
+            float GetNormalizedPosition(float position)  {
+                if(position < 0) position += 26;
+                if(position >= 26) position -= 26;
+                return position;
+            }
+            void ArrangeLetters() {
+                for(int line = 0; line < linesCount; line++) {
+                    for(int column = 0; column < 5; column++) {
+                        var letter = letters[line, column];
+
+                        var position = positions[column] + offsets[column];
+                        var letterIndex = GetNormalizedPosition(line + (float)Math.Truncate(position) - linesCount / 2);
+
+                        letter.Value = (char)((byte)'A' + (byte)letterIndex);
+                        letter.ActiveRatio = "TOUCH"[column] == letter.Value ? 1 : 0;
+
+                        var fractionalOffset = (float)(position - Math.Truncate(position));
+                        letter.Rect = GetLetterTargetRect(column, button.Rect)
+                            .Offset(new Vector2(0, (line - linesCount / 2 - fractionalOffset) * lineHeight));
+                    }
+                }
+            }
+            ArrangeLetters();
             //var letters = CreateLetters((letter, index) => {
             //    letter.Rect = GetLetterTargetRect(index, button.Rect);
             //});
@@ -835,6 +998,9 @@ namespace ThatButtonAgain {
         public static float CthulhuWidthScaleRatio = .7f;
 
         public static float ZeroDigitMaxDragDistance => 0.75f;
+
+        public static float ScrollLettersLetterScale => .9f;
+
     }
 }
 
