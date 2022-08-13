@@ -662,7 +662,7 @@ namespace ThatButtonAgain {
                 new [] { -1, 0, 0, 0, 1 },
             };
             */
-
+            bool animating = false;
             for(int line = 0; line < linesCount; line++) {
                 for(int column = 0; column < 5; column++) {
                     var letter = new Letter {
@@ -682,8 +682,10 @@ namespace ThatButtonAgain {
                     }
 
                     float GetOffset(Vector2 delta) => -delta.Y / lineHeight;
-
+                    
                     letter.GetPressState = (starPoint, releaseState) => {
+                        if(animating)
+                            return releaseState;
                         return new DragInputState(
                             starPoint, 
                             onDrag: delta => {
@@ -691,6 +693,7 @@ namespace ThatButtonAgain {
                                 return true;
                             },
                             onRelease: delta => {
+                                animating = true;
                                 var from = GetOffset(delta);
                                 var to = (float)Math.Round(from);
                                 var animation = new LerpAnimation<float> {
@@ -700,6 +703,7 @@ namespace ThatButtonAgain {
                                     SetValue = val => SetOffsetAndArrange(val),
                                     Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
                                     OnEnd = () => {
+                                        animating = false;
                                         for(int i = 0; i < 5; i++) {
                                             positions[i] = GetNormalizedPosition(positions[i] + offsets[i]);
                                             offsets[i] = 0;
@@ -720,7 +724,6 @@ namespace ThatButtonAgain {
                                         }
                                     }
                                 };
-                                //TODO disable input while UI animations
                                 animations.AddAnimation(animation);
 
                             },
