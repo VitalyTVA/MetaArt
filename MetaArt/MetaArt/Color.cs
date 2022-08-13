@@ -14,6 +14,8 @@ namespace MetaArt {
 
         public byte Blue => (byte)(Value & 0xFFu);
 
+        public static Color FromRGBValue(uint value) => new Color(value | 0xFFu << 24);
+
         public Color(uint value) {
             Value = value;
         }

@@ -48,7 +48,6 @@ public abstract class LevelBase {
         controller.NextFrame(deltaTime);
         background(Colors.Background);
         scale(displayDensity(), displayDensity());
-        noStroke();
 
         foreach (var item in controller.scene.VisibleElements) {
             switch (item) {
@@ -56,13 +55,18 @@ public abstract class LevelBase {
                     fill(b.IsPressed 
                         ? (b.IsEnabled ? Colors.ButtonBackPressed : Colors.ButtonBackPressedDisabled) 
                         : Colors.ButtonBackNormal);
+                    stroke(Colors.ButtonBorder);
+                    strokeWeight(3);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     break;
                 case DragableButton b:
                     fill(Colors.ButtonBackNormal);
+                    stroke(Colors.ButtonBorder);
+                    strokeWeight(3);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     break;
                 case Letter l:
+                    noStroke();
                     if(MathFEx.VectorsEqual(l.Scale, Letter.NoScale)) {
                         fill(Colors.LetterDragBox);
                         rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
@@ -83,10 +87,12 @@ public abstract class LevelBase {
                     popMatrix();
                     break;
                 case FadeOutElement f:
+                    noStroke();
                     fill(0, f.Opacity);
                     rect(f.Rect.Left, f.Rect.Top, f.Rect.Width, f.Rect.Height);
                     break;
                 case SvgElement s:
+                    noStroke();
                     var svg = svgs[s.Kind];
                     float scaleX = s.Rect.Width / svg.Picture.CullRect.Width;
                     float scaleY = s.Rect.Height / svg.Picture.CullRect.Height;
@@ -124,14 +130,59 @@ public abstract class LevelBase {
         //noLoop();
     }
 
+    //static class Colors {
+    //    public static Color LetterColor => new Color(0, 0, 0);
+    //    public static Color UIElementColor => new Color(70, 70, 70);
+    //    public static Color LetterDragBox => new Color(120, 0, 0, 10);
+    //    public static Color Background => new Color(150, 150, 150);
+    //    public static Color ButtonBackNormal => new Color(255, 255, 255);
+    //    public static Color ButtonBackPressed => new Color(200, 200, 200);
+    //    public static Color ButtonBackPressedDisabled => new Color(200, 0, 0);
+    //}
+
     static class Colors {
-        public static Color LetterColor => new Color(0, 0, 0);
-        public static Color UIElementColor => new Color(70, 70, 70);
-        public static Color LetterDragBox => new Color(120, 0, 0, 10);
-        public static Color Background => new Color(150, 150, 150);
-        public static Color ButtonBackNormal => new Color(255, 255, 255);
-        public static Color ButtonBackPressed => new Color(200, 200, 200);
-        public static Color ButtonBackPressedDisabled => new Color(200, 0, 0);
+        public static Color LetterColor => Palette_BlueGrayLight.Back_900;
+        public static Color UIElementColor => Palette_BlueGrayLight.Back_600;
+        public static Color LetterDragBox => Color.Empty;//new Color(120, 0, 0, 10);
+        public static Color Background => Palette_BlueGrayLight.Back_50;
+        public static Color ButtonBackNormal => Palette_BlueGrayLight.Back_100;
+        public static Color ButtonBackPressed => Palette_BlueGrayLight.Back_200;
+        public static Color ButtonBorder => Palette_BlueGrayLight.Back_900;
+
+        public static Color ButtonBackPressedDisabled => Palette_Common.Error;
+    }
+
+
+    public static class Palette_Common { 
+        public static readonly Color Error = Color.FromRGBValue(0xB00020);
+    }
+
+    static class Palette_BlueGrayLight {
+        //https://material.io/design/color/the-color-system.html#color-usage-and-palettes
+        public static readonly Color Back_50 = Color.FromRGBValue(0xECEFF1);
+        public static readonly Color Back_100 = Color.FromRGBValue(0xCFD8DC);
+        public static readonly Color Back_200 = Color.FromRGBValue(0xB0BEC5);
+        public static readonly Color Back_300 = Color.FromRGBValue(0x90A4AE);
+        public static readonly Color Back_400 = Color.FromRGBValue(0x78909C);
+        public static readonly Color Back_500 = Color.FromRGBValue(0x607D8B);
+        public static readonly Color Back_600 = Color.FromRGBValue(0x546E7A);
+        public static readonly Color Back_700 = Color.FromRGBValue(0x455A64);
+        public static readonly Color Back_800 = Color.FromRGBValue(0x37474F);
+        public static readonly Color Back_900 = Color.FromRGBValue(0x263238);
+
+        public static readonly Color Fore_50_Gray = new Color(117, 117, 117);
+
+        public static readonly Color Fore_50 = Color.FromRGBValue(0x000000);
+        public static readonly Color Fore_100 = Color.FromRGBValue(0x000000);
+        public static readonly Color Fore_200 = Color.FromRGBValue(0x000000);
+        public static readonly Color Fore_300 = Color.FromRGBValue(0x000000);
+        public static readonly Color Fore_400 = Color.FromRGBValue(0x000000);
+        public static readonly Color Fore_500 = Color.FromRGBValue(0x000000);
+        public static readonly Color Fore_600 = Color.FromRGBValue(0xFFFFFF);
+        public static readonly Color Fore_700 = Color.FromRGBValue(0xFFFFFF);
+        public static readonly Color Fore_800 = Color.FromRGBValue(0xFFFFFF);
+        public static readonly Color Fore_900 = Color.FromRGBValue(0xFFFFFF);
+
     }
 }
 
