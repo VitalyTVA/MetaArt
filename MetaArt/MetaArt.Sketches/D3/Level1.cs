@@ -52,7 +52,7 @@ class Level1 {
 }
 
 public static class Animations {
-    public static IAnimation CreateModelTranslate<TValue>(Model<TValue> model, Vector3 delta, TimeSpan duration) {
+    public static AnimationBase CreateModelTranslate<TValue>(Model<TValue> model, Vector3 delta, TimeSpan duration) {
         return new LerpAnimation<Vector3> {
             Duration = duration,
             From = model.Translate,
@@ -62,7 +62,7 @@ public static class Animations {
         };
     }
 
-    public static IAnimation CreateModelScale<TValue>(Model<TValue> model, Vector3 delta, TimeSpan duration) {
+    public static AnimationBase CreateModelScale<TValue>(Model<TValue> model, Vector3 delta, TimeSpan duration) {
         return new LerpAnimation<Vector3> {
             Duration = duration,
             From = model.Scale,
@@ -72,7 +72,7 @@ public static class Animations {
         };
     }
 
-    public static IAnimation CreateCameraControllerYaw(YawPitchContoller controller, float delta, TimeSpan duration) {
+    public static AnimationBase CreateCameraControllerYaw(YawPitchContoller controller, float delta, TimeSpan duration) {
         return new LerpAnimation<float> {
             Duration = duration,
             From = controller.Yaw,

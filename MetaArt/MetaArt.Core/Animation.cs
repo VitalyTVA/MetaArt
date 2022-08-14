@@ -1,47 +1,44 @@
 ﻿namespace MetaArt.Core {
-    public interface IAnimation {
-        bool Next(TimeSpan deltaTime);
-        void End();
+    public abstract class AnimationBase {
+        public abstract bool Next(TimeSpan deltaTime);
+        public Action? End { get; init; }
+        public AnimationBase Start(AnimationsController controller, bool blockInput = false) {
+            controller.AddAnimation(this, blockInput);
+            return this;
+        }
     }
-    public sealed class WaitConditionAnimation : IAnimation {
+    public sealed class WaitConditionAnimation : AnimationBase {
         public static WaitConditionAnimation WaitTime(TimeSpan time, Action end) {
             var totalTime = TimeSpan.Zero;
             return new WaitConditionAnimation(deltaTime => {
                 totalTime += deltaTime;
                 return totalTime > time;
-            }, end);
+            }) { End = end };
         }
 
         readonly Func<TimeSpan, bool> condition;
-        readonly Action end;
 
-        public WaitConditionAnimation(Func<TimeSpan, bool> condition, Action end) {
+        public WaitConditionAnimation(Func<TimeSpan, bool> condition) {
             this.condition = condition;
-            this.end = end;
         }
-        void IAnimation.End() {
-            end();
-        }
-        bool IAnimation.Next(TimeSpan deltaTime) {
+        public sealed override bool Next(TimeSpan deltaTime) {
             return !condition(deltaTime);
         }
     }
 
-    public abstract class LinearAnimationBase<T> : IAnimation {
+    public abstract class LinearAnimationBase<T> : AnimationBase {
         public TimeSpan Duration { get; init; }
         public T From { get; init; } = default!;
         public T To { get; init; } = default!;
-        public Action? OnEnd { get; init; }
 
         TimeSpan time = TimeSpan.Zero;
-        public bool Next(TimeSpan deltaTime) {
+        public sealed override bool Next(TimeSpan deltaTime) {
             time += deltaTime;
             float amount = MathFEx.Min(1, (float)(time.TotalMilliseconds / Duration.TotalMilliseconds));
             var value = LerpCore(From, To, amount);
             SetValueCore(value);
             return amount < 1;
         }
-        public void End() => OnEnd?.Invoke();
 
         protected abstract T LerpCore(T from, T to, float amount);
         protected abstract void SetValueCore(T value);
@@ -68,17 +65,17 @@
 
     public class AnimationsController {
         public bool AllowInput => !blockInputAnimations.Any();
-        readonly List<IAnimation> animations = new();
-        readonly List<IAnimation> blockInputAnimations = new();
+        readonly List<AnimationBase> animations = new();
+        readonly List<AnimationBase> blockInputAnimations = new();
         public AnimationsController() {
             this.animations = animations.ToList();
         }
-        public void AddAnimation(IAnimation animation, bool blockInput = false) {
+        public void AddAnimation(AnimationBase animation, bool blockInput) {
             animations.Add(animation);
             if(blockInput)
                 blockInputAnimations.Add(animation);
         }
-        public void RemoveAnimation(IAnimation animation) {
+        public void RemoveAnimation(AnimationBase animation) {
             animations.Remove(animation);
             blockInputAnimations.Remove(animation);
         }
@@ -88,14 +85,14 @@
                 bool finished = !animation.Next(deltaTime);
                 if(finished) {
                     RemoveAnimation(animation);
-                    animation.End();
+                    animation.End?.Invoke();
                 }
             }
         }
 
-        public void AddAnimations(IEnumerable<IAnimation> animations) {
+        public void AddAnimations(IEnumerable<AnimationBase> animations) {
             foreach(var item in animations) {
-                AddAnimation(item);
+                item.Start(this);
             };
         }
     }

@@ -91,10 +91,9 @@ namespace ThatButtonAgain {
                 ).GetRestrictedRect(scene.Bounds);
                 MakeDraggableLetter(letter, index, button);
             });
-            animations.AddAnimation(new WaitConditionAnimation(
-                condition: GetAreLettersInPlaceCheck(button.Rect, letters),
-                end: () => button.IsEnabled = true
-            ));
+            new WaitConditionAnimation(condition: GetAreLettersInPlaceCheck(button.Rect, letters)) { 
+                End = () => button.IsEnabled = true 
+            }.Start(animations);
         }
 
         void Level_16xClick() {
@@ -128,7 +127,7 @@ namespace ThatButtonAgain {
                     rotating = true;
                     playSound(SoundKind.Swap);
                     void AddRotateAnimation(float fromAngle, float toAngle, Letter sideLetter) {
-                        var animation = new RotateAnimation {
+                        new RotateAnimation {
                             Duration = Constants.RotateAroundLetterDuration,
                             From = fromAngle,
                             To = toAngle,
@@ -137,9 +136,8 @@ namespace ThatButtonAgain {
                             SetLocation = center => {
                                 sideLetter.Rect = Rect.FromCenter(center, sideLetter.Rect.Size);
                             },
-                            OnEnd = () => rotating = false
-                        };
-                        animations.AddAnimation(animation, blockInput: true);
+                            End = () => rotating = false
+                        }.Start(animations, blockInput: true);
                     };
 
                     AddRotateAnimation(0, MathFEx.PI, rightLetter);
@@ -149,14 +147,15 @@ namespace ThatButtonAgain {
                 letter.HitTestVisible = true;
             });
 
-            animations.AddAnimation(new WaitConditionAnimation(
-                condition: GetAreLettersInPlaceCheck(button.Rect, letters),
-                end: () => {
+            new WaitConditionAnimation(
+                condition: GetAreLettersInPlaceCheck(button.Rect, letters)) {
+                End = () => {
                     button.HitTestVisible = true;
                     foreach(var item in letters) {
                         item.HitTestVisible = false;
                     }
-                }));
+                }
+            }.Start(animations);
         }
 
         void Level_LettersBehindButton() {
@@ -182,14 +181,15 @@ namespace ThatButtonAgain {
 
             scene.AddElement(dragableButton);
 
-            animations.AddAnimation(new WaitConditionAnimation(
-                condition: deltaTime => letters.All(l => !l.Rect.Intersects(dragableButton.Rect)),
-                end: () => {
-                    scene.SendToBack(dragableButton);
-                    snapInfo = (snapDistance, buttonRect.Location);
-                    EnableButtonWhenInPlace(buttonRect, dragableButton);
+            new WaitConditionAnimation(
+                condition: deltaTime => letters.All(l => !l.Rect.Intersects(dragableButton.Rect))) {
+                    End = () => {
+                        scene.SendToBack(dragableButton);
+                        snapInfo = (snapDistance, buttonRect.Location);
+                        EnableButtonWhenInPlace(buttonRect, dragableButton);
 
-                }));
+                    }
+            }.Start(animations);
         }
 
         float GetSnapDistance() {
@@ -207,16 +207,16 @@ namespace ThatButtonAgain {
             var letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
                 letter.HitTestVisible = true;
-                LerpAnimation<float> animation = null!;
+                AnimationBase animation = null!;
                 var onPress = () => {
                     if(replaceIndex == indices.Length || indices[replaceIndex] != index)
                         return;
-                    animation = new() {
+                    animation = new LerpAnimation<float>() {
                         From = 1,
                         To = 2,
                         Duration = Constants.InflateButtonDuration,
                         Lerp = MathFEx.Lerp,
-                        OnEnd = () => {
+                        End = () => {
                             letter.Value = "TOUCH"[index];
                             letter.Scale = Letter.NoScale;
                             letter.HitTestVisible = false;
@@ -224,8 +224,7 @@ namespace ThatButtonAgain {
                             playSound(SoundKind.SuccessSwitch);
                         },
                         SetValue = value => letter.Scale = new Vector2(value, value)
-                    };
-                    animations.AddAnimation(animation);
+                    }.Start(animations);
                 };
                 var onRelease = () => {
                     animations.RemoveAnimation(animation);
@@ -234,14 +233,15 @@ namespace ThatButtonAgain {
                 letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, onRelease);
 
             }, "CLICK");
-            animations.AddAnimation(new WaitConditionAnimation(
-                condition: deltaTime => replaceIndex == 4,
-                end: () => {
-                    button.HitTestVisible = true;
-                    foreach(var item in letters) {
-                        item.HitTestVisible = false;
+            new WaitConditionAnimation(
+                condition: deltaTime => replaceIndex == 4) {
+                    End = () => {
+                        button.HitTestVisible = true;
+                        foreach(var item in letters) {
+                            item.HitTestVisible = false;
+                        }
                     }
-                }));
+            }.Start(animations);
         }
 
         void Level_RandomButton() {
@@ -273,20 +273,20 @@ namespace ThatButtonAgain {
             }
 
             void StartWaitButton() {
-                animations.AddAnimation(WaitConditionAnimation.WaitTime(
+                WaitConditionAnimation.WaitTime(
                     TimeSpan.FromMilliseconds(GetWaitTime()),
                     () => {
                         SetVisibility(true);
-                        animations.AddAnimation(WaitConditionAnimation.WaitTime(
+                        WaitConditionAnimation.WaitTime(
                             TimeSpan.FromMilliseconds(appearInterval),
                             () => {
                                 appearInterval = Math.Min(appearInterval + Constants.ButtonAppearIntervalIncrease, Constants.MaxButtonAppearInterval);
                                 SetVisibility(false);
                                 StartWaitButton();
                             }
-                        ));
+                        ).Start(animations);
                     }
-                ));
+                ).Start(animations);
             };
 
             StartWaitButton();
@@ -536,10 +536,9 @@ namespace ThatButtonAgain {
                     );
                 }
             });
-            animations.AddAnimation(new WaitConditionAnimation(
-                condition: GetAreLettersInPlaceCheck(button.Rect, letters),
-                end: () => button.IsEnabled = true
-            ));
+            new WaitConditionAnimation(condition: GetAreLettersInPlaceCheck(button.Rect, letters)) { 
+                End = () => button.IsEnabled = true 
+            }.Start(animations);
         }
 
         void Level_11() {
@@ -707,7 +706,7 @@ namespace ThatButtonAgain {
                                     To = to,
                                     SetValue = val => SetOffsetAndArrange(val),
                                     Lerp = MathFEx.Lerp,
-                                    OnEnd = () => {
+                                    End = () => {
                                         for(int i = 0; i < 5; i++) {
                                             positions[i] = GetNormalizedPosition(positions[i] + offsets[i]);
                                             offsets[i] = 0;
@@ -727,9 +726,7 @@ namespace ThatButtonAgain {
                                             playSound(SoundKind.ErrorClick);
                                         }
                                     }
-                                };
-                                animations.AddAnimation(animation, blockInput: true);
-
+                                }.Start(animations, blockInput: true);
                             },
                             releaseState);
                     
@@ -809,8 +806,7 @@ namespace ThatButtonAgain {
                                 To = to,
                                 SetValue = val => letter.Rect = letter.Rect.SetLocation(val),
                                 Lerp = Vector2.Lerp,
-                            };
-                            animations.AddAnimation(animation, blockInput: true);
+                            }.Start(animations, blockInput: true);
                             return false;
                         },
                         onRelease: delta => {
@@ -851,16 +847,17 @@ namespace ThatButtonAgain {
             });
             scene.AddElementBehind(pathElement);
 
-            animations.AddAnimation(new WaitConditionAnimation(
-                condition: GetAreLettersInPlaceCheck(button.Rect, letters),
-                end: () => {
+            new WaitConditionAnimation(
+                condition: GetAreLettersInPlaceCheck(button.Rect, letters)) {
+                End = () => {
                     pathElement.IsVisible = false;
                     button.IsVisible = true;
                     foreach(var item in letters) {
                         item.HitTestVisible = false;
                     }
                     playSound(SoundKind.SuccessSwitch);
-                }));
+                }
+            }.Start(animations);
         }
 
         void MakeDraggableLetter(Letter letter, int index, Button button, Action? onMove = null) {
@@ -927,12 +924,13 @@ namespace ThatButtonAgain {
         }
 
         void EnableButtonWhenInPlace(Rect buttonRect, Button dragableButton) {
-            animations.AddAnimation(new WaitConditionAnimation(
-                condition: deltaTime => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location),
-                end: () => {
-                    dragableButton.IsEnabled = true;
-                    dragableButton.GetPressState = GetClickHandler(StartNextLevelAnimation, dragableButton);
-                }));
+            new WaitConditionAnimation(
+                condition: deltaTime => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location)) {
+                    End = () => {
+                        dragableButton.IsEnabled = true;
+                        dragableButton.GetPressState = GetClickHandler(StartNextLevelAnimation, dragableButton);
+                    }
+            }.Start(animations);
         }
 
         Func<TimeSpan, bool> GetAreLettersInPlaceCheck(Rect buttonRect, Letter[] letters) {
@@ -997,12 +995,11 @@ namespace ThatButtonAgain {
                 To = to,
                 SetValue = value => element.Opacity = value,
                 Lerp = MathFEx.Lerp,
-                OnEnd = () => {
+                End = () => {
                     scene.RemoveElement(element);
                     end();
                 }
-            };
-            animations.AddAnimation(animation);
+            }.Start(animations);
             scene.AddElement(element);
         }
         void StartNextLevelAnimation() {
