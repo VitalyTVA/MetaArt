@@ -1,7 +1,7 @@
 using System.Reflection;
 using ThatButtonAgain;
 
-public class Sketches : ISkecthesProvider {
+public class ThatButtonSketches : ISkecthesProvider {
     ICollection<SketchGroup> ISkecthesProvider.Groups => new[] {
         new SketchGroup {
             Name = "That Button Again",

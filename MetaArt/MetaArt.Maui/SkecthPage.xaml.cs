@@ -82,6 +82,7 @@ public partial class SkecthPage : ContentPage
 
         painter = new Painter(
             info.Type,
+            info.Parameters,
             () =>
             {
 #if ANDROID

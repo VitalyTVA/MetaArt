@@ -16,7 +16,7 @@ namespace MetaArt.Xamarin {
             InitializeComponent();
 
             sketches = new[] {
-                typeof(ThatButtonAgain.LevelBase),
+                typeof(ThatButtonAgain.Level),
                 typeof(Sketches),
                 typeof(SkiaSketch),
             }.SelectMany(x => SketchDisplayInfo.LoadSketches(x.Assembly)).ToList();
