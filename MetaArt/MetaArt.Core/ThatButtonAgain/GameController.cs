@@ -5,11 +5,10 @@ namespace ThatButtonAgain {
     public enum SoundKind {
         Win1,
         Cthulhu,
-        DisabledClick,
+        Tap,
         ErrorClick,
         Snap,
         SuccessSwitch,
-        Swap,
         SwipeRight,
         SwipeLeft,
         Hover,
@@ -121,13 +120,14 @@ namespace ThatButtonAgain {
                     if(rotating)
                         return;
 
-                    var leftLetter = letters!.OrderByDescending(x => x.Rect.Left).FirstOrDefault(x => MathFEx.Less(x.Rect.Left, letter.Rect.Left));
-                    var rightLetter = letters!.OrderBy(x => x.Rect.Left).FirstOrDefault(x => MathFEx.Greater(x.Rect.Left, letter.Rect.Left));
+                    var leftLetter = (letters!).OrderByDescending(x => x.Rect.Left).FirstOrDefault(x => MathFEx.Less(x.Rect.Left, letter.Rect.Left));
+                    var rightLetter = (letters!).OrderBy(x => x.Rect.Left).FirstOrDefault(x => MathFEx.Greater(x.Rect.Left, letter.Rect.Left));
                     if(leftLetter == null || rightLetter == null)
                         return;
 
                     rotating = true;
-                    playSound(SoundKind.Swap);
+                    bool isCenter = MathFEx.VectorsEqual(letter.Rect.Mid, button.Rect.Mid);
+                    playSound(isCenter ? SoundKind.SwipeLeft : SoundKind.SwipeRight);
                     void AddRotateAnimation(float fromAngle, float toAngle, Letter sideLetter) {
                         new RotateAnimation {
                             Duration = Constants.RotateAroundLetterDuration,
@@ -141,9 +141,13 @@ namespace ThatButtonAgain {
                             End = () => rotating = false
                         }.Start(animations, blockInput: true);
                     };
-
-                    AddRotateAnimation(0, MathFEx.PI, rightLetter);
-                    AddRotateAnimation(MathFEx.PI, MathFEx.PI * 2, leftLetter);
+                    if(isCenter) {
+                        AddRotateAnimation(MathFEx.PI * 2, MathFEx.PI, rightLetter);
+                        AddRotateAnimation(MathFEx.PI, 0, leftLetter);
+                    } else {
+                        AddRotateAnimation(0, MathFEx.PI, rightLetter);
+                        AddRotateAnimation(MathFEx.PI, MathFEx.PI * 2, leftLetter);
+                    }
                 };
                 letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, () => { });
                 letter.HitTestVisible = true;
@@ -569,10 +573,7 @@ namespace ThatButtonAgain {
                 letters.Last(),
                 () => GetSnapDistance(),
                 () => null,
-                onElementSnap: element => {
-                    element.HitTestVisible = false;
-                    OnElementSnap(element);
-                },
+                onElementSnap: element => { },
                 onMove: () => {
                     var amount = win 
                         ? 1
@@ -591,7 +592,7 @@ namespace ThatButtonAgain {
                     if(win)
                         return false;
                     if(!anchored)
-                        playSound(SoundKind.ErrorClick);
+                        playSound(SoundKind.Snap);
                     SetZeroDigit();
                     return true;
                 },
@@ -726,7 +727,7 @@ namespace ThatButtonAgain {
                                                 }
                                             }
                                         } else {
-                                            playSound(SoundKind.ErrorClick);
+                                            playSound(SoundKind.Snap);
                                         }
                                     }
                                 }.Start(animations, blockInput: true);
@@ -901,7 +902,7 @@ namespace ThatButtonAgain {
                     return new TapInputState(
                         button,
                         () => {
-                            playSound(SoundKind.DisabledClick);
+                            playSound(SoundKind.Tap);
                             value = changeValue(value, index);
                             SetLetters();
                             if(value == target) {
