@@ -215,7 +215,7 @@ namespace ThatButtonAgain {
                         From = 1,
                         To = 2,
                         Duration = Constants.InflateButtonDuration,
-                        Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
+                        Lerp = MathFEx.Lerp,
                         OnEnd = () => {
                             letter.Value = "TOUCH"[index];
                             letter.Scale = Letter.NoScale;
@@ -706,7 +706,7 @@ namespace ThatButtonAgain {
                                     From = from,
                                     To = to,
                                     SetValue = val => SetOffsetAndArrange(val),
-                                    Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
+                                    Lerp = MathFEx.Lerp,
                                     OnEnd = () => {
                                         for(int i = 0; i < 5; i++) {
                                             positions[i] = GetNormalizedPosition(positions[i] + offsets[i]);
@@ -808,7 +808,7 @@ namespace ThatButtonAgain {
                                 From = from,
                                 To = to,
                                 SetValue = val => letter.Rect = letter.Rect.SetLocation(val),
-                                Lerp = (range, amt) => Vector2.Lerp(range.from, range.to, amt),
+                                Lerp = Vector2.Lerp,
                             };
                             animations.AddAnimation(animation, blockInput: true);
                             return false;
@@ -996,7 +996,7 @@ namespace ThatButtonAgain {
                 From = from,
                 To = to,
                 SetValue = value => element.Opacity = value,
-                Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
+                Lerp = MathFEx.Lerp,
                 OnEnd = () => {
                     scene.RemoveElement(element);
                     end();

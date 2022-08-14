@@ -48,10 +48,10 @@
     }
 
     public sealed class LerpAnimation<T> : LinearAnimationBase<T> {
-        public Func<(T from, T to), float, T> Lerp { get; init; } = null!;
+        public Func<T, T, float, T> Lerp { get; init; } = null!;
         public Action<T> SetValue { get; init; } = null!;
 
-        protected override T LerpCore(T from, T to, float amount) => Lerp((from, to), amount);
+        protected override T LerpCore(T from, T to, float amount) => Lerp(from, to, amount);
         protected override void SetValueCore(T value) => SetValue(value);
     }
 

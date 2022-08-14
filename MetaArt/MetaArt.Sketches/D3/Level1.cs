@@ -78,7 +78,7 @@ public static class Animations {
             From = controller.Yaw,
             To = controller.Yaw + delta,
             SetValue = value => controller.SetYaw(value),
-            Lerp = (range, value) => Sketch.lerp(range.from, range.to, value)
+            Lerp = Sketch.lerp
         };
     }
 
@@ -94,7 +94,7 @@ public static class Animations {
     //        Lerp = (range, amount) => Quaternion.Slerp(range.from, range.to, amount)
     //    };
     //}
-    static Vector3 Lerp((Vector3 from, Vector3 to) range, float amount) {
-        return Vector3.Lerp(range.from, range.to, amount);
+    static Vector3 Lerp(Vector3 from, Vector3 to, float amount) {
+        return Vector3.Lerp(from, to, amount);
     }
 }
