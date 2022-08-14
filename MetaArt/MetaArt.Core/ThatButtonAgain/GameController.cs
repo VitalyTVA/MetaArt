@@ -17,6 +17,22 @@ namespace ThatButtonAgain {
         Cthulhu,
     }
     public class GameController {
+        public static readonly Action<GameController>[] Levels = new Action<GameController>[] {
+            x => x.Level_TrivialClick(),
+            x => x.Level_DragLettersOntoButton(),
+            x => x.Level_16xClick(),
+            x => x.Level_RotationsGroup(),
+            x => x.Level_LettersBehindButton(),
+            x => x.Level_ClickInsteadOfTouch(),
+            x => x.Level_RandomButton(),
+            x => x.Level_ReflectedButton(),
+            x => x.Level_Mod2Vectors(),
+            x => x.Level_FindWord(),
+            x => x.Level_10(),
+            x => x.Level_11(),
+            x => x.Level_ScrollLetters(),
+            x => x.Level_ReorderLetters(),
+        };
         public readonly Scene scene;
         readonly AnimationsController animations = new();
 
@@ -40,22 +56,6 @@ namespace ThatButtonAgain {
             letterVerticalOffset = letterSize * Constants.LetterVerticalOffsetRatio;
             letterHorzStep = buttonWidth * Constants.LetterHorizontalStepRatio;
 
-            levels = new[] {
-                Level_TrivialClick,
-                Level_DragLettersOntoButton,
-                Level_16xClick,
-                Level_RotationsGroup,
-                Level_LettersBehindButton,
-                Level_ClickInsteadOfTouch,
-                Level_RandomButton,
-                Level_ReflectedButton,
-                Level_Mod2Vectors,
-                Level_FindWord,
-                Level_10,
-                Level_11,
-                Level_ScrollLetters,
-                Level_ReorderLetters,
-            };
             this.playSound = playSound;
         }
 
@@ -1034,11 +1034,10 @@ namespace ThatButtonAgain {
             return letters;
         }
 
-        readonly Action[] levels;
         int levelIndex = 0;
         Rect levelNumberElementRect;
         public void SetLevel(int level) {
-            levelIndex = Math.Min(level, levels.Length - 1);
+            levelIndex = Math.Min(level, Levels.Length - 1);
             
             scene.ClearElements();
             int digitIndex = 0;
@@ -1057,7 +1056,7 @@ namespace ThatButtonAgain {
                 scene.AddElement(levelNumberElement);
                 digitIndex++;
             }
-            levels[levelIndex]();
+            Levels[levelIndex](this);
             StartFade(255, 0, () => { }, Constants.FadeOutDuration);
         }
         void SetUpLevelIndexButton(Letter letter, Vector2 location) {

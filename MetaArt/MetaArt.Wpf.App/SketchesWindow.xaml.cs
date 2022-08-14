@@ -49,7 +49,10 @@ namespace MetaArt.Wpf {
 
             list.ItemsSource = view;
             //list.SelectedIndex = 0;
-            list.SelectionChanged += (o, e) => { img.Run(GetCurrentSketch()!.Type); };
+            list.SelectionChanged += (o, e) => {
+                var sketchDisplayInfo = GetCurrentSketch()!;
+                img.Run(sketchDisplayInfo.Type, sketchDisplayInfo.Parameters); 
+            };
             IsVisibleChanged += SketchesWindow_IsVisibleChanged;
 
             LoadState();

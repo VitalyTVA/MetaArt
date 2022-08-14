@@ -6,14 +6,16 @@ using System.Reflection;
 
 namespace MetaArt {
     public class SkecthInfo {
-        public SkecthInfo(Type type, string? name = null, string? description = null) {
+        public SkecthInfo(Type type, string? name = null, string? description = null, object[]? parameters = null) {
             Type = type;
             Name = name ?? type.Name;
             Description = description;
+            Parameters = parameters;
         }
         public Type Type { get; }
         public string Name { get; }
         public string? Description { get; }
+        public object[]? Parameters { get; }
     }
     public class SketchGroup {
         public static bool IsSketchType(Type type) {

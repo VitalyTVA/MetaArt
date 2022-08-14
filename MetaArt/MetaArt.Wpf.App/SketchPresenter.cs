@@ -79,7 +79,7 @@ namespace MetaArt.Wpf {
         }
 
         SketchForm? form = null;
-        public async void Run(Type skecthType) {
+        public async void Run(Type skecthType, object[]? parameters) {
             await Stop();
 
             offset = System.Drawing.Point.Empty;
@@ -89,6 +89,7 @@ namespace MetaArt.Wpf {
             var thread = new Thread(new ThreadStart(() => {
                 form = new SketchForm(
                     skecthType, 
+                    parameters,
                     rect, size => {
                         Dispatcher.BeginInvoke(new Action(() => {
                             sketchSize = size;

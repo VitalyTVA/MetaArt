@@ -21,7 +21,7 @@ namespace MetaArt.Wpf {
         readonly Action<System.Drawing.Size> sketchSizeChanged;
         readonly Action<int> mouseWheel;
 
-        public SketchForm(Type sketchType, System.Drawing.Rectangle ownerRect, Action<System.Drawing.Size> sketchSizeChanged, Action<int> mouseWheel, Action<PaintFeedback> feedback) {
+        public SketchForm(Type sketchType, object[]? parameters, System.Drawing.Rectangle ownerRect, Action<System.Drawing.Size> sketchSizeChanged, Action<int> mouseWheel, Action<PaintFeedback> feedback) {
             InitializeComponent();
             ShowInTaskbar = false;
             FormBorderStyle = FormBorderStyle.None;
@@ -31,6 +31,7 @@ namespace MetaArt.Wpf {
             this.mouseWheel = mouseWheel;
             painter = new Painter(
                 sketchType!, 
+                parameters,
                 () => skglControl1.Invalidate(), 
                 feedback, displayDensity: 1, 
                 deviceType: DeviceType.Desktop,

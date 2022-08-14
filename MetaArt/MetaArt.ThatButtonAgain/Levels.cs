@@ -4,13 +4,17 @@ using System.Numerics;
 
 namespace ThatButtonAgain;
 
-public abstract class LevelBase {
+public class Level {
 
-    protected abstract int LevelIndex { get; }
+    readonly int levelIndex;
 
     GameController controller = null!;
     Dictionary<SoundKind, SoundFile> sounds = new();
     Dictionary<SvgKind, SkiaSharp.Extended.Svg.SKSvg> svgs = new();
+
+    public Level(int levelIndex) {
+        this.levelIndex = levelIndex;
+    }
 
     void setup() {
         if(deviceType() == DeviceType.Desktop)
@@ -39,7 +43,7 @@ public abstract class LevelBase {
                 return svg;
             });
 
-        controller.SetLevel(LevelIndex);
+        controller.SetLevel(levelIndex);
     }
 
 
@@ -212,47 +216,4 @@ public abstract class LevelBase {
         public Color _900 { get; init; }
         public Color Error { get; init; }
     }
-}
-
-class Level0 : LevelBase {
-    protected override int LevelIndex => 0;
-}
-class Level1 : LevelBase {
-    protected override int LevelIndex => 1;
-}
-class Level2 : LevelBase {
-    protected override int LevelIndex => 2;
-}
-class Level3 : LevelBase {
-    protected override int LevelIndex => 3;
-}
-class Level4 : LevelBase {
-    protected override int LevelIndex => 4;
-}
-class Level5 : LevelBase {
-    protected override int LevelIndex => 5;
-}
-class Level6 : LevelBase {
-    protected override int LevelIndex => 6;
-}
-class Level7 : LevelBase {
-    protected override int LevelIndex => 7;
-}
-class Level8 : LevelBase {
-    protected override int LevelIndex => 8;
-}
-class Level9 : LevelBase {
-    protected override int LevelIndex => 9;
-}
-class Level10 : LevelBase {
-    protected override int LevelIndex => 10;
-}
-class Level11 : LevelBase {
-    protected override int LevelIndex => 11;
-}
-class Level12 : LevelBase {
-    protected override int LevelIndex => 12;
-}
-class Level13 : LevelBase {
-    protected override int LevelIndex => 13;
 }
