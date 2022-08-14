@@ -10,6 +10,8 @@ namespace ThatButtonAgain {
         Snap,
         SuccessSwitch,
         Swap,
+        SwipeRight,
+        SwipeLeft,
         Hover,
     }
     public enum SvgKind {
@@ -800,7 +802,7 @@ namespace ThatButtonAgain {
 
                             var from = letter.Rect.Location;
                             var to = letter.Rect.Location + new Vector2(letterHorzStep * directionX, letterDragBoxHeight * directionY);
-                            playSound(SoundKind.Hover);
+                            playSound(direction is Direction.Right or Direction.Down ? SoundKind.SwipeRight : SoundKind.SwipeLeft);
                             var animation = new LerpAnimation<Vector2> {
                                 Duration = TimeSpan.FromMilliseconds(150),
                                 From = from,
