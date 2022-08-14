@@ -585,10 +585,11 @@ namespace ThatButtonAgain {
                     }
                 },
                 coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds),
-                onRelease: () => {
+                onRelease: anchored => {
                     if(win)
                         return false;
-                    playSound(SoundKind.ErrorClick);
+                    if(!anchored)
+                        playSound(SoundKind.ErrorClick);
                     SetZeroDigit();
                     return true;
                 },

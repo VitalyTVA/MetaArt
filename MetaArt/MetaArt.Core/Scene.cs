@@ -74,7 +74,7 @@ public abstract class Element {
        Action<Element> onElementSnap,
        Action? onMove = null,
        Func<Rect, Vector2>? coerceRectLocation = null,
-       Func<bool>? onRelease = null,
+       Func<bool, bool>? onRelease = null,
        Action? onClick = null
      ) {
         bool allowDrag = true;
@@ -85,34 +85,37 @@ public abstract class Element {
 
             var startRect = element.Rect;
 
-            bool IsSnapped(Vector2 delta) {
+            bool IsAnchored(Vector2 delta) {
                 var anchorDistance = getAnchorDistance();
                 return anchored && delta.LengthSquared() < anchorDistance * anchorDistance;
             }
 
-            return new DragInputState(startPoint, delta => {
-                Rect newRect = startRect;
-                if (!IsSnapped(delta)) {
-                    newRect = newRect.Offset(delta);
-                    anchored = false;
-                }
-                var snapInfo = getSnapInfo();
-                if (snapInfo != null && (newRect.Location - snapInfo.Value.snapPoint).LengthSquared() <= snapInfo.Value.snapDistance * snapInfo.Value.snapDistance) {
-                    newRect = new Rect(snapInfo.Value.snapPoint, newRect.Size);
-                    allowDrag = false;
-                    onElementSnap(element);
-                }
-                if(coerceRectLocation != null)
-                    newRect = new Rect(coerceRectLocation(newRect), newRect.Size);
-                element.Rect = newRect;
-                onMove?.Invoke();
-                return allowDrag;
-            }, delta => {
-                if(IsSnapped(delta)) { 
-                    onClick?.Invoke();
-                }
-                anchored = onRelease?.Invoke() ?? false;
-            }, releaseState);
+            return new DragInputState(startPoint, 
+               onDrag: delta => {
+                    Rect newRect = startRect;
+                    if (!IsAnchored(delta)) {
+                        newRect = newRect.Offset(delta);
+                        anchored = false;
+                    }
+                    var snapInfo = getSnapInfo();
+                    if (snapInfo != null && (newRect.Location - snapInfo.Value.snapPoint).LengthSquared() <= snapInfo.Value.snapDistance * snapInfo.Value.snapDistance) {
+                        newRect = new Rect(snapInfo.Value.snapPoint, newRect.Size);
+                        allowDrag = false;
+                        onElementSnap(element);
+                    }
+                    if(coerceRectLocation != null)
+                        newRect = new Rect(coerceRectLocation(newRect), newRect.Size);
+                    element.Rect = newRect;
+                    onMove?.Invoke();
+                    return allowDrag;
+                },
+                onRelease: delta => {
+                    if(IsAnchored(delta)) { 
+                        onClick?.Invoke();
+                    }
+                    anchored = onRelease?.Invoke(anchored) ?? false;
+                }, 
+                releaseState);
         };
     }
     public static Action CreateSetOffsetAction(Element parent, Element[] children) {
