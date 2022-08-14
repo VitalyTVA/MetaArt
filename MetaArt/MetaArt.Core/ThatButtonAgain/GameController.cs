@@ -963,7 +963,7 @@ namespace ThatButtonAgain {
 
         }
     }
-    static class Constants {
+    public static class Constants {
         public static float ButtonRelativeWidth => 0.6f;
         public static float ButtonHeightRatio => 1f / 3f;
 
@@ -1003,6 +1003,10 @@ namespace ThatButtonAgain {
         public static float ZeroDigitMaxDragDistance => 0.75f;
 
         public static float ScrollLettersLetterScale => .9f;
+
+        public static float ButtonBorderWeight => 3f;
+        public static float ButtonCornerRadius => 5f;
+
 
     }
 }

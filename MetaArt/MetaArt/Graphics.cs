@@ -20,7 +20,7 @@ namespace MetaArt.Internal {
         public abstract void point(float x, float y);
         public abstract void set(float x, float y, Color c);
         public abstract void line(float x0, float y0, float x1, float y1);
-        public abstract void rect(float a, float b, float c, float d);
+        public abstract void rect(float a, float b, float c, float d, float r);
         public abstract void circle(float x, float y, float extent);
         public abstract void ellipse(float x, float y, float width, float height);
         public abstract void arc(float x, float y, float width, float height, float start, float stop);

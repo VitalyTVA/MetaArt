@@ -56,14 +56,14 @@ public abstract class LevelBase {
                         ? (b.IsEnabled ? Colors.ButtonBackPressed : Colors.ButtonBackPressedDisabled) 
                         : Colors.ButtonBackNormal);
                     stroke(Colors.ButtonBorder);
-                    strokeWeight(3);
-                    rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
+                    strokeWeight(Constants.ButtonBorderWeight);
+                    rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height, Constants.ButtonCornerRadius);
                     break;
                 case DragableButton b:
                     fill(Colors.ButtonBackNormal);
                     stroke(Colors.ButtonBorder);
-                    strokeWeight(3);
-                    rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
+                    strokeWeight(Constants.ButtonBorderWeight);
+                    rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height, Constants.ButtonCornerRadius);
                     break;
                 case Letter l:
                     noStroke();

@@ -126,7 +126,7 @@ namespace MetaArt {
 
         public static void line(float x0, float y0, float x1, float y1) => Graphics.line(x0, y0, x1, y1);
 
-        public static void rect(float a, float b, float c, float d) => Graphics.rect(a, b, c, d);
+        public static void rect(float a, float b, float c, float d, float r = 0) => Graphics.rect(a, b, c, d, r);
 
         public static void circle(float x, float y, float extent) => Graphics.circle(x, y, extent);
 

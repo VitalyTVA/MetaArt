@@ -104,7 +104,7 @@ namespace MetaArt.Skia {
             Canvas.DrawLine(x0, y0, x1, y1, strokePaint);
         }
 
-        public override void rect(float a, float b, float c, float d) {
+        public override void rect(float a, float b, float c, float d, float r) {
             var rect = _rectMode switch {
                 RectMode.CENTER => new SKRect(a - c / 2, b - d / 2, a + c / 2, b + d / 2),
                 RectMode.CORNERS => new SKRect(a, b, c, d),
@@ -113,9 +113,15 @@ namespace MetaArt.Skia {
                 _ => throw new InvalidOperationException()
             };
             if(!_noFill)
-                Canvas.DrawRect(rect, fillPaint);
+                DrawRect(fillPaint, rect, r);
             if(!_noStroke)
-                Canvas.DrawRect(rect, strokePaint);
+                DrawRect(strokePaint, rect, r);
+        }
+        void DrawRect(SKPaint paint, SKRect rect, float r) {
+            if(r == 0)
+                Canvas.DrawRect(rect, paint);
+            else
+                Canvas.DrawRoundRect(rect, new SKSize(r, r), paint);
         }
 
         public override void circle(float x, float y, float extent) {
