@@ -166,8 +166,10 @@ namespace ThatButtonAgain {
             });
             (float, Vector2)? snapInfo = default;
             float snapDistance = GetSnapDistance();
-            var dragableButton = new DragableButton {
+            var dragableButton = new Button {
                 Rect = buttonRect,
+                IsEnabled = false,
+                HitTestVisible = true,
             };
             dragableButton.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
                 dragableButton,
@@ -184,7 +186,8 @@ namespace ThatButtonAgain {
                 end: () => {
                     scene.SendToBack(dragableButton);
                     snapInfo = (snapDistance, buttonRect.Location);
-                    ReplaceWithRealButtonWhenInPlace(buttonRect, dragableButton);
+                    EnableButtonWhenInPlace(buttonRect, dragableButton);
+
                 }));
         }
 
@@ -293,15 +296,17 @@ namespace ThatButtonAgain {
             Action<bool, bool> syncButtons = null!;
 
 
-            (DragableButton button, Letter[] letters, Action syncLettersOnMoveAction) CreateButtonAndLetters(
+            (Button button, Letter[] letters, Action syncLettersOnMoveAction) CreateButtonAndLetters(
                 Vector2 offset, 
                 string word, 
                 bool flipV, 
                 bool flipH
             ) {
                 Rect buttonRect = GetButtonRect();
-                var button = new DragableButton {
+                var button = new Button {
                     Rect = buttonRect.Offset(offset),
+                    IsEnabled = false,
+                    HitTestVisible = true,
                 };
                 scene.AddElement(button);
                 var letters = CreateLetters((letter, index) => {
@@ -313,7 +318,7 @@ namespace ThatButtonAgain {
                     button,
                     () => (flipH && flipV) ? GetSnapDistance() : 0,
                     () => (flipH || flipV) ? null : (GetSnapDistance(), buttonRect.Location),
-                    OnElementSnap,
+                    onElementSnap: OnElementSnap,
                     onMove: () => { 
                         syncLettersOnMoveAction();
                         syncButtons(flipV, flipH);
@@ -339,9 +344,9 @@ namespace ThatButtonAgain {
             var normal = CreateButtonAndLetters(invisiblePosition, "TOUCH", flipV: false, flipH: false);
 
             void SyncLocations(
-                DragableButton movingButton,
-                (DragableButton button, Letter[] letters, Action syncLettersOnMoveAction) horizontal,
-                (DragableButton button, Letter[] letters, Action syncLettersOnMoveAction) vertical
+                Button movingButton,
+                (Button button, Letter[] letters, Action syncLettersOnMoveAction) horizontal,
+                (Button button, Letter[] letters, Action syncLettersOnMoveAction) vertical
             ) {
                 horizontal.button.Rect = new Rect(invisiblePosition, horizontal.button.Rect.Size);
                 vertical.button.Rect = new Rect(invisiblePosition, vertical.button.Rect.Size);
@@ -379,7 +384,7 @@ namespace ThatButtonAgain {
                 }
             };
 
-            ReplaceWithRealButtonWhenInPlace(flippedHV.button.Rect, normal.button);
+            EnableButtonWhenInPlace(flippedHV.button.Rect, normal.button);
         }
 
         void Level_Mod2Vectors() {
@@ -562,7 +567,10 @@ namespace ThatButtonAgain {
                 letters.Last(),
                 () => GetSnapDistance(),
                 () => null,
-                OnElementSnap,
+                onElementSnap: element => {
+                    element.HitTestVisible = false;
+                    OnElementSnap(element);
+                },
                 onMove: () => {
                     var amount = win 
                         ? 1
@@ -769,7 +777,10 @@ namespace ThatButtonAgain {
                 letter,
                 () => 0,
                 () => (letterSize * Constants.LetterSnapDistanceRatio, GetLetterTargetRect(index, button.Rect).Location),
-                OnElementSnap,
+                onElementSnap: element => {
+                    element.HitTestVisible = false;
+                    OnElementSnap(element);
+                },
                 onMove: onMove,
                 coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds)
             );
@@ -820,16 +831,15 @@ namespace ThatButtonAgain {
         }
 
         void OnElementSnap(Element element) {
-            element.HitTestVisible = false;
             playSound(SoundKind.Snap);
         }
 
-        void ReplaceWithRealButtonWhenInPlace(Rect buttonRect, DragableButton dragableButton) {
+        void EnableButtonWhenInPlace(Rect buttonRect, Button dragableButton) {
             animations.AddAnimation(new WaitConditionAnimation(
                 condition: deltaTime => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location),
                 end: () => {
-                    scene.RemoveElement(dragableButton);
-                    scene.AddElementBehind(CreateButton(StartNextLevelAnimation));
+                    dragableButton.IsEnabled = true;
+                    dragableButton.GetPressState = GetClickHandler(StartNextLevelAnimation, dragableButton);
                 }));
         }
 
@@ -854,7 +864,12 @@ namespace ThatButtonAgain {
                 Rect = GetButtonRect(),
                 HitTestVisible = true,
             };
-            button.GetPressState = (startPoint, releaseState) => {
+            button.GetPressState = GetClickHandler(click, button);
+            return button;
+        }
+
+        Func<Vector2, NoInputState, InputState> GetClickHandler(Action click, Button button) {
+            return (startPoint, releaseState) => {
                 return new TapInputState(
                     button,
                     () => {
@@ -871,7 +886,6 @@ namespace ThatButtonAgain {
                     releaseState
                 );
             };
-            return button;
         }
 
         Rect GetButtonRect() {

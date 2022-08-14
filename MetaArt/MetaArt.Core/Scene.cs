@@ -176,12 +176,6 @@ public class Letter : Element {
     }
 }
 
-public class DragableButton : Element {
-    public DragableButton() {
-        HitTestVisible = true;
-    }
-}
-
 public abstract class InputState {
     public abstract InputState Press(Vector2 point);
     public abstract InputState Release(Vector2 point);

@@ -59,12 +59,6 @@ public abstract class LevelBase {
                     strokeWeight(Constants.ButtonBorderWeight);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height, Constants.ButtonCornerRadius);
                     break;
-                case DragableButton b:
-                    fill(Colors.ButtonBackNormal);
-                    stroke(Colors.ButtonBorder);
-                    strokeWeight(Constants.ButtonBorderWeight);
-                    rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height, Constants.ButtonCornerRadius);
-                    break;
                 case Letter l:
                     noStroke();
                     if(MathFEx.VectorsEqual(l.Scale, Letter.NoScale)) {
