@@ -53,6 +53,7 @@ namespace ThatButtonAgain {
                 Level_10,
                 Level_11,
                 Level_ScrollLetters,
+                Level_ReorderLetters,
             };
             this.playSound = playSound;
         }
@@ -771,6 +772,110 @@ namespace ThatButtonAgain {
             //});
         }
 
+        void Level_ReorderLetters() {
+            var button = CreateButton(StartNextLevelAnimation);
+            button.HitTestVisible = true;
+            button.IsVisible = false;
+            scene.AddElement(button);
+
+            var area = new Area();
+            bool animating = false;
+            var letters = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(4 - index, button.Rect);
+                letter.HitTestVisible = true;
+                letter.GetPressState = (startPoint, releaseState) => {
+                    if(animating)
+                        return releaseState;
+                    return new DragInputState(
+                        startPoint,
+                        onDrag: delta => {
+
+                            int directionX = 0, directionY = 0;
+                            Direction direction;
+                            if(Math.Abs(delta.X) > Math.Abs(delta.Y)) {
+                                delta.Y = 0;
+                                directionX = Math.Sign(delta.X);
+                                direction = directionX > 0 ? Direction.Right : Direction.Left;
+                            } else {
+                                delta.X = 0;
+                                directionY = Math.Sign(delta.Y);
+                                direction = directionY > 0 ? Direction.Down : Direction.Up;
+                            }
+
+                            if(delta.Length() < GetSnapDistance())
+                                return true;
+
+                            if(!area.Move(letter.Value, direction))
+                                return true;
+
+                            animating = true;
+
+                            var from = letter.Rect.Location;
+                            var to = letter.Rect.Location + new Vector2(letterHorzStep * directionX, letterDragBoxHeight * directionY);
+                            playSound(SoundKind.Hover);
+                            var animation = new LerpAnimation<Vector2> {
+                                Duration = TimeSpan.FromMilliseconds(150),
+                                From = from,
+                                To = to,
+                                SetValue = val => letter.Rect = letter.Rect.SetLocation(val),
+                                Lerp = (range, amt) => Vector2.Lerp(range.from, range.to, amt),
+                                OnEnd = () => {
+                                    animating = false;
+                                }
+                            };
+                            animations.AddAnimation(animation);
+                            return false;
+                        },
+                        onRelease: delta => {
+                        },
+                        releaseState);
+
+                };
+            });
+
+            var step = button.Rect.Width / 5;
+            var pathElement = new PathElement(new[] {
+                button.Rect.Location,
+
+                new Vector2(letters[3].Rect.Left, button.Rect.Top),
+                new Vector2(letters[3].Rect.Left, letters[3].Rect.Top - letterDragBoxHeight),
+                new Vector2(letters[3].Rect.Right, letters[3].Rect.Top - letterDragBoxHeight),
+                new Vector2(letters[3].Rect.Right, button.Rect.Top),
+
+                new Vector2(letters[1].Rect.Left, button.Rect.Top),
+                new Vector2(letters[1].Rect.Left, letters[1].Rect.Top - letterDragBoxHeight),
+                new Vector2(letters[1].Rect.Right, letters[1].Rect.Top - letterDragBoxHeight),
+                new Vector2(letters[1].Rect.Right, button.Rect.Top),
+
+                button.Rect.TopRight,
+                button.Rect.BottomRight,
+
+                new Vector2(letters[1].Rect.Right, button.Rect.Bottom),
+                new Vector2(letters[1].Rect.Right, letters[1].Rect.Bottom + letterDragBoxHeight),
+                new Vector2(letters[1].Rect.Left, letters[1].Rect.Bottom + letterDragBoxHeight),
+                new Vector2(letters[1].Rect.Left, button.Rect.Bottom),
+
+                new Vector2(letters[3].Rect.Right, button.Rect.Bottom),
+                new Vector2(letters[3].Rect.Right, letters[1].Rect.Bottom + letterDragBoxHeight),
+                new Vector2(letters[3].Rect.Left, letters[1].Rect.Bottom + letterDragBoxHeight),
+                new Vector2(letters[3].Rect.Left, button.Rect.Bottom),
+
+                button.Rect.BottomLeft,
+            });
+            scene.AddElementBehind(pathElement);
+
+            animations.AddAnimation(new WaitConditionAnimation(
+                condition: GetAreLettersInPlaceCheck(button.Rect, letters),
+                end: () => {
+                    pathElement.IsVisible = false;
+                    button.IsVisible = true;
+                    foreach(var item in letters) {
+                        item.HitTestVisible = false;
+                    }
+                    playSound(SoundKind.SuccessSwitch);
+                }));
+        }
+
         void MakeDraggableLetter(Letter letter, int index, Button button, Action? onMove = null) {
             letter.HitTestVisible = true;
             letter.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
@@ -975,6 +1080,58 @@ namespace ThatButtonAgain {
             letter.ActiveRatio = 0;
             letter.Scale = new Vector2(Constants.LevelLetterRatio);
 
+        }
+    }
+    public enum Direction { Left, Right, Up, Down }
+    public class Area {
+        const char X = 'X';
+        const char E = ' ';
+
+
+        char[][] area;
+        public Area() {
+            area = new char[][] {
+                new[] { X, E, X, E, X  },
+                new[] { 'H', 'C', 'U', 'O', 'T' },
+                new[] { X, E, X, E, X  }
+            };
+        }
+        int Width => area[0].Length;
+        int Height => area.Length;
+
+        public bool Move(char letter, Direction direction) {
+            var (row, col) = LocateLetter(letter);
+            bool TrySwapLetters(bool canApplyDelta, int deltaRow, int deltaCol) {
+                if(!canApplyDelta) 
+                    return false;
+                if(area[row + deltaRow][col + deltaCol] == E) {
+                    area[row + deltaRow][col + deltaCol] = letter;
+                    area[row][col] = E;
+                    return true;
+                }
+                return false;
+            }
+            switch(direction) {
+                case Direction.Left:
+                    return TrySwapLetters(col > 0, 0, -1);
+                case Direction.Right:
+                    return TrySwapLetters(col < Width - 1, 0, 1);
+                case Direction.Up:
+                    return TrySwapLetters(row > 0, -1, 0);
+                case Direction.Down:
+                    return TrySwapLetters(row < Height - 1, 1, 0);
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+        (int row, int col) LocateLetter(char letter) {
+            for(int row = 0; row < Height; row++) {
+                for(int col = 0; col < Width; col++) {
+                    if(area[row][col] == letter)
+                        return (row, col);
+                }
+            }
+            throw new InvalidOperationException();
         }
     }
     public static class Constants {

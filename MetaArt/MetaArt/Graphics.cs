@@ -14,6 +14,7 @@ namespace MetaArt.Internal {
         public abstract void stroke(Color color);
         public abstract void strokeWeight(float weight);
         public abstract void strokeJoin(StrokeJoin join);
+        public abstract void shapeCorners(float radius);
         public abstract void strokeCap(StrokeCap cap);
         public abstract void noStroke();
         public abstract void blendMode(BlendMode blendMode);

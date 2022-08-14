@@ -79,6 +79,7 @@ namespace MetaArt {
         public static void stroke(Color color) => Graphics.stroke(color);
         public static void strokeWeight(float weight) => Graphics.strokeWeight(weight);
         public static void strokeJoin(StrokeJoin join) => Graphics.strokeJoin(join);
+        public static void shapeCorners(float radius) => Graphics.shapeCorners(radius);
         public static void strokeCap(StrokeCap cap) => Graphics.strokeCap(cap);
 
         public static void fill(float gray, float alpha) {

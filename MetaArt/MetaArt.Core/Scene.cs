@@ -152,6 +152,14 @@ public class SvgElement : Element {
     }
 }
 
+public class PathElement : Element {
+    public readonly Vector2[] Points;
+
+    public PathElement(Vector2[] points) {
+        Points = points;
+    }
+}
+
 public class FadeOutElement : Element {
     public float Opacity { get; set; }
     public FadeOutElement() {

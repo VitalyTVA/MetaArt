@@ -68,7 +68,7 @@ namespace MetaArt.Skia {
             //Color = SKColors.White 
         };
         bool _noStroke = false;
-
+        SKPathEffect? cornersPathEffect;
 
         public override void stroke(Color color) {
             _noStroke = false;
@@ -81,9 +81,14 @@ namespace MetaArt.Skia {
         public override void strokeJoin(StrokeJoin join) {
             strokePaint.StrokeJoin = join.ToSK();
         }
+        public override void shapeCorners(float radius) {
+            cornersPathEffect?.Dispose();
+            fillPaint.PathEffect = strokePaint.PathEffect = cornersPathEffect = radius > 0 ? SKPathEffect.CreateCorner(radius) : null;
+        }
         public override void strokeCap(StrokeCap cap) {
             strokePaint.StrokeCap = cap.ToSK();
         }
+
         public override void noStroke() {
             _noStroke = true;
         }

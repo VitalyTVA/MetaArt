@@ -15,6 +15,10 @@ namespace MetaArt.Core {
         public float MidX => Location.X + Size.X / 2;
         public float MidY => Location.Y + Size.Y / 2;
 
+        public Vector2 TopRight => Location + new Vector2(Width, 0);
+        public Vector2 BottomRight => Location + Size;
+        public Vector2 BottomLeft => Location + new Vector2(0, Height);
+
         public Rect(float left, float top, float width, float height)
             : this(new Vector2(left, top), new Vector2(width, height)) { }
 

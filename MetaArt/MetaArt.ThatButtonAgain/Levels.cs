@@ -48,9 +48,8 @@ public abstract class LevelBase {
         controller.NextFrame(deltaTime);
         background(Colors.Background);
         scale(displayDensity(), displayDensity());
-
         foreach (var item in controller.scene.VisibleElements) {
-            switch (item) {
+            switch(item) {
                 case Button b:
                     fill(b.IsPressed 
                         ? (b.IsEnabled ? Colors.ButtonBackPressed : Colors.ButtonBackPressedDisabled) 
@@ -95,6 +94,18 @@ public abstract class LevelBase {
                     translate(s.Rect.Left, s.Rect.Top);
                     ((MetaArt.Skia.SkiaGraphics)MetaArt.Internal.Graphics.GraphicsInstance).Canvas.DrawPicture(svg.Picture, ref matrix);
                     popMatrix();
+                    break;
+                case PathElement p:
+                    shapeCorners(Constants.ButtonCornerRadius);
+                    fill(Colors.ButtonBackNormal);
+                    stroke(Colors.ButtonBorder);
+                    strokeWeight(Constants.ButtonBorderWeight);
+                    beginShape();
+                    foreach(var point in p.Points) {
+                        vertex(point.X, point.Y);
+                    }
+                    endShape(EndShapeMode.CLOSE);
+                    shapeCorners(0);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -218,4 +229,7 @@ class Level11 : LevelBase {
 }
 class Level12 : LevelBase {
     protected override int LevelIndex => 12;
+}
+class Level13 : LevelBase {
+    protected override int LevelIndex => 13;
 }
