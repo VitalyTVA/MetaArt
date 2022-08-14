@@ -146,48 +146,71 @@ public abstract class LevelBase {
     //}
 
     static class Colors {
-        public static Color LetterColor => Palette_BlueGrayLight.Back_900;
-        public static Color UIElementColor => Palette_BlueGrayLight.Back_600;
+        //static Palette Palette => Palettes.BlueGrayLight;
+        static Palette Palette => Palettes.CoolGrayDark;
+
+        public static Color LetterColor => Palette._900;
+        public static Color UIElementColor => Palette._600;
         public static Color LetterDragBox => Color.Empty;//new Color(120, 0, 0, 10);
-        public static Color Background => Palette_BlueGrayLight.Back_50;
-        public static Color ButtonBackNormal => Palette_BlueGrayLight.Back_100;
-        public static Color ButtonBackPressed => Palette_BlueGrayLight.Back_200;
-        public static Color ButtonBorder => Palette_BlueGrayLight.Back_900;
+        public static Color Background => Palette._50;
+        public static Color ButtonBackNormal => Palette._100;
+        public static Color ButtonBackPressed => Palette._200;
+        public static Color ButtonBorder => Palette._900;
 
-        public static Color ButtonBackPressedDisabled => Palette_Common.Error;
+        public static Color ButtonBackPressedDisabled => Palette.Error;
     }
 
 
-    public static class Palette_Common { 
-        public static readonly Color Error = Color.FromRGBValue(0xB00020);
+    public static class CommonColors { 
+        public static readonly Color Error_Light = Color.FromRGBValue(0xB00020);
+        public static readonly Color Error_Dark = Color.FromRGBValue(0xCF6679);
     }
 
-    static class Palette_BlueGrayLight {
+    static class Palettes {
         //https://material.io/design/color/the-color-system.html#color-usage-and-palettes
-        public static readonly Color Back_50 = Color.FromRGBValue(0xECEFF1);
-        public static readonly Color Back_100 = Color.FromRGBValue(0xCFD8DC);
-        public static readonly Color Back_200 = Color.FromRGBValue(0xB0BEC5);
-        public static readonly Color Back_300 = Color.FromRGBValue(0x90A4AE);
-        public static readonly Color Back_400 = Color.FromRGBValue(0x78909C);
-        public static readonly Color Back_500 = Color.FromRGBValue(0x607D8B);
-        public static readonly Color Back_600 = Color.FromRGBValue(0x546E7A);
-        public static readonly Color Back_700 = Color.FromRGBValue(0x455A64);
-        public static readonly Color Back_800 = Color.FromRGBValue(0x37474F);
-        public static readonly Color Back_900 = Color.FromRGBValue(0x263238);
+        public static readonly Palette BlueGrayLight = new Palette {
+            _50 = Color.FromRGBValue(0xECEFF1),
+            _100 = Color.FromRGBValue(0xCFD8DC),
+            _200 = Color.FromRGBValue(0xB0BEC5),
+            _300 = Color.FromRGBValue(0x90A4AE),
+            _400 = Color.FromRGBValue(0x78909C),
+            _500 = Color.FromRGBValue(0x607D8B),
+            _600 = Color.FromRGBValue(0x546E7A),
+            _700 = Color.FromRGBValue(0x455A64),
+            _800 = Color.FromRGBValue(0x37474F),
+            _900 = Color.FromRGBValue(0x263238),
+            Error = CommonColors.Error_Light,
+        };
 
-        public static readonly Color Fore_50_Gray = new Color(117, 117, 117);
+        //https://compilezero.medium.com/dark-mode-ui-design-the-definitive-guide-part-1-color-53dcfaea5129
+        //https://material.io/design/color/dark-theme.html#ui-application
+        public static readonly Palette CoolGrayDark = new Palette {
+            _50 = Color.FromRGBValue(0x1F2933),
+            _100 = Color.FromRGBValue(0x323F4B),
+            _200 = Color.FromRGBValue(0x3E4C59),
+            _300 = Color.FromRGBValue(0x52606D),
+            _400 = Color.FromRGBValue(0x616E7C),
+            _500 = Color.FromRGBValue(0x7B8794),
+            _600 = Color.FromRGBValue(0x9AA5B1),
+            _700 = Color.FromRGBValue(0xCBD2D9),
+            _800 = Color.FromRGBValue(0xE4E7EB),
+            _900 = Color.FromRGBValue(0xF5F7FA),
+            Error = CommonColors.Error_Dark,
+        };
+    }
 
-        public static readonly Color Fore_50 = Color.FromRGBValue(0x000000);
-        public static readonly Color Fore_100 = Color.FromRGBValue(0x000000);
-        public static readonly Color Fore_200 = Color.FromRGBValue(0x000000);
-        public static readonly Color Fore_300 = Color.FromRGBValue(0x000000);
-        public static readonly Color Fore_400 = Color.FromRGBValue(0x000000);
-        public static readonly Color Fore_500 = Color.FromRGBValue(0x000000);
-        public static readonly Color Fore_600 = Color.FromRGBValue(0xFFFFFF);
-        public static readonly Color Fore_700 = Color.FromRGBValue(0xFFFFFF);
-        public static readonly Color Fore_800 = Color.FromRGBValue(0xFFFFFF);
-        public static readonly Color Fore_900 = Color.FromRGBValue(0xFFFFFF);
-
+    class Palette {
+        public Color _50 { get; init; }
+        public Color _100 { get; init; }
+        public Color _200 { get; init; }
+        public Color _300 { get; init; }
+        public Color _400 { get; init; }
+        public Color _500 { get; init; }
+        public Color _600 { get; init; }
+        public Color _700 { get; init; }
+        public Color _800 { get; init; }
+        public Color _900 { get; init; }
+        public Color Error { get; init; }
     }
 }
 
