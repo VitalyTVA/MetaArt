@@ -81,6 +81,10 @@ public class Level {
                     ));
                     textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
                     text(l.Value.ToString(), 0, -controller.letterVerticalOffset);
+                    //if(l.Value == 'C') {
+                    //    scale(-1, 1);
+                    //    text(l.Value.ToString(), -6, -controller.letterVerticalOffset);
+                    //}
                     popMatrix();
                     break;
                 case FadeOutElement f:
