@@ -17,7 +17,7 @@ namespace ThatButtonAgain {
     }
     public class GameController {
         public readonly Scene scene;
-        readonly AnimationsController animations = new(new IAnimation[0]);
+        readonly AnimationsController animations = new();
 
         public readonly float letterVerticalOffset;
         readonly float buttonWidth;
@@ -29,7 +29,7 @@ namespace ThatButtonAgain {
         readonly Action<SoundKind> playSound;
 
         public GameController(float width, float height, Action<SoundKind> playSound) {
-            scene = new Scene(width, height);
+            scene = new Scene(width, height, () => animations.AllowInput);
 
             buttonWidth = scene.width * Constants.ButtonRelativeWidth;
             buttonHeight = buttonWidth * Constants.ButtonHeightRatio;
@@ -139,7 +139,7 @@ namespace ThatButtonAgain {
                             },
                             OnEnd = () => rotating = false
                         };
-                        animations.AddAnimation(animation);
+                        animations.AddAnimation(animation, blockInput: true);
                     };
 
                     AddRotateAnimation(0, MathFEx.PI, rightLetter);
@@ -192,7 +192,7 @@ namespace ThatButtonAgain {
                 }));
         }
 
-        private float GetSnapDistance() {
+        float GetSnapDistance() {
             return buttonHeight * Constants.ButtonAnchorDistanceRatio;
         }
 
@@ -671,7 +671,6 @@ namespace ThatButtonAgain {
                 new [] { -1, 0, 0, 0, 1 },
             };
             */
-            bool animating = false;
             for(int line = 0; line < linesCount; line++) {
                 for(int column = 0; column < 5; column++) {
                     var letter = new Letter {
@@ -693,8 +692,6 @@ namespace ThatButtonAgain {
                     float GetOffset(Vector2 delta) => -delta.Y / lineHeight;
                     
                     letter.GetPressState = (starPoint, releaseState) => {
-                        if(animating)
-                            return releaseState;
                         return new DragInputState(
                             starPoint, 
                             onDrag: delta => {
@@ -702,7 +699,6 @@ namespace ThatButtonAgain {
                                 return true;
                             },
                             onRelease: delta => {
-                                animating = true;
                                 var from = GetOffset(delta);
                                 var to = (float)Math.Round(from);
                                 var animation = new LerpAnimation<float> {
@@ -712,7 +708,6 @@ namespace ThatButtonAgain {
                                     SetValue = val => SetOffsetAndArrange(val),
                                     Lerp = (range, amt) => MathFEx.Lerp(range.from, range.to, amt),
                                     OnEnd = () => {
-                                        animating = false;
                                         for(int i = 0; i < 5; i++) {
                                             positions[i] = GetNormalizedPosition(positions[i] + offsets[i]);
                                             offsets[i] = 0;
@@ -733,7 +728,7 @@ namespace ThatButtonAgain {
                                         }
                                     }
                                 };
-                                animations.AddAnimation(animation);
+                                animations.AddAnimation(animation, blockInput: true);
 
                             },
                             releaseState);
@@ -779,13 +774,10 @@ namespace ThatButtonAgain {
             scene.AddElement(button);
 
             var area = new Area();
-            bool animating = false;
             var letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(4 - index, button.Rect);
                 letter.HitTestVisible = true;
                 letter.GetPressState = (startPoint, releaseState) => {
-                    if(animating)
-                        return releaseState;
                     return new DragInputState(
                         startPoint,
                         onDrag: delta => {
@@ -808,8 +800,6 @@ namespace ThatButtonAgain {
                             if(!area.Move(letter.Value, direction))
                                 return true;
 
-                            animating = true;
-
                             var from = letter.Rect.Location;
                             var to = letter.Rect.Location + new Vector2(letterHorzStep * directionX, letterDragBoxHeight * directionY);
                             playSound(SoundKind.Hover);
@@ -819,11 +809,8 @@ namespace ThatButtonAgain {
                                 To = to,
                                 SetValue = val => letter.Rect = letter.Rect.SetLocation(val),
                                 Lerp = (range, amt) => Vector2.Lerp(range.from, range.to, amt),
-                                OnEnd = () => {
-                                    animating = false;
-                                }
                             };
-                            animations.AddAnimation(animation);
+                            animations.AddAnimation(animation, blockInput: true);
                             return false;
                         },
                         onRelease: delta => {

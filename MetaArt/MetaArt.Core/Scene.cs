@@ -4,15 +4,18 @@ using ThatButtonAgain;
 namespace MetaArt.Core;
 public class Scene {
     public readonly float width, height;
+    readonly Func<bool> getAllowInput;
+
     public Rect Bounds => new Rect(0, 0, width, height);
 
     InputState inputState;
     readonly NoInputState noInputState;
 
 
-    public Scene(float width, float height) {
+    public Scene(float width, float height, Func<bool> getAllowInput) {
         this.width = width;
         this.height = height;
+        this.getAllowInput = getAllowInput;
         this.inputState = this.noInputState = new NoInputState(point => {
             var element = HitTest(point);
             if(element != null)
@@ -51,13 +54,16 @@ public class Scene {
     }
 
     public void Press(Vector2 point) {
-        inputState = inputState.Press(point);
+        if(getAllowInput())
+            inputState = inputState.Press(point);
     }
     public void Drag(Vector2 point) {
-        inputState = inputState.Drag(point);
+        //if(getAllowInput())
+            inputState = inputState.Drag(point);
     }
     public void Release(Vector2 point) {
-        inputState = inputState.Release(point);
+        //if(getAllowInput())
+            inputState = inputState.Release(point);
     }
 }
 public abstract class Element {

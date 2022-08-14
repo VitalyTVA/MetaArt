@@ -21,7 +21,8 @@ class Level1 {
         var scale = -offset / 500f;
         var duration = TimeSpan.FromSeconds(2.5);
         //var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, PI);
-        animations = new(new[] {
+        animations = new();
+        animations.AddAnimations(new[] {
             //Animations.CreateModelRotation(scene["Top"], rotation, duration),
             //Animations.CreateModelRotation(scene["Middle"], rotation, duration),
             //Animations.CreateModelRotation(scene["Bottom"], rotation, duration),

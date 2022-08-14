@@ -67,33 +67,36 @@
     }
 
     public class AnimationsController {
-        readonly List<IAnimation> animations;
-        //readonly Action<bool> updateState;
-        //public bool HasAnimations => animations.Any();
-        public AnimationsController(IAnimation[] animations/*, Action<bool> updateState*/) {
+        public bool AllowInput => !blockInputAnimations.Any();
+        readonly List<IAnimation> animations = new();
+        readonly List<IAnimation> blockInputAnimations = new();
+        public AnimationsController() {
             this.animations = animations.ToList();
-            //this.updateState = updateState;
         }
-        public void AddAnimation(IAnimation animation) {
+        public void AddAnimation(IAnimation animation, bool blockInput = false) {
             animations.Add(animation);
-            //UpdateState();
+            if(blockInput)
+                blockInputAnimations.Add(animation);
         }
         public void RemoveAnimation(IAnimation animation) {
             animations.Remove(animation);
-            //UpdateState();
+            blockInputAnimations.Remove(animation);
         }
-        //private void UpdateState() {
-        //    updateState(animations.Any());
-        //}
 
         public void Next(TimeSpan deltaTime) {
             foreach(var animation in animations.ToArray()) {
                 bool finished = !animation.Next(deltaTime);
                 if(finished) {
-                    animations.Remove(animation);
+                    RemoveAnimation(animation);
                     animation.End();
                 }
             }
+        }
+
+        public void AddAnimations(IEnumerable<IAnimation> animations) {
+            foreach(var item in animations) {
+                AddAnimation(item);
+            };
         }
     }
 }
