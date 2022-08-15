@@ -32,6 +32,7 @@ namespace ThatButtonAgain {
             x => x.Level_11(),
             x => x.Level_ScrollLetters(),
             x => x.Level_ReorderLetters(),
+            x => x.Level_ReflectedC(),
         };
         public readonly Scene scene;
         readonly AnimationsController animations = new();
@@ -113,40 +114,22 @@ namespace ThatButtonAgain {
             //43210
             var indices = new[] { 4, 3, 2, 1, 0 };
             Letter[] letters = null!;
-            bool rotating = false;
             letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(indices[index], button.Rect);
                 var onPress = () => {
-                    if(rotating)
-                        return;
-
                     var leftLetter = (letters!).OrderByDescending(x => x.Rect.Left).FirstOrDefault(x => MathFEx.Less(x.Rect.Left, letter.Rect.Left));
                     var rightLetter = (letters!).OrderBy(x => x.Rect.Left).FirstOrDefault(x => MathFEx.Greater(x.Rect.Left, letter.Rect.Left));
                     if(leftLetter == null || rightLetter == null)
                         return;
 
-                    rotating = true;
                     bool isCenter = MathFEx.VectorsEqual(letter.Rect.Mid, button.Rect.Mid);
                     playSound(isCenter ? SoundKind.SwipeLeft : SoundKind.SwipeRight);
-                    void AddRotateAnimation(float fromAngle, float toAngle, Letter sideLetter) {
-                        new RotateAnimation {
-                            Duration = Constants.RotateAroundLetterDuration,
-                            From = fromAngle,
-                            To = toAngle,
-                            Center = letter.Rect.Mid,
-                            Radius = (sideLetter.Rect.Mid - letter.Rect.Mid).Length(),
-                            SetLocation = center => {
-                                sideLetter.Rect = Rect.FromCenter(center, sideLetter.Rect.Size);
-                            },
-                            End = () => rotating = false
-                        }.Start(animations, blockInput: true);
-                    };
                     if(isCenter) {
-                        AddRotateAnimation(MathFEx.PI * 2, MathFEx.PI, rightLetter);
-                        AddRotateAnimation(MathFEx.PI, 0, leftLetter);
+                        AddRotateAnimation(letter, MathFEx.PI * 2, MathFEx.PI, rightLetter);
+                        AddRotateAnimation(letter, MathFEx.PI, 0, leftLetter);
                     } else {
-                        AddRotateAnimation(0, MathFEx.PI, rightLetter);
-                        AddRotateAnimation(MathFEx.PI, MathFEx.PI * 2, leftLetter);
+                        AddRotateAnimation(letter, 0, MathFEx.PI, rightLetter);
+                        AddRotateAnimation(letter, MathFEx.PI, MathFEx.PI * 2, leftLetter);
                     }
                 };
                 letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, () => { });
@@ -865,6 +848,85 @@ namespace ThatButtonAgain {
                     playSound(SoundKind.SuccessSwitch);
                 }
             }.Start(animations);
+        }
+
+        void Level_ReflectedC() {
+            var button = CreateButton(StartNextLevelAnimation);
+            button.IsEnabled = false;
+            scene.AddElement(button);
+
+            const float ReflectedCOffset = 6;
+
+            var letters = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, button.Rect);
+            }, "TCUCHC");
+            letters.Last().HitTestVisible = true;
+            letters.Last().Scale = new Vector2(-1, 1);
+            letters[1].Offset = new Vector2(-ReflectedCOffset / 2, 0);
+            letters[3].Offset = new Vector2(-ReflectedCOffset / 2, 0);
+            letters.Last().Offset = new Vector2(-ReflectedCOffset / 2, 0);
+
+
+            void ResetReflectedLetterRect() {
+                letters.Last().Rect = letters![1].Rect;
+            }
+            ResetReflectedLetterRect();
+            letters.Last().GetPressState = Element.GetAnchorAndSnapDragStateFactory(
+                letters.Last(),
+                () => GetSnapDistance(),
+                () => (GetSnapDistance(), letters![3].Rect.Location),
+                onElementSnap: element => {
+                    playSound(SoundKind.SuccessSwitch);
+                    letters.Last().HitTestVisible = false;
+
+                    letters[2].GetPressState = Element.GetPressReleaseStateFactory(
+                        letters[2], 
+                        () => {
+                            letters[2].HitTestVisible = false;
+                            playSound(SoundKind.SwipeLeft);
+                            AddRotateAnimation(letters[2], MathFEx.PI * 2, MathFEx.PI, letters[3]);
+                            AddRotateAnimation(letters[2], MathFEx.PI * 2, MathFEx.PI, letters.Last());
+                            AddRotateAnimation(letters[2], MathFEx.PI, 0, letters[1]);
+                        }, 
+                        () => { 
+                        }
+                    );
+                    letters[2].HitTestVisible = true;
+                },
+                onMove: () => {
+                },
+                coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds).SetY(letters[0].Rect.Top),
+                onRelease: anchored => {
+                    if(anchored)
+                        playSound(SoundKind.ErrorClick);
+                    else 
+                        playSound(SoundKind.Snap);
+                    ResetReflectedLetterRect();
+                    return true;
+                }
+            );
+
+            var expectedLettersOrder = new[] { 0, 3, 2, 1, 4 }.Select(i => letters[i]).ToArray();
+
+            new WaitConditionAnimation(
+                condition: GetAreLettersInPlaceCheck(button.Rect, expectedLettersOrder)) {
+                End = () => {
+                    button.IsEnabled = true;
+                }
+            }.Start(animations);
+        }
+
+        void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {
+            new RotateAnimation {
+                Duration = Constants.RotateAroundLetterDuration,
+                From = fromAngle,
+                To = toAngle,
+                Center = centerLetter.Rect.Mid,
+                Radius = (sideLetter.Rect.Mid - centerLetter.Rect.Mid).Length(),
+                SetLocation = center => {
+                    sideLetter.Rect = Rect.FromCenter(center, sideLetter.Rect.Size);
+                }
+            }.Start(animations, blockInput: true);
         }
 
         void MakeDraggableLetter(Letter letter, int index, Button button, Action? onMove = null) {

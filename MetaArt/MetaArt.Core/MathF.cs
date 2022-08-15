@@ -50,5 +50,12 @@ public static class MathFEx {
     public static Rect Inflate(this Rect rect, Vector2 size) {
         return new Rect(rect.Location - size, rect.Size + size * 2);
     }
-
+    public static Vector2 SetX(this Vector2 vector, float x) {
+        vector.X = x;
+        return vector;
+    }
+    public static Vector2 SetY(this Vector2 vector, float y) {
+        vector.Y = y;
+        return vector;
+    }
 }
