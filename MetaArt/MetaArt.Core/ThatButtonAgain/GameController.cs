@@ -1,6 +1,18 @@
 ﻿using MetaArt.Core;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
+namespace System.Runtime.CompilerServices {
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
+    public sealed class CallerArgumentExpressionAttribute : Attribute {
+        public string ParameterName {
+            get; set;
+        }
+        public CallerArgumentExpressionAttribute(string parameterName) {
+            ParameterName = parameterName;
+        }
+    }
+}
 namespace ThatButtonAgain {
     public enum SoundKind {
         Win1,
@@ -17,23 +29,26 @@ namespace ThatButtonAgain {
         Cthulhu,
     }
     public class GameController {
-        public static readonly Action<GameController>[] Levels = new Action<GameController>[] {
-            x => x.Level_TrivialClick(),
-            x => x.Level_DragLettersOntoButton(),
-            x => x.Level_16xClick(),
-            x => x.Level_RotationsGroup(),
-            x => x.Level_LettersBehindButton(),
-            x => x.Level_ClickInsteadOfTouch(),
-            x => x.Level_RandomButton(),
-            x => x.Level_ReflectedButton(),
-            x => x.Level_Mod2Vectors(),
-            x => x.Level_FindWord(),
-            x => x.Level_10(),
-            x => x.Level_11(),
-            x => x.Level_ScrollLetters(),
-            x => x.Level_ReorderLetters(),
-            x => x.Level_ReflectedC(),
+        public static readonly (Action<GameController> action, string name)[] Levels = new [] {
+            RegisterLevel(x => x.Level_TrivialClick()),
+            RegisterLevel(x => x.Level_DragLettersOntoButton()),
+            RegisterLevel(x => x.Level_16xClick()),
+            RegisterLevel(x => x.Level_RotationsGroup()),
+            RegisterLevel(x => x.Level_LettersBehindButton()),
+            RegisterLevel(x => x.Level_ClickInsteadOfTouch()),
+            RegisterLevel(x => x.Level_RandomButton()),
+            RegisterLevel(x => x.Level_ReflectedButton()),
+            RegisterLevel(x => x.Level_Mod2Vectors()),
+            RegisterLevel(x => x.Level_FindWord()),
+            RegisterLevel(x => x.Level_10()),
+            RegisterLevel(x => x.Level_11()),
+            RegisterLevel(x => x.Level_ScrollLetters()),
+            RegisterLevel(x => x.Level_ReorderLetters()),
+            RegisterLevel(x => x.Level_ReflectedC())
         };
+        static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
+            return (action, name.Replace("x => x.Level_", null).Replace("()", null));
+        }
         public readonly Scene scene;
         readonly AnimationsController animations = new();
 
@@ -855,16 +870,14 @@ namespace ThatButtonAgain {
             button.IsEnabled = false;
             scene.AddElement(button);
 
-            const float ReflectedCOffset = 6;
-
             var letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
             }, "TCUCHC");
             letters.Last().HitTestVisible = true;
             letters.Last().Scale = new Vector2(-1, 1);
-            letters[1].Offset = new Vector2(-ReflectedCOffset / 2, 0);
-            letters[3].Offset = new Vector2(-ReflectedCOffset / 2, 0);
-            letters.Last().Offset = new Vector2(-ReflectedCOffset / 2, 0);
+            letters[1].Offset = new Vector2(-Constants.ReflectedCOffset / 2, 0);
+            letters[3].Offset = new Vector2(-Constants.ReflectedCOffset / 2, 0);
+            letters.Last().Offset = new Vector2(-Constants.ReflectedCOffset / 2, 0);
 
 
             void ResetReflectedLetterRect() {
@@ -1121,7 +1134,7 @@ namespace ThatButtonAgain {
                 scene.AddElement(levelNumberElement);
                 digitIndex++;
             }
-            Levels[levelIndex](this);
+            Levels[levelIndex].action(this);
             StartFade(255, 0, () => { }, Constants.FadeOutDuration);
         }
         void SetUpLevelIndexButton(Letter letter, Vector2 location) {
@@ -1229,6 +1242,8 @@ namespace ThatButtonAgain {
 
         public static float ButtonBorderWeight => 3f;
         public static float ButtonCornerRadius => 5f;
+
+        public static float ReflectedCOffset => 6f;
 
 
     }
