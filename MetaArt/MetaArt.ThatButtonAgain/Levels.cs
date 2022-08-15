@@ -157,21 +157,30 @@ public class Level {
         //static Palette Palette => Palettes.BlueGrayLight;
         static Palette Palette => Palettes.CoolGrayDark;
 
-        public static Color LetterColor => Palette._900;
+        public static Color LetterColor => Palette.AccentInfo;
         public static Color UIElementColor => Palette._600;
         public static Color LetterDragBox => Color.Empty;//new Color(120, 0, 0, 10);
         public static Color Background => Palette._50;
         public static Color ButtonBackNormal => Palette._100;
         public static Color ButtonBackPressed => Palette._200;
-        public static Color ButtonBorder => Palette._900;
+        public static Color ButtonBorder => Palette.AccentInfo;
 
-        public static Color ButtonBackPressedDisabled => Palette.Error;
+        public static Color ButtonBackPressedDisabled => Palette.AccentError;
     }
 
 
     public static class CommonColors { 
-        public static readonly Color Error_Light = Color.FromRGBValue(0xB00020);
-        public static readonly Color Error_Dark = Color.FromRGBValue(0xCF6679);
+        public static Color Light_AccentError => Color.FromRGBValue(0xC62828);
+        public static Color Light_AccentInfo => Color.FromRGBValue(0x4527A0);
+        public static Color Light_AccentSuccess => Color.FromRGBValue(0xA5D6A7);
+        public static Color Light_AccentSecondary1 => Color.FromRGBValue(0x90CAF9);
+        public static Color Light_AccentSecondary2 => Color.FromRGBValue(0xCE93D8);
+
+        public static Color Dark_AccentError => Color.FromRGBValue(0xCF6679);
+        public static Color Dark_AccentInfo => Color.FromRGBValue(0xEFC9A4);
+        public static Color Dark_AccentSuccess => Color.FromRGBValue(0x1DDECB);
+        public static Color Dark_AccentSecondary1 => Color.FromRGBValue(0xB3F5FF);
+        public static Color Dark_AccentSecondary2 => Color.FromRGBValue(0xD6A9D5);
     }
 
     static class Palettes {
@@ -187,7 +196,11 @@ public class Level {
             _700 = Color.FromRGBValue(0x455A64),
             _800 = Color.FromRGBValue(0x37474F),
             _900 = Color.FromRGBValue(0x263238),
-            Error = CommonColors.Error_Light,
+            AccentError = CommonColors.Light_AccentError,
+            AccentInfo = CommonColors.Light_AccentInfo,
+            AccentSuccess = CommonColors.Light_AccentSuccess,
+            AccentSecondary1 = CommonColors.Light_AccentSecondary1,
+            AccentSecondary2 = CommonColors.Light_AccentSecondary2,
         };
 
         //https://compilezero.medium.com/dark-mode-ui-design-the-definitive-guide-part-1-color-53dcfaea5129
@@ -203,7 +216,11 @@ public class Level {
             _700 = Color.FromRGBValue(0xCBD2D9),
             _800 = Color.FromRGBValue(0xE4E7EB),
             _900 = Color.FromRGBValue(0xF5F7FA),
-            Error = CommonColors.Error_Dark,
+            AccentError = CommonColors.Dark_AccentError,
+            AccentInfo = CommonColors.Dark_AccentInfo,
+            AccentSuccess = CommonColors.Dark_AccentSuccess,
+            AccentSecondary1 = CommonColors.Dark_AccentSecondary1,
+            AccentSecondary2 = CommonColors.Dark_AccentSecondary2,
         };
     }
 
@@ -218,6 +235,10 @@ public class Level {
         public Color _700 { get; init; }
         public Color _800 { get; init; }
         public Color _900 { get; init; }
-        public Color Error { get; init; }
+        public Color AccentError { get; init; }
+        public Color AccentInfo { get; init; }
+        public Color AccentSuccess { get; init; }
+        public Color AccentSecondary1 { get; init; }
+        public Color AccentSecondary2 { get; init; }
     }
 }

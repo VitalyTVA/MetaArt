@@ -450,6 +450,7 @@ namespace ThatButtonAgain {
                             .Offset(new Vector2(0, (j - letterCount / 2) * letterDragBoxWidth)),
                         HitTestVisible = true,
                         Scale = new Vector2(Constants.FindWordLetterScale),
+                        ActiveRatio = 0,
                     };
                     (int, int) GetLetterPosition(Letter letter) {
                         for(int i = 0; i < letterCount; i++) {
@@ -476,6 +477,7 @@ namespace ThatButtonAgain {
                                         || (j == hovered[0].Item3 && j == hovered[0].Item3)
                                         ) {
                                             hovered.Add((l, i, j));
+                                            l.ActiveRatio = 1;
                                             playSound(SoundKind.Hover);
                                         }
                                         button.Rect = hovered
@@ -504,6 +506,7 @@ namespace ThatButtonAgain {
                                         }
                                         button.HitTestVisible = true;
                                     } else {
+                                        hovered.ForEach(x => x.Item1.ActiveRatio = 0);
                                         button.Rect = Rect.Empty;
                                     }
                                 },
