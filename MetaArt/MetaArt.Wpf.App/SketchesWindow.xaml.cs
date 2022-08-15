@@ -66,6 +66,7 @@ namespace MetaArt.Wpf {
             Settings.Default.WindowSize = new System.Drawing.Size((int)Width, (int)Height);
             Settings.Default.WindowLocation = new System.Drawing.Point((int)Left, (int)Top);
             Settings.Default.CurrentSketchTypeFullName = GetCurrentSketch()?.Type.FullName;
+            Settings.Default.CurrentSketchName= GetCurrentSketch()?.Name;
             Settings.Default.Save();
         }
 
@@ -80,8 +81,11 @@ namespace MetaArt.Wpf {
             Top = location.Y;
 
             var sketchTypeFullName = Settings.Default.CurrentSketchTypeFullName;
+            var sketchName = Settings.Default.CurrentSketchName;
             Dispatcher.BeginInvoke(new Action(() => {
-                list.SelectedItem = list.ItemsSource.Cast<SketchDisplayInfo>().FirstOrDefault(x => x.Type.FullName == sketchTypeFullName);
+                list.SelectedItem = list.ItemsSource
+                    .Cast<SketchDisplayInfo>()
+                    .FirstOrDefault(x => x.Type.FullName == sketchTypeFullName && x.Name == sketchName);
             }), DispatcherPriority.ContextIdle);
         }
 
