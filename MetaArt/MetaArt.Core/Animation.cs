@@ -7,6 +7,17 @@
             return this;
         }
     }
+    public sealed class DelegateAnimation : AnimationBase {
+        readonly Action<TimeSpan> next;
+
+        public DelegateAnimation(Action<TimeSpan> next) {
+            this.next = next;
+        }
+        public override bool Next(TimeSpan deltaTime) {
+            next(deltaTime);
+            return true;
+        }
+    }
     public sealed class WaitConditionAnimation : AnimationBase {
         public static WaitConditionAnimation WaitTime(TimeSpan time, Action end) {
             var totalTime = TimeSpan.Zero;

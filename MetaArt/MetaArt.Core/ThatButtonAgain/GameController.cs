@@ -44,7 +44,8 @@ namespace ThatButtonAgain {
             RegisterLevel(x => x.Level_11()),
             RegisterLevel(x => x.Level_ScrollLetters()),
             RegisterLevel(x => x.Level_ReorderLetters()),
-            RegisterLevel(x => x.Level_ReflectedC())
+            RegisterLevel(x => x.Level_ReflectedC()),
+            RegisterLevel(x => x.Level_BouncyBalls()),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("x => x.Level_", null).Replace("()", null));
@@ -927,6 +928,21 @@ namespace ThatButtonAgain {
                     button.IsEnabled = true;
                 }
             }.Start(animations);
+        }
+
+        void Level_BouncyBalls() {
+            var balls = new Ball[12];
+            for(int i = 0; i < balls.Length; i++) {
+                balls[i] = new Ball(MathFEx.Random(0, scene.width), MathFEx.Random(0, scene.height), MathFEx.Random(30, 70));
+            }
+
+            var simulation = new BallsSimulation(scene.width, scene.height);
+            simulation.AddBalls(balls);
+
+            foreach(var item in simulation.GetBalls()) {
+                scene.AddElement(item);
+            }
+            new DelegateAnimation(deltaTime => simulation.NextFrame()).Start(animations);
         }
 
         void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {

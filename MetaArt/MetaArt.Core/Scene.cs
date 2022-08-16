@@ -194,6 +194,20 @@ public class Letter : Element {
     }
 }
 
+public class Ball : Element {
+
+    public float x, y;
+    public float diameter;
+    public float vx = 0;
+    public float vy = 0;
+
+    public Ball(float xin, float yin, float din) {
+        x = xin;
+        y = yin;
+        diameter = din;
+    }
+}
+
 public abstract class InputState {
     public abstract InputState Press(Vector2 point);
     public abstract InputState Release(Vector2 point);

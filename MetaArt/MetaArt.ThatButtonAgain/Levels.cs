@@ -115,6 +115,11 @@ public class Level {
                     endShape(EndShapeMode.CLOSE);
                     shapeCorners(0);
                     break;
+                case Ball b:
+                    stroke(Colors.ButtonBorder);
+                    strokeWeight(Constants.ButtonBorderWeight);
+                    ellipse(b.x, b.y, b.diameter, b.diameter);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -242,3 +247,4 @@ public class Level {
         public Color AccentSecondary2 { get; init; }
     }
 }
+
