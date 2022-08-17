@@ -115,10 +115,11 @@ public class Level {
                     endShape(EndShapeMode.CLOSE);
                     shapeCorners(0);
                     break;
-                case Ball b:
+                case BallElement b:
                     stroke(Colors.ButtonBorder);
                     strokeWeight(Constants.ButtonBorderWeight);
-                    ellipse(b.x, b.y, b.diameter, b.diameter);
+                    fill(Colors.ButtonBackNormal);
+                    ellipse(b.Rect.MidX, b.Rect.MidY, b.Rect.Width, b.Rect.Height);
                     break;
                 default:
                     throw new NotImplementedException();

@@ -931,18 +931,71 @@ namespace ThatButtonAgain {
         }
 
         void Level_BouncyBalls() {
-            var balls = new Ball[12];
-            for(int i = 0; i < balls.Length; i++) {
-                balls[i] = new Ball(MathFEx.Random(0, scene.width), MathFEx.Random(0, scene.height), MathFEx.Random(30, 70));
+            //var balls = new Ball[12];
+            //for(int i = 0; i < balls.Length; i++) {
+            //    balls[i] = new Ball(MathFEx.Random(0, scene.width), MathFEx.Random(0, scene.height), MathFEx.Random(30, 70));
+            //}
+
+            var button = CreateButton(StartNextLevelAnimation);
+            button.HitTestVisible = false;
+            scene.AddElement(button);
+
+            var letters = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, button.Rect);
+                letter.Scale = new Vector2(.75f);
+            });
+
+            var diameter = letterDragBoxWidth * .8f;
+            var simulation = new BallsSimulation(scene.width, scene.height, gravity: 0);
+            List<(Ball ball, Element element)> balls = new();
+            (Ball ball, Element element) CreateBall(Vector2 center) {
+                var pair = (
+                    ball: new Ball() { x = center.X, y = center.Y, diameter = diameter },
+                    element: new BallElement { Rect = Rect.FromCenter(center, new Vector2(diameter)) }
+                );
+                balls.Add(pair);
+                simulation.AddBall(pair.ball);
+                scene.AddElement(pair.element);
+                return pair;
             }
 
-            var simulation = new BallsSimulation(scene.width, scene.height);
-            simulation.AddBalls(balls);
-
-            foreach(var item in simulation.GetBalls()) {
-                scene.AddElement(item);
+            foreach(var item in letters) {
+                CreateBall(item.Rect.Mid);
             }
-            new DelegateAnimation(deltaTime => simulation.NextFrame()).Start(animations);
+           
+            void SetLocation((Ball ball, Element element) pair, Vector2 location) {
+                pair.ball.x = location.X;
+                pair.ball.y = location.Y;
+                pair.element.Rect = Rect.FromCenter(location, pair.element.Rect.Size);
+            }
+
+            var hitBall = CreateBall(new Vector2(button.Rect.MidX, scene.height - 100));
+            hitBall.element.HitTestVisible = true;
+            //hitBall.ball.vy = -10;
+            //hitBall.ball.vx = 2;
+            hitBall.element.GetPressState = (starPoint, releaseState) => {
+                return new DragInputState(
+                    starPoint,
+                    onDrag: delta => {
+                        SetLocation(hitBall, starPoint + delta);
+                        return true;
+                    },
+                    onRelease: delta => {
+                        delta = -delta / 10;
+                        hitBall.ball.vx = delta.X;
+                        hitBall.ball.vy = delta.Y;
+                        //SetLocation(hitBall, starPoint);
+                    },
+                    releaseState);
+
+            };
+
+            new DelegateAnimation(deltaTime => {
+                simulation.NextFrame();
+                foreach(var (ball, element) in balls) {
+                        SetLocation((ball, element), new Vector2(ball.x, ball.y));
+                }
+            }).Start(animations);
         }
 
         void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {

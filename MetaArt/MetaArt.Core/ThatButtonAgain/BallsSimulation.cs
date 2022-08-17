@@ -1,24 +1,31 @@
 ﻿using MetaArt.Core;
 
 namespace ThatButtonAgain {
+    public class Ball {
+        public float x, y;
+        public float diameter;
+        public float vx = 0;
+        public float vy = 0;
+    }
     public class BallsSimulation {
-        public BallsSimulation(float width, float height) {
+        public BallsSimulation(float width, float height, float gravity) {
             this.width = width;
             this.height = height;
+            this.gravity = gravity;
         }
 
-        public void AddBalls(params Ball[] balls) {
-            this.balls.AddRange(balls);
+        public void AddBall(Ball ball) {
+            balls.Add(ball);
         }
 
         const float spring = 0.05f;
-        const float gravity = 0.03f;
         const float friction = -0.9f;
         readonly float width;
         readonly float height;
+        private readonly float gravity;
         List<Ball> balls = new();
 
-        public IEnumerable<Ball> GetBalls() => balls;
+        //public IEnumerable<Ball> GetBalls() => balls;
 
         public void NextFrame() {
             for(int i = 0; i < balls.Count; i++) {
