@@ -952,40 +952,49 @@ namespace ThatButtonAgain {
             });
             letters[1].IsVisible = false;
 
+            Ball oBall = null!;
             var diameter = letterDragBoxWidth * .7f;
-            var simulation = new BallsSimulation(size: null, gravity: 0, onHit: () => playSound(SoundKind.Tap));
-            List<(Ball ball, BallElement element)> balls = new();
-            (Ball ball, BallElement element) CreateBall(Vector2 center) {
-                var pair = (
-                    ball: new Ball() { x = center.X, y = center.Y, diameter = diameter },
-                    element: new BallElement { Rect = Rect.FromCenter(center, new Vector2(diameter)) }
-                );
-                balls.Add(pair);
-                simulation.AddBall(pair.ball);
-                scene.AddElement(pair.element);
-                return pair;
+            var simulation = new BallsSimulation(size: null, gravity: 0, onHit: (b1, b2) => {
+                if(b1 == oBall || b2 == oBall) {
+                    b1.Element().Broken = true;
+                    b2.Element().Broken = true;
+                    playSound(SoundKind.BrakeBall);
+                } else {
+                    playSound(SoundKind.Tap);
+                }
+            });
+            List<Ball> balls = new();
+            Ball CreateBall(Vector2 center) {
+                var ball = new Ball(new BallElement { Rect = Rect.FromCenter(center, new Vector2(diameter)) }, diameter) {
+                    x = center.X, 
+                    y = center.Y, 
+                };
+                balls.Add(ball);
+                simulation.AddBall(ball);
+                scene.AddElement(ball.Element());
+                return ball;
             }
 
             foreach(var item in letters) {
                 CreateBall(item.Rect.Mid);
             }
 
-            var oBall = balls[1];
-            var oBallLocation = oBall.element.Rect.Location;
+            oBall = balls[1];
+            var oBallLocation = oBall.Element().Rect.Location;
 
-            void SetLocation((Ball ball, Element element) pair, Vector2 location) {
-                pair.ball.x = location.X;
-                pair.ball.y = location.Y;
-                pair.element.Rect = Rect.FromCenter(location, pair.element.Rect.Size);
+            void SetLocation(Ball ball, Vector2 location) {
+                ball.x = location.X;
+                ball.y = location.Y;
+                ball.Element().Rect = Rect.FromCenter(location, ball.Element().Rect.Size);
             }
 
             float maxSpringLength = buttonWidth * 0.5f; 
 
             void CreateHitBall() {
                 var hitBall = CreateBall(hitBallLocation);
-                hitBall.element.HitTestVisible = true;
-                var startLocation = hitBall.element.Rect.Mid;
-                hitBall.element.GetPressState = (starPoint, releaseState) => {
+                hitBall.Element().HitTestVisible = true;
+                var startLocation = hitBall.Element().Rect.Mid;
+                hitBall.Element().GetPressState = (starPoint, releaseState) => {
                     return new DragInputState(
                         starPoint,
                         onDrag: delta => {
@@ -993,16 +1002,16 @@ namespace ThatButtonAgain {
                             if(MathFEx.Greater(deltaLength, 0))
                                 delta *= MathFEx.Min(maxSpringLength, deltaLength) / deltaLength;
                             SetLocation(hitBall, startLocation + delta);
-                            spring.To = hitBall.element.Rect.Mid;
+                            spring.To = hitBall.Element().Rect.Mid;
                             return true;
                         },
                         onRelease: delta => {
                             spring.To = spring.From;
                             if(delta.Length() > GetSnapDistance()) {
                                 delta = -delta * .15f;
-                                hitBall.ball.vx = delta.X;
-                                hitBall.ball.vy = delta.Y;
-                                hitBall.element.GetPressState = null;
+                                hitBall.vx = delta.X;
+                                hitBall.vy = delta.Y;
+                                hitBall.Element().GetPressState = null;
                             } else {
                                 SetLocation(hitBall, startLocation);
                             }
@@ -1017,23 +1026,22 @@ namespace ThatButtonAgain {
             var toRemove = new List<(Ball, BallElement)>();
             new DelegateAnimation(deltaTime => {
                 simulation.NextFrame();
-                foreach(var (ball, element) in balls) {
-                    SetLocation((ball, element), new Vector2(ball.x, ball.y));
-                    if(!element.Rect.Intersects(new Rect(0, 0, scene.width, scene.height)))
-                        toRemove.Add((ball, element));
+                foreach(var ball in balls) {
+                    SetLocation(ball, new Vector2(ball.x, ball.y));
+                    if(!ball.Element().Rect.Intersects(new Rect(0, 0, scene.width, scene.height)))
+                        toRemove.Add((ball, ball.Element()));
                 }
                 foreach(var (ball, element) in toRemove) {
-                    balls.Remove((ball, element));
-                    scene.RemoveElement(element);
+                    balls.Remove(ball);
+                    scene.RemoveElement(ball.Element());
                     simulation.RemoveBall(ball);
                 }
                 toRemove.Clear();
                 var reloadArea = Rect.FromCenter(hitBallLocation, new Vector2(maxSpringLength + diameter) * 2);
-                if(!balls.Any(x => reloadArea.Intersects(x.element.Rect)))
+                if(!balls.Any(x => reloadArea.Intersects(x.Element().Rect)))
                     CreateHitBall();
-                button.IsEnabled = !balls.Any(x => x != oBall && button.Rect.Intersects(x.element.Rect));
-                if(!MathFEx.VectorsEqual(oBallLocation, oBall.element.Rect.Location)) {
-                    oBall.element.Broken = true;
+                button.IsEnabled = !balls.Any(x => x != oBall && button.Rect.Intersects(x.Element().Rect));
+                if(!MathFEx.VectorsEqual(oBallLocation, oBall.Element().Rect.Location)) {
                     StartReloadLevelAnimation();
                     return false;
                 }
@@ -1206,7 +1214,7 @@ namespace ThatButtonAgain {
         }
         void StartReloadLevelAnimation() {
             StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutDuration);
-            playSound(SoundKind.BrakeBall);
+            //playSound(SoundKind.BrakeBall);
         }
         void StartCthulhuReloadLevelAnimation() {
             StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutCthulhuDuration);
@@ -1362,6 +1370,9 @@ namespace ThatButtonAgain {
         public static float ReflectedCOffset => 6f;
 
 
+    }
+    public static class BallsExtension {
+        public static BallElement Element(this Ball ball) => (BallElement)ball.payload; 
     }
 }
 

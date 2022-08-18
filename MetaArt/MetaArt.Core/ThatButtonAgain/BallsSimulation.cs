@@ -2,13 +2,20 @@
 
 namespace ThatButtonAgain {
     public class Ball {
+        public readonly object payload;
+        public readonly float diameter;
+
+        public Ball(object payload, float diameter) {
+            this.payload = payload;
+            this.diameter = diameter;
+        }
+
         public float x, y;
-        public float diameter;
         public float vx = 0;
         public float vy = 0;
     }
     public class BallsSimulation {
-        public BallsSimulation(Vector2? size, float gravity, Action onHit) {
+        public BallsSimulation(Vector2? size, float gravity, Action<Ball, Ball> onHit) {
             this.size = size;
             this.gravity = gravity;
             this.onHit = onHit;
@@ -26,7 +33,7 @@ namespace ThatButtonAgain {
         const float friction = -0.9f;
         readonly Vector2? size;
         private readonly float gravity;
-        private readonly Action onHit;
+        private readonly Action<Ball, Ball> onHit;
         List<Ball> balls = new();
 
         //public IEnumerable<Ball> GetBalls() => balls;
@@ -53,7 +60,7 @@ namespace ThatButtonAgain {
                 if(!collisions.Contains((ball, other)) && !collisions.Contains((other, ball))) {
                     collisions.Add((ball, other));
                     collisions.Add((other, ball));
-                    onHit();
+                    onHit(ball, other);
                 }
                 float angle = MathFEx.Atan2(dy, dx);
                 float targetX = ball.x + MathFEx.Cos(angle) * minDist;
