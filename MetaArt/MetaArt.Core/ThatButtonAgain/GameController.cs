@@ -25,6 +25,7 @@ namespace ThatButtonAgain {
         SwipeLeft,
         Hover,
         BrakeBall,
+        Rotate,
     }
     public enum SvgKind {
         Cthulhu,
@@ -47,6 +48,7 @@ namespace ThatButtonAgain {
             RegisterLevel(x => x.Level_ReorderLetters()),
             RegisterLevel(x => x.Level_ReflectedC()),
             RegisterLevel(x => x.Level_BouncyBalls()),
+            RegisterLevel(x => x.Level_RotationsGroup2()),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("x => x.Level_", null).Replace("()", null));
@@ -1047,6 +1049,44 @@ namespace ThatButtonAgain {
                 }
                 return true;
             }).Start(animations);
+        }
+
+        void Level_RotationsGroup2() {
+            var button = CreateButton(StartNextLevelAnimation);
+            button.HitTestVisible = false;
+            scene.AddElement(button);
+
+            //var indices = new[] { 4, 3, 2, 1, 0 };
+            Letter[] letters = null!;
+            letters = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, button.Rect);
+                var onPress = () => {
+
+                    playSound(SoundKind.Rotate);
+                    new LerpAnimation<float> {
+                        Duration = TimeSpan.FromMilliseconds(300),
+                        From = letter.Angle,
+                        To = letter.Angle + MathFEx.PI / 2,
+                        SetValue = val => letter.Angle = val,
+                        Lerp = MathFEx.Lerp,
+                        End = () => {
+                            
+                        }
+                    }.Start(animations, blockInput: true);
+                };
+                letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, () => { });
+                letter.HitTestVisible = true;
+            });
+
+            //new WaitConditionAnimation(
+            //    condition: GetAreLettersInPlaceCheck(button.Rect, letters)) {
+            //    End = () => {
+            //        button.HitTestVisible = true;
+            //        foreach(var item in letters) {
+            //            item.HitTestVisible = false;
+            //        }
+            //    }
+            //}.Start(animations);
         }
 
         void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {

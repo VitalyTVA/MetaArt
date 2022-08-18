@@ -184,6 +184,7 @@ public class Button : Element {
 public class Letter : Element {
     public static Vector2 NoScale = new Vector2(1, 1);
     public Vector2 Scale { get; set; }
+    public float Angle { get; set; }
     public Vector2 Offset { get; set; }
     public char Value { get; set; }
     public float ActiveRatio { get; set; } = 1;

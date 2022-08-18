@@ -71,6 +71,7 @@ public class Level {
                     pushMatrix();
                     translate(item.Rect.MidX, item.Rect.MidY);
                     scale(l.Scale.X, l.Scale.Y);
+                    rotate(l.Angle);
                     //fill(Colors.LetterDragBox);
                     //rect(0, 0, item.Rect.Width, item.Rect.Height);
                     fill(color(
