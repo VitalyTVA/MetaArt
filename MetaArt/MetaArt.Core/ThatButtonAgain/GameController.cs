@@ -970,13 +970,12 @@ namespace ThatButtonAgain {
                     y = center.Y, 
                 };
                 balls.Add(ball);
-                simulation.AddBall(ball);
                 scene.AddElement(ball.Element());
                 return ball;
             }
 
             foreach(var item in letters) {
-                CreateBall(item.Rect.Mid);
+                simulation.AddBall(CreateBall(item.Rect.Mid));
             }
 
             oBall = balls[1];
@@ -1012,6 +1011,7 @@ namespace ThatButtonAgain {
                                 hitBall.vx = delta.X;
                                 hitBall.vy = delta.Y;
                                 hitBall.Element().GetPressState = null;
+                                simulation.AddBall(hitBall);
                             } else {
                                 SetLocation(hitBall, startLocation);
                             }
