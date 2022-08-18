@@ -24,6 +24,7 @@ namespace ThatButtonAgain {
         SwipeRight,
         SwipeLeft,
         Hover,
+        BrakeBall,
     }
     public enum SvgKind {
         Cthulhu,
@@ -937,18 +938,24 @@ namespace ThatButtonAgain {
             //}
 
             var button = CreateButton(StartNextLevelAnimation);
-            button.HitTestVisible = false;
+            button.IsEnabled = false;
             scene.AddElement(button);
+            button.Rect = button.Rect.Offset(new Vector2(0, -button.Rect.Width / 2));
+
+            var hitBallLocation = new Vector2(button.Rect.MidX, scene.height - button.Rect.Width * .7f);
+            var spring = new Spring { From = hitBallLocation, To = hitBallLocation };
+            scene.AddElement(spring);
 
             var letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
-                letter.Scale = new Vector2(.75f);
+                letter.Scale = new Vector2(.65f);
             });
+            letters[1].IsVisible = false;
 
-            var diameter = letterDragBoxWidth * .8f;
-            var simulation = new BallsSimulation(scene.width, scene.height, gravity: 0);
-            List<(Ball ball, Element element)> balls = new();
-            (Ball ball, Element element) CreateBall(Vector2 center) {
+            var diameter = letterDragBoxWidth * .7f;
+            var simulation = new BallsSimulation(size: null, gravity: 0, onHit: () => playSound(SoundKind.Tap));
+            List<(Ball ball, BallElement element)> balls = new();
+            (Ball ball, BallElement element) CreateBall(Vector2 center) {
                 var pair = (
                     ball: new Ball() { x = center.X, y = center.Y, diameter = diameter },
                     element: new BallElement { Rect = Rect.FromCenter(center, new Vector2(diameter)) }
@@ -962,39 +969,75 @@ namespace ThatButtonAgain {
             foreach(var item in letters) {
                 CreateBall(item.Rect.Mid);
             }
-           
+
+            var oBall = balls[1];
+            var oBallLocation = oBall.element.Rect.Location;
+
             void SetLocation((Ball ball, Element element) pair, Vector2 location) {
                 pair.ball.x = location.X;
                 pair.ball.y = location.Y;
                 pair.element.Rect = Rect.FromCenter(location, pair.element.Rect.Size);
             }
 
-            var hitBall = CreateBall(new Vector2(button.Rect.MidX, scene.height - 100));
-            hitBall.element.HitTestVisible = true;
-            //hitBall.ball.vy = -10;
-            //hitBall.ball.vx = 2;
-            hitBall.element.GetPressState = (starPoint, releaseState) => {
-                return new DragInputState(
-                    starPoint,
-                    onDrag: delta => {
-                        SetLocation(hitBall, starPoint + delta);
-                        return true;
-                    },
-                    onRelease: delta => {
-                        delta = -delta / 10;
-                        hitBall.ball.vx = delta.X;
-                        hitBall.ball.vy = delta.Y;
-                        //SetLocation(hitBall, starPoint);
-                    },
-                    releaseState);
+            float maxSpringLength = buttonWidth * 0.5f; 
 
-            };
+            void CreateHitBall() {
+                var hitBall = CreateBall(hitBallLocation);
+                hitBall.element.HitTestVisible = true;
+                var startLocation = hitBall.element.Rect.Mid;
+                hitBall.element.GetPressState = (starPoint, releaseState) => {
+                    return new DragInputState(
+                        starPoint,
+                        onDrag: delta => {
+                            var deltaLength = delta.Length();
+                            if(MathFEx.Greater(deltaLength, 0))
+                                delta *= MathFEx.Min(maxSpringLength, deltaLength) / deltaLength;
+                            SetLocation(hitBall, startLocation + delta);
+                            spring.To = hitBall.element.Rect.Mid;
+                            return true;
+                        },
+                        onRelease: delta => {
+                            spring.To = spring.From;
+                            if(delta.Length() > GetSnapDistance()) {
+                                delta = -delta * .15f;
+                                hitBall.ball.vx = delta.X;
+                                hitBall.ball.vy = delta.Y;
+                                hitBall.element.GetPressState = null;
+                            } else {
+                                SetLocation(hitBall, startLocation);
+                            }
+                        },
+                        releaseState);
 
+                };
+            }
+
+            CreateHitBall();
+
+            var toRemove = new List<(Ball, BallElement)>();
             new DelegateAnimation(deltaTime => {
                 simulation.NextFrame();
                 foreach(var (ball, element) in balls) {
-                        SetLocation((ball, element), new Vector2(ball.x, ball.y));
+                    SetLocation((ball, element), new Vector2(ball.x, ball.y));
+                    if(!element.Rect.Intersects(new Rect(0, 0, scene.width, scene.height)))
+                        toRemove.Add((ball, element));
                 }
+                foreach(var (ball, element) in toRemove) {
+                    balls.Remove((ball, element));
+                    scene.RemoveElement(element);
+                    simulation.RemoveBall(ball);
+                }
+                toRemove.Clear();
+                var reloadArea = Rect.FromCenter(hitBallLocation, new Vector2(maxSpringLength + diameter) * 2);
+                if(!balls.Any(x => reloadArea.Intersects(x.element.Rect)))
+                    CreateHitBall();
+                button.IsEnabled = !balls.Any(x => x != oBall && button.Rect.Intersects(x.element.Rect));
+                if(!MathFEx.VectorsEqual(oBallLocation, oBall.element.Rect.Location)) {
+                    oBall.element.Broken = true;
+                    StartReloadLevelAnimation();
+                    return false;
+                }
+                return true;
             }).Start(animations);
         }
 
@@ -1160,6 +1203,10 @@ namespace ThatButtonAgain {
         void StartNextLevelFalseAnimation() {
             StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutDuration);
             playSound(SoundKind.Win1);
+        }
+        void StartReloadLevelAnimation() {
+            StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutDuration);
+            playSound(SoundKind.BrakeBall);
         }
         void StartCthulhuReloadLevelAnimation() {
             StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutCthulhuDuration);

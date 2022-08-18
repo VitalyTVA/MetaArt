@@ -8,14 +8,13 @@
         }
     }
     public sealed class DelegateAnimation : AnimationBase {
-        readonly Action<TimeSpan> next;
+        readonly Func<TimeSpan, bool> next;
 
-        public DelegateAnimation(Action<TimeSpan> next) {
+        public DelegateAnimation(Func<TimeSpan, bool> next) {
             this.next = next;
         }
         public override bool Next(TimeSpan deltaTime) {
-            next(deltaTime);
-            return true;
+            return next(deltaTime);
         }
     }
     public sealed class WaitConditionAnimation : AnimationBase {

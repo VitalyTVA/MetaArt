@@ -8,21 +8,25 @@ namespace ThatButtonAgain {
         public float vy = 0;
     }
     public class BallsSimulation {
-        public BallsSimulation(float width, float height, float gravity) {
-            this.width = width;
-            this.height = height;
+        public BallsSimulation(Vector2? size, float gravity, Action onHit) {
+            this.size = size;
             this.gravity = gravity;
+            this.onHit = onHit;
         }
 
         public void AddBall(Ball ball) {
             balls.Add(ball);
         }
 
+        public void RemoveBall(Ball ball) {
+            balls.Remove(ball);
+        }
+
         const float spring = 0.05f;
         const float friction = -0.9f;
-        readonly float width;
-        readonly float height;
+        readonly Vector2? size;
         private readonly float gravity;
+        private readonly Action onHit;
         List<Ball> balls = new();
 
         //public IEnumerable<Ball> GetBalls() => balls;
@@ -38,12 +42,19 @@ namespace ThatButtonAgain {
             }
         }
 
-        static void CollideBalls(Ball ball, Ball other) {
+        HashSet<(Ball, Ball)> collisions = new();
+
+        void CollideBalls(Ball ball, Ball other) {
             float dx = other.x - ball.x;
             float dy = other.y - ball.y;
             float distance = MathFEx.Sqrt(dx * dx + dy * dy);
             float minDist = other.diameter / 2 + ball.diameter / 2;
             if(distance < minDist) {
+                if(!collisions.Contains((ball, other)) && !collisions.Contains((other, ball))) {
+                    collisions.Add((ball, other));
+                    collisions.Add((other, ball));
+                    onHit();
+                }
                 float angle = MathFEx.Atan2(dy, dx);
                 float targetX = ball.x + MathFEx.Cos(angle) * minDist;
                 float targetY = ball.y + MathFEx.Sin(angle) * minDist;
@@ -53,6 +64,9 @@ namespace ThatButtonAgain {
                 ball.vy -= ay;
                 other.vx += ax;
                 other.vy += ay;
+            } else {
+                collisions.Remove((ball, other));
+                collisions.Remove((other, ball));
             }
         }
 
@@ -60,19 +74,23 @@ namespace ThatButtonAgain {
             ball.vy += gravity;
             ball.x += ball.vx;
             ball.y += ball.vy;
-            if(ball.x + ball.diameter / 2 > width) {
-                ball.x = width - ball.diameter / 2;
-                ball.vx *= friction;
-            } else if(ball.x - ball.diameter / 2 < 0) {
-                ball.x = ball.diameter / 2;
-                ball.vx *= friction;
-            }
-            if(ball.y + ball.diameter / 2 > height) {
-                ball.y = height - ball.diameter / 2;
-                ball.vy *= friction;
-            } else if(ball.y - ball.diameter / 2 < 0) {
-                ball.y = ball.diameter / 2;
-                ball.vy *= friction;
+            if(size != null) {
+                var width = size.Value.X;
+                var height = size.Value.Y;
+                if(ball.x + ball.diameter / 2 > width) {
+                    ball.x = width - ball.diameter / 2;
+                    ball.vx *= friction;
+                } else if(ball.x - ball.diameter / 2 < 0) {
+                    ball.x = ball.diameter / 2;
+                    ball.vx *= friction;
+                }
+                if(ball.y + ball.diameter / 2 > height) {
+                    ball.y = height - ball.diameter / 2;
+                    ball.vy *= friction;
+                } else if(ball.y - ball.diameter / 2 < 0) {
+                    ball.y = ball.diameter / 2;
+                    ball.vy *= friction;
+                }
             }
         }
     }

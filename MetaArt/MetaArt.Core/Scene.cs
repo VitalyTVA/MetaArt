@@ -195,6 +195,12 @@ public class Letter : Element {
 }
 
 public class BallElement : Element {
+    public bool Broken { get; set; } = false;
+}
+
+public class Spring : Element {
+    public Vector2 From { get; set; }
+    public Vector2 To { get; set; }
 }
 
 public abstract class InputState {

@@ -118,8 +118,14 @@ public class Level {
                 case BallElement b:
                     stroke(Colors.ButtonBorder);
                     strokeWeight(Constants.ButtonBorderWeight);
-                    fill(Colors.ButtonBackNormal);
+                    fill(b.Broken ? Colors.AccentError : Colors.ButtonBackNormal);
                     ellipse(b.Rect.MidX, b.Rect.MidY, b.Rect.Width, b.Rect.Height);
+                    break;
+                case Spring s:
+                    stroke(Colors.AccentError);
+                    strokeWeight(Constants.ButtonBorderWeight);
+                    noFill();
+                    line(s.From.X, s.From.Y, s.To.X, s.To.Y);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -172,6 +178,7 @@ public class Level {
         public static Color ButtonBorder => Palette.AccentInfo;
 
         public static Color ButtonBackPressedDisabled => Palette.AccentError;
+        public static Color AccentError => Palette.AccentError;
     }
 
 
