@@ -53,7 +53,6 @@ namespace MetaArt {
         public static void noLoop() => Painter.NoLoop = true;
         public static void loop() => Painter.NoLoop = false;
         public static void noSmooth() => Graphics.noSmooth();
-        public static void smooth() => Graphics.smooth();
         public static void fullRedraw() => Painter.FullRedraw();
 
         public static void background(float v1, float v2, float v3, float a) {

@@ -30,11 +30,6 @@ namespace ThatButtonAgain {
     public enum SvgKind {
         Cthulhu,
     }
-
-    public interface IIntersectionChecker : IDisposable {
-        bool Intersects((Rect, char)[] letters);
-    }
-
     public class GameController {
         public static readonly (Action<GameController> action, string name)[] Levels = new [] {
             RegisterLevel(x => x.Level_TrivialClick()),
@@ -54,7 +49,6 @@ namespace ThatButtonAgain {
             RegisterLevel(x => x.Level_ReflectedC()),
             RegisterLevel(x => x.Level_BouncyBalls()),
             RegisterLevel(x => x.Level_RotationsGroup2()),
-            RegisterLevel(x => x.Level_PackLetters()),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("x => x.Level_", null).Replace("()", null));
@@ -70,9 +64,8 @@ namespace ThatButtonAgain {
         readonly float letterDragBoxWidth;
         readonly float letterHorzStep;
         readonly Action<SoundKind> playSound;
-        readonly Func<Vector2, IIntersectionChecker> createIntersectionChecker;
 
-        public GameController(float width, float height, Action<SoundKind> playSound, Func<Vector2, IIntersectionChecker> createIntersectionChecker) {
+        public GameController(float width, float height, Action<SoundKind> playSound) {
             scene = new Scene(width, height, () => animations.AllowInput);
 
             buttonWidth = scene.width * Constants.ButtonRelativeWidth;
@@ -84,7 +77,6 @@ namespace ThatButtonAgain {
             letterHorzStep = buttonWidth * Constants.LetterHorizontalStepRatio;
 
             this.playSound = playSound;
-            this.createIntersectionChecker = createIntersectionChecker;
         }
 
         public void NextFrame(float deltaTime) {
@@ -105,9 +97,17 @@ namespace ThatButtonAgain {
             button.IsEnabled = false;
             scene.AddElement(button);
 
+            var points = new[] {
+                (-2.1f, 2.3f),
+                (-1.5f, -2.7f),
+                (.7f, -1.5f),
+                (1.3f, 3.4f),
+                (2.3f, -3.4f),
+            };
+
             var letters = CreateLetters((letter, index) => {
                 letter.Rect = Rect.FromCenter(
-                    new Vector2(button.Rect.MidX + letterDragBoxWidth * RandomLetterPoints[index].Item1, button.Rect.MidY + letterDragBoxHeight * RandomLetterPoints[index].Item2),
+                    new Vector2(button.Rect.MidX + letterDragBoxWidth * points[index].Item1, button.Rect.MidY + letterDragBoxHeight * points[index].Item2),
                     new Vector2(letterDragBoxWidth, letterDragBoxHeight)
                 ).GetRestrictedRect(scene.Bounds);
                 MakeDraggableLetter(letter, index, button);
@@ -1130,51 +1130,6 @@ namespace ThatButtonAgain {
             }.Start(animations);
         }
 
-        void Level_PackLetters() {
-            var button = CreateButton(StartNextLevelAnimation);
-            button.IsEnabled = false;
-            scene.AddElement(button);
-            button.Rect = Rect.FromCenter(button.Rect.Mid, new Vector2(80, 90));
-
-            var letters = CreateLetters((letter, index) => {
-                letter.DrawBox = true;
-                letter.Rect = Rect.FromCenter(
-                    new Vector2(button.Rect.MidX + letterDragBoxWidth * RandomLetterPoints[index].Item1, button.Rect.MidY + letterDragBoxHeight * RandomLetterPoints[index].Item2),
-                    new Vector2(30, 40)
-                ).GetRestrictedRect(scene.Bounds);
-                MakeDraggableLetter(letter, index, button, snap: false);
-            });
-
-            var checker = createIntersectionChecker(button.Rect.Size);
-
-            new WaitConditionAnimation(condition: deltaTime => {
-                var intersected = letters
-                    .Where(l => button.Rect.Contains(l.Rect))
-                    .Select(x => (x.Rect.Offset(-button.Rect.Location), x.Value))
-                    .ToArray();
-                if(intersected.Length > 1) {
-                    return intersected.Length == 5 && !checker.Intersects(intersected);
-                }
-                return false;
-            }) {
-                End = () => {
-                    foreach(var item in letters) {
-                        item.HitTestVisible = false;
-                    }
-                    button.IsEnabled = true;
-                    checker.Dispose();
-                }
-            }.Start(animations);
-        }
-
-        static readonly (float, float)[] RandomLetterPoints = new[] {
-            (-2.1f, 2.3f),
-            (-1.5f, -2.7f),
-            (.7f, -1.5f),
-            (1.3f, 3.4f),
-            (2.3f, -3.4f),
-        };
-
         void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {
             new RotateAnimation {
                 Duration = Constants.RotateAroundLetterDuration,
@@ -1188,12 +1143,12 @@ namespace ThatButtonAgain {
             }.Start(animations, blockInput: true);
         }
 
-        void MakeDraggableLetter(Letter letter, int index, Button button, Action? onMove = null, bool snap = true) {
+        void MakeDraggableLetter(Letter letter, int index, Button button, Action? onMove = null) {
             letter.HitTestVisible = true;
             letter.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
                 letter,
                 () => 0,
-                () => snap ? (letterSize * Constants.LetterSnapDistanceRatio, GetLetterTargetRect(index, button.Rect).Location) : null,
+                () => (letterSize * Constants.LetterSnapDistanceRatio, GetLetterTargetRect(index, button.Rect).Location),
                 onElementSnap: element => {
                     element.HitTestVisible = false;
                     OnElementSnap(element);

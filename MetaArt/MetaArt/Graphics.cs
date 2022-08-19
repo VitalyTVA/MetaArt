@@ -44,7 +44,6 @@ namespace MetaArt.Internal {
         public abstract void vertex(float x, float y);
 
         public abstract void noSmooth();
-        public abstract void smooth();
 
         public abstract Pixels loadPixels();
 
