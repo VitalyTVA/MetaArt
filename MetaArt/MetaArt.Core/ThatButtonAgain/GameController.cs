@@ -1056,37 +1056,78 @@ namespace ThatButtonAgain {
             button.HitTestVisible = false;
             scene.AddElement(button);
 
-            //var indices = new[] { 4, 3, 2, 1, 0 };
+            /*
+            //002233 medium - hard
+            var rotations = new[] {
+                new[] { 1, 0, 0, -2, 0 },
+                new[] { 0, 2, 0, -1, 1 },
+                new[] { -2, 0, 1, 0, 1 },
+                new[] { 0, -1, 0, 1, 0 },
+                new[] { 1, -2, 0, 0, 1 },
+            };
+            //0144 hard
+            var rotations = new[] {
+                new[] { 1, -1, 0, -2, 0 },
+                new[] { -1, 1, 0, 0, 0 },
+                new[] { 2, 0, -1, 0, -1 },
+                new[] { 2, 0, 1, -1, 0 },
+                new[] { -1, 0, 1, 0, 1 },
+            };
+            */
+            //04
+            var rotations = new[] {
+                new[] { 1, 0, 0, -2, 1 },
+                new[] { 0, -1, 2, 0, 0 },
+                new[] { -2, 0, 1, 0, 0 },
+                new[] { -1, 0, 0, 1, 0 },
+                new[] { 1, 0, 2, 0, -1 },
+            };
+
+            void StartRotation(Letter letter, float delta) {
+                new LerpAnimation<float> {
+                    Duration = TimeSpan.FromMilliseconds(300),
+                    From = letter.Angle,
+                    To = letter.Angle + delta,
+                    SetValue = val => letter.Angle = val,
+                    Lerp = MathFEx.Lerp,
+                    End = () => {
+                        letter.Angle = letter.Angle % (MathFEx.PI * 2);
+                    }
+                }.Start(animations, blockInput: true);
+            }
+
             Letter[] letters = null!;
             letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
                 var onPress = () => {
-
+                    //Debug.WriteLine(index.ToString());
                     playSound(SoundKind.Rotate);
-                    new LerpAnimation<float> {
-                        Duration = TimeSpan.FromMilliseconds(300),
-                        From = letter.Angle,
-                        To = letter.Angle + MathFEx.PI / 2,
-                        SetValue = val => letter.Angle = val,
-                        Lerp = MathFEx.Lerp,
-                        End = () => {
-                            
+                    for(int i = 0; i < 5; i++) {
+                        int rotation = rotations[index][i];
+                        if(rotation != 0) {
+                            StartRotation(letters[i], rotation * MathFEx.PI / 2);
+
                         }
-                    }.Start(animations, blockInput: true);
+                    }
                 };
                 letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, () => { });
                 letter.HitTestVisible = true;
+                letter.Angle = MathFEx.PI;
             });
 
-            //new WaitConditionAnimation(
-            //    condition: GetAreLettersInPlaceCheck(button.Rect, letters)) {
-            //    End = () => {
-            //        button.HitTestVisible = true;
-            //        foreach(var item in letters) {
-            //            item.HitTestVisible = false;
-            //        }
-            //    }
-            //}.Start(animations);
+            new WaitConditionAnimation(
+                condition: delta => letters.All(l => {
+                    if(l.Value is 'O' or 'H' && MathFEx.FloatsEqual(MathFEx.PI, l.Angle))
+                        return true;
+                    return MathFEx.FloatsEqual(0, l.Angle);
+                })) { 
+                End = () => {
+                    button.HitTestVisible = true;
+                    foreach(var item in letters) {
+                        item.HitTestVisible = false;
+                    }
+                }
+            }.Start(animations);
         }
 
         void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {
