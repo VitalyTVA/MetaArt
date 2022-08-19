@@ -189,6 +189,9 @@ public class Letter : Element {
     public char Value { get; set; }
     public float ActiveRatio { get; set; } = 1;
     public float Opacity { get; set; } = 1;
+#if DEBUG
+    public bool DrawBox { get; set; }
+#endif
 
     public Letter() {
         Scale = NoScale;

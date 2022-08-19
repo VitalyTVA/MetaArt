@@ -265,6 +265,11 @@ namespace MetaArt.Skia {
             strokePaint.IsAntialias = false;
         }
 
+        public override void smooth() {
+            fillPaint.IsAntialias = true;
+            strokePaint.IsAntialias = true;
+        }
+
         class SkiaPixels : Pixels {
             readonly SKCanvas canvas;
             readonly SKImage image;

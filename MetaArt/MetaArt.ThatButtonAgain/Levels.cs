@@ -16,6 +16,62 @@ public class Level {
         this.levelIndex = levelIndex;
     }
 
+    static SKCanvas Canvas => Surface.Canvas;
+    static SKSurface Surface => ((MetaArt.Skia.SkiaGraphics)MetaArt.Internal.Graphics.GraphicsInstance).Surface;
+
+    sealed class IntersectionChecker : IIntersectionChecker {
+        readonly Vector2 size;
+        readonly float letterVerticalOffset;
+        readonly SKBitmap bmp;
+        readonly SKCanvas canvas;
+
+        public IntersectionChecker(Vector2 size, float letterVerticalOffset) {
+            this.size = size;
+            this.letterVerticalOffset = letterVerticalOffset;
+            bmp = new SKBitmap((int)size.X, (int)size.Y);
+            canvas = new SKCanvas(bmp);
+        }
+
+        bool IIntersectionChecker.Intersects((Rect, char)[] letters) {
+            noSmooth();
+            pushMatrix();
+            try {
+                scale(1, 1);
+                var canvasOffset = new SKPointI(100, 100);
+                fill(0);
+                rect(canvasOffset.X, canvasOffset.Y, size.X, size.Y);
+                foreach(var (rect, value) in letters) {
+                    pushMatrix();
+                    translate(rect.MidX + canvasOffset.X, rect.MidY + canvasOffset.Y);
+                    fill(255, 100);
+                    DrawLetter(value, letterVerticalOffset);
+                    popMatrix();
+
+                }
+                using var snapshot = Surface.Snapshot(SKRectI.Create(canvasOffset, new SKSizeI((int)size.X, (int)size.Y)));
+                canvas.Clear(SKColors.Black);
+                canvas.DrawImage(snapshot, new SKPoint(0.5f, 0.5f));
+                //Canvas.DrawImage(snapshot, new SKPoint(300.5f, 300.5f));
+                var pixels = bmp.Pixels;
+                for(int i = 0; i < pixels.Length; i++) {
+                    var color = pixels[i];
+                    if(color.Red != 0 && color.Red > 100) {
+                        return true;
+                    }
+                }
+            } finally {
+                popMatrix();
+                smooth();
+            }
+            return false;
+        }
+
+        void IDisposable.Dispose() {
+            canvas.Dispose();
+            bmp.Dispose();
+        }
+    }
+
     void setup() {
         if(deviceType() == DeviceType.Desktop)
             size(400, 700);
@@ -25,7 +81,8 @@ public class Level {
         controller = new GameController(
             width / displayDensity(),
             height / displayDensity(),
-            playSound: kind => sounds[kind].play()
+            playSound: kind => sounds[kind].play(),
+            createIntersectionChecker: size => new IntersectionChecker(size, controller.letterVerticalOffset)
         );
 
 
@@ -46,11 +103,16 @@ public class Level {
         controller.SetLevel(levelIndex);
     }
 
+    static void DrawLetter(char letter, float verticalOffset) {
+        textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
+        text(letter.ToString(), 0, -verticalOffset);
+    }
 
     void draw()
     {
-        controller.NextFrame(deltaTime);
         background(Colors.Background);
+        controller.NextFrame(deltaTime);
+
         scale(displayDensity(), displayDensity());
         foreach (var item in controller.scene.VisibleElements) {
             switch(item) {
@@ -64,10 +126,12 @@ public class Level {
                     break;
                 case Letter l:
                     noStroke();
-                    if(MathFEx.VectorsEqual(l.Scale, Letter.NoScale)) {
-                        fill(Colors.LetterDragBox);
+#if DEBUG
+                    if(l.DrawBox) {
+                        fill(new Color(120, 0, 0, 50));
                         rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     }
+#endif
                     pushMatrix();
                     translate(item.Rect.MidX, item.Rect.MidY);
                     scale(l.Scale.X, l.Scale.Y);
@@ -80,12 +144,8 @@ public class Level {
                         lerp(Colors.UIElementColor.Blue, Colors.LetterColor.Blue, l.ActiveRatio),
                         l.Opacity * 255
                     ));
-                    textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
-                    text(l.Value.ToString(), l.Offset.X, l.Offset.Y - controller.letterVerticalOffset);
-                    //if(l.Value == 'C') {
-                    //    scale(-1, 1);
-                    //    text(l.Value.ToString(), -6, -controller.letterVerticalOffset);
-                    //}
+                    translate(l.Offset.X, l.Offset.Y);
+                    DrawLetter(l.Value, controller.letterVerticalOffset);
                     popMatrix();
                     break;
                 case FadeOutElement f:
@@ -101,7 +161,7 @@ public class Level {
                     var matrix = SKMatrix.CreateScale(scaleX, scaleY);
                     pushMatrix();
                     translate(s.Rect.Left, s.Rect.Top);
-                    ((MetaArt.Skia.SkiaGraphics)MetaArt.Internal.Graphics.GraphicsInstance).Canvas.DrawPicture(svg.Picture, ref matrix);
+                    Canvas.DrawPicture(svg.Picture, ref matrix);
                     popMatrix();
                     break;
                 case PathElement p:
@@ -172,7 +232,6 @@ public class Level {
 
         public static Color LetterColor => Palette.AccentInfo;
         public static Color UIElementColor => Palette._600;
-        public static Color LetterDragBox => Color.Empty;//new Color(120, 0, 0, 10);
         public static Color Background => Palette._50;
         public static Color ButtonBackNormal => Palette._100;
         public static Color ButtonBackPressed => Palette._200;
