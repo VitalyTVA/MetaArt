@@ -939,7 +939,11 @@ namespace ThatButtonAgain {
             //    balls[i] = new Ball(MathFEx.Random(0, scene.width), MathFEx.Random(0, scene.height), MathFEx.Random(30, 70));
             //}
 
-            var button = CreateButton(StartNextLevelAnimation);
+            bool win = false;
+            var button = CreateButton(() => {
+                win = true;
+                StartNextLevelAnimation();
+            });
             button.IsEnabled = false;
             scene.AddElement(button);
             button.Rect = button.Rect.Offset(new Vector2(0, -button.Rect.Width / 2));
@@ -1047,7 +1051,7 @@ namespace ThatButtonAgain {
                     StartReloadLevelAnimation();
                     return false;
                 }
-                return true;
+                return !win;
             }).Start(animations);
         }
 
@@ -1323,6 +1327,7 @@ namespace ThatButtonAgain {
             levelIndex = Math.Min(level, Levels.Length - 1);
             
             scene.ClearElements();
+            animations.VerifyEmpty();
             int digitIndex = 0;
             foreach(var digit in (levelIndex != 10 ? levelIndex : 1).ToString()) {
                 var levelNumberElement = new Letter {

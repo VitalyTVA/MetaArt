@@ -105,5 +105,10 @@
                 item.Start(this);
             };
         }
+
+        internal void VerifyEmpty() {
+            if(animations.Any())
+                throw new InvalidOperationException();
+        }
     }
 }
