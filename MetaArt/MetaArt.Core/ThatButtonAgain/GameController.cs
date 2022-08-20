@@ -1077,14 +1077,23 @@ namespace ThatButtonAgain {
                 new[] { 2, 0, 1, -1, 0 },
                 new[] { -1, 0, 1, 0, 1 },
             };
-            */
-            //04
+            //04 medium
             var rotations = new[] {
                 new[] { 1, 0, 0, -2, 1 },
                 new[] { 0, -1, 2, 0, 0 },
                 new[] { -2, 0, 1, 0, 0 },
                 new[] { -1, 0, 0, 1, 0 },
                 new[] { 1, 0, 2, 0, -1 },
+            };
+            */
+
+            //01234
+            var rotations = new[] {
+                new[] { 1, 0, 0, -1, 0 },
+                new[] { 0, 1, 0, 0, -1 },
+                new[] { 0, -1, 1, 0, 0 },
+                new[] { 0, 0, 1, -1, 0 },
+                new[] { 1, 0, 0, 0, 1 },
             };
 
             static void VerifyPositiveAngle(Letter letter) {
