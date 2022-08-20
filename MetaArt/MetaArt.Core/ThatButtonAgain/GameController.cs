@@ -50,6 +50,7 @@ namespace ThatButtonAgain {
             RegisterLevel(x => x.Level_BouncyBalls()),
             RegisterLevel(x => x.Level_RotationsGroup2()),
             RegisterLevel(x => x.Level_RotatingArrow()),
+            RegisterLevel(x => x.Level_Calculator()),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("x => x.Level_", null).Replace("()", null));
@@ -1207,6 +1208,108 @@ namespace ThatButtonAgain {
             }.Start(animations);
         }
 
+        void Level_Calculator() {
+            var buttonRect = GetButtonRect().Offset(new Vector2(0, -letterDragBoxHeight));
+            var charToDigit = new Dictionary<char, int> {
+                {'O', 0},
+                {'I', 1},
+                {'L', 2},
+                {'K', 3},
+                {'H', 4},
+                {'C', 5},
+                {'U', 6},
+                {'T', 7},
+            };
+            var digitToChar = charToDigit.ToDictionary(x => x.Value, x => x.Key);
+            int StringToNumber(string s) => s
+                .Select((c, i) => (c, i: s.Length - 1 - i))
+                .Sum(x => charToDigit![x.c] * (1 << (x.i * 3)));
+            List<char> NumberToLetters(int n) {
+                var result = new List<char>(5);
+                do {
+                    result.Add(digitToChar![n % 8]);
+                    n /= 8;
+                } while (n > 0);
+                return result;
+            };
+
+            var click = StringToNumber("CLICK");
+            var touch = StringToNumber("TOUCH");
+            Debug.Assert(click + StringToNumber("IUCOI") == touch);
+
+            var clickLetters = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, buttonRect, row: -2);
+            }, "CLICK");
+            var answerLetters = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, buttonRect, row: -1);
+            }, "    O");
+            var signLetter = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(-1, buttonRect, row: -1.5f);
+            }, "+");
+            var touchLetters = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, buttonRect);
+            }, "     ");
+
+            int answer = 0;
+            Button button = null!;
+            void DisabledClick() {
+                button!.IsVisible = false;
+                answer = 0;
+                FillLetters(answerLetters!, 0);
+                FillLetters(touchLetters!, 0);
+                touchLetters.Last().Value = ' ';
+            }
+            button = CreateButton(StartNextLevelAnimation, () => DisabledClick());
+            button.IsVisible = false;
+            button.Rect = buttonRect;
+            scene.AddElementBehind(button);
+
+
+            void FillLetters(Letter[] letters, int number) {
+                var digits = NumberToLetters(number);
+                for(int i = 0; i < 5; i++) {
+                    letters[4 - i].Value = i < digits.Count ? digits[i] : ' ';
+                }
+            }
+
+            var digitLetters = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index % 3 + 1, button.Rect, row: index / 3 + 1.5f);
+                letter.ActiveRatio = 0;
+                letter.HitTestVisible = true;
+                if(letter.Value != '=')
+                    letter.Value = digitToChar[(byte)letter.Value - (byte)'0'];
+                letter.GetPressState = (startPoint, releaseState) => {
+                    return new TapInputState(
+                        letter,
+                        () => {
+                            if(button.IsVisible) {
+                                playSound(SoundKind.ErrorClick);
+                                return;
+                            }
+                            if(letter.Value != '=') {
+                                if(answerLetters[0].Value != ' ') {
+                                    playSound(SoundKind.ErrorClick);
+                                    return;
+                                }
+                                playSound(SoundKind.Tap);
+                                answer = answer * 8 + charToDigit[letter.Value];
+                                FillLetters(answerLetters, answer);
+                            } else {
+                                playSound(SoundKind.Tap);
+                                FillLetters(touchLetters, click + answer);
+                                button.IsVisible = true;
+                                button.IsEnabled = click + answer == touch;
+                            }
+                        },
+                        setState: isPressed => {
+                            letter.ActiveRatio = isPressed ? 1 : 0;
+                        },
+                        releaseState
+                    );
+                };
+            }, "56723401=");
+        }
+
         void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {
             new RotateAnimation {
                 Duration = Constants.RotateAroundLetterDuration,
@@ -1303,7 +1406,7 @@ namespace ThatButtonAgain {
                 .Select(index => GetLetterTargetRect(index, buttonRect).Location)
                 .ToArray();
 
-        Rect GetLetterTargetRect(int index, Rect buttonRect, bool squared = false, int row = 0) {
+        Rect GetLetterTargetRect(int index, Rect buttonRect, bool squared = false, float row = 0) {
             float height = squared ? letterDragBoxWidth : letterDragBoxHeight;
             return Rect.FromCenter(
                 buttonRect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
@@ -1311,16 +1414,16 @@ namespace ThatButtonAgain {
             ).Offset(new Vector2(0, row * height));
         }
 
-        Button CreateButton(Action click) {
+        Button CreateButton(Action click, Action? disabledClick = null) {
             var button = new Button {
                 Rect = GetButtonRect(),
                 HitTestVisible = true,
             };
-            button.GetPressState = GetClickHandler(click, button);
+            button.GetPressState = GetClickHandler(click, button, disabledClick);
             return button;
         }
 
-        Func<Vector2, NoInputState, InputState> GetClickHandler(Action click, Button button) {
+        Func<Vector2, NoInputState, InputState> GetClickHandler(Action click, Button button, Action? disabledClick = null) {
             return (startPoint, releaseState) => {
                 return new TapInputState(
                     button,
@@ -1332,8 +1435,10 @@ namespace ThatButtonAgain {
                         if(isPressed == button.IsPressed)
                             return;
                         button.IsPressed = isPressed;
-                        if(isPressed && !button.IsEnabled)
+                        if(isPressed && !button.IsEnabled) {
+                            disabledClick?.Invoke();
                             playSound(SoundKind.ErrorClick);
+                        }
                     },
                     releaseState
                 );
