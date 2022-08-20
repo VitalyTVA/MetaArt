@@ -172,7 +172,7 @@ public class Level {
 
         public static Color LetterColor => Palette.AccentInfo;
         public static Color UIElementColor => Palette._600;
-        public static Color LetterDragBox => Color.Empty;//new Color(120, 0, 0, 10);
+        public static Color LetterDragBox => Color.Empty; //new Color(120, 0, 0, 50);
         public static Color Background => Palette._50;
         public static Color ButtonBackNormal => Palette._100;
         public static Color ButtonBackPressed => Palette._200;

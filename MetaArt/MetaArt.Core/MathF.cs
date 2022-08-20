@@ -2,7 +2,7 @@
 
 namespace MetaArt.Core;
 public static class MathFEx {
-    public const float PI = (float)Math.PI;
+    public const float PI = (float)Math.PI; //TODO additional PI constants
     const float delta = 0.0002f;
     public static float Constrain(float amt, float low, float high) => Math.Min(Math.Max(amt, low), high);
     public static float Max(float v1, float v2) => Math.Max(v1, v2);

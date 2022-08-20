@@ -49,6 +49,7 @@ namespace ThatButtonAgain {
             RegisterLevel(x => x.Level_ReflectedC()),
             RegisterLevel(x => x.Level_BouncyBalls()),
             RegisterLevel(x => x.Level_RotationsGroup2()),
+            RegisterLevel(x => x.Level_RotatingArrow()),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("x => x.Level_", null).Replace("()", null));
@@ -448,8 +449,7 @@ namespace ThatButtonAgain {
                     var value = chars[j][i];
                     var letter = new Letter {
                         Value = value,
-                        Rect = GetLetterTargetRect(i - (letterCount - 5) / 2, buttonRect, squared: true)
-                            .Offset(new Vector2(0, (j - letterCount / 2) * letterDragBoxWidth)),
+                        Rect = GetLetterTargetRect(i - (letterCount - 5) / 2, buttonRect, squared: true, row: (j - letterCount / 2)),
                         HitTestVisible = true,
                         Scale = new Vector2(Constants.FindWordLetterScale),
                         ActiveRatio = 0,
@@ -475,8 +475,8 @@ namespace ThatButtonAgain {
                                         var (i, j) = GetLetterPosition(l);
                                         if(hovered.Count == 0
                                         || hovered.Count == 1
-                                        || (i == hovered[0].Item2 && i == hovered[0].Item2)
-                                        || (j == hovered[0].Item3 && j == hovered[0].Item3)
+                                        || ((j == hovered.Last().Item3 + 1 || j == hovered.Last().Item3 - 1) && i == hovered[0].Item2 && i == hovered.Last().Item2)
+                                        || ((i == hovered.Last().Item2 + 1 || i == hovered.Last().Item2 - 1) && j == hovered[0].Item3 && j == hovered.Last().Item3)
                                         ) {
                                             hovered.Add((l, i, j));
                                             l.ActiveRatio = 1;
@@ -779,7 +779,7 @@ namespace ThatButtonAgain {
             button.IsVisible = false;
             scene.AddElement(button);
 
-            var area = new Area();
+            var area = new Area(Area.CreateSwapHShapeArea());
             var letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(4 - index, button.Rect);
                 letter.HitTestVisible = true;
@@ -788,16 +788,13 @@ namespace ThatButtonAgain {
                         startPoint,
                         onDrag: delta => {
 
-                            int directionX = 0, directionY = 0;
                             Direction direction;
                             if(Math.Abs(delta.X) > Math.Abs(delta.Y)) {
                                 delta.Y = 0;
-                                directionX = Math.Sign(delta.X);
-                                direction = directionX > 0 ? Direction.Right : Direction.Left;
+                                direction = delta.X > 0 ? Direction.Right : Direction.Left;
                             } else {
                                 delta.X = 0;
-                                directionY = Math.Sign(delta.Y);
-                                direction = directionY > 0 ? Direction.Down : Direction.Up;
+                                direction = delta.Y > 0 ? Direction.Down : Direction.Up;
                             }
 
                             if(delta.Length() < GetSnapDistance())
@@ -806,16 +803,7 @@ namespace ThatButtonAgain {
                             if(!area.Move(letter.Value, direction))
                                 return true;
 
-                            var from = letter.Rect.Location;
-                            var to = letter.Rect.Location + new Vector2(letterHorzStep * directionX, letterDragBoxHeight * directionY);
-                            playSound(direction is Direction.Right or Direction.Down ? SoundKind.SwipeRight : SoundKind.SwipeLeft);
-                            var animation = new LerpAnimation<Vector2> {
-                                Duration = TimeSpan.FromMilliseconds(150),
-                                From = from,
-                                To = to,
-                                SetValue = val => letter.Rect = letter.Rect.SetLocation(val),
-                                Lerp = Vector2.Lerp,
-                            }.Start(animations, blockInput: true);
+                            StartLetterDirectionAnimation(letter, direction);
                             return false;
                         },
                         onRelease: delta => {
@@ -867,6 +855,26 @@ namespace ThatButtonAgain {
                     playSound(SoundKind.SuccessSwitch);
                 }
             }.Start(animations);
+        }
+
+        private void StartLetterDirectionAnimation(Letter letter, Direction direction) {
+            var (directionX, directionY) = direction switch {
+                Direction.Left => (-1, 0),
+                Direction.Right => (1, 0),
+                Direction.Up => (0, -1),
+                Direction.Down => (0, 1),
+                _ => throw new InvalidOperationException(),
+            };
+            var from = letter.Rect.Location;
+            var to = letter.Rect.Location + new Vector2(letterHorzStep * directionX, letterDragBoxHeight * directionY);
+            playSound(direction.GetSound());
+            var animation = new LerpAnimation<Vector2> {
+                Duration = TimeSpan.FromMilliseconds(150),
+                From = from,
+                To = to,
+                SetValue = val => letter.Rect = letter.Rect.SetLocation(val),
+                Lerp = Vector2.Lerp,
+            }.Start(animations, blockInput: true);
         }
 
         void Level_ReflectedC() {
@@ -1151,6 +1159,54 @@ namespace ThatButtonAgain {
             }.Start(animations);
         }
 
+        void Level_RotatingArrow() {
+            var button = CreateButton(StartNextLevelAnimation);
+            button.HitTestVisible = false;
+            scene.AddElement(button);
+
+            var direction = Direction.Right;
+
+            var arrow = new Letter {
+                Value = '>',
+                Rect = GetLetterTargetRect(2, button.Rect),
+                ActiveRatio = 0,
+                Angle = direction.ToAngle(),
+            };
+            arrow.Rect = arrow.Rect.SetLocation(new Vector2(arrow.Rect.Left, levelNumberElementRect.Top));
+            scene.AddElement(arrow);
+
+            var area = new Area(Area.CreateArrowDirectedLetters());
+            //HHTTHHTTCCOO
+            var letters = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(2, button.Rect, row: index - 2);
+                letter.HitTestVisible = true;
+                letter.GetPressState = Element.GetPressReleaseStateFactory(
+                    letter,
+                    onPress: () => {
+                        if(!area.Move(letter.Value, direction)) {
+                            playSound(SoundKind.Tap);
+                            return;
+                        }
+                        Debug.WriteLine(letter.Value);
+                        StartLetterDirectionAnimation(letter, direction);
+                        direction = direction.RotateCounterClockwize();
+                        arrow.Angle = direction.ToAngle();
+                    },
+                    onRelease: () => { }
+                );
+            });            
+
+
+            new WaitConditionAnimation(condition: GetAreLettersInPlaceCheck(button.Rect, letters)) {
+                End = () => {
+                    button.HitTestVisible = true;
+                    foreach(var item in letters) {
+                        item.HitTestVisible = false;
+                    }
+                }
+            }.Start(animations);
+        }
+
         void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {
             new RotateAnimation {
                 Duration = Constants.RotateAroundLetterDuration,
@@ -1247,11 +1303,13 @@ namespace ThatButtonAgain {
                 .Select(index => GetLetterTargetRect(index, buttonRect).Location)
                 .ToArray();
 
-        Rect GetLetterTargetRect(int index, Rect buttonRect, bool squared = false) =>
-            Rect.FromCenter(
+        Rect GetLetterTargetRect(int index, Rect buttonRect, bool squared = false, int row = 0) {
+            float height = squared ? letterDragBoxWidth : letterDragBoxHeight;
+            return Rect.FromCenter(
                 buttonRect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
-                new Vector2(letterDragBoxWidth, squared ? letterDragBoxWidth : letterDragBoxHeight)
-            );
+                new Vector2(letterDragBoxWidth, height)
+            ).Offset(new Vector2(0, row * height));
+        }
 
         Button CreateButton(Action click) {
             var button = new Button {
@@ -1375,18 +1433,63 @@ namespace ThatButtonAgain {
         }
     }
     public enum Direction { Left, Right, Up, Down }
+
+    public static class DirectionExtensions {
+        public static SoundKind GetSound(this Direction direction) 
+            => direction is Direction.Right or Direction.Down ? SoundKind.SwipeRight : SoundKind.SwipeLeft;
+
+        public static Direction RotateClockwize(this Direction direction) {
+            return direction switch {
+                Direction.Left => Direction.Up,
+                Direction.Right => Direction.Down,
+                Direction.Up => Direction.Right,
+                Direction.Down => Direction.Left,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+        public static Direction RotateCounterClockwize(this Direction direction) {
+            return direction switch {
+                Direction.Left => Direction.Down,
+                Direction.Right => Direction.Up,
+                Direction.Up => Direction.Left,
+                Direction.Down => Direction.Right,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+        public static float ToAngle(this Direction direction) {
+            return direction switch {
+                Direction.Left => MathFEx.PI,
+                Direction.Right => 0,
+                Direction.Up => 3 * MathFEx.PI / 2,
+                Direction.Down => MathFEx.PI / 2,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+    }
+
     public class Area {
         const char X = 'X';
         const char E = ' ';
 
-
-        char[][] area;
-        public Area() {
-            area = new char[][] {
+        public static char[][] CreateSwapHShapeArea() => 
+            new char[][] {
                 new[] { X, E, X, E, X  },
                 new[] { 'H', 'C', 'U', 'O', 'T' },
                 new[] { X, E, X, E, X  }
             };
+        public static char[][] CreateArrowDirectedLetters() =>
+            new char[][] {
+                new[] { E, E, 'T', E, E  },
+                new[] { E, E, 'O', E, E  },
+                new[] { E, E, 'U', E, E  },
+                new[] { E, E, 'C', E, E  },
+                new[] { E, E, 'H', E, E  },
+            };
+
+
+        readonly char[][] area;
+        public Area(char[][] area) {
+            this.area = area;
         }
         int Width => area[0].Length;
         int Height => area.Length;
