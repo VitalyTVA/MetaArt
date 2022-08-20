@@ -1087,6 +1087,11 @@ namespace ThatButtonAgain {
                 new[] { 1, 0, 2, 0, -1 },
             };
 
+            static void VerifyPositiveAngle(Letter letter) {
+                //TODO use logging
+                Debug.Assert(MathFEx.GreaterOrEqual(letter.Angle, 0), "Letter's angle is negative");
+            }
+
             void StartRotation(Letter letter, float delta) {
                 new LerpAnimation<float> {
                     Duration = TimeSpan.FromMilliseconds(300),
@@ -1095,7 +1100,8 @@ namespace ThatButtonAgain {
                     SetValue = val => letter.Angle = val,
                     Lerp = MathFEx.Lerp,
                     End = () => {
-                        letter.Angle = letter.Angle % (MathFEx.PI * 2);
+                        letter.Angle = (letter.Angle + MathFEx.PI * 2) % (MathFEx.PI * 2);
+                        VerifyPositiveAngle(letter);
                     }
                 }.Start(animations, blockInput: true);
             }
@@ -1104,7 +1110,7 @@ namespace ThatButtonAgain {
             letters = CreateLetters((letter, index) => {
                 letter.Rect = GetLetterTargetRect(index, button.Rect);
                 var onPress = () => {
-                    //Debug.WriteLine(index.ToString());
+                    Debug.WriteLine(index.ToString());
                     playSound(SoundKind.Rotate);
                     for(int i = 0; i < 5; i++) {
                         int rotation = rotations[index][i];
@@ -1121,9 +1127,11 @@ namespace ThatButtonAgain {
 
             new WaitConditionAnimation(
                 condition: delta => letters.All(l => {
-                    if(l.Value is 'O' or 'H' && MathFEx.FloatsEqual(MathFEx.PI, l.Angle))
+                    if(l.Value is 'O' or 'H' && (MathFEx.FloatsEqual(MathFEx.PI, l.Angle) || MathFEx.FloatsEqual(-MathFEx.PI, l.Angle))) {
+                        VerifyPositiveAngle(l);
                         return true;
-                    return MathFEx.FloatsEqual(0, l.Angle);
+                    }
+                    return MathFEx.FloatsEqual(0, l.Angle) || MathFEx.FloatsEqual(MathFEx.PI * 2, l.Angle);
                 })) { 
                 End = () => {
                     button.HitTestVisible = true;
