@@ -1187,7 +1187,7 @@ namespace ThatButtonAgain {
                             playSound(SoundKind.Tap);
                             return;
                         }
-                        Debug.WriteLine(letter.Value);
+                        //Debug.WriteLine(letter.Value);
                         StartLetterDirectionAnimation(letter, direction);
                         direction = direction.RotateCounterClockwize();
                         arrow.Angle = direction.ToAngle();
