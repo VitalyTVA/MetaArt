@@ -33,13 +33,13 @@ namespace ThatButtonAgain {
     }
     public class GameController {
         public static readonly (Action<GameController> action, string name)[] Levels = new [] {
-            RegisterLevel(x => x.Level_TrivialClick()),
-            RegisterLevel(x => x.Level_DragLettersOntoButton()),
+            RegisterLevel(Level_Touch.Load),
+            RegisterLevel(Level_DragLettersOntoButton.Load),
             RegisterLevel(Level_Capital.Load_16xClick),
-            RegisterLevel(x => x.Level_RotationsGroup()),
-            RegisterLevel(x => x.Level_LettersBehindButton()),
-            RegisterLevel(x => x.Level_ClickInsteadOfTouch()),
-            RegisterLevel(x => x.Level_RandomButton()),
+            RegisterLevel(Level_RotateAroundLetter.Load),
+            RegisterLevel(Level_LettersBehindButton.Load),
+            RegisterLevel(Level_ClickInsteadOfTouch.Load),
+            RegisterLevel(Level_RandomButton.Load),
             RegisterLevel(Level_ReflectedButton.Load),
             RegisterLevel(Level_Capital.Load_Mod2Vectors),
             RegisterLevel(Level_FindWord.Load),
@@ -55,7 +55,7 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_16Game.Load),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
-            return (action, name.Replace("x => x.Level_", null).Replace("()", null).Replace("Level_", null).Replace(".Load", null));
+            return (action, name.Replace("Level_", null).Replace(".Load", null));
         }
         public readonly Scene scene;
         internal readonly AnimationsController animations = new();
@@ -87,220 +87,10 @@ namespace ThatButtonAgain {
             animations.Next(TimeSpan.FromMilliseconds(deltaTime));
         }
 
-        void Level_TrivialClick() {
-            var button = CreateButton(StartNextLevelAnimation);
-            scene.AddElement(button);
-
-            CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, button.Rect);
-            });
-        }
-
-        void Level_DragLettersOntoButton() {
-            var button = CreateButton(StartNextLevelAnimation);
-            button.IsEnabled = false;
-            scene.AddElement(button);
-
-            var points = new[] {
-                (-2.1f, 2.3f),
-                (-1.5f, -2.7f),
-                (.7f, -1.5f),
-                (1.3f, 3.4f),
-                (2.3f, -3.4f),
-            };
-
-            var letters = CreateLetters((letter, index) => {
-                letter.Rect = Rect.FromCenter(
-                    new Vector2(button.Rect.MidX + letterDragBoxWidth * points[index].Item1, button.Rect.MidY + letterDragBoxHeight * points[index].Item2),
-                    new Vector2(letterDragBoxWidth, letterDragBoxHeight)
-                ).GetRestrictedRect(scene.Bounds);
-                MakeDraggableLetter(letter, index, button);
-            });
-            new WaitConditionAnimation(condition: GetAreLettersInPlaceCheck(button.Rect, letters)) { 
-                End = () => button.IsEnabled = true 
-            }.Start(this);
-        }
-
-        void Level_RotationsGroup() {
-            var button = CreateButton(StartNextLevelAnimation);
-            button.HitTestVisible = false;
-            scene.AddElement(button);
-
-            //01234
-            //21034
-            //21430
-            //41230
-            //43210
-            var indices = new[] { 4, 3, 2, 1, 0 };
-            Letter[] letters = null!;
-            letters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(indices[index], button.Rect);
-                var onPress = () => {
-                    var leftLetter = (letters!).OrderByDescending(x => x.Rect.Left).FirstOrDefault(x => MathFEx.Less(x.Rect.Left, letter.Rect.Left));
-                    var rightLetter = (letters!).OrderBy(x => x.Rect.Left).FirstOrDefault(x => MathFEx.Greater(x.Rect.Left, letter.Rect.Left));
-                    if(leftLetter == null || rightLetter == null)
-                        return;
-
-                    bool isCenter = MathFEx.VectorsEqual(letter.Rect.Mid, button.Rect.Mid);
-                    playSound(isCenter ? SoundKind.SwipeLeft : SoundKind.SwipeRight);
-                    if(isCenter) {
-                        AddRotateAnimation(letter, MathFEx.PI * 2, MathFEx.PI, rightLetter);
-                        AddRotateAnimation(letter, MathFEx.PI, 0, leftLetter);
-                    } else {
-                        AddRotateAnimation(letter, 0, MathFEx.PI, rightLetter);
-                        AddRotateAnimation(letter, MathFEx.PI, MathFEx.PI * 2, leftLetter);
-                    }
-                };
-                letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, () => { });
-                letter.HitTestVisible = true;
-            });
-
-            new WaitConditionAnimation(
-                condition: GetAreLettersInPlaceCheck(button.Rect, letters)) {
-                End = () => {
-                    button.HitTestVisible = true;
-                    foreach(var item in letters) {
-                        item.HitTestVisible = false;
-                    }
-                }
-            }.Start(this);
-        }
-
-        void Level_LettersBehindButton() {
-            var buttonRect = GetButtonRect();
-
-            var letters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, buttonRect);
-            });
-            (float, Vector2)? snapInfo = default;
-            float snapDistance = GetSnapDistance();
-            var dragableButton = new Button {
-                Rect = buttonRect,
-                IsEnabled = false,
-                HitTestVisible = true,
-            };
-            dragableButton.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
-                dragableButton,
-                () => snapDistance,
-                () => snapInfo,
-                OnElementSnap,
-                coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds.Inflate(dragableButton.Rect.Size * Constants.ButtonOutOfBoundDragRatio))
-            );
-
-            scene.AddElement(dragableButton);
-
-            new WaitConditionAnimation(
-                condition: deltaTime => letters.All(l => !l.Rect.Intersects(dragableButton.Rect))) {
-                    End = () => {
-                        scene.SendToBack(dragableButton);
-                        snapInfo = (snapDistance, buttonRect.Location);
-                        EnableButtonWhenInPlace(buttonRect, dragableButton);
-
-                    }
-            }.Start(game);
-        }
-
         GameController game => this;
 
         internal float GetSnapDistance() {
             return buttonHeight * Constants.ButtonAnchorDistanceRatio;
-        }
-
-        void Level_ClickInsteadOfTouch() {
-            var button = CreateButton(StartNextLevelAnimation);
-            button.HitTestVisible = false;
-            scene.AddElement(button);
-
-            var indices = new[] { 0, 4, 2, 1 };
-            int replaceIndex = 0;
-
-            var letters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, button.Rect);
-                letter.HitTestVisible = true;
-                AnimationBase animation = null!;
-                var onPress = () => {
-                    if(replaceIndex == indices.Length || indices[replaceIndex] != index)
-                        return;
-                    animation = new LerpAnimation<float>() {
-                        From = 1,
-                        To = 2,
-                        Duration = Constants.InflateButtonDuration,
-                        Lerp = MathFEx.Lerp,
-                        End = () => {
-                            letter.Value = "TOUCH"[index];
-                            letter.Scale = Letter.NoScale;
-                            letter.HitTestVisible = false;
-                            replaceIndex++;
-                            playSound(SoundKind.SuccessSwitch);
-                        },
-                        SetValue = value => letter.Scale = new Vector2(value, value)
-                    }.Start(game);
-                };
-                var onRelease = () => {
-                    animations.RemoveAnimation(animation);
-                    letter.Scale = Letter.NoScale;
-                };
-                letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, onRelease);
-
-            }, "CLICK");
-            new WaitConditionAnimation(
-                condition: deltaTime => replaceIndex == 4) {
-                    End = () => {
-                        button.HitTestVisible = true;
-                        foreach(var item in letters) {
-                            item.HitTestVisible = false;
-                        }
-                    }
-            }.Start(game);
-        }
-
-        void Level_RandomButton() {
-
-            var button = CreateButton(StartNextLevelAnimation);
-            scene.AddElement(button);
-            var letters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, button.Rect);
-            });
-
-            void SetVisibility(bool visible) {
-                button!.IsVisible = visible;
-                foreach(var letter in letters!) {
-                    letter.IsVisible = visible;
-                }
-            }
-
-            SetVisibility(false);
-
-            var appearInterval = Constants.MinButtonAppearInterval;
-
-            bool firstAppear = true;
-            float GetWaitTime() {
-                if(firstAppear) {
-                    firstAppear = false;
-                    return Constants.MinButtonInvisibleInterval * 2;
-                }
-                return MathFEx.Random(Constants.MinButtonInvisibleInterval, Constants.MaxButtonInvisibleInterval);   
-            }
-
-            void StartWaitButton() {
-                WaitConditionAnimation.WaitTime(
-                    TimeSpan.FromMilliseconds(GetWaitTime()),
-                    () => {
-                        SetVisibility(true);
-                        WaitConditionAnimation.WaitTime(
-                            TimeSpan.FromMilliseconds(appearInterval),
-                            () => {
-                                appearInterval = Math.Min(appearInterval + Constants.ButtonAppearIntervalIncrease, Constants.MaxButtonAppearInterval);
-                                SetVisibility(false);
-                                StartWaitButton();
-                            }
-                        ).Start(game);
-                    }
-                ).Start(game);
-            };
-
-            StartWaitButton();
-
         }
 
         internal void StartLetterDirectionAnimation(Letter letter, Direction direction) {
