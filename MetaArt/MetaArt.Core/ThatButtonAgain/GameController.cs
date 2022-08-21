@@ -52,22 +52,22 @@ namespace ThatButtonAgain {
             RegisterLevel(x => x.Level_RotationsGroup2()),
             RegisterLevel(x => x.Level_RotatingArrow()),
             RegisterLevel(x => x.Level_Calculator()),
-            RegisterLevel(x => x.Level_32Game()),
+            RegisterLevel(Level_16Game.Load),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
-            return (action, name.Replace("x => x.Level_", null).Replace("()", null));
+            return (action, name.Replace("x => x.Level_", null).Replace("()", null).Replace("Level_", null).Replace(".Load", null));
         }
         public readonly Scene scene;
-        readonly AnimationsController animations = new();
+        internal readonly AnimationsController animations = new();
 
         public readonly float letterVerticalOffset;
         readonly float buttonWidth;
         readonly float buttonHeight;
         public readonly float letterSize;
-        readonly float letterDragBoxHeight;
+        internal readonly float letterDragBoxHeight;
         readonly float letterDragBoxWidth;
         readonly float letterHorzStep;
-        readonly Action<SoundKind> playSound;
+        internal readonly Action<SoundKind> playSound;
 
         public GameController(float width, float height, Action<SoundKind> playSound) {
             scene = new Scene(width, height, () => animations.AllowInput);
@@ -118,7 +118,7 @@ namespace ThatButtonAgain {
             });
             new WaitConditionAnimation(condition: GetAreLettersInPlaceCheck(button.Rect, letters)) { 
                 End = () => button.IsEnabled = true 
-            }.Start(animations);
+            }.Start(this);
         }
 
         void Level_16xClick() {
@@ -167,7 +167,7 @@ namespace ThatButtonAgain {
                         item.HitTestVisible = false;
                     }
                 }
-            }.Start(animations);
+            }.Start(this);
         }
 
         void Level_LettersBehindButton() {
@@ -201,10 +201,12 @@ namespace ThatButtonAgain {
                         EnableButtonWhenInPlace(buttonRect, dragableButton);
 
                     }
-            }.Start(animations);
+            }.Start(game);
         }
 
-        float GetSnapDistance() {
+        GameController game => this;
+
+        internal float GetSnapDistance() {
             return buttonHeight * Constants.ButtonAnchorDistanceRatio;
         }
 
@@ -236,7 +238,7 @@ namespace ThatButtonAgain {
                             playSound(SoundKind.SuccessSwitch);
                         },
                         SetValue = value => letter.Scale = new Vector2(value, value)
-                    }.Start(animations);
+                    }.Start(game);
                 };
                 var onRelease = () => {
                     animations.RemoveAnimation(animation);
@@ -253,7 +255,7 @@ namespace ThatButtonAgain {
                             item.HitTestVisible = false;
                         }
                     }
-            }.Start(animations);
+            }.Start(game);
         }
 
         void Level_RandomButton() {
@@ -296,9 +298,9 @@ namespace ThatButtonAgain {
                                 SetVisibility(false);
                                 StartWaitButton();
                             }
-                        ).Start(animations);
+                        ).Start(game);
                     }
-                ).Start(animations);
+                ).Start(game);
             };
 
             StartWaitButton();
@@ -552,7 +554,7 @@ namespace ThatButtonAgain {
             });
             new WaitConditionAnimation(condition: GetAreLettersInPlaceCheck(button.Rect, letters)) { 
                 End = () => button.IsEnabled = true 
-            }.Start(animations);
+            }.Start(game);
         }
 
         void Level_11() {
@@ -738,7 +740,7 @@ namespace ThatButtonAgain {
                                             playSound(SoundKind.Snap);
                                         }
                                     }
-                                }.Start(animations, blockInput: true);
+                                }.Start(game, blockInput: true);
                             },
                             releaseState);
                     
@@ -849,7 +851,7 @@ namespace ThatButtonAgain {
                     }
                     playSound(SoundKind.SuccessSwitch);
                 }
-            }.Start(animations);
+            }.Start(game);
         }
 
         void StartLetterDirectionAnimation(Letter letter, Direction direction) {
@@ -869,7 +871,7 @@ namespace ThatButtonAgain {
                 To = to,
                 SetValue = val => letter.Rect = letter.Rect.SetLocation(val),
                 Lerp = Vector2.Lerp,
-            }.Start(animations, blockInput: true);
+            }.Start(game, blockInput: true);
         }
 
         void Level_ReflectedC() {
@@ -933,7 +935,7 @@ namespace ThatButtonAgain {
                 End = () => {
                     button.IsEnabled = true;
                 }
-            }.Start(animations);
+            }.Start(game);
         }
 
         void Level_BouncyBalls() {
@@ -1055,7 +1057,7 @@ namespace ThatButtonAgain {
                     return false;
                 }
                 return !win;
-            }).Start(animations);
+            }).Start(game);
         }
 
         void Level_RotationsGroup2() {
@@ -1115,7 +1117,7 @@ namespace ThatButtonAgain {
                         letter.Angle = (letter.Angle + MathFEx.PI * 2) % (MathFEx.PI * 2);
                         VerifyPositiveAngle(letter);
                     }
-                }.Start(animations, blockInput: true);
+                }.Start(game, blockInput: true);
             }
 
             Letter[] letters = null!;
@@ -1151,7 +1153,7 @@ namespace ThatButtonAgain {
                         item.HitTestVisible = false;
                     }
                 }
-            }.Start(animations);
+            }.Start(game);
         }
 
         void Level_RotatingArrow() {
@@ -1199,7 +1201,7 @@ namespace ThatButtonAgain {
                         item.HitTestVisible = false;
                     }
                 }
-            }.Start(animations);
+            }.Start(game);
         }
 
         void Level_Calculator() {
@@ -1304,155 +1306,6 @@ namespace ThatButtonAgain {
             }, "56723401=");
         }
 
-        void Level_32Game() {
-            var button = CreateButton(StartNextLevelAnimation);
-            button.IsEnabled = false;
-            button.Rect = button.Rect.Offset(new Vector2(0, -1.5f * letterDragBoxHeight));
-            scene.AddElement(button);
-
-            var buttonLetters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, button.Rect);
-                letter.IsVisible = false;
-            });
-
-            static char ToLetter(Game16<Letter>.Value value) =>
-                value switch {
-                    Game16<Letter>.Value.One => 'T',
-                    Game16<Letter>.Value.Two => 'O',
-                    Game16<Letter>.Value.Four => 'U',
-                    Game16<Letter>.Value.Eight => 'C',
-                    Game16<Letter>.Value.Sixteen => 'H',
-                    _ => throw new InvalidOperationException(),
-                };
-            static LetterStyle ToStyle(Game16<Letter>.Value value) =>
-                value switch {
-                    Game16<Letter>.Value.One => LetterStyle.Accent1,
-                    Game16<Letter>.Value.Two => LetterStyle.Accent2,
-                    Game16<Letter>.Value.Four => LetterStyle.Accent3,
-                    Game16<Letter>.Value.Eight => LetterStyle.Accent4,
-                    Game16<Letter>.Value.Sixteen => LetterStyle.Accent5,
-                    _ => throw new InvalidOperationException(),
-                };
-            Rect GetLetterRect(int row, int col) {
-                float size = 1f * letterSize;
-                return Rect.FromCenter(
-                    new Vector2(
-                        scene.width / 2 + size * (col + .5f - Game16<Letter>.size / 2f),
-                        scene.height / 2 + button.Rect.Height / 2 + size * row
-                    ),
-                    new Vector2(size)
-                );
-            }
-
-            var game = new Game16<Letter>();
-
-            void SpawnNewLetter() {
-                var letter = new Letter {
-                    Opacity = 0,
-                };
-                var spawn = game.SpawnNew(letter);
-                if(spawn == null) {
-                    GameOver();
-                } else {
-                    letter.Rect = GetLetterRect(spawn.Value.row, spawn.Value.col);
-                    letter.Value = ToLetter(spawn.Value.value);
-                    letter.Style = ToStyle(spawn.Value.value);
-
-                    letter.AddTo(scene);
-                    new LerpAnimation<float> {
-                        From = 0,
-                        To = 1,
-                        Duration = TimeSpan.FromMilliseconds(200),
-                        Lerp = MathFEx.Lerp,
-                        SetValue = value => letter.Opacity = value
-                    }.Start(animations);
-                }
-                foreach(var item in buttonLetters) {
-                    item.IsVisible = false;
-                }
-                foreach(var value in game.GetDistinctValues()) {
-                    var index = value switch {
-                        Game16<Letter>.Value.One => 0,
-                        Game16<Letter>.Value.Two => 1,
-                        Game16<Letter>.Value.Four => 2,
-                        Game16<Letter>.Value.Eight => 3,
-                        Game16<Letter>.Value.Sixteen => 4,
-                        _ => throw new InvalidOperationException(),
-                    };
-                    buttonLetters[index].IsVisible = true;
-                }
-            }
-            SpawnNewLetter();
-            SpawnNewLetter();
-
-            var inputHandler = new InputHandlerElement {
-                Rect = new Rect(0, button.Rect.Bottom, scene.width, scene.height),
-                GetPressState = (startPoint, releaseState) => {
-                    if(button.IsEnabled) {
-                        playSound(SoundKind.Tap);
-                        return releaseState;
-                    }
-                    return new DragInputState(
-                        startPoint,
-                        onDrag: delta => {
-                            var direction = DirectionExtensions.GetSwipeDirection(ref delta, GetSnapDistance());
-
-                            if(direction == null)
-                                return true;
-                            playSound(direction.Value.GetSound());
-                            var moves = game.Swipe(direction.Value);
-                            var duration = TimeSpan.FromMilliseconds(100);
-                            var celebrated = false;
-                            foreach(var move in moves) {
-                                if(move.value == null) {
-                                    scene.RemoveElement(move.element);
-                                } else {
-                                    if(move.value.Value > Game16<Letter>.Value.Sixteen) {
-                                        GameOver();
-                                        break;
-                                    }
-                                    if(move.merged && !celebrated) {
-                                        playSound(SoundKind.Merge);
-                                        celebrated = true;
-                                    }
-                                    var newValue = move.value.Value;
-                                    var animation = new LerpAnimation<Vector2> {
-                                        Duration = duration,
-                                        From = move.element.Rect.Location,
-                                        To = GetLetterRect(move.row, move.col).Location,
-                                        SetValue = val => move.element.Rect = move.element.Rect.SetLocation(val),
-                                        Lerp = Vector2.Lerp,
-                                        End = () => {
-                                            move.element.Value = ToLetter(newValue);
-                                            move.element.Style = ToStyle(newValue);
-
-                                        },
-                                    }.Start(animations, blockInput: true);
-                                }
-                            }
-                            WaitConditionAnimation.WaitTime(duration, () => {
-                                SpawnNewLetter();
-                                if(buttonLetters.All(x => x.IsVisible)) {
-                                    playSound(SoundKind.SuccessSwitch);
-                                    button.IsEnabled = true;
-                                } else {
-                                }
-                            }).Start(animations);
-                            return false;
-                        },
-                        onRelease: delta => { },
-                        releaseState
-                    );
-                }
-
-            }.AddTo(scene);
-
-            void GameOver() {
-                playSound(SoundKind.BrakeBall);
-                StartReloadLevelAnimation();
-            }
-        }
-
         void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {
             new RotateAnimation {
                 Duration = Constants.RotateAroundLetterDuration,
@@ -1463,7 +1316,7 @@ namespace ThatButtonAgain {
                 SetLocation = center => {
                     sideLetter.Rect = Rect.FromCenter(center, sideLetter.Rect.Size);
                 }
-            }.Start(animations, blockInput: true);
+            }.Start(game, blockInput: true);
         }
 
         void MakeDraggableLetter(Letter letter, int index, Button button, Action? onMove = null) {
@@ -1536,7 +1389,7 @@ namespace ThatButtonAgain {
                         dragableButton.IsEnabled = true;
                         dragableButton.GetPressState = GetClickHandler(StartNextLevelAnimation, dragableButton);
                     }
-            }.Start(animations);
+            }.Start(game);
         }
 
         Func<TimeSpan, bool> GetAreLettersInPlaceCheck(Rect buttonRect, Letter[] letters) {
@@ -1549,7 +1402,7 @@ namespace ThatButtonAgain {
                 .Select(index => GetLetterTargetRect(index, buttonRect).Location)
                 .ToArray();
 
-        Rect GetLetterTargetRect(int index, Rect buttonRect, bool squared = false, float row = 0) {
+        internal Rect GetLetterTargetRect(int index, Rect buttonRect, bool squared = false, float row = 0) {
             float height = squared ? letterDragBoxWidth : letterDragBoxHeight;
             return Rect.FromCenter(
                 buttonRect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
@@ -1557,7 +1410,7 @@ namespace ThatButtonAgain {
             ).Offset(new Vector2(0, row * height));
         }
 
-        Button CreateButton(Action click, Action? disabledClick = null) {
+        internal Button CreateButton(Action click, Action? disabledClick = null) {
             var button = new Button {
                 Rect = GetButtonRect(),
                 HitTestVisible = true,
@@ -1609,10 +1462,10 @@ namespace ThatButtonAgain {
                     scene.RemoveElement(element);
                     end();
                 }
-            }.Start(animations);
+            }.Start(game);
             scene.AddElement(element);
         }
-        void StartNextLevelAnimation() {
+        internal void StartNextLevelAnimation() {
             StartFade(0, 255, () => SetLevel(levelIndex + 1), Constants.FadeOutDuration);
             playSound(SoundKind.Win1);
         }
@@ -1620,7 +1473,7 @@ namespace ThatButtonAgain {
             StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutDuration);
             playSound(SoundKind.Win1);
         }
-        void StartReloadLevelAnimation() {
+        internal void StartReloadLevelAnimation() {
             StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutDuration);
             //playSound(SoundKind.BrakeBall);
         }
@@ -1629,7 +1482,7 @@ namespace ThatButtonAgain {
             playSound(SoundKind.Cthulhu);
         }
 
-        Letter[] CreateLetters(Action<Letter, int> setUp, string word = "TOUCH") {
+        internal Letter[] CreateLetters(Action<Letter, int> setUp, string word = "TOUCH") {
             int index = 0;
             var letters = new Letter[word.Length];
             foreach(var value in word) {
@@ -1679,6 +1532,20 @@ namespace ThatButtonAgain {
             letter.Scale = new Vector2(Constants.LevelLetterRatio);
 
         }
+
+        internal float width => scene.width;
+        internal float height => scene.height;
+    }
+
+    public static class ElementExtensions {
+        public static TElement AddTo<TElement>(this TElement element, GameController game) where TElement : Element {
+            game.scene.AddElement(element);
+            return element;
+        }
+        public static AnimationBase Start(this AnimationBase animation, GameController game, bool blockInput = false) {
+            game.animations.AddAnimation(animation, blockInput);
+            return animation;
+        }
     }
     public enum Direction { Left, Right, Up, Down }
 
@@ -1726,108 +1593,6 @@ namespace ThatButtonAgain {
             if(delta.Length() < minLength)
                 return null;
             return direction;
-        }
-    }
-
-    public sealed class Game16<T> {
-        public enum Value {
-            One = 1,
-            Two = 2,
-            Four = 4,
-            Eight = 8,
-            Sixteen = 16,
-        }
-        public record struct Cell(Value value, T element);
-        public record struct Move(int row, int col, T element, Value? value, bool merged); 
-
-        public const int size = 4;
-        const int lastIndex = size - 1;
-        Cell?[,] values;
-        Random random = new Random(0);
-
-        public Game16() {
-            values = new Cell?[size, size];
-        }
-
-        internal IEnumerable<Move> Swipe(Direction direction) {
-            var moves = new List<Move>(size);
-            var deletes = new List<T>(size);
-            void CollectMoves(int row, int col, int newRow, int newCol) {
-                var cell = values[row, col];
-                values[row, col] = null;
-                if(cell != null) {
-                    if(moves.Any() && moves.Last().value == cell.Value.value && !moves.Last().merged) {
-                        var last = moves.Last();
-                        moves![moves.Count - 1] = last with { 
-                            value = (Value)((int)last.value!.Value << 1),
-                            merged = true,
-                        };
-                        deletes!.Add(cell.Value.element);
-                    } else {
-                        moves!.Add(new Move(newRow, newCol, cell.Value.element, cell.Value.value, merged: false));
-                    }
-                }
-            };
-            IEnumerable<Move> YieldMoves() {
-                foreach(var item in moves) {
-                    values[item.row, item.col] = new Cell(item.value!.Value, item.element);
-                    yield return item;
-                }
-                foreach(var item in deletes) {
-                    yield return new Move(-1, -1, item, null, false);
-                }
-                moves.Clear();
-                deletes.Clear();
-            }
-            if(direction is Direction.Right or Direction.Left) {
-                for(int row = 0; row < size; row++) {
-                    var forward = direction is Direction.Left;
-                    for(int col = forward ? 0 : lastIndex; forward ? col < size : col >= 0; col += (forward ? 1 : -1)) {
-                        CollectMoves(row, col, row, forward ? moves.Count : lastIndex - moves.Count);
-                    }
-                    foreach(var item in YieldMoves()) {
-                        yield return item;
-                    }
-                }
-            } else {
-                for(int col = 0; col < size; col++) {
-                    var forward = direction is Direction.Up;
-                    for(int row = forward ? 0 : lastIndex; forward ? row < size : row >= 0; row += (forward ? 1 : -1)) {
-                        CollectMoves(row, col, forward ? moves.Count : lastIndex - moves.Count, col);
-                    }
-                    foreach(var item in YieldMoves()) {
-                        yield return item;
-                    }
-                }
-            }
-        }
-
-        public (int row, int col, Value value)? SpawnNew(T element) {
-            var emptyCells = new List<(int row, int col)>(size * size);
-            for(int row = 0; row < size; row++) {
-                for(int col = 0; col < size; col++) {
-                    if(values[row, col] == null)
-                        emptyCells.Add((row, col));
-                }
-            }
-            if(!emptyCells.Any())
-                return null;
-            int index = random.Next(0, emptyCells.Count);
-            var newValue = random.Next(0, 2) == 1 ? Value.One : Value.Two;
-            values[emptyCells[index].row, emptyCells[index].col] = new Cell(newValue, element);
-            return (emptyCells[index].row, emptyCells[index].col, newValue);
-        }
-
-        public List<Value> GetDistinctValues() {
-            var result = new List<Value>();
-            for(int row = 0; row < size; row++) {
-                for(int col = 0; col < size; col++) {
-                    var value = values[row, col]?.value;
-                    if(value != null && !result.Contains(value.Value))
-                        result.Add(value.Value);
-                }
-            }
-            return result;
         }
     }
 

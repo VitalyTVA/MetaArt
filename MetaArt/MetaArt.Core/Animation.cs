@@ -2,10 +2,6 @@
     public abstract class AnimationBase {
         public abstract bool Next(TimeSpan deltaTime);
         public Action? End { get; init; }
-        public AnimationBase Start(AnimationsController controller, bool blockInput = false) {
-            controller.AddAnimation(this, blockInput);
-            return this;
-        }
     }
     public sealed class DelegateAnimation : AnimationBase {
         readonly Func<TimeSpan, bool> next;
@@ -102,7 +98,7 @@
 
         public void AddAnimations(IEnumerable<AnimationBase> animations) {
             foreach(var item in animations) {
-                item.Start(this);
+                AddAnimation(item, blockInput: false);
             };
         }
 

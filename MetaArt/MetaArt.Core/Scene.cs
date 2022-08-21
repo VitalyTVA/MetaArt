@@ -153,13 +153,6 @@ public abstract class Element {
     public Func<Vector2, NoInputState, InputState>? GetPressState { get; set; }
 }
 
-public static class ElementExtensions {
-    public static TElement AddTo<TElement>(this TElement element, Scene scene) where TElement : Element {
-        scene.AddElement(element);
-        return element;
-    }
-}
-
 public class SvgElement : Element {
     public readonly SvgKind Kind;
 
