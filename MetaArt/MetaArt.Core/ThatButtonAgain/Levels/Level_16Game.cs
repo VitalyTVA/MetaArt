@@ -67,7 +67,7 @@ namespace ThatButtonAgain {
                 Rect = new Rect(0, button.Rect.Bottom, game.width, game.height),
                 GetPressState = (startPoint, releaseState) => {
                     if(button.IsEnabled) {
-                        game.playSound(SoundKind.Tap);
+                        game.playSound(SoundKind.ErrorClick);
                         return releaseState;
                     }
                     return new DragInputState(

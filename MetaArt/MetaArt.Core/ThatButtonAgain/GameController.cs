@@ -48,10 +48,10 @@ namespace ThatButtonAgain {
             RegisterLevel(x => x.Level_ScrollLetters()),
             RegisterLevel(x => x.Level_ReorderLetters()),
             RegisterLevel(x => x.Level_ReflectedC()),
-            RegisterLevel(x => x.Level_BouncyBalls()),
-            RegisterLevel(x => x.Level_RotationsGroup2()),
-            RegisterLevel(x => x.Level_RotatingArrow()),
-            RegisterLevel(x => x.Level_Calculator()),
+            RegisterLevel(Level_BouncyBalls.Load),
+            RegisterLevel(Level_RotatingLetters.Load),
+            RegisterLevel(Level_RotatingArrow.Load),
+            RegisterLevel(Level_Calculator.Load),
             RegisterLevel(Level_16Game.Load),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
@@ -61,11 +61,11 @@ namespace ThatButtonAgain {
         internal readonly AnimationsController animations = new();
 
         public readonly float letterVerticalOffset;
-        readonly float buttonWidth;
+        internal readonly float buttonWidth;
         readonly float buttonHeight;
         public readonly float letterSize;
         internal readonly float letterDragBoxHeight;
-        readonly float letterDragBoxWidth;
+        internal readonly float letterDragBoxWidth;
         readonly float letterHorzStep;
         internal readonly Action<SoundKind> playSound;
 
@@ -854,7 +854,7 @@ namespace ThatButtonAgain {
             }.Start(game);
         }
 
-        void StartLetterDirectionAnimation(Letter letter, Direction direction) {
+        internal void StartLetterDirectionAnimation(Letter letter, Direction direction) {
             var (directionX, directionY) = direction switch {
                 Direction.Left => (-1, 0),
                 Direction.Right => (1, 0),
@@ -936,374 +936,6 @@ namespace ThatButtonAgain {
                     button.IsEnabled = true;
                 }
             }.Start(game);
-        }
-
-        void Level_BouncyBalls() {
-            //var balls = new Ball[12];
-            //for(int i = 0; i < balls.Length; i++) {
-            //    balls[i] = new Ball(MathFEx.Random(0, scene.width), MathFEx.Random(0, scene.height), MathFEx.Random(30, 70));
-            //}
-
-            bool win = false;
-            var button = CreateButton(() => {
-                win = true;
-                StartNextLevelAnimation();
-            });
-            button.IsEnabled = false;
-            scene.AddElement(button);
-            button.Rect = button.Rect.Offset(new Vector2(0, -button.Rect.Width / 2));
-
-            var hitBallLocation = new Vector2(button.Rect.MidX, scene.height - button.Rect.Width * .7f);
-            var spring = new Spring { From = hitBallLocation, To = hitBallLocation };
-            scene.AddElement(spring);
-
-            var letters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, button.Rect);
-                letter.Scale = new Vector2(.65f);
-            });
-            letters[1].IsVisible = false;
-
-            Ball oBall = null!;
-            var diameter = letterDragBoxWidth * .7f;
-            var simulation = new BallsSimulation(size: null, gravity: 0, onHit: (b1, b2) => {
-                if(b1 == oBall || b2 == oBall) {
-                    b1.Element().Broken = true;
-                    b2.Element().Broken = true;
-                    playSound(SoundKind.BrakeBall);
-                } else {
-                    playSound(SoundKind.Tap);
-                }
-            });
-            List<Ball> balls = new();
-            Ball CreateBall(Vector2 center) {
-                var ball = new Ball(new BallElement { Rect = Rect.FromCenter(center, new Vector2(diameter)) }, diameter) {
-                    x = center.X, 
-                    y = center.Y, 
-                };
-                balls.Add(ball);
-                scene.AddElement(ball.Element());
-                return ball;
-            }
-
-            foreach(var item in letters) {
-                simulation.AddBall(CreateBall(item.Rect.Mid));
-            }
-
-            oBall = balls[1];
-            var oBallLocation = oBall.Element().Rect.Location;
-
-            void SetLocation(Ball ball, Vector2 location) {
-                ball.x = location.X;
-                ball.y = location.Y;
-                ball.Element().Rect = Rect.FromCenter(location, ball.Element().Rect.Size);
-            }
-
-            float maxSpringLength = buttonWidth * 0.5f; 
-
-            void CreateHitBall() {
-                var hitBall = CreateBall(hitBallLocation);
-                hitBall.Element().HitTestVisible = true;
-                var startLocation = hitBall.Element().Rect.Mid;
-                hitBall.Element().GetPressState = (starPoint, releaseState) => {
-                    return new DragInputState(
-                        starPoint,
-                        onDrag: delta => {
-                            var deltaLength = delta.Length();
-                            if(MathFEx.Greater(deltaLength, 0))
-                                delta *= MathFEx.Min(maxSpringLength, deltaLength) / deltaLength;
-                            SetLocation(hitBall, startLocation + delta);
-                            spring.To = hitBall.Element().Rect.Mid;
-                            return true;
-                        },
-                        onRelease: delta => {
-                            spring.To = spring.From;
-                            if(delta.Length() > GetSnapDistance()) {
-                                delta = -delta * .15f;
-                                hitBall.vx = delta.X;
-                                hitBall.vy = delta.Y;
-                                hitBall.Element().GetPressState = null;
-                                simulation.AddBall(hitBall);
-                            } else {
-                                SetLocation(hitBall, startLocation);
-                            }
-                        },
-                        releaseState);
-
-                };
-            }
-
-            CreateHitBall();
-
-            var toRemove = new List<(Ball, BallElement)>();
-            new DelegateAnimation(deltaTime => {
-                simulation.NextFrame();
-                foreach(var ball in balls) {
-                    SetLocation(ball, new Vector2(ball.x, ball.y));
-                    if(!ball.Element().Rect.Intersects(new Rect(0, 0, scene.width, scene.height)))
-                        toRemove.Add((ball, ball.Element()));
-                }
-                foreach(var (ball, element) in toRemove) {
-                    balls.Remove(ball);
-                    scene.RemoveElement(ball.Element());
-                    simulation.RemoveBall(ball);
-                }
-                toRemove.Clear();
-                var reloadArea = Rect.FromCenter(hitBallLocation, new Vector2(maxSpringLength + diameter) * 2);
-                if(!balls.Any(x => reloadArea.Intersects(x.Element().Rect)))
-                    CreateHitBall();
-                button.IsEnabled = !balls.Any(x => x != oBall && button.Rect.Intersects(x.Element().Rect));
-                if(!MathFEx.VectorsEqual(oBallLocation, oBall.Element().Rect.Location)) {
-                    StartReloadLevelAnimation();
-                    return false;
-                }
-                return !win;
-            }).Start(game);
-        }
-
-        void Level_RotationsGroup2() {
-            var button = CreateButton(StartNextLevelAnimation);
-            button.HitTestVisible = false;
-            scene.AddElement(button);
-
-            /*
-            //002233 medium - hard
-            var rotations = new[] {
-                new[] { 1, 0, 0, -2, 0 },
-                new[] { 0, 2, 0, -1, 1 },
-                new[] { -2, 0, 1, 0, 1 },
-                new[] { 0, -1, 0, 1, 0 },
-                new[] { 1, -2, 0, 0, 1 },
-            };
-            //0144 hard
-            var rotations = new[] {
-                new[] { 1, -1, 0, -2, 0 },
-                new[] { -1, 1, 0, 0, 0 },
-                new[] { 2, 0, -1, 0, -1 },
-                new[] { 2, 0, 1, -1, 0 },
-                new[] { -1, 0, 1, 0, 1 },
-            };
-            //04 medium
-            var rotations = new[] {
-                new[] { 1, 0, 0, -2, 1 },
-                new[] { 0, -1, 2, 0, 0 },
-                new[] { -2, 0, 1, 0, 0 },
-                new[] { -1, 0, 0, 1, 0 },
-                new[] { 1, 0, 2, 0, -1 },
-            };
-            */
-
-            //01234
-            var rotations = new[] {
-                new[] { 1, 0, 0, -1, 0 },
-                new[] { 0, 1, 0, 0, -1 },
-                new[] { 0, -1, 1, 0, 0 },
-                new[] { 0, 0, 1, -1, 0 },
-                new[] { 1, 0, 0, 0, 1 },
-            };
-
-            static void VerifyPositiveAngle(Letter letter) {
-                //TODO use logging
-                Debug.Assert(MathFEx.GreaterOrEqual(letter.Angle, 0), "Letter's angle is negative");
-            }
-
-            void StartRotation(Letter letter, float delta) {
-                new LerpAnimation<float> {
-                    Duration = TimeSpan.FromMilliseconds(300),
-                    From = letter.Angle,
-                    To = letter.Angle + delta,
-                    SetValue = val => letter.Angle = val,
-                    Lerp = MathFEx.Lerp,
-                    End = () => {
-                        letter.Angle = (letter.Angle + MathFEx.PI * 2) % (MathFEx.PI * 2);
-                        VerifyPositiveAngle(letter);
-                    }
-                }.Start(game, blockInput: true);
-            }
-
-            Letter[] letters = null!;
-            letters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, button.Rect);
-                var onPress = () => {
-                    Debug.WriteLine(index.ToString());
-                    playSound(SoundKind.Rotate);
-                    for(int i = 0; i < 5; i++) {
-                        int rotation = rotations[index][i];
-                        if(rotation != 0) {
-                            StartRotation(letters[i], rotation * MathFEx.PI / 2);
-
-                        }
-                    }
-                };
-                letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, () => { });
-                letter.HitTestVisible = true;
-                letter.Angle = MathFEx.PI;
-            });
-
-            new WaitConditionAnimation(
-                condition: delta => letters.All(l => {
-                    if(l.Value is 'O' or 'H' && (MathFEx.FloatsEqual(MathFEx.PI, l.Angle) || MathFEx.FloatsEqual(-MathFEx.PI, l.Angle))) {
-                        VerifyPositiveAngle(l);
-                        return true;
-                    }
-                    return MathFEx.FloatsEqual(0, l.Angle) || MathFEx.FloatsEqual(MathFEx.PI * 2, l.Angle);
-                })) { 
-                End = () => {
-                    button.HitTestVisible = true;
-                    foreach(var item in letters) {
-                        item.HitTestVisible = false;
-                    }
-                }
-            }.Start(game);
-        }
-
-        void Level_RotatingArrow() {
-            var button = CreateButton(StartNextLevelAnimation);
-            button.HitTestVisible = false;
-            scene.AddElement(button);
-
-            var direction = Direction.Right;
-
-            var arrow = new Letter {
-                Value = '>',
-                Rect = GetLetterTargetRect(2, button.Rect),
-                ActiveRatio = 0,
-                Angle = direction.ToAngle(),
-            };
-            arrow.Rect = arrow.Rect.SetLocation(new Vector2(arrow.Rect.Left, levelNumberElementRect.Top));
-            scene.AddElement(arrow);
-
-            var area = new Area(Area.CreateArrowDirectedLetters());
-            //HHTTHHTTCCOO
-            var letters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(2, button.Rect, row: index - 2);
-                letter.HitTestVisible = true;
-                letter.GetPressState = Element.GetPressReleaseStateFactory(
-                    letter,
-                    onPress: () => {
-                        if(!area.Move(letter.Value, direction)) {
-                            playSound(SoundKind.Tap);
-                            return;
-                        }
-                        //Debug.WriteLine(letter.Value);
-                        StartLetterDirectionAnimation(letter, direction);
-                        direction = direction.RotateCounterClockwize();
-                        arrow.Angle = direction.ToAngle();
-                    },
-                    onRelease: () => { }
-                );
-            });            
-
-
-            new WaitConditionAnimation(condition: GetAreLettersInPlaceCheck(button.Rect, letters)) {
-                End = () => {
-                    button.HitTestVisible = true;
-                    foreach(var item in letters) {
-                        item.HitTestVisible = false;
-                    }
-                }
-            }.Start(game);
-        }
-
-        void Level_Calculator() {
-            var buttonRect = GetButtonRect().Offset(new Vector2(0, -letterDragBoxHeight));
-            var charToDigit = new Dictionary<char, int> {
-                {'O', 0},
-                {'I', 1},
-                {'L', 2},
-                {'K', 3},
-                {'H', 4},
-                {'C', 5},
-                {'U', 6},
-                {'T', 7},
-            };
-            var digitToChar = charToDigit.ToDictionary(x => x.Value, x => x.Key);
-            int StringToNumber(string s) => s
-                .Select((c, i) => (c, i: s.Length - 1 - i))
-                .Sum(x => charToDigit![x.c] * (1 << (x.i * 3)));
-            List<char> NumberToLetters(int n) {
-                var result = new List<char>(5);
-                do {
-                    result.Add(digitToChar![n % 8]);
-                    n /= 8;
-                } while (n > 0);
-                return result;
-            };
-
-            var click = StringToNumber("CLICK");
-            var touch = StringToNumber("TOUCH");
-            Debug.Assert(click + StringToNumber("IUCOI") == touch);
-
-            var clickLetters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, buttonRect, row: -2);
-            }, "CLICK");
-            var answerLetters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, buttonRect, row: -1);
-            }, "    O");
-            var signLetter = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(-1, buttonRect, row: -1.5f);
-            }, "+");
-            var touchLetters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, buttonRect);
-            }, "     ");
-
-            int answer = 0;
-            Button button = null!;
-            void DisabledClick() {
-                button!.IsVisible = false;
-                answer = 0;
-                FillLetters(answerLetters!, 0);
-                FillLetters(touchLetters!, 0);
-                touchLetters.Last().Value = ' ';
-            }
-            button = CreateButton(StartNextLevelAnimation, () => DisabledClick());
-            button.IsVisible = false;
-            button.Rect = buttonRect;
-            scene.AddElementBehind(button);
-
-
-            void FillLetters(Letter[] letters, int number) {
-                var digits = NumberToLetters(number);
-                for(int i = 0; i < 5; i++) {
-                    letters[4 - i].Value = i < digits.Count ? digits[i] : ' ';
-                }
-            }
-
-            var digitLetters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index % 3 + 1, button.Rect, row: index / 3 + 1.5f);
-                letter.ActiveRatio = 0;
-                letter.HitTestVisible = true;
-                if(letter.Value != '=')
-                    letter.Value = digitToChar[(byte)letter.Value - (byte)'0'];
-                letter.GetPressState = (startPoint, releaseState) => {
-                    return new TapInputState(
-                        letter,
-                        () => {
-                            if(button.IsVisible) {
-                                playSound(SoundKind.ErrorClick);
-                                return;
-                            }
-                            if(letter.Value != '=') {
-                                if(answerLetters[0].Value != ' ') {
-                                    playSound(SoundKind.ErrorClick);
-                                    return;
-                                }
-                                playSound(SoundKind.Tap);
-                                answer = answer * 8 + charToDigit[letter.Value];
-                                FillLetters(answerLetters, answer);
-                            } else {
-                                playSound(SoundKind.Tap);
-                                FillLetters(touchLetters, click + answer);
-                                button.IsVisible = true;
-                                button.IsEnabled = click + answer == touch;
-                            }
-                        },
-                        setState: isPressed => {
-                            letter.ActiveRatio = isPressed ? 1 : 0;
-                        },
-                        releaseState
-                    );
-                };
-            }, "56723401=");
         }
 
         void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {
@@ -1392,7 +1024,7 @@ namespace ThatButtonAgain {
             }.Start(game);
         }
 
-        Func<TimeSpan, bool> GetAreLettersInPlaceCheck(Rect buttonRect, Letter[] letters) {
+        internal Func<TimeSpan, bool> GetAreLettersInPlaceCheck(Rect buttonRect, Letter[] letters) {
             var targetLocations = GetLettersTargetLocations(buttonRect);
             return deltaTime => letters.Select((l, i) => (l, i)).All(x => MathFEx.VectorsEqual(x.l.Rect.Location, targetLocations[x.i]));
         }
@@ -1441,7 +1073,7 @@ namespace ThatButtonAgain {
             };
         }
 
-        Rect GetButtonRect() {
+        internal Rect GetButtonRect() {
             return new Rect(
                                         scene.width / 2 - buttonWidth / 2,
                                         scene.height / 2 - buttonHeight / 2,
@@ -1498,7 +1130,7 @@ namespace ThatButtonAgain {
         }
 
         int levelIndex = 0;
-        Rect levelNumberElementRect;
+        internal Rect levelNumberElementRect;
         public void SetLevel(int level) {
             levelIndex = Math.Min(level, Levels.Length - 1);
             
@@ -1536,7 +1168,6 @@ namespace ThatButtonAgain {
         internal float width => scene.width;
         internal float height => scene.height;
     }
-
     public static class ElementExtensions {
         public static TElement AddTo<TElement>(this TElement element, GameController game) where TElement : Element {
             game.scene.AddElement(element);
