@@ -153,6 +153,13 @@ public abstract class Element {
     public Func<Vector2, NoInputState, InputState>? GetPressState { get; set; }
 }
 
+public static class ElementExtensions {
+    public static TElement AddTo<TElement>(this TElement element, Scene scene) where TElement : Element {
+        scene.AddElement(element);
+        return element;
+    }
+}
+
 public class SvgElement : Element {
     public readonly SvgKind Kind;
 
@@ -181,6 +188,9 @@ public class Button : Element {
     public bool IsPressed { get; set; }
 }
 
+public enum LetterStyle { 
+    Accent1, Accent2, Accent3, Accent4, Accent5
+}
 public class Letter : Element {
     public static Vector2 NoScale = new Vector2(1, 1);
     public Vector2 Scale { get; set; }
@@ -189,6 +199,7 @@ public class Letter : Element {
     public char Value { get; set; }
     public float ActiveRatio { get; set; } = 1;
     public float Opacity { get; set; } = 1;
+    public LetterStyle Style { get; set; }
 
     public Letter() {
         Scale = NoScale;
@@ -208,6 +219,12 @@ public abstract class InputState {
     public abstract InputState Press(Vector2 point);
     public abstract InputState Release(Vector2 point);
     public abstract InputState Drag(Vector2 point);
+}
+
+public class InputHandlerElement : Element {
+    public InputHandlerElement() {
+        HitTestVisible = true;
+    }
 }
 
 public class NoInputState : InputState {

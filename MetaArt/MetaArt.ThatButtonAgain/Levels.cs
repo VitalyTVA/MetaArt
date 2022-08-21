@@ -74,10 +74,18 @@ public class Level {
                     rotate(l.Angle);
                     //fill(Colors.LetterDragBox);
                     //rect(0, 0, item.Rect.Width, item.Rect.Height);
+                    var letterColor = l.Style switch {
+                        LetterStyle.Accent1 => Colors.LetterColor,
+                        LetterStyle.Accent2 => Colors.LetterColorAccent2,
+                        LetterStyle.Accent3 => Colors.LetterColorAccent3,
+                        LetterStyle.Accent4 => Colors.LetterColorAccent4,
+                        LetterStyle.Accent5 => Colors.LetterColorAccent5,
+                        _ => throw new InvalidOperationException(),
+                    };
                     fill(color(
-                        lerp(Colors.UIElementColor.Red, Colors.LetterColor.Red, l.ActiveRatio),
-                        lerp(Colors.UIElementColor.Green, Colors.LetterColor.Green, l.ActiveRatio),
-                        lerp(Colors.UIElementColor.Blue, Colors.LetterColor.Blue, l.ActiveRatio),
+                        lerp(Colors.UIElementColor.Red, letterColor.Red, l.ActiveRatio),
+                        lerp(Colors.UIElementColor.Green, letterColor.Green, l.ActiveRatio),
+                        lerp(Colors.UIElementColor.Blue, letterColor.Blue, l.ActiveRatio),
                         l.Opacity * 255
                     ));
                     textAlign(TextAlign.CENTER, TextVerticalAlign.CENTER);
@@ -128,6 +136,11 @@ public class Level {
                     noFill();
                     line(s.From.X, s.From.Y, s.To.X, s.To.Y);
                     break;
+                case InputHandlerElement:
+                    noStroke();
+                    fill(Colors.InputHandlerBox);
+                    rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -171,8 +184,13 @@ public class Level {
         static Palette Palette => Palettes.CoolGrayDark;
 
         public static Color LetterColor => Palette.AccentInfo;
+        public static Color LetterColorAccent2 => Palette.AccentSecondary1;
+        public static Color LetterColorAccent3 => Palette.AccentSuccess;
+        public static Color LetterColorAccent4 => Palette.AccentSecondary2;
+        public static Color LetterColorAccent5 => Palette.AccentError;
         public static Color UIElementColor => Palette._600;
         public static Color LetterDragBox => Color.Empty; //new Color(120, 0, 0, 50);
+        public static Color InputHandlerBox => Color.Empty; // new Color(120, 0, 0, 50);
         public static Color Background => Palette._50;
         public static Color ButtonBackNormal => Palette._100;
         public static Color ButtonBackPressed => Palette._200;

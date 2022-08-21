@@ -26,6 +26,7 @@ namespace ThatButtonAgain {
         Hover,
         BrakeBall,
         Rotate,
+        Merge,
     }
     public enum SvgKind {
         Cthulhu,
@@ -51,6 +52,7 @@ namespace ThatButtonAgain {
             RegisterLevel(x => x.Level_RotationsGroup2()),
             RegisterLevel(x => x.Level_RotatingArrow()),
             RegisterLevel(x => x.Level_Calculator()),
+            RegisterLevel(x => x.Level_32Game()),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("x => x.Level_", null).Replace("()", null));
@@ -788,23 +790,15 @@ namespace ThatButtonAgain {
                     return new DragInputState(
                         startPoint,
                         onDrag: delta => {
+                            var direction = DirectionExtensions.GetSwipeDirection(ref delta, GetSnapDistance());
 
-                            Direction direction;
-                            if(Math.Abs(delta.X) > Math.Abs(delta.Y)) {
-                                delta.Y = 0;
-                                direction = delta.X > 0 ? Direction.Right : Direction.Left;
-                            } else {
-                                delta.X = 0;
-                                direction = delta.Y > 0 ? Direction.Down : Direction.Up;
-                            }
-
-                            if(delta.Length() < GetSnapDistance())
+                            if(direction == null)
                                 return true;
 
-                            if(!area.Move(letter.Value, direction))
+                            if(!area.Move(letter.Value, direction.Value))
                                 return true;
 
-                            StartLetterDirectionAnimation(letter, direction);
+                            StartLetterDirectionAnimation(letter, direction.Value);
                             return false;
                         },
                         onRelease: delta => {
@@ -858,7 +852,7 @@ namespace ThatButtonAgain {
             }.Start(animations);
         }
 
-        private void StartLetterDirectionAnimation(Letter letter, Direction direction) {
+        void StartLetterDirectionAnimation(Letter letter, Direction direction) {
             var (directionX, directionY) = direction switch {
                 Direction.Left => (-1, 0),
                 Direction.Right => (1, 0),
@@ -1310,6 +1304,155 @@ namespace ThatButtonAgain {
             }, "56723401=");
         }
 
+        void Level_32Game() {
+            var button = CreateButton(StartNextLevelAnimation);
+            button.IsEnabled = false;
+            button.Rect = button.Rect.Offset(new Vector2(0, -1.5f * letterDragBoxHeight));
+            scene.AddElement(button);
+
+            var buttonLetters = CreateLetters((letter, index) => {
+                letter.Rect = GetLetterTargetRect(index, button.Rect);
+                letter.IsVisible = false;
+            });
+
+            static char ToLetter(Game16<Letter>.Value value) =>
+                value switch {
+                    Game16<Letter>.Value.One => 'T',
+                    Game16<Letter>.Value.Two => 'O',
+                    Game16<Letter>.Value.Four => 'U',
+                    Game16<Letter>.Value.Eight => 'C',
+                    Game16<Letter>.Value.Sixteen => 'H',
+                    _ => throw new InvalidOperationException(),
+                };
+            static LetterStyle ToStyle(Game16<Letter>.Value value) =>
+                value switch {
+                    Game16<Letter>.Value.One => LetterStyle.Accent1,
+                    Game16<Letter>.Value.Two => LetterStyle.Accent2,
+                    Game16<Letter>.Value.Four => LetterStyle.Accent3,
+                    Game16<Letter>.Value.Eight => LetterStyle.Accent4,
+                    Game16<Letter>.Value.Sixteen => LetterStyle.Accent5,
+                    _ => throw new InvalidOperationException(),
+                };
+            Rect GetLetterRect(int row, int col) {
+                float size = 1f * letterSize;
+                return Rect.FromCenter(
+                    new Vector2(
+                        scene.width / 2 + size * (col + .5f - Game16<Letter>.size / 2f),
+                        scene.height / 2 + button.Rect.Height / 2 + size * row
+                    ),
+                    new Vector2(size)
+                );
+            }
+
+            var game = new Game16<Letter>();
+
+            void SpawnNewLetter() {
+                var letter = new Letter {
+                    Opacity = 0,
+                };
+                var spawn = game.SpawnNew(letter);
+                if(spawn == null) {
+                    GameOver();
+                } else {
+                    letter.Rect = GetLetterRect(spawn.Value.row, spawn.Value.col);
+                    letter.Value = ToLetter(spawn.Value.value);
+                    letter.Style = ToStyle(spawn.Value.value);
+
+                    letter.AddTo(scene);
+                    new LerpAnimation<float> {
+                        From = 0,
+                        To = 1,
+                        Duration = TimeSpan.FromMilliseconds(200),
+                        Lerp = MathFEx.Lerp,
+                        SetValue = value => letter.Opacity = value
+                    }.Start(animations);
+                }
+                foreach(var item in buttonLetters) {
+                    item.IsVisible = false;
+                }
+                foreach(var value in game.GetDistinctValues()) {
+                    var index = value switch {
+                        Game16<Letter>.Value.One => 0,
+                        Game16<Letter>.Value.Two => 1,
+                        Game16<Letter>.Value.Four => 2,
+                        Game16<Letter>.Value.Eight => 3,
+                        Game16<Letter>.Value.Sixteen => 4,
+                        _ => throw new InvalidOperationException(),
+                    };
+                    buttonLetters[index].IsVisible = true;
+                }
+            }
+            SpawnNewLetter();
+            SpawnNewLetter();
+
+            var inputHandler = new InputHandlerElement {
+                Rect = new Rect(0, button.Rect.Bottom, scene.width, scene.height),
+                GetPressState = (startPoint, releaseState) => {
+                    if(button.IsEnabled) {
+                        playSound(SoundKind.Tap);
+                        return releaseState;
+                    }
+                    return new DragInputState(
+                        startPoint,
+                        onDrag: delta => {
+                            var direction = DirectionExtensions.GetSwipeDirection(ref delta, GetSnapDistance());
+
+                            if(direction == null)
+                                return true;
+                            playSound(direction.Value.GetSound());
+                            var moves = game.Swipe(direction.Value);
+                            var duration = TimeSpan.FromMilliseconds(100);
+                            var celebrated = false;
+                            foreach(var move in moves) {
+                                if(move.value == null) {
+                                    scene.RemoveElement(move.element);
+                                } else {
+                                    if(move.value.Value > Game16<Letter>.Value.Sixteen) {
+                                        GameOver();
+                                        break;
+                                    }
+                                    if(move.merged && !celebrated) {
+                                        playSound(SoundKind.Merge);
+                                        celebrated = true;
+                                    }
+                                    var newValue = move.value.Value;
+                                    var animation = new LerpAnimation<Vector2> {
+                                        Duration = duration,
+                                        From = move.element.Rect.Location,
+                                        To = GetLetterRect(move.row, move.col).Location,
+                                        SetValue = val => move.element.Rect = move.element.Rect.SetLocation(val),
+                                        Lerp = Vector2.Lerp,
+                                        End = () => {
+                                            move.element.Value = ToLetter(newValue);
+                                            move.element.Style = ToStyle(newValue);
+
+                                        },
+                                    }.Start(animations, blockInput: true);
+                                }
+                            }
+                            WaitConditionAnimation.WaitTime(duration, () => {
+                                SpawnNewLetter();
+                                if(buttonLetters.All(x => x.IsVisible)) {
+                                    playSound(SoundKind.SuccessSwitch);
+                                    button.IsEnabled = true;
+                                } else {
+                                }
+                            }).Start(animations);
+                            return false;
+                        },
+                        onRelease: delta => { },
+                        releaseState
+                    );
+                }
+
+            }.AddTo(scene);
+
+            void GameOver() {
+                playSound(SoundKind.BrakeBall);
+                StartReloadLevelAnimation();
+            }
+        }
+
         void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {
             new RotateAnimation {
                 Duration = Constants.RotateAroundLetterDuration,
@@ -1569,6 +1712,122 @@ namespace ThatButtonAgain {
                 Direction.Down => MathFEx.PI / 2,
                 _ => throw new InvalidOperationException(),
             };
+        }
+
+        public static Direction? GetSwipeDirection(ref Vector2 delta, float minLength) {
+            Direction direction;
+            if(Math.Abs(delta.X) > Math.Abs(delta.Y)) {
+                delta.Y = 0;
+                direction = delta.X > 0 ? Direction.Right : Direction.Left;
+            } else {
+                delta.X = 0;
+                direction = delta.Y > 0 ? Direction.Down : Direction.Up;
+            }
+            if(delta.Length() < minLength)
+                return null;
+            return direction;
+        }
+    }
+
+    public sealed class Game16<T> {
+        public enum Value {
+            One = 1,
+            Two = 2,
+            Four = 4,
+            Eight = 8,
+            Sixteen = 16,
+        }
+        public record struct Cell(Value value, T element);
+        public record struct Move(int row, int col, T element, Value? value, bool merged); 
+
+        public const int size = 4;
+        const int lastIndex = size - 1;
+        Cell?[,] values;
+        Random random = new Random(0);
+
+        public Game16() {
+            values = new Cell?[size, size];
+        }
+
+        internal IEnumerable<Move> Swipe(Direction direction) {
+            var moves = new List<Move>(size);
+            var deletes = new List<T>(size);
+            void CollectMoves(int row, int col, int newRow, int newCol) {
+                var cell = values[row, col];
+                values[row, col] = null;
+                if(cell != null) {
+                    if(moves.Any() && moves.Last().value == cell.Value.value && !moves.Last().merged) {
+                        var last = moves.Last();
+                        moves![moves.Count - 1] = last with { 
+                            value = (Value)((int)last.value!.Value << 1),
+                            merged = true,
+                        };
+                        deletes!.Add(cell.Value.element);
+                    } else {
+                        moves!.Add(new Move(newRow, newCol, cell.Value.element, cell.Value.value, merged: false));
+                    }
+                }
+            };
+            IEnumerable<Move> YieldMoves() {
+                foreach(var item in moves) {
+                    values[item.row, item.col] = new Cell(item.value!.Value, item.element);
+                    yield return item;
+                }
+                foreach(var item in deletes) {
+                    yield return new Move(-1, -1, item, null, false);
+                }
+                moves.Clear();
+                deletes.Clear();
+            }
+            if(direction is Direction.Right or Direction.Left) {
+                for(int row = 0; row < size; row++) {
+                    var forward = direction is Direction.Left;
+                    for(int col = forward ? 0 : lastIndex; forward ? col < size : col >= 0; col += (forward ? 1 : -1)) {
+                        CollectMoves(row, col, row, forward ? moves.Count : lastIndex - moves.Count);
+                    }
+                    foreach(var item in YieldMoves()) {
+                        yield return item;
+                    }
+                }
+            } else {
+                for(int col = 0; col < size; col++) {
+                    var forward = direction is Direction.Up;
+                    for(int row = forward ? 0 : lastIndex; forward ? row < size : row >= 0; row += (forward ? 1 : -1)) {
+                        CollectMoves(row, col, forward ? moves.Count : lastIndex - moves.Count, col);
+                    }
+                    foreach(var item in YieldMoves()) {
+                        yield return item;
+                    }
+                }
+            }
+        }
+
+        public (int row, int col, Value value)? SpawnNew(T element) {
+            var emptyCells = new List<(int row, int col)>(size * size);
+            for(int row = 0; row < size; row++) {
+                for(int col = 0; col < size; col++) {
+                    if(values[row, col] == null)
+                        emptyCells.Add((row, col));
+                }
+            }
+            if(!emptyCells.Any())
+                return null;
+            int index = random.Next(0, emptyCells.Count);
+            var newValue = random.Next(0, 2) == 1 ? Value.One : Value.Two;
+            values[emptyCells[index].row, emptyCells[index].col] = new Cell(newValue, element);
+            return (emptyCells[index].row, emptyCells[index].col, newValue);
+        }
+
+        public List<Value> GetDistinctValues() {
+            var result = new List<Value>();
+            for(int row = 0; row < size; row++) {
+                for(int col = 0; col < size; col++) {
+                    var value = values[row, col]?.value;
+                    if(value != null && !result.Contains(value.Value))
+                        result.Add(value.Value);
+                }
+            }
+            return result;
         }
     }
 
