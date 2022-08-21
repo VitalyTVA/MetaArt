@@ -47,7 +47,7 @@ namespace ThatButtonAgain {
             RegisterLevel(x => x.Level_11()),
             RegisterLevel(x => x.Level_ScrollLetters()),
             RegisterLevel(x => x.Level_ReorderLetters()),
-            RegisterLevel(x => x.Level_ReflectedC()),
+            RegisterLevel(Level_ReflectedC.Load),
             RegisterLevel(Level_BouncyBalls.Load),
             RegisterLevel(Level_RotatingLetters.Load),
             RegisterLevel(Level_RotatingArrow.Load),
@@ -874,71 +874,7 @@ namespace ThatButtonAgain {
             }.Start(game, blockInput: true);
         }
 
-        void Level_ReflectedC() {
-            var button = CreateButton(StartNextLevelAnimation);
-            button.IsEnabled = false;
-            scene.AddElement(button);
-
-            var letters = CreateLetters((letter, index) => {
-                letter.Rect = GetLetterTargetRect(index, button.Rect);
-            }, "TCUCHC");
-            letters.Last().HitTestVisible = true;
-            letters.Last().Scale = new Vector2(-1, 1);
-            letters[1].Offset = new Vector2(-Constants.ReflectedCOffset / 2, 0);
-            letters[3].Offset = new Vector2(-Constants.ReflectedCOffset / 2, 0);
-            letters.Last().Offset = new Vector2(-Constants.ReflectedCOffset / 2, 0);
-
-
-            void ResetReflectedLetterRect() {
-                letters.Last().Rect = letters![1].Rect;
-            }
-            ResetReflectedLetterRect();
-            letters.Last().GetPressState = Element.GetAnchorAndSnapDragStateFactory(
-                letters.Last(),
-                () => GetSnapDistance(),
-                () => (GetSnapDistance(), letters![3].Rect.Location),
-                onElementSnap: element => {
-                    playSound(SoundKind.SuccessSwitch);
-                    letters.Last().HitTestVisible = false;
-
-                    letters[2].GetPressState = Element.GetPressReleaseStateFactory(
-                        letters[2], 
-                        () => {
-                            letters[2].HitTestVisible = false;
-                            playSound(SoundKind.SwipeLeft);
-                            AddRotateAnimation(letters[2], MathFEx.PI * 2, MathFEx.PI, letters[3]);
-                            AddRotateAnimation(letters[2], MathFEx.PI * 2, MathFEx.PI, letters.Last());
-                            AddRotateAnimation(letters[2], MathFEx.PI, 0, letters[1]);
-                        }, 
-                        () => { 
-                        }
-                    );
-                    letters[2].HitTestVisible = true;
-                },
-                onMove: () => {
-                },
-                coerceRectLocation: rect => rect.GetRestrictedLocation(scene.Bounds).SetY(letters[0].Rect.Top),
-                onRelease: anchored => {
-                    if(anchored)
-                        playSound(SoundKind.ErrorClick);
-                    else 
-                        playSound(SoundKind.Snap);
-                    ResetReflectedLetterRect();
-                    return true;
-                }
-            );
-
-            var expectedLettersOrder = new[] { 0, 3, 2, 1, 4 }.Select(i => letters[i]).ToArray();
-
-            new WaitConditionAnimation(
-                condition: GetAreLettersInPlaceCheck(button.Rect, expectedLettersOrder)) {
-                End = () => {
-                    button.IsEnabled = true;
-                }
-            }.Start(game);
-        }
-
-        void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {
+        internal void AddRotateAnimation(Letter centerLetter, float fromAngle, float toAngle, Letter sideLetter) {
             new RotateAnimation {
                 Duration = Constants.RotateAroundLetterDuration,
                 From = fromAngle,
