@@ -35,14 +35,14 @@ namespace ThatButtonAgain {
         public static readonly (Action<GameController> action, string name)[] Levels = new [] {
             RegisterLevel(x => x.Level_TrivialClick()),
             RegisterLevel(x => x.Level_DragLettersOntoButton()),
-            RegisterLevel(x => x.Level_16xClick()),
+            RegisterLevel(Level_Capital.Load_16xClick),
             RegisterLevel(x => x.Level_RotationsGroup()),
             RegisterLevel(x => x.Level_LettersBehindButton()),
             RegisterLevel(x => x.Level_ClickInsteadOfTouch()),
             RegisterLevel(x => x.Level_RandomButton()),
-            RegisterLevel(x => x.Level_ReflectedButton()),
-            RegisterLevel(x => x.Level_Mod2Vectors()),
-            RegisterLevel(x => x.Level_FindWord()),
+            RegisterLevel(Level_ReflectedButton.Load),
+            RegisterLevel(Level_Capital.Load_Mod2Vectors),
+            RegisterLevel(Level_FindWord.Load),
             RegisterLevel(Level_10.Load),
             RegisterLevel(Level_11.Load),
             RegisterLevel(Level_ScrollLetters.Load),
@@ -119,10 +119,6 @@ namespace ThatButtonAgain {
             new WaitConditionAnimation(condition: GetAreLettersInPlaceCheck(button.Rect, letters)) { 
                 End = () => button.IsEnabled = true 
             }.Start(this);
-        }
-
-        void Level_16xClick() {
-            SetupCapitalLettersSwitchLevel(0b10000, (value, index) => value + 1);
         }
 
         void Level_RotationsGroup() {
@@ -307,225 +303,6 @@ namespace ThatButtonAgain {
 
         }
 
-        void Level_ReflectedButton() {
-            Action<bool, bool> syncButtons = null!;
-
-
-            (Button button, Letter[] letters, Action syncLettersOnMoveAction) CreateButtonAndLetters(
-                Vector2 offset, 
-                string word, 
-                bool flipV, 
-                bool flipH
-            ) {
-                Rect buttonRect = GetButtonRect();
-                var button = new Button {
-                    Rect = buttonRect.Offset(offset),
-                    IsEnabled = false,
-                    HitTestVisible = true,
-                };
-                scene.AddElement(button);
-                var letters = CreateLetters((letter, index) => {
-                    letter.Rect = GetLetterTargetRect(index, button.Rect);
-                    letter.Scale = new Vector2(flipH ? -1 : 1, flipV ? -1 : 1);
-                }, word);
-                Action syncLettersOnMoveAction = Element.CreateSetOffsetAction(button, letters);
-                button.GetPressState = Element.GetAnchorAndSnapDragStateFactory(
-                    button,
-                    () => (flipH && flipV) ? GetSnapDistance() : 0,
-                    () => (flipH || flipV) ? null : (GetSnapDistance(), buttonRect.Location),
-                    onElementSnap: OnElementSnap,
-                    onMove: () => { 
-                        syncLettersOnMoveAction();
-                        syncButtons(flipV, flipH);
-                    },
-                    coerceRectLocation: rect => {
-                        if(rect.Left < 0 && rect.Top < 0) {
-                            if(rect.Left < rect.Top)
-                                return new Vector2(rect.Left, 0);
-                            else
-                                return new Vector2(0, rect.Top);
-                        }
-                        return rect.Location;
-                    }
-                );
-                return (button, letters, syncLettersOnMoveAction);
-            }
-
-            var invisiblePosition = new Vector2(-3000, -3000);
-            var flippedHV = CreateButtonAndLetters(new Vector2(0, 0), "HCUOT", flipV: true, flipH: true);
-            var flippedH = CreateButtonAndLetters(invisiblePosition, "HCUOT", flipV: false, flipH: true);
-            var flippedV = CreateButtonAndLetters(invisiblePosition, "TOUCH", flipV: true, flipH: false);
-
-            var normal = CreateButtonAndLetters(invisiblePosition, "TOUCH", flipV: false, flipH: false);
-
-            void SyncLocations(
-                Button movingButton,
-                (Button button, Letter[] letters, Action syncLettersOnMoveAction) horizontal,
-                (Button button, Letter[] letters, Action syncLettersOnMoveAction) vertical
-            ) {
-                horizontal.button.Rect = new Rect(invisiblePosition, horizontal.button.Rect.Size);
-                vertical.button.Rect = new Rect(invisiblePosition, vertical.button.Rect.Size);
-
-                if(movingButton.Rect.Left + movingButton.Rect.Width > scene.width)
-                    horizontal.button.Rect = movingButton.Rect.Offset(new Vector2(-scene.width, 0));
-                else if(movingButton.Rect.Left < 0)
-                    horizontal.button.Rect = movingButton.Rect.Offset(new Vector2(scene.width, 0));
-
-                else if(movingButton.Rect.Top + movingButton.Rect.Height > scene.height)
-                    vertical.button.Rect = movingButton.Rect.Offset(new Vector2(0, - scene.height));
-                else if(movingButton.Rect.Top < 0)
-                    vertical.button.Rect = movingButton.Rect.Offset(new Vector2(0, scene.height));
-
-                horizontal.syncLettersOnMoveAction();
-                vertical.syncLettersOnMoveAction();
-            }
-
-            syncButtons = (flipV, flipH) => {
-                switch((flipV, flipH)) {
-                    case (true, true):
-                        SyncLocations(flippedHV.button, flippedH, flippedV);
-                        break;
-                    case (true, false):
-                        SyncLocations(flippedV.button, normal, flippedHV);
-                        break;
-                    case (false, true):
-                        SyncLocations(flippedH.button, flippedHV, normal);
-                        break;
-                    case (false, false):
-                        SyncLocations(normal.button, flippedV, flippedH);
-                        break;
-                    default:
-                        throw new NotImplementedException();
-                }
-            };
-
-            EnableButtonWhenInPlace(flippedHV.button.Rect, normal.button);
-        }
-
-        void Level_Mod2Vectors() {
-            var vectors = new[] {
-                0b11001,//--
-                0b01010,
-                0b10100,//--
-                0b10010,//--
-                0b00101
-            };
-            SetupCapitalLettersSwitchLevel(0b00000, (value, index) => value ^ vectors[index]);
-        }
-
-        void Level_FindWord() {
-            bool winLevel = false;
-            var button = CreateButton(() => {
-                if(winLevel)
-                    StartNextLevelAnimation();
-                else {
-                    scene.ClearElements();
-                    scene.AddElement(new SvgElement(SvgKind.Cthulhu) {
-                        Rect = Rect.FromCenter(
-                            new Vector2(scene.width / 2, scene.height / 2), 
-                            new Vector2(scene.width * Constants.CthulhuWidthScaleRatio)
-                        )
-                    });
-                    StartCthulhuReloadLevelAnimation();
-                }
-            });
-            button.Rect = Rect.Empty;
-            button.HitTestVisible = false;
-            scene.AddElement(button);
-
-            var buttonRect = GetButtonRect();
-
-            const int letterCount = 9;
-            var chars = new[] {
-                "LOKUHTOKU",
-                "HCLICKOUT",
-                "CTHLUOLUT",
-                "KUKHIUTKL",
-                "OUOLHKOTH",
-                "LTUHKHULT",
-                "TICHIOCLH",
-                "KCTHULHUI",
-                "TOUKCILCH"
-            };
-
-            var letters = new Letter[letterCount, letterCount];
-            for(int i = 0; i < letterCount; i++) {
-                for(int j = 0; j < letterCount; j++) {
-                    var value = chars[j][i];
-                    var letter = new Letter {
-                        Value = value,
-                        Rect = GetLetterTargetRect(i - (letterCount - 5) / 2, buttonRect, squared: true, row: (j - letterCount / 2)),
-                        HitTestVisible = true,
-                        Scale = new Vector2(Constants.FindWordLetterScale),
-                        ActiveRatio = 0,
-                    };
-                    (int, int) GetLetterPosition(Letter letter) {
-                        for(int i = 0; i < letterCount; i++) {
-                            for(int j = 0; j < letterCount; j++) {
-                                if(letters![i, j] == letter) {
-                                    return (i, j);
-                                }
-                            }
-                        }
-                        throw new InvalidOperationException();
-                    }
-                    letter.GetPressState = (startPoint, releaseState)
-                        => {
-                            var hovered = new List<(Letter, int, int)>();
-                            return new HoverInputState(
-                                scene,
-                                letter,
-                                element => {
-                                    if(element is Letter l && !hovered.Any(x => x.Item1 == l)) {
-                                        var (i, j) = GetLetterPosition(l);
-                                        if(hovered.Count == 0
-                                        || hovered.Count == 1
-                                        || ((j == hovered.Last().Item3 + 1 || j == hovered.Last().Item3 - 1) && i == hovered[0].Item2 && i == hovered.Last().Item2)
-                                        || ((i == hovered.Last().Item2 + 1 || i == hovered.Last().Item2 - 1) && j == hovered[0].Item3 && j == hovered.Last().Item3)
-                                        ) {
-                                            hovered.Add((l, i, j));
-                                            l.ActiveRatio = 1;
-                                            playSound(SoundKind.Hover);
-                                        }
-                                        button.Rect = hovered
-                                            .Skip(1)
-                                            .Aggregate(hovered[0].Item1.Rect, (rect, x) => rect.ContainingRect(x.Item1.Rect))
-                                            .Inflate(new Vector2(Constants.ContainingButtonInflateValue));
-                                    }
-                                },
-                                onRelease: () => {
-                                    var result = hovered
-                                        .OrderBy(x => x.Item2)
-                                        .ThenBy(x => x.Item3)
-                                        .Select(x => x.Item1.Value);
-                                    bool win = Enumerable.SequenceEqual(result, "TOUCH".Select(x => x));
-                                    bool fail = Enumerable.SequenceEqual(result, "CTHULHU".Select(x => x));
-                                    if(win || fail) {
-                                        winLevel = win;
-                                        for(int i = 0; i < letterCount; i++) {
-                                            for(int j = 0; j < letterCount; j++) {
-                                                if(!hovered.Any(x => x.Item1 == letters[i, j])) {
-                                                    scene.RemoveElement(letters[i, j]);
-                                                } else {
-                                                    letters[i, j].HitTestVisible = false;
-                                                }
-                                            }
-                                        }
-                                        button.HitTestVisible = true;
-                                    } else {
-                                        hovered.ForEach(x => x.Item1.ActiveRatio = 0);
-                                        button.Rect = Rect.Empty;
-                                    }
-                                },
-                                releaseState: releaseState
-                            );
-                        };
-                    letters[i, j] = letter;
-                    scene.AddElement(letter);
-                }
-            }
-        }
-
         internal void StartLetterDirectionAnimation(Letter letter, Direction direction) {
             var (directionX, directionY) = direction switch {
                 Direction.Left => (-1, 0),
@@ -574,55 +351,11 @@ namespace ThatButtonAgain {
             );
         }
 
-        void SetupCapitalLettersSwitchLevel(int initialValue, Func<int, int, int> changeValue) {
-            Letter[] letters = null!;
-
-            var button = CreateButton(StartNextLevelAnimation);
-            button.HitTestVisible = false;
-            scene.AddElement(button);
-
-            int value = initialValue;
-            const int target = 0b11111;
-            void SetLetters() {
-                for(int i = 0; i < 5; i++) {
-                    bool isCapitalLetter = (value & (1 << (4 - i))) > 0;
-                    letters[i].Value = (isCapitalLetter ? "TOUCH" : "touch")[i];
-                }
-            };
-
-            letters = CreateLetters((letter, index) => {
-                letter.HitTestVisible = true;
-                letter.Rect = GetLetterTargetRect(index, button.Rect);
-                letter.GetPressState = (startPoint, releaseState) => {
-                    return new TapInputState(
-                        button,
-                        () => {
-                            playSound(SoundKind.Tap);
-                            value = changeValue(value, index);
-                            SetLetters();
-                            if(value == target) {
-                                foreach(var item in letters) {
-                                    item.HitTestVisible = false;
-                                }
-                                button.HitTestVisible = true;
-                            }
-                        },
-                        setState: isPressed => {
-                            button.IsPressed = isPressed;
-                        },
-                        releaseState
-                    );
-                };
-
-            });
-            SetLetters();
-        }
-
-        void OnElementSnap(Element element) {
+        internal void OnElementSnap(Element element) {
             playSound(SoundKind.Snap);
         }
 
-        void EnableButtonWhenInPlace(Rect buttonRect, Button dragableButton) {
+        internal void EnableButtonWhenInPlace(Rect buttonRect, Button dragableButton) {
             new WaitConditionAnimation(
                 condition: deltaTime => MathFEx.VectorsEqual(dragableButton.Rect.Location, buttonRect.Location)) {
                     End = () => {
@@ -717,7 +450,7 @@ namespace ThatButtonAgain {
             StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutDuration);
             //playSound(SoundKind.BrakeBall);
         }
-        void StartCthulhuReloadLevelAnimation() {
+        internal void StartCthulhuReloadLevelAnimation() {
             StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutCthulhuDuration);
             playSound(SoundKind.Cthulhu);
         }
@@ -832,69 +565,6 @@ namespace ThatButtonAgain {
             if(delta.Length() < minLength)
                 return null;
             return direction;
-        }
-    }
-
-    public class Area {
-        const char X = 'X';
-        const char E = ' ';
-
-        public static char[][] CreateSwapHShapeArea() => 
-            new char[][] {
-                new[] { X, E, X, E, X  },
-                new[] { 'H', 'C', 'U', 'O', 'T' },
-                new[] { X, E, X, E, X  }
-            };
-        public static char[][] CreateArrowDirectedLetters() =>
-            new char[][] {
-                new[] { E, E, 'T', E, E  },
-                new[] { E, E, 'O', E, E  },
-                new[] { E, E, 'U', E, E  },
-                new[] { E, E, 'C', E, E  },
-                new[] { E, E, 'H', E, E  },
-            };
-
-
-        readonly char[][] area;
-        public Area(char[][] area) {
-            this.area = area;
-        }
-        int Width => area[0].Length;
-        int Height => area.Length;
-
-        public bool Move(char letter, Direction direction) {
-            var (row, col) = LocateLetter(letter);
-            bool TrySwapLetters(bool canApplyDelta, int deltaRow, int deltaCol) {
-                if(!canApplyDelta) 
-                    return false;
-                if(area[row + deltaRow][col + deltaCol] == E) {
-                    area[row + deltaRow][col + deltaCol] = letter;
-                    area[row][col] = E;
-                    return true;
-                }
-                return false;
-            }
-            switch(direction) {
-                case Direction.Left:
-                    return TrySwapLetters(col > 0, 0, -1);
-                case Direction.Right:
-                    return TrySwapLetters(col < Width - 1, 0, 1);
-                case Direction.Up:
-                    return TrySwapLetters(row > 0, -1, 0);
-                case Direction.Down:
-                    return TrySwapLetters(row < Height - 1, 1, 0);
-                default:
-                    throw new InvalidOperationException();
-            }
-        }
-        (int row, int col) LocateLetter(char letter) {
-            for(int row = 0; row < Height; row++) {
-                for(int col = 0; col < Width; col++) {
-                    if(area[row][col] == letter)
-                        return (row, col);
-                }
-            }
-            throw new InvalidOperationException();
         }
     }
     public static class Constants {

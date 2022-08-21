@@ -6,7 +6,7 @@ namespace ThatButtonAgain {
             button.HitTestVisible = true;
             button.IsVisible = false;
 
-            var area = new Area(Area.CreateSwapHShapeArea());
+            var area = new LetterArea(LetterArea.CreateSwapHShapeArea());
             var letters = game.CreateLetters((letter, index) => {
                 letter.Rect = game.GetLetterTargetRect(4 - index, button.Rect);
                 letter.HitTestVisible = true;

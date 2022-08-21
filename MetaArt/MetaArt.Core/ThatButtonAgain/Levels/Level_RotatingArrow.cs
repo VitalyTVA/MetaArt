@@ -15,7 +15,7 @@ namespace ThatButtonAgain {
             }.AddTo(game);
             arrow.Rect = arrow.Rect.SetLocation(new Vector2(arrow.Rect.Left, game.levelNumberElementRect.Top));
 
-            var area = new Area(Area.CreateArrowDirectedLetters());
+            var area = new LetterArea(LetterArea.CreateArrowDirectedLetters());
             //HHTTHHTTCCOO
             var letters = game.CreateLetters((letter, index) => {
                 letter.Rect = game.GetLetterTargetRect(2, button.Rect, row: index - 2);
