@@ -1,6 +1,6 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
-    public static class Level_Calculator {
+    static class Level_Calculator {
         static readonly Dictionary<char, int> charToDigit = new() {
             { 'O', 0 },
             { 'I', 1 },

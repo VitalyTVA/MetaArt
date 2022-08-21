@@ -1,6 +1,6 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
-    public static class Level_16Game {
+    static class Level_16Game {
         public static void Load(GameController game) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.IsEnabled = false;

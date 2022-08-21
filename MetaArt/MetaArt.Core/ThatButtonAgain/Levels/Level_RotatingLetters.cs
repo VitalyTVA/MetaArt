@@ -1,6 +1,6 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
-    public static class Level_RotatingLetters {
+    static class Level_RotatingLetters {
         /*
 //002233 medium - hard
 var rotations = new[] {

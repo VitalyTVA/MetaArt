@@ -1,6 +1,6 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
-    public static class Level_BouncyBalls {
+    static class Level_BouncyBalls {
         public static void Load(GameController game) {
             //var balls = new Ball[12];
             //for(int i = 0; i < balls.Length; i++) {
@@ -120,6 +120,7 @@ namespace ThatButtonAgain {
                 return !win;
             }).Start(game);
         }
+        static BallElement Element(this Ball ball) => (BallElement)ball.payload;
     }
 }
 
