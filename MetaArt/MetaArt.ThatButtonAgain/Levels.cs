@@ -125,9 +125,20 @@ public class Level {
                     shapeCorners(0);
                     break;
                 case BallElement b:
-                    stroke(Colors.ButtonBorder);
+                    var strokeColor = b.State switch {
+                        BallState.Active or BallState.Broken => Colors.ButtonBorder,
+                        BallState.Disabled => Colors.UIElementColor,
+                        _ => throw new InvalidOperationException(),
+                    };
+                    stroke(strokeColor);
                     strokeWeight(Constants.ButtonBorderWeight);
-                    fill(b.Broken ? Colors.AccentError : Colors.ButtonBackNormal);
+                    var fillColor = b.State switch {
+                        BallState.Active => Colors.ButtonBackNormal,
+                        BallState.Broken => Colors.AccentError,
+                        BallState.Disabled => new Color(0),
+                        _ => throw new InvalidOperationException(),
+                    };
+                    fill(fillColor);
                     ellipse(b.Rect.MidX, b.Rect.MidY, b.Rect.Width, b.Rect.Height);
                     break;
                 case Spring s:

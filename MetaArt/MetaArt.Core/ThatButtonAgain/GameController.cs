@@ -48,11 +48,12 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_ScrollLetters.Load),
             RegisterLevel(Level_ReorderLetters.Load),
             RegisterLevel(Level_ReflectedC.Load),
-            RegisterLevel(Level_BouncyBalls.Load),
+            RegisterLevel(Level_Balls.Load_KeepO),
             RegisterLevel(Level_RotatingLetters.Load),
             RegisterLevel(Level_RotatingArrow.Load),
             RegisterLevel(Level_Calculator.Load),
             RegisterLevel(Level_16Game.Load),
+            RegisterLevel(Level_Balls.Load_20Level),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("Level_", null).Replace(".Load", null));
@@ -268,7 +269,7 @@ namespace ThatButtonAgain {
             scene.ClearElements();
             animations.VerifyEmpty();
             int digitIndex = 0;
-            foreach(var digit in (levelIndex != 10 ? levelIndex : 1).ToString()) {
+            foreach(var digit in ((levelIndex is not 10 and not 20) ? levelIndex : levelIndex / 10).ToString()) {
                 var levelNumberElement = new Letter {
                     Value = digit,
                 };

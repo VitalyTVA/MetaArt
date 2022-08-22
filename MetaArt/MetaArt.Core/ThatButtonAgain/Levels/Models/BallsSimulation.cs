@@ -77,6 +77,10 @@ namespace ThatButtonAgain {
             }
         }
 
+        internal IEnumerable<Ball> GetBalls() {
+            return balls;
+        }
+
         void MoveBall(Ball ball) {
             ball.vy += gravity;
             ball.x += ball.vx;

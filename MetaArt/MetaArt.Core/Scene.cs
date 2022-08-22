@@ -199,8 +199,10 @@ public class Letter : Element {
     }
 }
 
+public enum BallState { Active, Broken, Disabled }
 public class BallElement : Element {
-    public bool Broken { get; set; } = false;
+    public BallState State { get; set; } = BallState.Active;
+
 }
 
 public class Spring : Element {
