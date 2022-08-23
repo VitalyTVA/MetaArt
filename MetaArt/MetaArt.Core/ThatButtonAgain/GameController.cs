@@ -34,7 +34,7 @@ namespace ThatButtonAgain {
     public class GameController {
         public static readonly (Action<GameController> action, string name)[] Levels = new [] {
             RegisterLevel(Level_Touch.Load),
-            RegisterLevel(Level_DragLettersOntoButton.Load_Normal),
+            RegisterLevel(Level_DragLetters.Load_Normal),
             RegisterLevel(Level_Capital.Load_16xClick),
             RegisterLevel(Level_RotateAroundLetter.Load),
             RegisterLevel(Level_LettersBehindButton.Load),
@@ -54,7 +54,7 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_Calculator.Load),
             RegisterLevel(Level_16Game.Load),
             RegisterLevel(Level_Balls.Load_20Level),
-            RegisterLevel(Level_DragLettersOntoButton.Load_Inverted),
+            RegisterLevel(Level_DragLetters.Load_Inverted),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("Level_", null).Replace(".Load", null));

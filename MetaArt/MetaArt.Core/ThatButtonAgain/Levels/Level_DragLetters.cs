@@ -1,6 +1,6 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
-    static class Level_DragLettersOntoButton {
+    static class Level_DragLetters {
         public static void Load_Normal(GameController game) {
             var points = new[] {
                 (-2.1f, 2.3f),
