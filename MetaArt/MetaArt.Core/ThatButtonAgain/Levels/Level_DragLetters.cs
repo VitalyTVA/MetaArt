@@ -56,8 +56,19 @@ namespace ThatButtonAgain {
                     return () => {
                         letters2[index].Rect = ReflectRect(letter.Rect);
                         if(MathFEx.RectssEqual(letter.Rect, game.GetLetterTargetRect(index, buttonRectStore))) {
-                            letters2[index].IsVisible = false;
-                            letter.Opacity = 1;
+                            var startLocation = letters2[index].Rect.Location;
+                            new LerpAnimation<float> {
+                                From = 0,
+                                To = 1,
+                                Lerp = MathFEx.Lerp,
+                                Duration = TimeSpan.FromMilliseconds(150),
+                                SetValue = value => {
+                                    letters2[index].Rect = letters2[index].Rect.SetLocation(Vector2.Lerp(startLocation, letter.Rect.Location, value));
+                                    letters2[index].Scale = Vector2.Lerp(new Vector2(-1), new Vector2(1), value);
+                                }
+                            }.Start(game);
+                            //letters2[index].IsVisible = false;
+                            //letter.Opacity = 1;
                         }
                     };
                 }
