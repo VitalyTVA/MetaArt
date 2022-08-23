@@ -1,15 +1,78 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_DragLettersOntoButton {
-        static readonly (float, float)[] points = new[] {
-            (-2.1f, 2.3f),
-            (-1.5f, -2.7f),
-            (.7f, -1.5f),
-            (1.3f, 3.4f),
-            (2.3f, -3.4f),
-        };
-        public static void Load(GameController game) {
+        public static void Load_Normal(GameController game) {
+            var points = new[] {
+                (-2.1f, 2.3f),
+                (-1.5f, -2.7f),
+                (.7f, -1.5f),
+                (1.3f, 3.4f),
+                (2.3f, -3.4f),
+            };
+            LoadCore(
+                game, 
+                points, 
+                buttonOffset: 0,
+                onElementsCreated: (buttonRect, letters) => { },
+                getOnMoveHandler: (letter, index) => null
+            );
+        }
+
+        public static void Load_Inverted(GameController game) {
+            Rect ReflectRect(Rect rect) => MathFEx.Reflect(rect, game.scene.Bounds.Mid);
+
+            new Line { From = new Vector2(0, game.height / 2), To = new Vector2(game.width, game.height / 2) }.AddTo(game);
+            foreach(var letter in game.levelNumberLeterrs) {
+                letter.Rect = ReflectRect(letter.Rect);
+                letter.Scale = new Vector2(-1, -1);
+            }
+
+            var points = new[] {
+                (-2.1f, 2.9f),
+                (-1.5f, 1.7f),
+                (.7f, 1.5f),
+                (.8f, 3.1f),
+                (2.3f, 3.4f),
+            };
+            Letter[] letters2 = null!;
+            Rect buttonRectStore = default;
+            LoadCore(
+                game,
+                points,
+                buttonOffset: game.buttonHeight * .7f,
+                onElementsCreated: (buttonRect, letters) => {
+                    buttonRectStore = buttonRect;
+                    letters2 = letters.Select(letter => {
+                        letter.Opacity = 0;
+                        return new Letter {
+                            Value = letter.Value,
+                            Rect = ReflectRect(letter.Rect),
+                            Scale = new Vector2(-1, -1),
+                        }.AddTo(game);
+                    })
+                    .ToArray();
+                },
+                getOnMoveHandler: (letter, index) => {
+                    return () => {
+                        letters2[index].Rect = ReflectRect(letter.Rect);
+                        if(MathFEx.RectssEqual(letter.Rect, game.GetLetterTargetRect(index, buttonRectStore))) {
+                            letters2[index].IsVisible = false;
+                            letter.Opacity = 1;
+                        }
+                    };
+                }
+            );
+        }
+
+        static void LoadCore(
+            GameController game,
+            (float, float)[] points,
+            float buttonOffset,
+            Action<Rect, Letter[]> onElementsCreated,
+            Func<Letter, int, Action?> getOnMoveHandler
+        ) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
+            button.Rect = button.Rect.Offset(new Vector2(0, buttonOffset));
             button.IsEnabled = false;
 
 
@@ -18,8 +81,11 @@ namespace ThatButtonAgain {
                     new Vector2(button.Rect.MidX + game.letterDragBoxWidth * points[index].Item1, button.Rect.MidY + game.letterDragBoxHeight * points[index].Item2),
                     new Vector2(game.letterDragBoxWidth, game.letterDragBoxHeight)
                 ).GetRestrictedRect(game.scene.Bounds);
-                game.MakeDraggableLetter(letter, index, button);
+                game.MakeDraggableLetter(letter, index, button, onMove: getOnMoveHandler(letter, index));
             });
+
+            onElementsCreated(button.Rect, letters);
+
             new WaitConditionAnimation(condition: game.GetAreLettersInPlaceCheck(button.Rect, letters)) {
                 End = () => button.IsEnabled = true
             }.Start(game);

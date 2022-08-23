@@ -205,9 +205,10 @@ public class BallElement : Element {
 
 }
 
-public class Spring : Element {
+public class Line : Element {
     public Vector2 From { get; set; }
     public Vector2 To { get; set; }
+    public float Thickness { get; set; } = 1;
 }
 
 public abstract class InputState {

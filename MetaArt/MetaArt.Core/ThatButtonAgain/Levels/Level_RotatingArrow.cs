@@ -13,7 +13,7 @@ namespace ThatButtonAgain {
                 ActiveRatio = 0,
                 Angle = direction.ToAngle(),
             }.AddTo(game);
-            arrow.Rect = arrow.Rect.SetLocation(new Vector2(arrow.Rect.Left, game.levelNumberElementRect.Top));
+            arrow.Rect = arrow.Rect.SetLocation(new Vector2(arrow.Rect.Left, game.levelNumberLeterrs.First().Rect.Top));
 
             var area = new LetterArea(LetterArea.CreateArrowDirectedLetters());
             //HHTTHHTTCCOO

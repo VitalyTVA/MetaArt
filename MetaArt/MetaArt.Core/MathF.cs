@@ -61,4 +61,13 @@ public static class MathFEx {
         vector.Y = y;
         return vector;
     }
+    public static float Reflect(float value, float relativeTo) => relativeTo + relativeTo - value;
+    public static Vector2 Reflect(Vector2 value, Vector2 relativeTo) => relativeTo + relativeTo - value;
+    public static Rect Reflect(Rect value, Vector2 relativeTo) => 
+        Rect.FromLTRB(
+            Reflect(value.Right, relativeTo.X),
+            Reflect(value.Bottom, relativeTo.Y),
+            Reflect(value.Left, relativeTo.X),
+            Reflect(value.Top, relativeTo.Y)
+        );
 }

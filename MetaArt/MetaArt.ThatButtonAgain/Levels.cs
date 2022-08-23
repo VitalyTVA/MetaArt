@@ -141,9 +141,9 @@ public class Level {
                     fill(fillColor);
                     ellipse(b.Rect.MidX, b.Rect.MidY, b.Rect.Width, b.Rect.Height);
                     break;
-                case Spring s:
+                case Line s:
                     stroke(Colors.AccentError);
-                    strokeWeight(Constants.ButtonBorderWeight);
+                    strokeWeight(s.Thickness);
                     noFill();
                     line(s.From.X, s.From.Y, s.To.X, s.To.Y);
                     break;

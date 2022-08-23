@@ -2,6 +2,8 @@
 namespace ThatButtonAgain {
     static class Level_10 {
         public static void Load(GameController game) {
+            game.RemoveLastLevelLetter();
+
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.IsEnabled = false;
 

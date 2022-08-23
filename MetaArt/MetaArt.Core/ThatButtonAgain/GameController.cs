@@ -34,7 +34,7 @@ namespace ThatButtonAgain {
     public class GameController {
         public static readonly (Action<GameController> action, string name)[] Levels = new [] {
             RegisterLevel(Level_Touch.Load),
-            RegisterLevel(Level_DragLettersOntoButton.Load),
+            RegisterLevel(Level_DragLettersOntoButton.Load_Normal),
             RegisterLevel(Level_Capital.Load_16xClick),
             RegisterLevel(Level_RotateAroundLetter.Load),
             RegisterLevel(Level_LettersBehindButton.Load),
@@ -54,6 +54,7 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_Calculator.Load),
             RegisterLevel(Level_16Game.Load),
             RegisterLevel(Level_Balls.Load_20Level),
+            RegisterLevel(Level_DragLettersOntoButton.Load_Inverted),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("Level_", null).Replace(".Load", null));
@@ -262,14 +263,21 @@ namespace ThatButtonAgain {
         }
 
         int levelIndex = 0;
-        internal Rect levelNumberElementRect;
+        internal Rect levelNumberElementRect => levelNumberLeterrs.First().Rect;
+        internal void RemoveLastLevelLetter() {
+            scene.RemoveElement(levelNumberLeterrs.Last());
+            levelNumberLeterrs.RemoveAt(levelNumberLeterrs.Count - 1);
+        }
+
+        internal List<Letter> levelNumberLeterrs = new();
         public void SetLevel(int level) {
             levelIndex = Math.Min(level, Levels.Length - 1);
             
             scene.ClearElements();
             animations.VerifyEmpty();
             int digitIndex = 0;
-            foreach(var digit in ((levelIndex is not 10 and not 20) ? levelIndex : levelIndex / 10).ToString()) {
+            levelNumberLeterrs.Clear();
+            foreach(var digit in levelIndex.ToString()) {
                 var levelNumberElement = new Letter {
                     Value = digit,
                 };
@@ -280,9 +288,9 @@ namespace ThatButtonAgain {
                         letterSize * Constants.LetterIndexOffsetRatioY
                     )
                 );
-                levelNumberElementRect = levelNumberElement.Rect;
                 scene.AddElement(levelNumberElement);
                 digitIndex++;
+                levelNumberLeterrs.Add(levelNumberElement);
             }
             Levels[levelIndex].action(this);
             StartFade(255, 0, () => { }, Constants.FadeOutDuration);

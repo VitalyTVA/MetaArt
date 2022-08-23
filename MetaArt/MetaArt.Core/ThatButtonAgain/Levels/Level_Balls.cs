@@ -2,6 +2,7 @@
 namespace ThatButtonAgain {
     static class Level_Balls {
         public static void Load_20Level(GameController game) {
+            game.RemoveLastLevelLetter();
             bool ballSnapped = false;
             LoadCore(
                 game,
@@ -78,7 +79,7 @@ namespace ThatButtonAgain {
             button.Rect = button.Rect.Offset(new Vector2(0, -button.Rect.Width / 2));
 
             var hitBallLocation = new Vector2(button.Rect.MidX, game.height - button.Rect.Width * .7f);
-            var spring = new Spring { From = hitBallLocation, To = hitBallLocation }.AddTo(game);
+            var spring = new Line { From = hitBallLocation, To = hitBallLocation, Thickness = Constants.ButtonBorderWeight }.AddTo(game);
 
             var letters = game.CreateLetters((letter, index) => {
                 letter.Rect = game.GetLetterTargetRect(index, button.Rect);
