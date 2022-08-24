@@ -39,7 +39,7 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_RotateAroundLetter.Load),
             RegisterLevel(Level_LettersBehindButton.Load),
             RegisterLevel(Level_ClickInsteadOfTouch.Load),
-            RegisterLevel(Level_RandomButton.Load),
+            RegisterLevel(Level_RandomButton.Load_Simple),
             RegisterLevel(Level_ReflectedButton.Load),
             RegisterLevel(Level_Capital.Load_Mod2Vectors),
             RegisterLevel(Level_FindWord.Load),
@@ -55,6 +55,7 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_16Game.Load),
             RegisterLevel(Level_Balls.Load_20Level),
             RegisterLevel(Level_DragLetters.Load_Inverted),
+            RegisterLevel(Level_RandomButton.Load_Hard),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("Level_", null).Replace(".Load", null));
@@ -243,6 +244,13 @@ namespace ThatButtonAgain {
             //playSound(SoundKind.BrakeBall);
         }
         internal void StartCthulhuReloadLevelAnimation() {
+            game.scene.ClearElements();
+            game.scene.AddElement(new SvgElement(SvgKind.Cthulhu) {
+                Rect = Rect.FromCenter(
+                    new Vector2(game.width / 2, game.height / 2),
+                    new Vector2(game.width * Constants.CthulhuWidthScaleRatio)
+                )
+            });
             StartFade(0, 255, () => SetLevel(levelIndex), Constants.FadeOutCthulhuDuration);
             playSound(SoundKind.Cthulhu);
         }

@@ -7,13 +7,6 @@ namespace ThatButtonAgain {
                 if(winLevel)
                     game.StartNextLevelAnimation();
                 else {
-                    game.scene.ClearElements();
-                    game.scene.AddElement(new SvgElement(SvgKind.Cthulhu) {
-                        Rect = Rect.FromCenter(
-                            new Vector2(game.width / 2, game.height / 2),
-                            new Vector2(game.width * Constants.CthulhuWidthScaleRatio)
-                        )
-                    });
                     game.StartCthulhuReloadLevelAnimation();
                 }
             }).AddTo(game);
