@@ -65,7 +65,7 @@ namespace ThatButtonAgain {
             }
 
             var initialLocation = button.Rect.Location;
-            var cthulhuInitialLocation = button.Rect.Location;
+            var cthulhuInitialLocation = cthulhuButton.Rect.Location;
 
             int appearCount = 0;
             Random random = new Random(0);
