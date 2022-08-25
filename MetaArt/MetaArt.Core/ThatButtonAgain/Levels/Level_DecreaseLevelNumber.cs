@@ -21,10 +21,12 @@ namespace ThatButtonAgain {
 
             ChangeIndex(-1);
 
+            DateTime lastClickTime = DateTime.Now;
+            var interval = TimeSpan.FromMilliseconds(300);
             var timer = DelegateAnimation.Timer(
-                TimeSpan.FromMilliseconds(400), 
+                interval, 
                 () => {
-                    if(currentIndex != game.levelIndex -1)
+                    if(currentIndex != game.levelIndex -1 && (DateTime.Now - lastClickTime) > interval)
                         ChangeIndex(+1);
                 })
                 .Start(game);
@@ -32,6 +34,7 @@ namespace ThatButtonAgain {
             var button = game.CreateButton(() => {
                 if(currentIndex != game.levelIndex) {
                     ChangeIndex(-1);
+                    lastClickTime = DateTime.Now;
                     game.playSound(SoundKind.Tap);
                     if(currentIndex == game.levelIndex) {
                         game.animations.RemoveAnimation(timer);
