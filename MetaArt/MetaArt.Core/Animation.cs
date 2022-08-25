@@ -4,6 +4,18 @@
         public Action? End { get; init; }
     }
     public sealed class DelegateAnimation : AnimationBase {
+        public static DelegateAnimation Timer(TimeSpan period, Action onTimer) {
+            var totalTime = TimeSpan.Zero;
+            return new DelegateAnimation(deltaTime => {
+                totalTime += deltaTime;
+                if(totalTime > period) {
+                    totalTime -= period;
+                    onTimer();
+                }
+                return true;
+            });
+        }
+
         readonly Func<TimeSpan, bool> next;
 
         public DelegateAnimation(Func<TimeSpan, bool> next) {

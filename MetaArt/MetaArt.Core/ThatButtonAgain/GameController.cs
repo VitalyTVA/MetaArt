@@ -54,6 +54,7 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_Calculator.Load),
             RegisterLevel(Level_16Game.Load_4x4),
             RegisterLevel(Level_Balls.Load_20Level),
+            RegisterLevel(Level_DecreaseLevelNumber.Load),
             RegisterLevel(Level_DragLetters.Load_Inverted),
             RegisterLevel(Level_RandomButton.Load_Hard),
             RegisterLevel(Level_16Game.Load_3x3),
@@ -271,7 +272,7 @@ namespace ThatButtonAgain {
             return letters;
         }
 
-        int levelIndex = 0;
+        internal int levelIndex { get; private set; } = 0;
         internal void VerifyExpectedLevelIndex(int expectedLevel) {
             if(levelIndex != expectedLevel)
                 throw new InvalidOperationException();
