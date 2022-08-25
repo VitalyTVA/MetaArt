@@ -2,6 +2,7 @@
 namespace ThatButtonAgain {
     static class Level_10 {
         public static void Load(GameController game) {
+            game.VerifyExpectedLevelIndex(10);
             game.RemoveLastLevelLetter();
 
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);

@@ -2,6 +2,7 @@
 namespace ThatButtonAgain {
     static class Level_11 {
         public static void Load(GameController game) {
+            game.VerifyExpectedLevelIndex(11);
             bool win = false;
             var button = game.CreateButton(() => {
                 if(win)

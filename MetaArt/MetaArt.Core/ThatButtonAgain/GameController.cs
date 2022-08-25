@@ -272,6 +272,10 @@ namespace ThatButtonAgain {
         }
 
         int levelIndex = 0;
+        internal void VerifyExpectedLevelIndex(int expectedLevel) {
+            if(levelIndex != expectedLevel)
+                throw new InvalidOperationException();
+        }
         internal Rect levelNumberElementRect => levelNumberLeterrs.First().Rect;
         internal void RemoveLastLevelLetter() {
             scene.RemoveElement(levelNumberLeterrs.Last());

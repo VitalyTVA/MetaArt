@@ -2,6 +2,7 @@
 namespace ThatButtonAgain {
     static class Level_Balls {
         public static void Load_20Level(GameController game) {
+            game.VerifyExpectedLevelIndex(20);
             game.RemoveLastLevelLetter();
             bool ballSnapped = false;
             LoadCore(
