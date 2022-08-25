@@ -52,10 +52,11 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_RotatingLetters.Load),
             RegisterLevel(Level_RotatingArrow.Load),
             RegisterLevel(Level_Calculator.Load),
-            RegisterLevel(Level_16Game.Load),
+            RegisterLevel(Level_16Game.Load_4x4),
             RegisterLevel(Level_Balls.Load_20Level),
             RegisterLevel(Level_DragLetters.Load_Inverted),
             RegisterLevel(Level_RandomButton.Load_Hard),
+            RegisterLevel(Level_16Game.Load_3x3),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("Level_", null).Replace(".Load", null));

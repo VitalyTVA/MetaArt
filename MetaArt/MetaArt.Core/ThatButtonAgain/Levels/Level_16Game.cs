@@ -1,7 +1,13 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_16Game {
-        public static void Load(GameController game) {
+        public static void Load_3x3(GameController game) {
+            LoadCore(game, 3);
+        }
+        public static void Load_4x4(GameController game) {
+            LoadCore(game, 4);
+        }
+        static void LoadCore(GameController game, int size) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.IsEnabled = false;
             button.Rect = button.Rect.Offset(new Vector2(0, -1.5f * game.letterDragBoxHeight));
@@ -10,25 +16,24 @@ namespace ThatButtonAgain {
                 letter.Rect = game.GetLetterTargetRect(index, button.Rect);
                 letter.IsVisible = false;
             });
+            var game16 = new Game16<Letter>(size);
 
             Rect GetLetterRect(int row, int col) {
                 float size = 1f * game.letterSize;
                 return Rect.FromCenter(
                     new Vector2(
-                        game.width / 2 + size * (col + .5f - Game16<Letter>.size / 2f),
+                        game.width / 2 + size * (col + .5f - game16.size / 2f),
                         game.height / 2 + button.Rect.Height / 2 + size * row
                     ),
                     new Vector2(size)
                 );
             }
 
-            var game32 = new Game16<Letter>();
-
             void SpawnNewLetter() {
                 var letter = new Letter {
                     Opacity = 0,
                 };
-                var spawn = game32.SpawnNew(letter);
+                var spawn = game16.SpawnNew(letter);
                 if(spawn == null) {
                     GameOver();
                 } else {
@@ -48,7 +53,7 @@ namespace ThatButtonAgain {
                 foreach(var item in buttonLetters) {
                     item.IsVisible = false;
                 }
-                foreach(var value in game32.GetDistinctValues()) {
+                foreach(var value in game16.GetDistinctValues()) {
                     var index = value switch {
                         Value.One => 0,
                         Value.Two => 1,
@@ -78,7 +83,7 @@ namespace ThatButtonAgain {
                             if(direction == null)
                                 return true;
                             game.playSound(direction.Value.GetSound());
-                            var moves = game32.Swipe(direction.Value);
+                            var moves = game16.Swipe(direction.Value);
                             var duration = TimeSpan.FromMilliseconds(100);
                             var celebrated = false;
                             foreach(var move in moves) {
@@ -161,12 +166,13 @@ namespace ThatButtonAgain {
             internal record struct Cell(Value value, T element);
             internal record struct Move(int row, int col, T element, Value? value, bool merged);
 
-            public const int size = 4;
-            const int lastIndex = size - 1;
+            public readonly int size;
+            public int lastIndex => size - 1;
             Cell?[,] values;
             Random random = new Random(0);
 
-            public Game16() {
+            public Game16(int size) {
+                this.size = size;
                 values = new Cell?[size, size];
             }
 
