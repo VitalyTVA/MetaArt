@@ -58,6 +58,7 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_DragLetters.Load_Inverted),
             RegisterLevel(Level_RandomButton.Load_Hard),
             RegisterLevel(Level_16Game.Load_3x3),
+            RegisterLevel(Level_MoveInLine.Load),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("Level_", null).Replace(".Load", null));
@@ -98,7 +99,7 @@ namespace ThatButtonAgain {
             return buttonHeight * Constants.ButtonAnchorDistanceRatio;
         }
 
-        internal void StartLetterDirectionAnimation(Letter letter, Direction direction) {
+        internal void StartLetterDirectionAnimation(Letter letter, Direction direction, int count = 1) {
             var (directionX, directionY) = direction switch {
                 Direction.Left => (-1, 0),
                 Direction.Right => (1, 0),
@@ -107,7 +108,7 @@ namespace ThatButtonAgain {
                 _ => throw new InvalidOperationException(),
             };
             var from = letter.Rect.Location;
-            var to = letter.Rect.Location + new Vector2(letterHorzStep * directionX, letterDragBoxHeight * directionY);
+            var to = letter.Rect.Location + new Vector2(letterHorzStep * directionX * count, letterDragBoxHeight * directionY * count);
             playSound(direction.GetSound());
             var animation = new LerpAnimation<Vector2> {
                 Duration = TimeSpan.FromMilliseconds(150),

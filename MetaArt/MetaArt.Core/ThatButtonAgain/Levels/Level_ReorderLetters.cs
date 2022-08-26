@@ -32,7 +32,6 @@ namespace ThatButtonAgain {
                 };
             });
 
-            var step = button.Rect.Width / 5;
             var pathElement = new PathElement(new[] {
                 button.Rect.Location,
 

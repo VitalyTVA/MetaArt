@@ -1,6 +1,6 @@
 ﻿namespace ThatButtonAgain {
     public class LetterArea {
-        const char X = 'X';
+        public const char X = 'X';
         const char E = ' ';
 
         public static char[][] CreateSwapHShapeArea() =>
@@ -17,7 +17,16 @@
                 new[] { E, E, 'C', E, E  },
                 new[] { E, E, 'H', E, E  },
             };
-
+        public static char[][] CreateMoveInLineArea() =>
+            new char[][] {
+                new[] { E, E, E, X, E  },
+                new[] { E, 'H', E, 'C', E  },
+                new[] { X, E, X, E, E  },
+                new[] { 'U', E, E, E, E  },
+                new[] { E, E, E, E, X  },
+                new[] { E, E, E, E, E  },
+                new[] { 'O', E, E, E, 'T'  },
+            };
 
         readonly char[][] area;
         public LetterArea(char[][] area) {
@@ -25,6 +34,12 @@
         }
         int Width => area[0].Length;
         int Height => area.Length;
+
+        public int MoveLine(char letter, Direction direction) {
+            int count = 0;
+            while(Move(letter, direction)) count++;
+            return count;
+        }
 
         public bool Move(char letter, Direction direction) {
             var (row, col) = LocateLetter(letter);
@@ -51,14 +66,20 @@
                     throw new InvalidOperationException();
             }
         }
-        (int row, int col) LocateLetter(char letter) {
+
+        public (int row, int col) LocateLetter(char letter) {
+            var (row, col, _) = GetLetters().First(x => x.letter == letter);
+            return (row, col);
+        }
+
+        public IEnumerable<(int row, int col, char letter)> GetLetters() {
             for(int row = 0; row < Height; row++) {
                 for(int col = 0; col < Width; col++) {
-                    if(area[row][col] == letter)
-                        return (row, col);
+                    var letter = area[row][col];
+                    if(letter != E)
+                        yield return (row, col, letter);
                 }
             }
-            throw new InvalidOperationException();
         }
     }
 }
