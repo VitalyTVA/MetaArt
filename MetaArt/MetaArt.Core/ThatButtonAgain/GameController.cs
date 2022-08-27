@@ -42,7 +42,7 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_RandomButton.Load_Simple),
             RegisterLevel(Level_ReflectedButton.Load),
             RegisterLevel(Level_Capital.Load_Mod2Vectors),
-            RegisterLevel(Level_FindWord.Load),
+            RegisterLevel(Level_Matrix.Load_FindWord),
             RegisterLevel(Level_10.Load),
             RegisterLevel(Level_11.Load),
             RegisterLevel(Level_ScrollLetters.Load),
@@ -59,6 +59,8 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_RandomButton.Load_Hard),
             RegisterLevel(Level_16Game.Load_3x3),
             RegisterLevel(Level_MoveInLine.Load),
+            RegisterLevel(Level_Matrix.Load_3InARow),
+
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("Level_", null).Replace(".Load", null));
@@ -99,7 +101,9 @@ namespace ThatButtonAgain {
             return buttonHeight * Constants.ButtonAnchorDistanceRatio;
         }
 
-        internal void StartLetterDirectionAnimation(Letter letter, Direction direction, int count = 1) {
+        internal void StartLetterDirectionAnimation(Letter letter, Direction direction, int count = 1, float? rowStep = null, float? colStep = null) {
+            rowStep = rowStep ?? letterDragBoxHeight;
+            colStep = colStep ?? letterHorzStep;
             var (directionX, directionY) = direction switch {
                 Direction.Left => (-1, 0),
                 Direction.Right => (1, 0),
@@ -108,7 +112,7 @@ namespace ThatButtonAgain {
                 _ => throw new InvalidOperationException(),
             };
             var from = letter.Rect.Location;
-            var to = letter.Rect.Location + new Vector2(letterHorzStep * directionX * count, letterDragBoxHeight * directionY * count);
+            var to = letter.Rect.Location + new Vector2(colStep.Value * directionX * count, rowStep.Value * directionY * count);
             playSound(direction.GetSound());
             var animation = new LerpAnimation<Vector2> {
                 Duration = TimeSpan.FromMilliseconds(150),
@@ -332,6 +336,15 @@ namespace ThatButtonAgain {
             game.animations.AddAnimation(animation, blockInput);
             return animation;
         }
+        public static LetterStyle ToStyle(char value) =>
+            value switch {
+                'T' => LetterStyle.Accent1,
+                'O' => LetterStyle.Accent2,
+                'U' => LetterStyle.Accent3,
+                'C' => LetterStyle.Accent4,
+                'H' => LetterStyle.Accent5,
+                _ => throw new InvalidOperationException(),
+            };
     }
     public enum Direction { Left, Right, Up, Down }
 

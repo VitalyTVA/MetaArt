@@ -39,7 +39,7 @@ namespace ThatButtonAgain {
                 } else {
                     letter.Rect = GetLetterRect(spawn.Value.row, spawn.Value.col);
                     letter.Value = ToLetter(spawn.Value.value);
-                    letter.Style = ToStyle(spawn.Value.value);
+                    letter.Style = ElementExtensions.ToStyle(letter.Value);
 
                     letter.AddTo(game);
                     new LerpAnimation<float> {
@@ -107,7 +107,7 @@ namespace ThatButtonAgain {
                                         Lerp = Vector2.Lerp,
                                         End = () => {
                                             move.element.Value = ToLetter(newValue);
-                                            move.element.Style = ToStyle(newValue);
+                                            move.element.Style = ElementExtensions.ToStyle(move.element.Value);
 
                                         },
                                     }.Start(game, blockInput: true);
@@ -150,15 +150,6 @@ namespace ThatButtonAgain {
                 Value.Four => 'U',
                 Value.Eight => 'C',
                 Value.Sixteen => 'H',
-                _ => throw new InvalidOperationException(),
-            };
-        static LetterStyle ToStyle(Value value) =>
-            value switch {
-                Value.One => LetterStyle.Accent1,
-                Value.Two => LetterStyle.Accent2,
-                Value.Four => LetterStyle.Accent3,
-                Value.Eight => LetterStyle.Accent4,
-                Value.Sixteen => LetterStyle.Accent5,
                 _ => throw new InvalidOperationException(),
             };
 
