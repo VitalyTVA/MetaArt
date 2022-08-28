@@ -27,18 +27,37 @@
                 new[] { E, E, E, E, E  },
                 new[] { 'O', E, E, E, 'T'  },
             };
+        public static char[][] CreateMoveAllArea() =>
+            new char[][] {
+                new[] { E, E, E, E, E  },
+                new[] { E, E, X, E, E  },
+                new[] { 'H', 'C', 'U', 'O', 'T' },
+                new[] { E, E, X, E, E  },
+                new[] { E, E, E, E, E  },
+            };
 
         readonly char[][] area;
         public LetterArea(char[][] area) {
             this.area = area;
         }
-        int Width => area[0].Length;
-        int Height => area.Length;
+        internal int Width => area[0].Length;
+        internal int Height => area.Length;
 
         public int MoveLine(char letter, Direction direction) {
             int count = 0;
             while(Move(letter, direction)) count++;
             return count;
+        }
+
+        public (int row, int col, char letter)[] MoveAll(Direction direction) {
+            var letters = GetLetters().Where(x => x.letter != X);
+            if(direction is Direction.Down or Direction.Right) {
+                letters = letters.Reverse();
+            }
+            return letters
+                .ToArray()
+                .Where(x => Move(x.letter, direction))
+                .ToArray();
         }
 
         public bool Move(char letter, Direction direction) {

@@ -23,6 +23,7 @@ namespace ThatButtonAgain {
                                 return true;
 
                             game.StartLetterDirectionAnimation(letter, direction.Value);
+                            game.playSound(direction.Value.GetSound());
                             return false;
                         },
                         onRelease: delta => {

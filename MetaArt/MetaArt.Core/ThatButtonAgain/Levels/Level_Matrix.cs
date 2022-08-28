@@ -59,6 +59,7 @@ namespace ThatButtonAgain {
                         letters[row - hovered[0].row, col] = null;
                     }
                 }
+                game.playSound(Direction.Down.GetSound());
                 return true;
             });
             foreach(var item in letters) {

@@ -29,6 +29,7 @@ namespace ThatButtonAgain {
                         }
                         //Debug.WriteLine(letter.Value);
                         game.StartLetterDirectionAnimation(letter, direction);
+                        game.playSound(direction.GetSound());
                         direction = direction.RotateCounterClockwize();
                         arrow.Angle = direction.ToAngle();
                     },
