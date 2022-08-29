@@ -3,6 +3,20 @@
         public const char X = 'X';
         const char E = ' ';
 
+
+        public static char[][] CreateSwapPlusShapeArea() =>
+            new char[][] {
+                new[] { X, X, E, X, X  },
+                new[] { X, X, E, X, X  },
+                new[] { 'H', 'C', 'U', 'O', 'T' },
+                new[] { X, X, E, X, X  }
+            };
+        public static char[][] CreateSwapWShapeArea() =>
+            new char[][] {
+                new[] { E, X, E, X, E  },
+                new[] { 'H', 'C', 'U', 'O', 'T' },
+                new[] { X, E, X, E, X  }
+            };
         public static char[][] CreateSwapHShapeArea() =>
             new char[][] {
                 new[] { X, E, X, E, X  },
