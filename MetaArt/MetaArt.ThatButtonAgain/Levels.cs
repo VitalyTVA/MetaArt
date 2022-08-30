@@ -55,9 +55,13 @@ public class Level {
         foreach (var item in controller.scene.VisibleElements) {
             switch(item) {
                 case Button b:
-                    fill(b.IsPressed 
-                        ? (b.IsEnabled ? Colors.ButtonBackPressed : Colors.ButtonBackPressedDisabled) 
-                        : Colors.ButtonBackNormal);
+                    if(b.Filled) {
+                        fill(b.IsPressed
+                            ? (b.IsEnabled ? Colors.ButtonBackPressed : Colors.ButtonBackPressedDisabled)
+                            : Colors.ButtonBackNormal);
+                    } else {
+                        noFill();
+                    }
                     stroke(Colors.ButtonBorder);
                     strokeWeight(Constants.ButtonBorderWeight);
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height, Constants.ButtonCornerRadius);

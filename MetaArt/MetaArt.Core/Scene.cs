@@ -179,6 +179,7 @@ public class FadeOutElement : Element {
 public class Button : Element {
     public bool IsEnabled { get; set; } = true;
     public bool IsPressed { get; set; }
+    public bool Filled { get; set; } = true;
 }
 
 public enum LetterStyle { 

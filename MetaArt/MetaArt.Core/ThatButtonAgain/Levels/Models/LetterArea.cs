@@ -1,6 +1,7 @@
 ﻿namespace ThatButtonAgain {
     public class LetterArea {
         public const char X = 'X';
+        public const char Robot = '¤';
         const char E = ' ';
 
 
@@ -49,6 +50,16 @@
                 new[] { E, E, X, E, E  },
                 new[] { E, E, E, E, E  },
             };
+        public static char[][] CreateSokobanArea() =>
+            new char[][] {
+                new[] { E, E, E, Robot, E, E, E  },
+                new[] { E, E, E, 'T', E, E, E  },
+                new[] { E, E, X, 'O', X, E, E  },
+                new[] { E, E, E, 'U', E, E, E  },
+                new[] { E, E, X, 'C', X, E, E  },
+                new[] { E, E, E, 'H', E, E, E  },
+                new[] { E, E, E, E, E, E, E  },
+            };
 
         readonly char[][] area;
         public LetterArea(char[][] area) {
@@ -72,6 +83,13 @@
                 .ToArray()
                 .Where(x => Move(x.letter, direction))
                 .ToArray();
+        }
+
+        public char? GetLetter(int row, int col) { 
+            if(row < 0 || col < 0) return null;
+            if(row >= Height || col >= Width) return null;
+            var letter = area[row][col];
+            return letter is E or X ? null : letter;
         }
 
         public bool Move(char letter, Direction direction) {

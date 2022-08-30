@@ -63,6 +63,7 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_Reorder.Load_MoveAll),
             RegisterLevel(Level_ReorderLetters.Load_3And2),
             RegisterLevel(Level_ReorderLetters.Load_2And1),
+            RegisterLevel(Level_Reorder.Load_Sokoban),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("Level_", null).Replace(".Load", null));
@@ -106,13 +107,7 @@ namespace ThatButtonAgain {
         internal void StartLetterDirectionAnimation(Letter letter, Direction direction, int count = 1, float? rowStep = null, float? colStep = null) {
             rowStep = rowStep ?? letterDragBoxHeight;
             colStep = colStep ?? letterHorzStep;
-            var (directionX, directionY) = direction switch {
-                Direction.Left => (-1, 0),
-                Direction.Right => (1, 0),
-                Direction.Up => (0, -1),
-                Direction.Down => (0, 1),
-                _ => throw new InvalidOperationException(),
-            };
+            var (directionY, directionX) = direction.GetOffset();
             var from = letter.Rect.Location;
             var to = letter.Rect.Location + new Vector2(colStep.Value * directionX * count, rowStep.Value * directionY * count);
             var animation = new LerpAnimation<Vector2> {
@@ -329,6 +324,16 @@ namespace ThatButtonAgain {
         internal float height => scene.height;
     }
     public static class ElementExtensions {
+        public static (int row, int col) GetOffset(this Direction direction) {
+            return direction switch {
+                Direction.Left => (0, -1),
+                Direction.Right => (0, 1),
+                Direction.Up => (-1, 0),
+                Direction.Down => (1, 0),
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
         public static TElement AddTo<TElement>(this TElement element, GameController game) where TElement : Element {
             game.scene.AddElement(element);
             return element;
