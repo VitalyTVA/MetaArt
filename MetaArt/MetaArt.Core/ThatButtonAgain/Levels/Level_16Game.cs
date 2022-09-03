@@ -8,9 +8,58 @@ namespace ThatButtonAgain {
             LoadCore(game, 3, removeFarCorner: true);
         }
         public static void Load_3x3Extreme(GameController game) {
+            #region solution
+            /*
+            Up
+            Right
+            Left
+            Down
+            Up
+            Right
+            Down
+            Left
+            Right
+            Up
+            Left
+            Down
+            Left
+            Down
+            Up
+            Up
+            Left
+            Right
+            Up
+            Down
+            */
+            #endregion
             LoadCore(game, 3, removeFarCorner: true, removeNearCorner: true);
         }
         public static void Load_4x4(GameController game) {
+            #region solution
+            /*
+            Up
+            Right
+            Left
+            Left
+            Right
+            Left
+            Up
+            Left
+            Down
+            Up
+            Right
+            Down
+            Up
+            Left
+            Left
+            Left
+            Right
+            Up
+            Left
+            Up
+            Left
+             */
+            #endregion
             LoadCore(game, 4);
         }
         static void LoadCore(GameController game, int size, bool removeFarCorner = false, bool removeNearCorner = false) {
