@@ -35,6 +35,30 @@ namespace ThatButtonAgain {
                 );
             }
 
+            var points = new List<Vector2>();
+            var nearRect = GetLetterRect(0, 0);
+            var farRect = GetLetterRect(game16.size - 1, game16.size - 1);
+            if(removeNearCorner) {
+                points.Add(nearRect.BottomLeft);
+                points.Add(nearRect.BottomRight);
+                points.Add(nearRect.TopRight);
+            } else {
+                points.Add(nearRect.Location);
+            }
+            points.Add(GetLetterRect(0, game16.size - 1).TopRight);
+            if(removeFarCorner) {
+                points.Add(farRect.TopRight);
+                points.Add(farRect.Location);
+                points.Add(farRect.BottomLeft);
+            } else {
+                points.Add(farRect.BottomRight);
+            }
+
+            points.Add(GetLetterRect(game16.size - 1, 0).BottomLeft);
+            var border = new PathElement(points.ToArray()) { 
+                Filled = false 
+            }.AddTo(game);
+
             void SpawnNewLetter() {
                 var letter = new Letter {
                     Opacity = 0,
@@ -124,7 +148,6 @@ namespace ThatButtonAgain {
                                 if(buttonLetters.All(x => x.IsVisible)) {
                                     game.playSound(SoundKind.SuccessSwitch);
                                     button.IsEnabled = true;
-                                } else {
                                 }
                             }).Start(game);
                             return false;

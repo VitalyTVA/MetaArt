@@ -118,7 +118,11 @@ public class Level {
                     break;
                 case PathElement p:
                     shapeCorners(Constants.ButtonCornerRadius);
-                    fill(Colors.ButtonBackNormal);
+                    if(p.Filled) {
+                        fill(Colors.ButtonBackNormal);
+                    } else {
+                        noFill();
+                    }
                     stroke(Colors.ButtonBorder);
                     strokeWeight(Constants.ButtonBorderWeight);
                     beginShape();

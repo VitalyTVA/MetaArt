@@ -163,6 +163,7 @@ public class SvgElement : Element {
 
 public class PathElement : Element {
     public readonly Vector2[] Points;
+    public bool Filled { get; set; } = true;
 
     public PathElement(Vector2[] points) {
         Points = points;
