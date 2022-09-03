@@ -178,7 +178,7 @@ namespace ThatButtonAgain {
                 .Select(index => GetLetterTargetRect(index, buttonRect).Location)
                 .ToArray();
 
-        internal Rect GetLetterTargetRect(int index, Rect buttonRect, bool squared = false, float row = 0) {
+        internal Rect GetLetterTargetRect(float index, Rect buttonRect, bool squared = false, float row = 0) {
             float height = squared ? letterDragBoxWidth : letterDragBoxHeight;
             return Rect.FromCenter(
                 buttonRect.Mid + new Vector2((index - 2) * letterHorzStep, 0),
@@ -292,31 +292,104 @@ namespace ThatButtonAgain {
         }
 
         internal List<Letter> levelNumberLeterrs = new();
-        public void SetLevel(int level) {
-            levelIndex = Math.Min(level, Levels.Length - 1);
-            
+
+        void SetScene(Action start) {
             scene.ClearElements();
             animations.VerifyEmpty();
-            int digitIndex = 0;
-            levelNumberLeterrs.Clear();
-            foreach(var digit in levelIndex.ToString()) {
-                var levelNumberElement = new Letter {
-                    Value = digit,
-                };
-                SetUpLevelIndexButton(
-                    levelNumberElement,
-                    new Vector2(
-                        letterSize * Constants.LetterIndexOffsetRatioX + digitIndex * letterDragBoxWidth * Constants.LevelLetterRatio, 
-                        letterSize * Constants.LetterIndexOffsetRatioY
-                    )
-                );
-                scene.AddElement(levelNumberElement);
-                digitIndex++;
-                levelNumberLeterrs.Add(levelNumberElement);
-            }
-            Levels[levelIndex].action(this);
+            start();
             StartFade(255, 0, () => { }, Constants.FadeOutDuration);
         }
+
+        void SetSelectLevelAnimation() {
+            SetScene(() => {
+                var letters = Enumerable.Range(0, 2)
+                    .Select(i => {
+                        var letter = new Letter {
+                            ActiveRatio = 1,
+                            HitTestVisible = true,
+                            Rect = GetLetterTargetRect(i + 1.5f, GetButtonRect())
+                        }.AddTo(game);
+                        letter.GetPressState = Element.GetPressReleaseStateFactory(
+                            letter,
+                            () => {
+                                playSound(SoundKind.Snap);
+                                StartReloadLevelAnimation();
+                            },
+                            () => { }
+                        );
+                        return letter;
+                    })
+                    .ToArray();
+
+                void ChangLevelIndex(int delta) {
+                    var newIndex = levelIndex + delta;
+                    SetLevelIndex(newIndex);
+                    var levelString = levelIndex.ToString("00");
+                    letters[0].Value = levelString[0];
+                    letters[1].Value = levelString[1];
+                    if(delta != 0)
+                        playSound(newIndex == levelIndex ? SoundKind.Tap : SoundKind.ErrorClick);
+                }
+                ChangLevelIndex(0);
+
+                var nextLevel = new Letter {
+                    Value = '>',
+                    HitTestVisible = true,
+                    Rect = GetLetterTargetRect(4f, GetButtonRect())
+                }.AddTo(game);
+                nextLevel.GetPressState = Element.GetPressReleaseStateFactory(
+                    nextLevel,
+                    () => ChangLevelIndex(+1),
+                    () => { }
+                );
+
+                var prevLevel = new Letter {
+                    Value = '<',
+                    HitTestVisible = true,  
+                    Rect = GetLetterTargetRect(0f, GetButtonRect())
+                }.AddTo(game);
+                prevLevel.GetPressState = Element.GetPressReleaseStateFactory(
+                    prevLevel,
+                    () => ChangLevelIndex(-1),
+                    () => { }
+                );
+            });
+        }
+
+        public void SetLevel(int level) {
+            SetScene(() => {
+                SetLevelIndex(level);
+                int digitIndex = 0;
+                levelNumberLeterrs.Clear();
+                foreach(var digit in levelIndex.ToString()) {
+                    var levelNumberElement = new Letter {
+                        Value = digit,
+                        HitTestVisible = true,
+                    };
+                    SetUpLevelIndexButton(
+                        levelNumberElement,
+                        new Vector2(
+                            letterSize * Constants.LetterIndexOffsetRatioX + digitIndex * letterDragBoxWidth * Constants.LevelLetterRatio,
+                            letterSize * Constants.LetterIndexOffsetRatioY
+                        )
+                    );
+                    levelNumberElement.GetPressState = Element.GetPressReleaseStateFactory(
+                        levelNumberElement,
+                        SetSelectLevelAnimation,
+                        () => { }
+                    );
+                    scene.AddElement(levelNumberElement);
+                    digitIndex++;
+                    levelNumberLeterrs.Add(levelNumberElement);
+                }
+                Levels[levelIndex].action(this);
+            });
+        }
+
+        private void SetLevelIndex(int level) {
+            levelIndex = Math.Max(Math.Min(level, Levels.Length - 1), 0);
+        }
+
         internal void SetUpLevelIndexButton(Letter letter, Vector2 location) {
             letter.Rect = new Rect(
                 location,
