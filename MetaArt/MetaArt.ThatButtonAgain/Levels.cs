@@ -10,7 +10,7 @@ public class Level {
 
     GameController controller = null!;
     Dictionary<SoundKind, SoundFile> sounds = new();
-    Dictionary<SvgKind, SkiaSharp.Extended.Svg.SKSvg> svgs = new();
+    Dictionary<SvgKind, Svg.Skia.SKSvg> svgs = new();
 
     public Level(int levelIndex) {
         this.levelIndex = levelIndex;
@@ -38,7 +38,7 @@ public class Level {
         svgs = Enum.GetValues(typeof(SvgKind))
             .Cast<SvgKind>()
             .ToDictionary(x => x, x => {
-                var svg = new SkiaSharp.Extended.Svg.SKSvg();
+                var svg = new Svg.Skia.SKSvg();
                 svg.Load(GetStream(x + ".svg"));
                 return svg;
             });
@@ -108,11 +108,15 @@ public class Level {
                 case SvgElement s:
                     noStroke();
                     var svg = svgs[s.Kind];
-                    float scaleX = s.Rect.Width / svg.Picture.CullRect.Width;
-                    float scaleY = s.Rect.Height / svg.Picture.CullRect.Height;
+                    float scaleX = s.Rect.Width / svg.Picture!.CullRect.Width;
+                    float scaleY = s.Rect.Height / svg.Picture!.CullRect.Height;
                     var matrix = SKMatrix.CreateScale(scaleX, scaleY);
                     pushMatrix();
                     translate(s.Rect.Left, s.Rect.Top);
+                    //var paint = new SKPaint { 
+                    //    //Color = SKColors.Red 
+                    //    ColorFilter = SKColorFilter.CreateBlendMode(SKColors.Red, SKBlendMode.SrcIn)
+                    //};
                     ((MetaArt.Skia.SkiaGraphics)MetaArt.Internal.Graphics.GraphicsInstance).Canvas.DrawPicture(svg.Picture, ref matrix);
                     popMatrix();
                     break;

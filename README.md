@@ -27,6 +27,9 @@ https://products.aspose.app/3d/ru/compression/obj
 music sequensors
 https://habr.com/ru/company/audiomania/blog/651485/
 
+SVG with palette
+https://github.com/mono/SkiaSharp.Extended/issues/37
+
 void setup()
 {
 size(600, 600);
