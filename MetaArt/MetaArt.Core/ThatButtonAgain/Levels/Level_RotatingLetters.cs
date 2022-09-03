@@ -1,23 +1,7 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_RotatingLetters {
-        /*
-//002233 medium - hard
-var rotations = new[] {
-    new[] { 1, 0, 0, -2, 0 },
-    new[] { 0, 2, 0, -1, 1 },
-    new[] { -2, 0, 1, 0, 1 },
-    new[] { 0, -1, 0, 1, 0 },
-    new[] { 1, -2, 0, 0, 1 },
-};
-//0144 hard
-var rotations = new[] {
-    new[] { 1, -1, 0, -2, 0 },
-    new[] { -1, 1, 0, 0, 0 },
-    new[] { 2, 0, -1, 0, -1 },
-    new[] { 2, 0, 1, -1, 0 },
-    new[] { -1, 0, 1, 0, 1 },
-};
+/*
 //04 medium
 var rotations = new[] {
     new[] { 1, 0, 0, -2, 1 },
@@ -28,16 +12,49 @@ var rotations = new[] {
 };
 */
 
-        //01234
-        static readonly int[][] rotations = new[] {
-                new[] { 1, 0, 0, -1, 0 },
-                new[] { 0, 1, 0, 0, -1 },
-                new[] { 0, -1, 1, 0, 0 },
-                new[] { 0, 0, 1, -1, 0 },
-                new[] { 1, 0, 0, 0, 1 },
-            };
+        public static void Load_Easy(GameController game) {
+            //01234
+            LoadCore(
+                game,
+                new[] {
+                    new[] { 1, 0, 0, -1, 0 },
+                    new[] { 0, 1, 0, 0, -1 },
+                    new[] { 0, -1, 1, 0, 0 },
+                    new[] { 0, 0, 1, -1, 0 },
+                    new[] { 1, 0, 0, 0, 1 },
+                }
+            );
+        }
 
-        public static void Load(GameController game) {
+        public static void Load_Medium(GameController game) {
+            //002233 medium - hard
+            LoadCore(
+                game,
+                new[] {
+                    new[] { 1, 0, 0, -2, 0 },
+                    new[] { 0, 2, 0, -1, 1 },
+                    new[] { -2, 0, 1, 0, 1 },
+                    new[] { 0, -1, 0, 1, 0 },
+                    new[] { 1, -2, 0, 0, 1 },
+                }
+            );
+        }
+
+        public static void Load_Hard(GameController game) {
+            //0144 hard
+            LoadCore(
+                game,
+                new[]  {
+                    new[] { 1, -1, 0, -2, 0 },
+                    new[] { -1, 1, 0, 0, 0 },
+                    new[] { 2, 0, -1, 0, -1 },
+                    new[] { 2, 0, 1, -1, 0 },
+                    new[] { -1, 0, 1, 0, 1 },
+                }
+            );
+        }
+
+        static void LoadCore(GameController game, int[][] rotations) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = false;
 
