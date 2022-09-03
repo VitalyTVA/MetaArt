@@ -2,8 +2,12 @@
 namespace ThatButtonAgain {
     static class Level_RotatingArrow {
         public static void Load(GameController game) {
+            var area = new LetterArea(LetterArea.CreateArrowDirectedLetters());
+
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = false;
+            button.Rect = game.GetContainingRect(area);
+            button.Filled = false;
 
             var direction = Direction.Right;
 
@@ -15,7 +19,6 @@ namespace ThatButtonAgain {
             }.AddTo(game);
             arrow.Rect = arrow.Rect.SetLocation(new Vector2(arrow.Rect.Left, game.levelNumberLeterrs.First().Rect.Top));
 
-            var area = new LetterArea(LetterArea.CreateArrowDirectedLetters());
             //HHTTHHTTCCOO
             var letters = game.CreateLetters((letter, index) => {
                 letter.Rect = game.GetLetterTargetRect(2, button.Rect, row: index - 2);
@@ -37,13 +40,19 @@ namespace ThatButtonAgain {
                 );
             });
 
-
-            new WaitConditionAnimation(condition: game.GetAreLettersInPlaceCheck(button.Rect, letters)) {
+            var condition = game.GetAreLettersInPlaceCheck(button.Rect, letters);
+            new WaitConditionAnimation(condition: deltaTime => {
+                game.ActivateInplaceLetters(letters);
+                return condition(deltaTime);
+            }) {
                 End = () => {
+                    button.Rect = game.GetButtonRect();
+                    button.Filled = true;
                     button.HitTestVisible = true;
                     foreach(var item in letters) {
                         item.HitTestVisible = false;
                     }
+                    game.playSound(SoundKind.SuccessSwitch);
                 }
             }.Start(game);
         }

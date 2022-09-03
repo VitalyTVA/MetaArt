@@ -169,17 +169,8 @@ Down
             #endregion
         }
 
-        static Rect GetContainingRect(GameController game, LetterArea area) {
-            var buttonRect = game.GetButtonRect();
-            var rowsOffset = area.Height / 2;
-            var colsOffset = area.Width / 2 - 2;
-            return buttonRect
-                .ContainingRect(game.GetLetterTargetRect(-colsOffset, buttonRect, row: -rowsOffset))
-                .ContainingRect(game.GetLetterTargetRect(area.Width - 1 - colsOffset, buttonRect, row: rowsOffset));
-        }
-
         static void SetupInputHandler(GameController game, LetterArea area, InputHandlerElement inputHandler, Action<Direction> onSwipe) {
-            inputHandler.Rect = GetContainingRect(game, area);
+            inputHandler.Rect = game.GetContainingRect(area);
             inputHandler.GetPressState = (startPoint, releaseState) => {
                 return new DragInputState(
                     startPoint,
@@ -207,7 +198,7 @@ Down
         ) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = false;
-            button.Rect = GetContainingRect(game, area);
+            button.Rect = game.GetContainingRect(area);
             button.Filled = false;
 
             var rowsOffset = area.Height / 2;
@@ -232,11 +223,7 @@ Down
             var condition = game.GetAreLettersInPlaceCheck(button.Rect, letters);
             new WaitConditionAnimation(
                 condition: deltaTime => {
-                    for(int i = 0; i < 5; i++) {
-                        letters[i].ActiveRatio =
-                            MathFEx.VectorsEqual(game.GetLetterTargetRect(i, game.GetButtonRect()).Location, letters[i].Rect.Location)
-                                ? 1 : 0;
-                    }
+                    game.ActivateInplaceLetters(letters);
                     return condition(deltaTime);
                 }) {
                 End = () => {

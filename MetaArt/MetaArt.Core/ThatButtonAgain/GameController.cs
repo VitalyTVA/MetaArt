@@ -356,6 +356,21 @@ namespace ThatButtonAgain {
                 'H' => LetterStyle.Accent5,
                 _ => throw new InvalidOperationException(),
             };
+        public static Rect GetContainingRect(this GameController game, LetterArea area) {
+            var buttonRect = game.GetButtonRect();
+            var rowsOffset = area.Height / 2;
+            var colsOffset = area.Width / 2 - 2;
+            return buttonRect
+                .ContainingRect(game.GetLetterTargetRect(-colsOffset, buttonRect, row: -rowsOffset))
+                .ContainingRect(game.GetLetterTargetRect(area.Width - 1 - colsOffset, buttonRect, row: rowsOffset));
+        }
+        public static void ActivateInplaceLetters(this GameController game, Letter[] letters) {
+            for(int i = 0; i < 5; i++) {
+                letters[i].ActiveRatio =
+                    MathFEx.VectorsEqual(game.GetLetterTargetRect(i, game.GetButtonRect()).Location, letters[i].Rect.Location)
+                        ? 1 : 0;
+            }
+        }
     }
     public enum Direction { Left, Right, Up, Down }
 
