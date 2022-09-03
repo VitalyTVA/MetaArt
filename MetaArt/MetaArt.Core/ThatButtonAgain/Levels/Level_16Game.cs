@@ -4,10 +4,16 @@ namespace ThatButtonAgain {
         public static void Load_3x3(GameController game) {
             LoadCore(game, 3);
         }
+        public static void Load_3x3Hard(GameController game) {
+            LoadCore(game, 3, removeFarCorner: true);
+        }
+        public static void Load_3x3Extreme(GameController game) {
+            LoadCore(game, 3, removeFarCorner: true, removeNearCorner: true);
+        }
         public static void Load_4x4(GameController game) {
             LoadCore(game, 4);
         }
-        static void LoadCore(GameController game, int size) {
+        static void LoadCore(GameController game, int size, bool removeFarCorner = false, bool removeNearCorner = false) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.IsEnabled = false;
             button.Rect = button.Rect.Offset(new Vector2(0, -1.5f * game.letterDragBoxHeight));
@@ -16,7 +22,7 @@ namespace ThatButtonAgain {
                 letter.Rect = game.GetLetterTargetRect(index, button.Rect);
                 letter.IsVisible = false;
             });
-            var game16 = new Game16<Letter>(size);
+            var game16 = new Game16<Letter>(size, removeFarCorner, removeNearCorner);
 
             Rect GetLetterRect(int row, int col) {
                 float size = 1f * game.letterSize;
@@ -158,12 +164,18 @@ namespace ThatButtonAgain {
             internal record struct Move(int row, int col, T element, Value? value, bool merged);
 
             public readonly int size;
-            public int lastIndex => size - 1;
+            readonly bool removeFarCorner;
+            readonly bool removeNearCorner;
+
+            public int GetLastIndex(int rowOrCol) => size - 1 - (removeFarCorner && rowOrCol == size - 1 ? 1 : 0);
+            public int GetFirstIndex(int rowOrCol) => removeNearCorner && rowOrCol == 0 ? 1 : 0;
             Cell?[,] values;
             Random random = new Random(0);
 
-            public Game16(int size) {
+            public Game16(int size, bool removeFarCorner, bool removeNearCorner) {
                 this.size = size;
+                this.removeFarCorner = removeFarCorner;
+                this.removeNearCorner = removeNearCorner;
                 values = new Cell?[size, size];
             }
 
@@ -200,8 +212,8 @@ namespace ThatButtonAgain {
                 if(direction is Direction.Right or Direction.Left) {
                     for(int row = 0; row < size; row++) {
                         var forward = direction is Direction.Left;
-                        for(int col = forward ? 0 : lastIndex; forward ? col < size : col >= 0; col += (forward ? 1 : -1)) {
-                            CollectMoves(row, col, row, forward ? moves.Count : lastIndex - moves.Count);
+                        for(int col = forward ? GetFirstIndex(row) : GetLastIndex(row); forward ? col <= GetLastIndex(row) : col >= GetFirstIndex(row); col += (forward ? 1 : -1)) {
+                            CollectMoves(row, col, row, forward ? moves.Count + GetFirstIndex(row) : GetLastIndex(row) - moves.Count);
                         }
                         foreach(var item in YieldMoves()) {
                             yield return item;
@@ -210,8 +222,8 @@ namespace ThatButtonAgain {
                 } else {
                     for(int col = 0; col < size; col++) {
                         var forward = direction is Direction.Up;
-                        for(int row = forward ? 0 : lastIndex; forward ? row < size : row >= 0; row += (forward ? 1 : -1)) {
-                            CollectMoves(row, col, forward ? moves.Count : lastIndex - moves.Count, col);
+                        for(int row = forward ? GetFirstIndex(col) : GetLastIndex(col); forward ? row <= GetLastIndex(col) : row >= GetFirstIndex(col); row += (forward ? 1 : -1)) {
+                            CollectMoves(row, col, forward ? moves.Count + GetFirstIndex(col) : GetLastIndex(col) - moves.Count, col);
                         }
                         foreach(var item in YieldMoves()) {
                             yield return item;
@@ -223,7 +235,7 @@ namespace ThatButtonAgain {
             public (int row, int col, Value value)? SpawnNew(T element) {
                 var emptyCells = new List<(int row, int col)>(size * size);
                 for(int row = 0; row < size; row++) {
-                    for(int col = 0; col < size; col++) {
+                    for(int col = GetFirstIndex(row); col <= GetLastIndex(row); col++) {
                         if(values[row, col] == null)
                             emptyCells.Add((row, col));
                     }

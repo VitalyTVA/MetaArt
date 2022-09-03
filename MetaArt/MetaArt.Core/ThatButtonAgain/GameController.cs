@@ -68,6 +68,8 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_ScrollLetters.Load_Extreme),
             RegisterLevel(Level_RotatingLetters.Load_Medium),
             RegisterLevel(Level_RotatingLetters.Load_Hard),
+            RegisterLevel(Level_16Game.Load_3x3Hard),
+            RegisterLevel(Level_16Game.Load_3x3Extreme),
 
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
