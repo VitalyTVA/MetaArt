@@ -1,17 +1,6 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_ScrollLetters {
-        //trivial, 2 steps, C leter stays inplace
-        //2 +12
-        //1 +3
-        static readonly int[][] changes = new[] {
-                new [] { 1, 0, 0, -1, 0 }, //confusing
-                new [] { 1, 1, 0, 0, -1 },
-                new [] { -1, 0, 1, 0, 0 },
-                new [] { 1, 0, -1, 1, 0 }, //confusing
-                new [] { 0, 1, -1, 0, 1 },
-            };
-
         /*
         //hardest, irregular increase, 3 steps, C letter stays inplace
         //2 +12
@@ -23,19 +12,6 @@ namespace ThatButtonAgain {
             new [] { -1, 0, 1, 0, 0 },
             new [] { 1, 0, -1, 1, 0 }, //confusing
             new [] { -1, 0, 0, 0, 1 },
-        };
-
-
-        //hard, regular increase, 3 steps, C letter stays inplace
-        //2 +12
-        //4 -6
-        //1 -3
-        var changes = new[] {
-            new [] { 1, 0, -1, 0, 1 }, //confusing
-            new [] { -1, 1, 0, 0, -1 },
-            new [] { -1, 0, 1, 0, 0 },
-            new [] { 1, 0, -1, 1, 0 }, //confusing
-            new [] { 0, -1, 0, 0, 1 },
         };
 
         //very hard, regular increase, 3 steps, C letter moves
@@ -50,21 +26,56 @@ namespace ThatButtonAgain {
             new [] { 0, -1, 0, -1, 1 },
         };
 
-        //extreme, irregular increase, 4 steps, C letter moves
-        //3 +3
-        //2 +6
-        //1 +3
-        //4 -3
-
-        var changes = new[] {
-            new [] { 1, 0, -1, 0, 1 }, //confusing
-            new [] { 0, 1, 0, -1, 0 },
-            new [] { -2, 0, 1, 0, 0 },
-            new [] { 0, 0, 2, 1, 0 },
-            new [] { -1, 0, 0, 0, 1 },
-        };
         */
-        public static void Load(GameController game) {
+        public static void Load_Trivial(GameController game) {
+            //trivial, 2 steps, C leter stays inplace
+            //2 +12
+            //1 +3
+            LoadCore(
+                game,
+                new[] {
+                    new [] { 1, 0, 0, -1, 0 }, //confusing
+                    new [] { 1, 1, 0, 0, -1 },
+                    new [] { -1, 0, 1, 0, 0 },
+                    new [] { 1, 0, -1, 1, 0 }, //confusing
+                    new [] { 0, 1, -1, 0, 1 },
+                }
+            );
+        }
+        public static void Load_Hard(GameController game) {
+            //hard, regular increase, 3 steps, C letter stays inplace
+            //2 +12
+            //4 -6
+            //1 -3
+            LoadCore(
+                game,
+                new[] {
+                    new [] { 1, 0, -1, 0, 1 }, //confusing
+                    new [] { -1, 1, 0, 0, -1 },
+                    new [] { -1, 0, 1, 0, 0 },
+                    new [] { 1, 0, -1, 1, 0 }, //confusing
+                    new [] { 0, -1, 0, 0, 1 },
+                }
+            );
+        }
+        public static void Load_Extreme(GameController game) {
+            //extreme, irregular increase, 4 steps, C letter moves
+            //3 +3
+            //2 +6
+            //1 +3
+            //4 -3
+            LoadCore(
+                game,
+                new[] {
+                    new [] { 1, 0, -1, 0, 1 }, //confusing
+                    new [] { 0, 1, 0, -1, 0 },
+                    new [] { -2, 0, 1, 0, 0 },
+                    new [] { 0, 0, 2, 1, 0 },
+                    new [] { -1, 0, 0, 0, 1 },
+                }
+            );
+        }
+        static void LoadCore(GameController game, int[][] changes) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = false;
             var lineHeight = game.letterDragBoxHeight;

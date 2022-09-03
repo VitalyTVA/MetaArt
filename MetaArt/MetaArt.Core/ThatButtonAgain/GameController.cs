@@ -45,7 +45,7 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_Matrix.Load_FindWord),
             RegisterLevel(Level_10.Load),
             RegisterLevel(Level_11.Load),
-            RegisterLevel(Level_ScrollLetters.Load),
+            RegisterLevel(Level_ScrollLetters.Load_Trivial),
             RegisterLevel(Level_ReorderLetters.Load_2And2),
             RegisterLevel(Level_ReflectedC.Load),
             RegisterLevel(Level_Balls.Load_KeepO),
@@ -64,6 +64,8 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_ReorderLetters.Load_3And2),
             RegisterLevel(Level_ReorderLetters.Load_2And1),
             RegisterLevel(Level_Reorder.Load_Sokoban),
+            RegisterLevel(Level_ScrollLetters.Load_Hard),
+            RegisterLevel(Level_ScrollLetters.Load_Extreme),
         };
         static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("Level_", null).Replace(".Load", null));
