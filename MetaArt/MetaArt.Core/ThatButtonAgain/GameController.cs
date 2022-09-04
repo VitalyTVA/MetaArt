@@ -429,7 +429,7 @@ namespace ThatButtonAgain {
 
                         new LerpAnimation<float> {
                             From = 0,
-                            To = 0.95f,
+                            To = 0.97f,
                             Duration = Constants.HintFadeDuration,
                             Lerp = MathFEx.Lerp,
                             SetValue = value => fadeElement.Opacity = value,
@@ -446,21 +446,29 @@ namespace ThatButtonAgain {
                                 //var containingRect = buttonRect;
                                 for(int row = 0; row < symbols.Length; row++) {
                                     for(int col = 0; col < symbols[row].Length; col++) {
-                                        var icon = symbols[row][col].icon;
-                                        var svg = icons[icon];
-                                        var element = new SvgElement(svg) {
-                                            Rect = GetLetterTargetRect(col, buttonRect, row: -3 + row),
-                                            Size = letterSize * .75f,
-                                            HitTestVisible = false,
-                                            Style = LetterStyle.Accent1,
-                                        }.AddTo(game);
+                                        var hint = symbols[row][col];
+                                        var rect = GetLetterTargetRect(col, buttonRect, row: -3 + row);
+                                        const float scale = 0.75f;
+                                        Element element = hint switch { 
+                                            (SvgIcon icon, null) => 
+                                                new SvgElement(icons[icon]) {
+                                                    Rect = rect,
+                                                    Size = letterSize * scale,
+                                                    Style = LetterStyle.Accent1,
+                                                },
+                                               
+                                            (null, char letter) => 
+                                                new Letter {
+                                                    Value = letter,
+                                                    Rect = rect,
+                                                    Scale = new Vector2(scale),
+                                                },
+                                            _ => throw new InvalidOperationException()
+                                        };
+                                        element.AddTo(game);
                                         elements.Add(element);
-                                        //containingRect = containingRect.ContainingRect(element.Rect);
                                     }
                                 }
-
-                                //button.Rect = containingRect;
-                                //elements.Add(button);
                             }
                         }.Start(game);
                         
@@ -507,9 +515,11 @@ namespace ThatButtonAgain {
         //    => new LevelContext(values.clear, values.hint);
     }
     public record struct Hint(HintSymbol[][]? symbols);
-    public record struct HintSymbol(SvgIcon icon) {
+    public record struct HintSymbol(SvgIcon? icon, char? letter) {
         public static implicit operator HintSymbol(SvgIcon icon)
-            => new HintSymbol(icon);
+            => new HintSymbol(icon, null);
+        public static implicit operator HintSymbol(char letter)
+            => new HintSymbol(null, letter);
     }
 
     public enum SvgIcon {
@@ -632,7 +642,7 @@ namespace ThatButtonAgain {
 
         //public static Color FadeOutColor = new Color(0, 0, 0);
         public static TimeSpan FadeOutDuration => TimeSpan.FromMilliseconds(500);
-        public static TimeSpan HintFadeDuration => TimeSpan.FromMilliseconds(250);
+        public static TimeSpan HintFadeDuration => TimeSpan.FromMilliseconds(150);
         public static TimeSpan FadeOutCthulhuDuration => TimeSpan.FromMilliseconds(3000);
         public static TimeSpan RotateAroundLetterDuration => TimeSpan.FromMilliseconds(500);
         public static TimeSpan InflateButtonDuration => TimeSpan.FromMilliseconds(1500);

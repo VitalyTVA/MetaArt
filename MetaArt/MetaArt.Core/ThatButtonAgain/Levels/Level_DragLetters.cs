@@ -17,7 +17,7 @@ namespace ThatButtonAgain {
                 getOnMoveHandler: (letter, index) => null
             );
             return new[] {
-                new HintSymbol[] { SvgIcon.Touch, SvgIcon.Right, SvgIcon.Button },
+                new HintSymbol[] { 'T', SvgIcon.Touch, SvgIcon.Right, SvgIcon.Button },
                 new HintSymbol[] { SvgIcon.Elipsis },
                 new HintSymbol[] { SvgIcon.TapButton },
             };
