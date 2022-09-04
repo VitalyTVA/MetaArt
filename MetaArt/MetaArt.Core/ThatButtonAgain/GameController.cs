@@ -32,7 +32,8 @@ namespace ThatButtonAgain {
     enum SvgIcon {
         Bulb,
         BulbOff,
-        Tap,
+        Touch,
+        TapButton,
     }
     public class GameController {
         public static readonly (Func<GameController, LevelContext> action, string name)[] Levels = new [] {
@@ -452,6 +453,9 @@ namespace ThatButtonAgain {
         //    => new LevelContext(values.clear, values.hint);
     }
     public record struct Hint();
+    public enum HintSymbol { 
+        Touch
+    }
 
     public static class ElementExtensions {
         public static (int row, int col) GetOffset(this Direction direction) {
