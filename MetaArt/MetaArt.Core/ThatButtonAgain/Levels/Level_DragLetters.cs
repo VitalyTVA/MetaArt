@@ -9,13 +9,18 @@ namespace ThatButtonAgain {
                 (1.3f, 3.4f),
                 (2.3f, -3.4f),
             };
-            return LoadCore(
+            LoadCore(
                 game, 
                 points, 
                 buttonOffset: 0,
                 onElementsCreated: (buttonRect, letters) => { },
                 getOnMoveHandler: (letter, index) => null
             );
+            return new[] {
+                new HintSymbol[] { SvgIcon.Touch, SvgIcon.Right, SvgIcon.Button },
+                new HintSymbol[] { SvgIcon.Elipsis },
+                new HintSymbol[] { SvgIcon.TapButton },
+            };
         }
 
         public static LevelContext Load_Inverted(GameController game) {
@@ -36,7 +41,7 @@ namespace ThatButtonAgain {
             };
             Letter[] letters2 = null!;
             Rect buttonRectStore = default;
-            return LoadCore(
+            LoadCore(
                 game,
                 points,
                 buttonOffset: game.buttonHeight * .7f,
@@ -73,9 +78,10 @@ namespace ThatButtonAgain {
                     };
                 }
             );
+            return default;
         }
 
-        static LevelContext LoadCore(
+        static void LoadCore(
             GameController game,
             (float, float)[] points,
             float buttonOffset,
@@ -100,8 +106,6 @@ namespace ThatButtonAgain {
             new WaitConditionAnimation(condition: game.GetAreLettersInPlaceCheck(button.Rect, letters)) {
                 End = () => button.IsEnabled = true
             }.Start(game);
-
-            return default;
         }
     }
 }

@@ -222,6 +222,7 @@ public abstract class InputState {
 }
 
 public class InputHandlerElement : Element {
+    public float Opacity { get; set; } = 0;
     public InputHandlerElement() {
         HitTestVisible = true;
     }

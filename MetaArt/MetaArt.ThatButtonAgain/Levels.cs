@@ -174,9 +174,15 @@ public class Level {
                     noFill();
                     line(s.From.X, s.From.Y, s.To.X, s.To.Y);
                     break;
-                case InputHandlerElement:
+                case InputHandlerElement i:
                     noStroke();
-                    fill(Colors.InputHandlerBox);
+                    var _Color = Colors.Background;
+                    fill(color(
+                        _Color.Red,
+                        _Color.Green,
+                        _Color.Blue,
+                        i.Opacity * 255
+                    ));
                     rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
                     break;
                 default:
@@ -242,7 +248,7 @@ public class Level {
         public static Color LetterColorAccent5 => Palette.AccentError;
         public static Color UIElementColor => Palette._600;
         public static Color LetterDragBox => Color.Empty; //new Color(120, 0, 0, 50);
-        public static Color InputHandlerBox => Color.Empty; // new Color(120, 0, 0, 50);
+        //public static Color InputHandlerBox => Color.Empty; // new Color(120, 0, 0, 50);
         public static Color Background => Palette._50;
         public static Color ButtonBackNormal => Palette._100;
         public static Color ButtonBackPressed => Palette._200;

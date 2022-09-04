@@ -29,12 +29,6 @@ namespace ThatButtonAgain {
         Merge,
     }
     public abstract class SvgDrawing { }
-    enum SvgIcon {
-        Bulb,
-        BulbOff,
-        Touch,
-        TapButton,
-    }
     public class GameController {
         public static readonly (Func<GameController, LevelContext> action, string name)[] Levels = new [] {
             RegisterLevel(Level_Touch.Load),
@@ -423,6 +417,62 @@ namespace ThatButtonAgain {
                 }
                 var levelContext = Levels[levelIndex].action(this);
 
+                bulb.GetPressState = Element.GetPressReleaseStateFactory(
+                    bulb,
+                    () => {
+                        var elements = new List<Element>();
+                        var fadeElement = new InputHandlerElement { 
+                            HitTestVisible = true,
+                            Rect = scene.Bounds 
+                        }.AddTo(game);
+                        elements.Add(fadeElement);
+
+                        new LerpAnimation<float> {
+                            From = 0,
+                            To = 0.95f,
+                            Duration = Constants.HintFadeDuration,
+                            Lerp = MathFEx.Lerp,
+                            SetValue = value => fadeElement.Opacity = value,
+                            End = () => {
+#if DEBUG
+                                if(levelContext.hint.symbols == null)
+                                    throw new InvalidOperationException(); //use log instead
+#endif
+                                var symbols = levelContext.hint.symbols ?? new[] { new HintSymbol[] { SvgIcon.Elipsis } };
+                                var buttonRect = GetButtonRect();
+                                var button = new Button {
+                                }.AddTo(game);
+
+                                //var containingRect = buttonRect;
+                                for(int row = 0; row < symbols.Length; row++) {
+                                    for(int col = 0; col < symbols[row].Length; col++) {
+                                        var icon = symbols[row][col].icon;
+                                        var svg = icons[icon];
+                                        var element = new SvgElement(svg) {
+                                            Rect = GetLetterTargetRect(col, buttonRect, row: -3 + row),
+                                            Size = letterSize * .75f,
+                                            HitTestVisible = false,
+                                            Style = LetterStyle.Accent1,
+                                        }.AddTo(game);
+                                        elements.Add(element);
+                                        //containingRect = containingRect.ContainingRect(element.Rect);
+                                    }
+                                }
+
+                                //button.Rect = containingRect;
+                                //elements.Add(button);
+                            }
+                        }.Start(game);
+                        
+                        fadeElement.GetPressState = Element.GetPressReleaseStateFactory(
+                            fadeElement,
+                            () => elements.ForEach(x => scene.RemoveElement(x)),
+                            () => { }
+                        );
+                    },
+                    () => { }
+                );
+
                 return new SceneContext(animations.ClearAll);
             });
         }
@@ -449,12 +499,27 @@ namespace ThatButtonAgain {
     public record struct LevelContext(Hint hint) {
         public static implicit operator LevelContext(Hint hint)
             => new LevelContext(hint);
+        public static implicit operator LevelContext(HintSymbol[] symbols)
+            => new[] { symbols };
+        public static implicit operator LevelContext(HintSymbol[][] symbols)
+            => new Hint(symbols);
         //public static implicit operator LevelContext((Action clear, Hint hint) values)
         //    => new LevelContext(values.clear, values.hint);
     }
-    public record struct Hint();
-    public enum HintSymbol { 
-        Touch
+    public record struct Hint(HintSymbol[][]? symbols);
+    public record struct HintSymbol(SvgIcon icon) {
+        public static implicit operator HintSymbol(SvgIcon icon)
+            => new HintSymbol(icon);
+    }
+
+    public enum SvgIcon {
+        Bulb,
+        BulbOff,
+        Touch,
+        TapButton,
+        Elipsis,
+        Right,
+        Button,
     }
 
     public static class ElementExtensions {
@@ -567,6 +632,7 @@ namespace ThatButtonAgain {
 
         //public static Color FadeOutColor = new Color(0, 0, 0);
         public static TimeSpan FadeOutDuration => TimeSpan.FromMilliseconds(500);
+        public static TimeSpan HintFadeDuration => TimeSpan.FromMilliseconds(250);
         public static TimeSpan FadeOutCthulhuDuration => TimeSpan.FromMilliseconds(3000);
         public static TimeSpan RotateAroundLetterDuration => TimeSpan.FromMilliseconds(500);
         public static TimeSpan InflateButtonDuration => TimeSpan.FromMilliseconds(1500);
