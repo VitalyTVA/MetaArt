@@ -1,19 +1,19 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_RandomButton {
-        public static void Load_Hard(GameController game) {
-            LoadCore(
+        public static LevelContext Load_Hard(GameController game) {
+            return LoadCore(
                 game,
                 allowCthulhu: true
             );
         }
-        public static void Load_Simple(GameController game) {
-            LoadCore(
+        public static LevelContext Load_Simple(GameController game) {
+            return LoadCore(
                 game,
                 allowCthulhu: false
             );
         }
-        static void LoadCore(GameController game, bool allowCthulhu) {
+        static LevelContext LoadCore(GameController game, bool allowCthulhu) {
             AnimationBase appearAnimation = null!;
             AnimationBase disappearAnimation = null!;
             void RemoveAnimations(GameController game) {
@@ -109,6 +109,8 @@ namespace ThatButtonAgain {
             };
 
             StartWaitButton();
+
+            return default;
         }
     }
 }

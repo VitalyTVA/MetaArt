@@ -1,7 +1,7 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_11 {
-        public static void Load(GameController game) {
+        public static LevelContext Load(GameController game) {
             game.VerifyExpectedLevelIndex(11);
             bool win = false;
             var button = game.CreateButton(() => {
@@ -52,6 +52,8 @@ namespace ThatButtonAgain {
                 },
                 onClick: () => game.StartNextLevelFalseAnimation()
             );
+
+            return default;
         }
     }
 }

@@ -1,13 +1,13 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_16Game {
-        public static void Load_3x3(GameController game) {
-            LoadCore(game, 3);
+        public static LevelContext Load_3x3(GameController game) {
+            return LoadCore(game, 3);
         }
-        public static void Load_3x3Hard(GameController game) {
-            LoadCore(game, 3, removeFarCorner: true);
+        public static LevelContext Load_3x3Hard(GameController game) {
+            return LoadCore(game, 3, removeFarCorner: true);
         }
-        public static void Load_3x3Extreme(GameController game) {
+        public static LevelContext Load_3x3Extreme(GameController game) {
             #region solution
             /*
             Up
@@ -32,9 +32,9 @@ namespace ThatButtonAgain {
             Down
             */
             #endregion
-            LoadCore(game, 3, removeFarCorner: true, removeNearCorner: true);
+            return LoadCore(game, 3, removeFarCorner: true, removeNearCorner: true);
         }
-        public static void Load_4x4(GameController game) {
+        public static LevelContext Load_4x4(GameController game) {
             #region solution
             /*
             Up
@@ -60,9 +60,9 @@ namespace ThatButtonAgain {
             Left
              */
             #endregion
-            LoadCore(game, 4);
+            return LoadCore(game, 4);
         }
-        static void LoadCore(GameController game, int size, bool removeFarCorner = false, bool removeNearCorner = false) {
+        static LevelContext LoadCore(GameController game, int size, bool removeFarCorner = false, bool removeNearCorner = false) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.IsEnabled = false;
             button.Rect = button.Rect.Offset(new Vector2(0, -1.5f * game.letterDragBoxHeight));
@@ -212,6 +212,8 @@ namespace ThatButtonAgain {
                 game.playSound(SoundKind.BrakeBall);
                 game.StartReloadLevelAnimation();
             }
+
+            return default;
         }
 
         enum Value {

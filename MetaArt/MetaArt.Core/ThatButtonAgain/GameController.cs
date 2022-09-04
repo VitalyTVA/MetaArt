@@ -32,7 +32,7 @@ namespace ThatButtonAgain {
         Cthulhu,
     }
     public class GameController {
-        public static readonly (Action<GameController> action, string name)[] Levels = new [] {
+        public static readonly (Func<GameController, LevelContext> action, string name)[] Levels = new [] {
             RegisterLevel(Level_Touch.Load),
             RegisterLevel(Level_DragLetters.Load_Normal),
             RegisterLevel(Level_Capital.Load_16xClick),
@@ -72,7 +72,7 @@ namespace ThatButtonAgain {
             RegisterLevel(Level_16Game.Load_3x3Extreme),
 
         };
-        static (Action<GameController>, string) RegisterLevel(Action<GameController> action, [CallerArgumentExpression("action")] string name = "") {
+        static (Func<GameController, LevelContext>, string) RegisterLevel(Func<GameController, LevelContext> action, [CallerArgumentExpression("action")] string name = "") {
             return (action, name.Replace("Level_", null).Replace(".Load", null));
         }
         public readonly Scene scene;
@@ -293,10 +293,15 @@ namespace ThatButtonAgain {
 
         internal List<Letter> levelNumberLeterrs = new();
 
-        void SetScene(Action start) {
+        Action? clearScene;
+        void SetScene(Func<SceneContext> start) {
+            clearScene?.Invoke();
             scene.ClearElements();
-            animations.VerifyEmpty();
-            start();
+#if DEBUG
+            animations.VerifyEmpty();//TODO call log function instead
+#endif
+            animations.ClearAll();
+            clearScene = start().clear;
             StartFade(255, 0, () => { }, Constants.FadeOutDuration);
         }
 
@@ -353,6 +358,8 @@ namespace ThatButtonAgain {
                     () => ChangLevelIndex(-1),
                     () => { }
                 );
+
+                return default;
             });
         }
 
@@ -382,7 +389,9 @@ namespace ThatButtonAgain {
                     digitIndex++;
                     levelNumberLeterrs.Add(levelNumberElement);
                 }
-                Levels[levelIndex].action(this);
+                var levelContext = Levels[levelIndex].action(this);
+
+                return new SceneContext(animations.ClearAll);
             });
         }
 
@@ -403,6 +412,16 @@ namespace ThatButtonAgain {
         internal float width => scene.width;
         internal float height => scene.height;
     }
+
+    public record struct SceneContext(Action? clear);
+    public record struct LevelContext(Hint hint) {
+        public static implicit operator LevelContext(Hint hint)
+            => new LevelContext(hint);
+        //public static implicit operator LevelContext((Action clear, Hint hint) values)
+        //    => new LevelContext(values.clear, values.hint);
+    }
+    public record struct Hint();
+
     public static class ElementExtensions {
         public static (int row, int col) GetOffset(this Direction direction) {
             return direction switch {
@@ -446,6 +465,10 @@ namespace ThatButtonAgain {
                         ? 1 : 0;
             }
         }
+
+        //public static Action GetRemoveAnimationAction(this AnimationBase animation, GameController game) {
+        //    return () => game.animations.RemoveAnimation(animation);
+        //}
     }
     public enum Direction { Left, Right, Up, Down }
 

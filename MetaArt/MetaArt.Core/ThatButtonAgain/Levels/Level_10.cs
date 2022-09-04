@@ -1,7 +1,7 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_10 {
-        public static void Load(GameController game) {
+        public static LevelContext Load(GameController game) {
             game.VerifyExpectedLevelIndex(10);
             game.RemoveLastLevelLetter();
 
@@ -32,6 +32,8 @@ namespace ThatButtonAgain {
             new WaitConditionAnimation(condition: game.GetAreLettersInPlaceCheck(button.Rect, letters)) {
                 End = () => button.IsEnabled = true
             }.Start(game);
+
+            return default;
         }
     }
 }

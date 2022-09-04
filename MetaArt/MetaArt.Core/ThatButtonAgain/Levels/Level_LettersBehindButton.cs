@@ -1,7 +1,7 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_LettersBehindButton {
-        public static void Load(GameController game) {
+        public static LevelContext Load(GameController game) {
             var buttonRect = game.GetButtonRect();
 
             var letters = game.CreateLetters((letter, index) => {
@@ -31,6 +31,8 @@ namespace ThatButtonAgain {
 
                 }
             }.Start(game);
+
+            return default;
         }
     }
 }

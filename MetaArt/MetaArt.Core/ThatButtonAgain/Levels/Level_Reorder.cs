@@ -1,7 +1,7 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_Reorder {
-        public static void Load_MoveInLine(GameController game) {
+        public static LevelContext Load_MoveInLine(GameController game) {
             var area = new LetterArea(LetterArea.CreateMoveInLineArea());
             LoadCore(
                 game,
@@ -32,6 +32,8 @@ namespace ThatButtonAgain {
                 },
                 onWin: () => { }
             );
+
+            return default;
             #region solution
             /*
             'U' Down
@@ -66,7 +68,7 @@ namespace ThatButtonAgain {
              */
             #endregion
         }
-        public static void Load_MoveAll(GameController game) {
+        public static LevelContext Load_MoveAll(GameController game) {
             var area = new LetterArea(LetterArea.CreateMoveAllArea());
 
             var inputHandler = new InputHandlerElement();
@@ -85,6 +87,9 @@ namespace ThatButtonAgain {
                 }
                 game.playSound(direction.GetSound());
             });
+
+            return default;
+
             #region solution
 /*
 Up
@@ -127,7 +132,7 @@ Down
  */
             #endregion
         }
-        public static void Load_Sokoban(GameController game) {
+        public static LevelContext Load_Sokoban(GameController game) {
             var area = new LetterArea(LetterArea.CreateSokobanArea());
 
             var inputHandler = new InputHandlerElement();
@@ -162,6 +167,9 @@ Down
                     game.playSound(direction.GetSound());
                 }
             });
+
+            return default;
+
             #region solution
             /*
              TODO ;)

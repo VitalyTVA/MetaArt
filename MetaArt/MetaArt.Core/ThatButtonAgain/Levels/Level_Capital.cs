@@ -1,10 +1,10 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_Capital {
-        public static void Load_16xClick(GameController game) {
-            SetupCapitalLettersSwitchLevel(game, 0b10000, (value, index) => value + 1);
+        public static LevelContext Load_16xClick(GameController game) {
+            return SetupCapitalLettersSwitchLevel(game, 0b10000, (value, index) => value + 1);
         }
-        public static void Load_Mod2Vectors(GameController game) {
+        public static LevelContext Load_Mod2Vectors(GameController game) {
             var vectors = new[] {
                 0b11001,//--
                 0b01010,
@@ -12,10 +12,10 @@ namespace ThatButtonAgain {
                 0b10010,//--
                 0b00101
             };
-            SetupCapitalLettersSwitchLevel(game, 0b00000, (value, index) => value ^ vectors[index]);
+            return SetupCapitalLettersSwitchLevel(game, 0b00000, (value, index) => value ^ vectors[index]);
         }
 
-        static void SetupCapitalLettersSwitchLevel(GameController game, int initialValue, Func<int, int, int> changeValue) {
+        static LevelContext SetupCapitalLettersSwitchLevel(GameController game, int initialValue, Func<int, int, int> changeValue) {
             Letter[] letters = null!;
 
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
@@ -56,6 +56,8 @@ namespace ThatButtonAgain {
 
             });
             SetLetters();
+
+            return default;
         }
     }
 }

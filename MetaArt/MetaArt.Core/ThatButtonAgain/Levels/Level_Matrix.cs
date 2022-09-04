@@ -1,7 +1,7 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_Matrix {
-        public static void Load_3InARow(GameController game) {
+        public static LevelContext Load_3InARow(GameController game) {
             //bool winLevel = false;
             var button = game.CreateButton(() => {
                 game.StartNextLevelAnimation();
@@ -26,7 +26,8 @@ namespace ThatButtonAgain {
             //6 col UUU
 
             Letter?[,] letters = null!;
-            letters = CreateLetters(game, button, chars, hovered => {
+            LevelContext context = default;
+            (letters, context) = CreateLetters(game, button, chars, hovered => {
                 if(hovered.Select(x => x.letter.Value).SequenceEqual("TOUCH".Select(x => x))) {
                     foreach(var item in hovered) {
                         item.letter.Style = LetterStyle.Accent1;
@@ -65,9 +66,11 @@ namespace ThatButtonAgain {
             foreach(var item in letters) {
                 item!.Style = ElementExtensions.ToStyle(item!.Value);
             }
+
+            return default;
         }
 
-        public static void Load_FindWord(GameController game) {
+        public static LevelContext Load_FindWord(GameController game) {
             bool winLevel = false;
             var button = game.CreateButton(() => {
                 if(winLevel)
@@ -92,7 +95,8 @@ namespace ThatButtonAgain {
             };
 
             Letter?[,] letters = null!;
-            letters = CreateLetters(game, button, chars, hovered => {
+            LevelContext context = default;
+            (letters, context) = CreateLetters(game, button, chars, hovered => {
                 var result = hovered.Select(x => x.letter.Value);
                 bool win = result.SequenceEqual("TOUCH".Select(x => x));
                 bool fail = result.SequenceEqual("CTHULHU".Select(x => x));
@@ -107,9 +111,11 @@ namespace ThatButtonAgain {
             foreach(var item in letters) {
                 item!.ActiveRatio = 0;
             }
+
+            return context;
         }
 
-        static Letter?[,] CreateLetters(GameController game, Button button, string[] chars, Func<List<(Letter letter, int row, int col)>, bool> onHoverComplete) {
+        static (Letter?[,], LevelContext) CreateLetters(GameController game, Button button, string[] chars, Func<List<(Letter letter, int row, int col)>, bool> onHoverComplete) {
             int letterCount = chars.Length;
             var letters = new Letter[letterCount, letterCount];
             (int row, int col) GetLetterPosition(Letter letter) {
@@ -186,7 +192,7 @@ namespace ThatButtonAgain {
                     letter.AddTo(game);
                 }
             }
-            return letters;
+            return (letters, default);
         }
     }
 }

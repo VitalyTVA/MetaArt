@@ -1,7 +1,7 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_ReflectedButton {
-        public static void Load(GameController game) {
+        public static LevelContext Load(GameController game) {
             Action<bool, bool> syncButtons = null!;
 
             (Button button, Letter[] letters, Action syncLettersOnMoveAction) CreateButtonAndLetters(
@@ -92,6 +92,8 @@ namespace ThatButtonAgain {
             };
 
             game.EnableButtonWhenInPlace(flippedHV.button.Rect, normal.button);
+
+            return default;
         }
     }
 }

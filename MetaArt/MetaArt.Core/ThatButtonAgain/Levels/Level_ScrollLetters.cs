@@ -27,11 +27,11 @@ namespace ThatButtonAgain {
         };
 
         */
-        public static void Load_Trivial(GameController game) {
+        public static LevelContext Load_Trivial(GameController game) {
             //trivial, 2 steps, C leter stays inplace
             //2 +12
             //1 +3
-            LoadCore(
+            return LoadCore(
                 game,
                 new[] {
                     new [] { 1, 0, 0, -1, 0 }, //confusing
@@ -42,12 +42,12 @@ namespace ThatButtonAgain {
                 }
             );
         }
-        public static void Load_Hard(GameController game) {
+        public static LevelContext Load_Hard(GameController game) {
             //hard, regular increase, 3 steps, C letter stays inplace
             //2 +12
             //4 -6
             //1 -3
-            LoadCore(
+            return LoadCore(
                 game,
                 new[] {
                     new [] { 1, 0, -1, 0, 1 }, //confusing
@@ -58,13 +58,13 @@ namespace ThatButtonAgain {
                 }
             );
         }
-        public static void Load_Extreme(GameController game) {
+        public static LevelContext Load_Extreme(GameController game) {
             //extreme, irregular increase, 4 steps, C letter moves
             //3 +3
             //2 +6
             //1 +3
             //4 -3
-            LoadCore(
+            return LoadCore(
                 game,
                 new[] {
                     new [] { 1, 0, -1, 0, 1 }, //confusing
@@ -75,7 +75,7 @@ namespace ThatButtonAgain {
                 }
             );
         }
-        static void LoadCore(GameController game, int[][] changes) {
+        static LevelContext LoadCore(GameController game, int[][] changes) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = false;
             var lineHeight = game.letterDragBoxHeight;
@@ -172,6 +172,8 @@ namespace ThatButtonAgain {
             //var letters = CreateLetters((letter, index) => {
             //    letter.Rect = GetLetterTargetRect(index, button.Rect);
             //});
+
+            return default;
         }
         static float GetNormalizedPosition(float position) {
             if(position < 0) position += 26;

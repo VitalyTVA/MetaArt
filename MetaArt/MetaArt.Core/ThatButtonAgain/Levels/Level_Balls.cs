@@ -1,11 +1,11 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_Balls {
-        public static void Load_20Level(GameController game) {
+        public static LevelContext Load_20Level(GameController game) {
             game.VerifyExpectedLevelIndex(20);
             game.RemoveLastLevelLetter();
             bool ballSnapped = false;
-            LoadCore(
+            return LoadCore(
                 game,
                 onElementsCreated: (letters, balls) => { },
                 onHit: (b1, b2) => false,
@@ -32,10 +32,10 @@ namespace ThatButtonAgain {
                 }
             );
         }
-        public static void Load_KeepO(GameController game) {
+        public static LevelContext Load_KeepO(GameController game) {
             Ball oBall = null!;
             Vector2 oBallLocation = default;
-            LoadCore(
+            return LoadCore(
                 game,
                 onElementsCreated: (letters, balls) => {
                     letters[1].IsVisible = false;
@@ -57,7 +57,7 @@ namespace ThatButtonAgain {
                 ballsUpdated: simulation => { }
             );
         }
-        static void LoadCore(
+        static LevelContext LoadCore(
             GameController game,
             Action<Letter[], IEnumerable<Ball>> onElementsCreated,
             Func<Ball, Ball, bool> onHit,
@@ -178,6 +178,8 @@ namespace ThatButtonAgain {
                 }
                 return !win;
             }).Start(game);
+
+            return default;
         }
         const int Steps = 10;
         static BallElement Element(this Ball ball) => (BallElement)ball.payload;

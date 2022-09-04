@@ -114,6 +114,11 @@
             };
         }
 
+        internal void ClearAll() { 
+            animations.Clear();
+            blockInputAnimations.Clear();
+        }
+
         internal void VerifyEmpty() {
             if(animations.Any())
                 throw new InvalidOperationException();

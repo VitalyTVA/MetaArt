@@ -12,7 +12,7 @@ namespace ThatButtonAgain {
             { 'T', 7 },
         };
         static readonly Dictionary<int, char> digitToChar = charToDigit.ToDictionary(x => x.Value, x => x.Key);
-        public static void Load(GameController game) {
+        public static LevelContext Load(GameController game) {
             var buttonRect = game.GetButtonRect().Offset(new Vector2(0, -game.letterDragBoxHeight));
 
             var click = StringToNumber("CLICK");
@@ -85,6 +85,8 @@ namespace ThatButtonAgain {
                     );
                 };
             }, "56723401=");
+
+            return default;
         }
         static int StringToNumber(string s) => s
             .Select((c, i) => (c, i: s.Length - 1 - i))

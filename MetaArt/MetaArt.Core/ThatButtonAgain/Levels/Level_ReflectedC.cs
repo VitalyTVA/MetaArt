@@ -1,7 +1,7 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_ReflectedC {
-        public static void Load(GameController game) {
+        public static LevelContext Load(GameController game) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.IsEnabled = false;
 
@@ -62,6 +62,8 @@ namespace ThatButtonAgain {
                     button.IsEnabled = true;
                 }
             }.Start(game);
+
+            return default;
         }
     }
 }

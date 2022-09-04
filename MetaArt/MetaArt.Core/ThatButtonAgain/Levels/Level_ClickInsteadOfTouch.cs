@@ -1,7 +1,7 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_ClickInsteadOfTouch {
-        public static void Load(GameController game) {
+        public static LevelContext Load(GameController game) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = false;
 
@@ -46,6 +46,8 @@ namespace ThatButtonAgain {
                     }
                 }
             }.Start(game);
+
+            return default;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_RotatingArrow {
-        public static void Load(GameController game) {
+        public static LevelContext Load(GameController game) {
             var area = new LetterArea(LetterArea.CreateArrowDirectedLetters());
 
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
@@ -55,6 +55,8 @@ namespace ThatButtonAgain {
                     game.playSound(SoundKind.SuccessSwitch);
                 }
             }.Start(game);
+
+            return default;
         }
     }
 }

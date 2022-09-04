@@ -2,7 +2,7 @@
 
 namespace ThatButtonAgain {
     static class Level_DecreaseLevelNumber {
-        public static void Load(GameController game) {
+        public static LevelContext Load(GameController game) {
             var currentIndex = game.levelIndex;
 
             void ChangeIndex(int delta) {
@@ -47,6 +47,8 @@ namespace ThatButtonAgain {
             game.CreateLetters((letter, index) => {
                 letter.Rect = game.GetLetterTargetRect(index, button.Rect);
             });
+
+            return default;
         }
     }
 }

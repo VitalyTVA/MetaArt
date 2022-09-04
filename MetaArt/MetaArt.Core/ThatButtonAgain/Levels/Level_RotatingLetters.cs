@@ -12,9 +12,9 @@ var rotations = new[] {
 };
 */
 
-        public static void Load_Easy(GameController game) {
+        public static LevelContext Load_Easy(GameController game) {
             //01234
-            LoadCore(
+            return LoadCore(
                 game,
                 new[] {
                     new[] { 1, 0, 0, -1, 0 },
@@ -26,9 +26,9 @@ var rotations = new[] {
             );
         }
 
-        public static void Load_Medium(GameController game) {
+        public static LevelContext Load_Medium(GameController game) {
             //002233 medium - hard
-            LoadCore(
+            return LoadCore(
                 game,
                 new[] {
                     new[] { 1, 0, 0, -2, 0 },
@@ -40,9 +40,9 @@ var rotations = new[] {
             );
         }
 
-        public static void Load_Hard(GameController game) {
+        public static LevelContext Load_Hard(GameController game) {
             //0144 hard
-            LoadCore(
+            return LoadCore(
                 game,
                 new[]  {
                     new[] { 1, -1, 0, -2, 0 },
@@ -54,7 +54,7 @@ var rotations = new[] {
             );
         }
 
-        static void LoadCore(GameController game, int[][] rotations) {
+        static LevelContext LoadCore(GameController game, int[][] rotations) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = false;
 
@@ -106,6 +106,8 @@ var rotations = new[] {
                     }
                 }
             }.Start(game);
+
+            return default;
         }
         static void VerifyPositiveAngle(Letter letter) {
             //TODO use logging

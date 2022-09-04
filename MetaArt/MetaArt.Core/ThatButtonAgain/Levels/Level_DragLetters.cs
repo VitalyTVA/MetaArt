@@ -1,7 +1,7 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_DragLetters {
-        public static void Load_Normal(GameController game) {
+        public static LevelContext Load_Normal(GameController game) {
             var points = new[] {
                 (-2.1f, 2.3f),
                 (-1.5f, -2.7f),
@@ -9,7 +9,7 @@ namespace ThatButtonAgain {
                 (1.3f, 3.4f),
                 (2.3f, -3.4f),
             };
-            LoadCore(
+            return LoadCore(
                 game, 
                 points, 
                 buttonOffset: 0,
@@ -18,7 +18,7 @@ namespace ThatButtonAgain {
             );
         }
 
-        public static void Load_Inverted(GameController game) {
+        public static LevelContext Load_Inverted(GameController game) {
             Rect ReflectRect(Rect rect) => MathFEx.Reflect(rect, game.scene.Bounds.Mid);
 
             new Line { From = new Vector2(0, game.height / 2), To = new Vector2(game.width, game.height / 2) }.AddTo(game);
@@ -36,7 +36,7 @@ namespace ThatButtonAgain {
             };
             Letter[] letters2 = null!;
             Rect buttonRectStore = default;
-            LoadCore(
+            return LoadCore(
                 game,
                 points,
                 buttonOffset: game.buttonHeight * .7f,
@@ -75,7 +75,7 @@ namespace ThatButtonAgain {
             );
         }
 
-        static void LoadCore(
+        static LevelContext LoadCore(
             GameController game,
             (float, float)[] points,
             float buttonOffset,
@@ -100,6 +100,8 @@ namespace ThatButtonAgain {
             new WaitConditionAnimation(condition: game.GetAreLettersInPlaceCheck(button.Rect, letters)) {
                 End = () => button.IsEnabled = true
             }.Start(game);
+
+            return default;
         }
     }
 }

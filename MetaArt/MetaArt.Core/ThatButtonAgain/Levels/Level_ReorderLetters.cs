@@ -1,8 +1,8 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_ReorderLetters {
-        public static void Load_2And1(GameController game) {
-            LoadCore(
+        public static LevelContext Load_2And1(GameController game) {
+            return LoadCore(
                 game,
                 LetterArea.CreateSwapPlusShapeArea(),
                 (button, letters) => new[] {
@@ -25,8 +25,8 @@ namespace ThatButtonAgain {
                 }
             );
         }
-        public static void Load_3And2(GameController game) {
-            LoadCore(
+        public static LevelContext Load_3And2(GameController game) {
+            return LoadCore(
                 game, 
                 LetterArea.CreateSwapWShapeArea(),
                 (button, letters) => new[] {
@@ -64,8 +64,8 @@ namespace ThatButtonAgain {
                 }
             );
         }
-        public static void Load_2And2(GameController game) {
-            LoadCore(
+        public static LevelContext Load_2And2(GameController game) {
+            return LoadCore(
                 game, 
                 LetterArea.CreateSwapHShapeArea(),
                 (button, letters) => new[] {
@@ -98,7 +98,7 @@ namespace ThatButtonAgain {
                 }
             );
         }
-        static void LoadCore(GameController game, char[][] chars, Func<Button, Letter[], Vector2[]> getPoints) {
+        static LevelContext LoadCore(GameController game, char[][] chars, Func<Button, Letter[], Vector2[]> getPoints) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = true;
             button.IsVisible = false;
@@ -144,6 +144,8 @@ namespace ThatButtonAgain {
                     game.playSound(SoundKind.SuccessSwitch);
                 }
             }.Start(game);
+
+            return default;
         }
     }
 }
