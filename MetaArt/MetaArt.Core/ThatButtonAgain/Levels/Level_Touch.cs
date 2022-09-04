@@ -7,7 +7,7 @@
                 letter.Rect = game.GetLetterTargetRect(index, button.Rect);
             });
 
-            return new HintSymbol[] { SvgIcon.TapButton };
+            return ElementExtensions.TapButtonHint;
         }
     }
 }

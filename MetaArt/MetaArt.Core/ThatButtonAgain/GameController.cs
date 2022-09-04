@@ -448,7 +448,7 @@ namespace ThatButtonAgain {
                                     for(int col = 0; col < symbols[row].Length; col++) {
                                         var hint = symbols[row][col];
                                         var rect = GetLetterTargetRect(col, buttonRect, row: -3 + row);
-                                        const float scale = 0.75f;
+                                        const float scale = 0.65f;
                                         Element element = hint switch { 
                                             (SvgIcon icon, null) => 
                                                 new SvgElement(icons[icon]) {
@@ -525,14 +525,17 @@ namespace ThatButtonAgain {
     public enum SvgIcon {
         Bulb,
         BulbOff,
-        Touch,
-        TapButton,
+        Tap,
+        Drag,
         Elipsis,
         Right,
         Button,
+        Reload,
+        Repeat,
     }
 
     public static class ElementExtensions {
+        public static readonly HintSymbol[] TapButtonHint = new HintSymbol[] { SvgIcon.Button, SvgIcon.Tap };
         public static (int row, int col) GetOffset(this Direction direction) {
             return direction switch {
                 Direction.Left => (0, -1),

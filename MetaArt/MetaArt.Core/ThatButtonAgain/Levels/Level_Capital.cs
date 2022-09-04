@@ -2,7 +2,11 @@
 namespace ThatButtonAgain {
     static class Level_Capital {
         public static LevelContext Load_16xClick(GameController game) {
-            return SetupCapitalLettersSwitchLevel(game, 0b10000, (value, index) => value + 1);
+            SetupCapitalLettersSwitchLevel(game, 0b10000, (value, index) => value + 1);
+            return new[] {
+                ElementExtensions.TapButtonHint,
+                new HintSymbol[] { SvgIcon.Repeat, '1', '6' },
+            };
         }
         public static LevelContext Load_Mod2Vectors(GameController game) {
             var vectors = new[] {
@@ -12,10 +16,11 @@ namespace ThatButtonAgain {
                 0b10010,//--
                 0b00101
             };
-            return SetupCapitalLettersSwitchLevel(game, 0b00000, (value, index) => value ^ vectors[index]);
+            SetupCapitalLettersSwitchLevel(game, 0b00000, (value, index) => value ^ vectors[index]);
+            return default;
         }
 
-        static LevelContext SetupCapitalLettersSwitchLevel(GameController game, int initialValue, Func<int, int, int> changeValue) {
+        static void SetupCapitalLettersSwitchLevel(GameController game, int initialValue, Func<int, int, int> changeValue) {
             Letter[] letters = null!;
 
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
@@ -56,8 +61,6 @@ namespace ThatButtonAgain {
 
             });
             SetLetters();
-
-            return default;
         }
     }
 }
