@@ -37,6 +37,8 @@ public class Level {
             createSvg: stream => {
                 var svg = new Svg.Skia.SKSvg();
                 svg.Load(stream);
+                if(svg.Picture!.CullRect.Location != SKPoint.Empty)
+                    throw new InvalidOperationException();
                 return new SkiaSvgDrawing(svg);
             }
         );
@@ -73,24 +75,20 @@ public class Level {
                     break;
                 case Letter l:
                     noStroke();
-                    if(MathFEx.VectorsEqual(l.Scale, Letter.NoScale)) {
-                        fill(Colors.LetterDragBox);
-                        rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
-                    }
+#if DEBUG
+                    //if(MathFEx.VectorsEqual(l.Scale, Letter.NoScale)) {
+                    fill(Colors.LetterDragBox);
+                    rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
+                    //}
+#endif
                     pushMatrix();
                     translate(item.Rect.MidX, item.Rect.MidY);
                     scale(l.Scale.X, l.Scale.Y);
                     rotate(l.Angle);
                     //fill(Colors.LetterDragBox);
                     //rect(0, 0, item.Rect.Width, item.Rect.Height);
-                    var letterColor = l.Style switch {
-                        LetterStyle.Accent1 => Colors.LetterColor,
-                        LetterStyle.Accent2 => Colors.LetterColorAccent2,
-                        LetterStyle.Accent3 => Colors.LetterColorAccent3,
-                        LetterStyle.Accent4 => Colors.LetterColorAccent4,
-                        LetterStyle.Accent5 => Colors.LetterColorAccent5,
-                        _ => throw new InvalidOperationException(),
-                    };
+                    var style = l.Style;
+                    var letterColor = GetColorByStyle(style);
                     fill(color(
                         lerp(Colors.UIElementColor.Red, letterColor.Red, l.ActiveRatio),
                         lerp(Colors.UIElementColor.Green, letterColor.Green, l.ActiveRatio),
@@ -112,17 +110,29 @@ public class Level {
                     break;
                 case SvgElement s:
                     noStroke();
+#if DEBUG
+                    fill(Colors.LetterDragBox);
+                    rect(item.Rect.Left, item.Rect.Top, item.Rect.Width, item.Rect.Height);
+#endif
                     var svg = ((SkiaSvgDrawing)s.Svg).Svg;
-                    float scaleX = s.Rect.Width / svg.Picture!.CullRect.Width;
-                    float scaleY = s.Rect.Height / svg.Picture!.CullRect.Height;
+                    float scaleX = (s.Size ?? s.Rect.Width) / svg.Picture!.CullRect.Width;
+                    float scaleY = (s.Size ?? s.Rect.Height) / svg.Picture!.CullRect.Height;
                     var matrix = SKMatrix.CreateScale(scaleX, scaleY);
+                    if(s.Size != null) {
+                        matrix.TransX = (s.Rect.Width - s.Size.Value) / 2;
+                        matrix.TransY = (s.Rect.Height - s.Size.Value) / 2;
+                    }
                     pushMatrix();
                     translate(s.Rect.Left, s.Rect.Top);
-                    //var paint = new SKPaint { 
-                    //    //Color = SKColors.Red 
-                    //    ColorFilter = SKColorFilter.CreateBlendMode(SKColors.Red, SKBlendMode.SrcIn)
-                    //};
-                    ((MetaArt.Skia.SkiaGraphics)MetaArt.Internal.Graphics.GraphicsInstance).Canvas.DrawPicture(svg.Picture, ref matrix);
+                    SKPaint? paint = null;
+                    if(s.Style != null) {
+                        if(!svgPaints.TryGetValue(s.Style.Value, out paint)) {
+                            svgPaints[s.Style.Value] = paint = new SKPaint { 
+                                ColorFilter = SKColorFilter.CreateBlendMode(new SKColor(GetColorByStyle(s.Style.Value).Value), SKBlendMode.SrcIn)
+                            };
+                        }
+                    };
+                    ((MetaArt.Skia.SkiaGraphics)MetaArt.Internal.Graphics.GraphicsInstance).Canvas.DrawPicture(svg.Picture, ref matrix, paint);
                     popMatrix();
                     break;
                 case PathElement p:
@@ -178,6 +188,20 @@ public class Level {
         //else
         //    noLoop();
     }
+
+    private static Color GetColorByStyle(LetterStyle style) {
+        return style switch {
+            LetterStyle.Accent1 => Colors.LetterColor,
+            LetterStyle.Accent2 => Colors.LetterColorAccent2,
+            LetterStyle.Accent3 => Colors.LetterColorAccent3,
+            LetterStyle.Accent4 => Colors.LetterColorAccent4,
+            LetterStyle.Accent5 => Colors.LetterColorAccent5,
+            LetterStyle.Inactive => Colors.UIElementColor,
+            _ => throw new InvalidOperationException(),
+        };
+    }
+
+    Dictionary<LetterStyle, SKPaint> svgPaints = new();
 
     void mousePressed()
     {

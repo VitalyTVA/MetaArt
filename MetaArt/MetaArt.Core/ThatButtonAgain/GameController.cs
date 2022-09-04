@@ -29,6 +29,11 @@ namespace ThatButtonAgain {
         Merge,
     }
     public abstract class SvgDrawing { }
+    enum SvgIcon {
+        Bulb,
+        BulbOff,
+        Tap,
+    }
     public class GameController {
         public static readonly (Func<GameController, LevelContext> action, string name)[] Levels = new [] {
             RegisterLevel(Level_Touch.Load),
@@ -86,6 +91,7 @@ namespace ThatButtonAgain {
         internal readonly Action<SoundKind> playSound;
         readonly SvgDrawing cthulhuSvg;
         readonly Func<Stream, SvgDrawing> createSvg;
+        readonly Dictionary<SvgIcon, SvgDrawing> icons;
 
         public GameController(float width, float height, Action<SoundKind> playSound, Func<Stream, SvgDrawing> createSvg) {
             scene = new Scene(width, height, () => animations.AllowInput);
@@ -101,8 +107,14 @@ namespace ThatButtonAgain {
             this.playSound = playSound;
             this.createSvg = createSvg;
 
-            cthulhuSvg = createSvg(Utils.GetStream(typeof(Level_Matrix), "Cthulhu.svg"));
+            cthulhuSvg = CreateSvg("Cthulhu");
+
+            icons = Enum.GetValues(typeof(SvgIcon))
+                .Cast<SvgIcon>()
+                .ToDictionary(x => x, x => CreateSvg(x.ToString()));
         }
+
+        SvgDrawing CreateSvg(string name) => createSvg(Utils.GetStream(typeof(GameController), name + ".svg"));
 
         public void NextFrame(float deltaTime) {
             animations.Next(TimeSpan.FromMilliseconds(deltaTime));
@@ -371,6 +383,22 @@ namespace ThatButtonAgain {
                 SetLevelIndex(level);
                 int digitIndex = 0;
                 levelNumberLeterrs.Clear();
+
+                float offsetX = letterSize * Constants.LetterIndexOffsetRatioX;
+                float offsetY = letterSize * Constants.LetterIndexOffsetRatioY;
+
+                var bulb = new SvgElement(icons[SvgIcon.Bulb]) {
+                    HitTestVisible = true,
+                    Rect = new Rect(
+                        scene.width - offsetX - letterDragBoxWidth * Constants.LevelLetterRatio, 
+                        offsetY, 
+                        letterDragBoxWidth * Constants.LevelLetterRatio, 
+                        letterDragBoxHeight * Constants.LevelLetterRatio
+                    ),
+                    Size = letterSize * Constants.LevelLetterRatio,
+                    Style = LetterStyle.Inactive,
+                }.AddTo(game);
+
                 foreach(var digit in levelIndex.ToString()) {
                     var levelNumberElement = new Letter {
                         Value = digit,
@@ -379,8 +407,8 @@ namespace ThatButtonAgain {
                     SetUpLevelIndexButton(
                         levelNumberElement,
                         new Vector2(
-                            letterSize * Constants.LetterIndexOffsetRatioX + digitIndex * letterDragBoxWidth * Constants.LevelLetterRatio,
-                            letterSize * Constants.LetterIndexOffsetRatioY
+                            offsetX + digitIndex * letterDragBoxWidth * Constants.LevelLetterRatio,
+                            offsetY
                         )
                     );
                     levelNumberElement.GetPressState = Element.GetPressReleaseStateFactory(

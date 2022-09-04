@@ -155,6 +155,8 @@ public abstract class Element {
 
 public class SvgElement : Element {
     public readonly SvgDrawing Svg;
+    public float? Size { get; set; }
+    public LetterStyle? Style { get; set; }
 
     public SvgElement(SvgDrawing svg) {
         Svg = svg;
@@ -184,7 +186,7 @@ public class Button : Element {
 }
 
 public enum LetterStyle { 
-    Accent1, Accent2, Accent3, Accent4, Accent5
+    Accent1, Accent2, Accent3, Accent4, Accent5, Inactive
 }
 public class Letter : Element {
     public static Vector2 NoScale = new Vector2(1, 1);
