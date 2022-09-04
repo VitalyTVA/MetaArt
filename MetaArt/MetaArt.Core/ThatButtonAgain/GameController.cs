@@ -28,9 +28,7 @@ namespace ThatButtonAgain {
         Rotate,
         Merge,
     }
-    public enum SvgKind {
-        Cthulhu,
-    }
+    public abstract class SvgDrawing { }
     public class GameController {
         public static readonly (Func<GameController, LevelContext> action, string name)[] Levels = new [] {
             RegisterLevel(Level_Touch.Load),
@@ -86,8 +84,10 @@ namespace ThatButtonAgain {
         internal readonly float letterDragBoxWidth;
         readonly float letterHorzStep;
         internal readonly Action<SoundKind> playSound;
+        readonly SvgDrawing cthulhuSvg;
+        readonly Func<Stream, SvgDrawing> createSvg;
 
-        public GameController(float width, float height, Action<SoundKind> playSound) {
+        public GameController(float width, float height, Action<SoundKind> playSound, Func<Stream, SvgDrawing> createSvg) {
             scene = new Scene(width, height, () => animations.AllowInput);
 
             buttonWidth = scene.width * Constants.ButtonRelativeWidth;
@@ -99,6 +99,9 @@ namespace ThatButtonAgain {
             letterHorzStep = buttonWidth * Constants.LetterHorizontalStepRatio;
 
             this.playSound = playSound;
+            this.createSvg = createSvg;
+
+            cthulhuSvg = createSvg(Utils.GetStream(typeof(Level_Matrix), "Cthulhu.svg"));
         }
 
         public void NextFrame(float deltaTime) {
@@ -255,7 +258,7 @@ namespace ThatButtonAgain {
         }
         internal void StartCthulhuReloadLevelAnimation() {
             game.scene.ClearElements();
-            game.scene.AddElement(new SvgElement(SvgKind.Cthulhu) {
+            game.scene.AddElement(new SvgElement(cthulhuSvg) {
                 Rect = Rect.FromCenter(
                     new Vector2(game.width / 2, game.height / 2),
                     new Vector2(game.width * Constants.CthulhuWidthScaleRatio)

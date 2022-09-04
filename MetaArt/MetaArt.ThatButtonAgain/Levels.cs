@@ -1,4 +1,5 @@
 ﻿using MetaArt.Core;
+using Svg.Skia;
 using System.Diagnostics;
 using System.Numerics;
 
@@ -10,10 +11,17 @@ public class Level {
 
     GameController controller = null!;
     Dictionary<SoundKind, SoundFile> sounds = new();
-    Dictionary<SvgKind, Svg.Skia.SKSvg> svgs = new();
 
     public Level(int levelIndex) {
         this.levelIndex = levelIndex;
+    }
+
+    class SkiaSvgDrawing : SvgDrawing {
+        public readonly SKSvg Svg;
+
+        public SkiaSvgDrawing(SKSvg svg) {
+            Svg = svg;
+        }
     }
 
     void setup() {
@@ -25,7 +33,12 @@ public class Level {
         controller = new GameController(
             width / displayDensity(),
             height / displayDensity(),
-            playSound: kind => sounds[kind].play()
+            playSound: kind => sounds[kind].play(),
+            createSvg: stream => {
+                var svg = new Svg.Skia.SKSvg();
+                svg.Load(stream);
+                return new SkiaSvgDrawing(svg);
+            }
         );
 
 
@@ -34,14 +47,6 @@ public class Level {
         sounds = Enum.GetValues(typeof(SoundKind))
             .Cast<SoundKind>()
             .ToDictionary(x => x, x => createSound(x + ".wav"));
-
-        svgs = Enum.GetValues(typeof(SvgKind))
-            .Cast<SvgKind>()
-            .ToDictionary(x => x, x => {
-                var svg = new Svg.Skia.SKSvg();
-                svg.Load(GetStream(x + ".svg"));
-                return svg;
-            });
 
         controller.SetLevel(levelIndex);
     }
@@ -107,7 +112,7 @@ public class Level {
                     break;
                 case SvgElement s:
                     noStroke();
-                    var svg = svgs[s.Kind];
+                    var svg = ((SkiaSvgDrawing)s.Svg).Svg;
                     float scaleX = s.Rect.Width / svg.Picture!.CullRect.Width;
                     float scaleY = s.Rect.Height / svg.Picture!.CullRect.Height;
                     var matrix = SKMatrix.CreateScale(scaleX, scaleY);

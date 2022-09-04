@@ -154,10 +154,10 @@ public abstract class Element {
 }
 
 public class SvgElement : Element {
-    public readonly SvgKind Kind;
+    public readonly SvgDrawing Svg;
 
-    public SvgElement(SvgKind kind) {
-        Kind = kind;
+    public SvgElement(SvgDrawing svg) {
+        Svg = svg;
     }
 }
 
