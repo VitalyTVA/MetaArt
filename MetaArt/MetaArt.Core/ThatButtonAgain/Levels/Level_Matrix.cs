@@ -26,8 +26,7 @@ namespace ThatButtonAgain {
             //6 col UUU
 
             Letter?[,] letters = null!;
-            LevelContext context = default;
-            (letters, context) = CreateLetters(game, button, chars, hovered => {
+            letters = CreateLetters(game, button, chars, hovered => {
                 if(hovered.Select(x => x.letter.Value).SequenceEqual("TOUCH".Select(x => x))) {
                     foreach(var item in hovered) {
                         item.letter.Style = LetterStyle.Accent1;
@@ -95,8 +94,7 @@ namespace ThatButtonAgain {
             };
 
             Letter?[,] letters = null!;
-            LevelContext context = default;
-            (letters, context) = CreateLetters(game, button, chars, hovered => {
+            letters = CreateLetters(game, button, chars, hovered => {
                 var result = hovered.Select(x => x.letter.Value);
                 bool win = result.SequenceEqual("TOUCH".Select(x => x));
                 bool fail = result.SequenceEqual("CTHULHU".Select(x => x));
@@ -112,10 +110,14 @@ namespace ThatButtonAgain {
                 item!.ActiveRatio = 0;
             }
 
-            return context;
+            return new[] {
+                new HintSymbol[] { 'C', SvgIcon.DragRight, 'U', SvgIcon.Alert },
+                new HintSymbol[] { 'T', SvgIcon.DragDown, 'H' },
+                ElementExtensions.TapButtonHint,
+            };
         }
 
-        static (Letter?[,], LevelContext) CreateLetters(GameController game, Button button, string[] chars, Func<List<(Letter letter, int row, int col)>, bool> onHoverComplete) {
+        static Letter?[,] CreateLetters(GameController game, Button button, string[] chars, Func<List<(Letter letter, int row, int col)>, bool> onHoverComplete) {
             int letterCount = chars.Length;
             var letters = new Letter[letterCount, letterCount];
             (int row, int col) GetLetterPosition(Letter letter) {
@@ -192,7 +194,7 @@ namespace ThatButtonAgain {
                     letter.AddTo(game);
                 }
             }
-            return (letters, default);
+            return letters;
         }
     }
 }

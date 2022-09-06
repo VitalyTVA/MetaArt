@@ -44,7 +44,14 @@ namespace ThatButtonAgain {
                 }
             }.Start(game);
 
-            return default;
+            return new[] {
+                new HintSymbol[] { SvgIcon.Reload },
+                new HintSymbol[] { 'C', SvgIcon.Tap },
+                new HintSymbol[] { 'H', SvgIcon.Tap },
+                new HintSymbol[] { 'C', SvgIcon.Tap },
+                new HintSymbol[] { 'O', SvgIcon.Tap },
+                ElementExtensions.TapButtonHint,
+            };
         }
     }
 }

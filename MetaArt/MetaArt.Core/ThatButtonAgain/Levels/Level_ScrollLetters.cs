@@ -39,7 +39,8 @@ namespace ThatButtonAgain {
                     new [] { -1, 0, 1, 0, 0 },
                     new [] { 1, 0, -1, 1, 0 }, //confusing
                     new [] { 0, 1, -1, 0, 1 },
-                }
+                },
+                new[] { (2, +12), (1, +3) }
             );
         }
         public static LevelContext Load_Hard(GameController game) {
@@ -55,7 +56,8 @@ namespace ThatButtonAgain {
                     new [] { -1, 0, 1, 0, 0 },
                     new [] { 1, 0, -1, 1, 0 }, //confusing
                     new [] { 0, -1, 0, 0, 1 },
-                }
+                },
+                new[] { (2, +12), (4, -6), (1, -3) }
             );
         }
         public static LevelContext Load_Extreme(GameController game) {
@@ -72,10 +74,11 @@ namespace ThatButtonAgain {
                     new [] { -2, 0, 1, 0, 0 },
                     new [] { 0, 0, 2, 1, 0 },
                     new [] { -1, 0, 0, 0, 1 },
-                }
+                },
+                new[] { (3, +3), (2, +6), (1, +3), (4, -3) }
             );
         }
-        static LevelContext LoadCore(GameController game, int[][] changes) {
+        static LevelContext LoadCore(GameController game, int[][] changes, (int index, int offset)[] solution) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = false;
             var lineHeight = game.letterDragBoxHeight;
@@ -173,7 +176,16 @@ namespace ThatButtonAgain {
             //    letter.Rect = GetLetterTargetRect(index, button.Rect);
             //});
 
-            return default;
+            var hints = new List<HintSymbol[]>();
+            hints.Add(new HintSymbol[] { SvgIcon.Reload });
+            hints.AddRange(solution
+                .Select(x => {
+                    return new HintSymbol[] { "TOUCH"[x.index], x.offset > 0 ? SvgIcon.DragUp : SvgIcon.DragUp }
+                        .Concat(Math.Abs(x.offset).ToString().Select(c => new HintSymbol(null, c))).ToArray();
+                })
+            );
+            hints.Add(ElementExtensions.TapButtonHint);
+            return hints.ToArray();
         }
         static float GetNormalizedPosition(float position) {
             if(position < 0) position += 26;

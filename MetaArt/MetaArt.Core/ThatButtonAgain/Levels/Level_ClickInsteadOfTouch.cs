@@ -1,6 +1,8 @@
 ﻿using MetaArt.Core;
 namespace ThatButtonAgain {
     static class Level_ClickInsteadOfTouch {
+        const string Click = "CLICK";
+
         public static LevelContext Load(GameController game) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = false;
@@ -36,7 +38,7 @@ namespace ThatButtonAgain {
                 };
                 letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, onRelease);
 
-            }, "CLICK");
+            }, Click);
             new WaitConditionAnimation(
                 condition: deltaTime => replaceIndex == 4) {
                 End = () => {
@@ -47,7 +49,13 @@ namespace ThatButtonAgain {
                 }
             }.Start(game);
 
-            return default;
+            return new[] {
+                new HintSymbol[] { Click[indices[0]], SvgIcon.Tap, SvgIcon.Timer },
+                new HintSymbol[] { Click[indices[1]], SvgIcon.Tap, SvgIcon.Timer },
+                new HintSymbol[] { Click[indices[2]], SvgIcon.Tap, SvgIcon.Timer },
+                new HintSymbol[] { Click[indices[3]], SvgIcon.Tap, SvgIcon.Timer },
+                ElementExtensions.TapButtonHint,
+            };
         }
     }
 }

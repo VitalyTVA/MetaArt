@@ -28,6 +28,30 @@ namespace ThatButtonAgain {
         Rotate,
         Merge,
     }
+    public enum SvgIcon {
+        Bulb,
+        BulbOff,
+        Tap,
+        Drag,
+        DragDown,
+        DragUp,
+        DragLeft,
+        DragRight,
+        Elipsis,
+        Right,
+        Left,
+        Up,
+        Down,
+        Button,
+        Reload,
+        Repeat,
+        Timer,
+        MoveToBottom,
+        MoveToTop,
+        MoveToRight,
+        MoveToLeft,
+        Alert,
+    }
     public abstract class SvgDrawing { }
     public class GameController {
         public static readonly (Func<GameController, LevelContext> action, string name)[] Levels = new [] {
@@ -520,18 +544,6 @@ namespace ThatButtonAgain {
             => new HintSymbol(icon, null);
         public static implicit operator HintSymbol(char letter)
             => new HintSymbol(null, letter);
-    }
-
-    public enum SvgIcon {
-        Bulb,
-        BulbOff,
-        Tap,
-        Drag,
-        Elipsis,
-        Right,
-        Button,
-        Reload,
-        Repeat,
     }
 
     public static class ElementExtensions {

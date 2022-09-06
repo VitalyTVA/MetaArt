@@ -53,7 +53,10 @@ namespace ThatButtonAgain {
                 onClick: () => game.StartNextLevelFalseAnimation()
             );
 
-            return default;
+            return new[] {
+                new HintSymbol[] { '0', SvgIcon.MoveToTop },
+                ElementExtensions.TapButtonHint,
+            };
         }
     }
 }

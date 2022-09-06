@@ -93,7 +93,11 @@ namespace ThatButtonAgain {
 
             game.EnableButtonWhenInPlace(flippedHV.button.Rect, normal.button);
 
-            return default;
+            return new[] {
+                new HintSymbol[] { SvgIcon.Button, SvgIcon.MoveToBottom },
+                new HintSymbol[] { SvgIcon.Button, SvgIcon.MoveToRight },
+                ElementExtensions.TapButtonHint,
+            };
         }
     }
 }

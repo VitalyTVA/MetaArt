@@ -33,7 +33,10 @@ namespace ThatButtonAgain {
                 End = () => button.IsEnabled = true
             }.Start(game);
 
-            return default;
+            return new[] {
+                new HintSymbol[] { 'O', SvgIcon.DragDown, SvgIcon.Button },
+                ElementExtensions.TapButtonHint,
+            };
         }
     }
 }

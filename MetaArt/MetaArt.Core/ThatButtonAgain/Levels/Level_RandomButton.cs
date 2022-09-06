@@ -110,7 +110,7 @@ namespace ThatButtonAgain {
 
             StartWaitButton();
 
-            return default;
+            return new HintSymbol[] { SvgIcon.Timer, '!', SvgIcon.Button, SvgIcon.Tap };
         }
     }
 }

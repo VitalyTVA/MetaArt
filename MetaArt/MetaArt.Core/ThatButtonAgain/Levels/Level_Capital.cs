@@ -17,7 +17,13 @@ namespace ThatButtonAgain {
                 0b00101
             };
             SetupCapitalLettersSwitchLevel(game, 0b00000, (value, index) => value ^ vectors[index]);
-            return default;
+            return new[] {
+                new HintSymbol[] { SvgIcon.Reload },
+                new HintSymbol[] { 't', SvgIcon.Tap },
+                new HintSymbol[] { 'u', SvgIcon.Tap },
+                new HintSymbol[] { 'c', SvgIcon.Tap },
+                ElementExtensions.TapButtonHint,
+            };
         }
 
         static void SetupCapitalLettersSwitchLevel(GameController game, int initialValue, Func<int, int, int> changeValue) {

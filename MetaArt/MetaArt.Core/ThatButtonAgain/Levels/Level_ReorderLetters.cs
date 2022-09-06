@@ -22,6 +22,12 @@ namespace ThatButtonAgain {
                     new Vector2(letters[2].Rect.Left, button.Rect.Bottom),
 
                     button.Rect.BottomLeft,
+                },
+                new[] {
+                    new HintSymbol[] { 'U', SvgIcon.Up, SvgIcon.Up },
+                    new HintSymbol[] { 'O', SvgIcon.Left, SvgIcon.Down },
+                    new HintSymbol[] { 'T', SvgIcon.Left, SvgIcon.Left, SvgIcon.Up },
+                    new HintSymbol[] { 'C', SvgIcon.Right, SvgIcon.Right, SvgIcon.Right }, 
                 }
             );
         }
@@ -61,6 +67,11 @@ namespace ThatButtonAgain {
                     new Vector2(letters[3].Rect.Left, button.Rect.Bottom),
 
                     button.Rect.BottomLeft,
+                },
+                new[] {
+                    new HintSymbol[] { 'O', SvgIcon.Down, 'U', SvgIcon.Up },
+                    new HintSymbol[] { 'C', SvgIcon.Down, 'H', SvgIcon.Up },
+                    new HintSymbol[] { 'T', SvgIcon.Left,  SvgIcon.Repeat, '4' },
                 }
             );
         }
@@ -95,10 +106,17 @@ namespace ThatButtonAgain {
                     new Vector2(letters[3].Rect.Left, button.Rect.Bottom),
 
                     button.Rect.BottomLeft,
+                },
+                new[] { 
+                    new HintSymbol[] { 'O', SvgIcon.Down }, 
+                    new HintSymbol[] { 'U', SvgIcon.Right, SvgIcon.Up }, 
+                    new HintSymbol[] { 'C', SvgIcon.Down }, 
+                    new HintSymbol[] { 'H', SvgIcon.Right, SvgIcon.Up }, 
+                    //new HintSymbol[] { 'T', SvgIcon.Left,  SvgIcon.Repeat, '4' },
                 }
             );
         }
-        static LevelContext LoadCore(GameController game, char[][] chars, Func<Button, Letter[], Vector2[]> getPoints) {
+        static LevelContext LoadCore(GameController game, char[][] chars, Func<Button, Letter[], Vector2[]> getPoints, IEnumerable<HintSymbol[]> solution) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = true;
             button.IsVisible = false;
@@ -145,7 +163,12 @@ namespace ThatButtonAgain {
                 }
             }.Start(game);
 
-            return default;
+            var hints = new List<HintSymbol[]>();
+            hints.Add(new HintSymbol[] { SvgIcon.Reload });
+            hints.AddRange(solution);
+            hints.Add(new HintSymbol[] { SvgIcon.Elipsis });
+            hints.Add(ElementExtensions.TapButtonHint);
+            return hints.ToArray();
         }
     }
 }
