@@ -48,7 +48,7 @@ namespace ThatButtonAgain {
                 letter.Rect = game.GetLetterTargetRect(index, button.Rect);
             });
 
-            return default;
+            return new HintSymbol[] { SvgIcon.Button, SvgIcon.Tap, SvgIcon.Tap, SvgIcon.Elipsis, SvgIcon.Fast };
         }
     }
 }

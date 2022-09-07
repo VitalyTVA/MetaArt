@@ -51,6 +51,9 @@ namespace ThatButtonAgain {
         MoveToRight,
         MoveToLeft,
         Alert,
+        Arrows,
+        Ball,
+        Fast,
     }
     public abstract class SvgDrawing { }
     public class GameController {

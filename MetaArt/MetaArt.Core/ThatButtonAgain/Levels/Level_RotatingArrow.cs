@@ -56,7 +56,12 @@ namespace ThatButtonAgain {
                 }
             }.Start(game);
 
-            return default;
+            return new[] {
+                new HintSymbol[] { 'H', 'H', 'T', 'T' },
+                new HintSymbol[] { 'H', 'H', 'T', 'T' },
+                new HintSymbol[] { 'C', 'C', 'O', 'O' },
+                ElementExtensions.TapButtonHint,
+            };
         }
     }
 }

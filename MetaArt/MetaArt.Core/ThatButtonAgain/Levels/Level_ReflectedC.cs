@@ -63,7 +63,11 @@ namespace ThatButtonAgain {
                 }
             }.Start(game);
 
-            return default;
+            return new[] {
+                new HintSymbol[] { 'O', SvgIcon.DragRight, 'C' },
+                new HintSymbol[] { 'U', SvgIcon.Tap },
+                ElementExtensions.TapButtonHint,
+            };
         }
     }
 }

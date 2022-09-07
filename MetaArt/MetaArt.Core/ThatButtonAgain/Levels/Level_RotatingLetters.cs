@@ -13,7 +13,6 @@ var rotations = new[] {
 */
 
         public static LevelContext Load_Easy(GameController game) {
-            //01234
             return LoadCore(
                 game,
                 new[] {
@@ -22,12 +21,12 @@ var rotations = new[] {
                     new[] { 0, -1, 1, 0, 0 },
                     new[] { 0, 0, 1, -1, 0 },
                     new[] { 1, 0, 0, 0, 1 },
-                }
+                },
+                new[] { 0, 1, 2, 3, 4 }
             );
         }
 
         public static LevelContext Load_Medium(GameController game) {
-            //002233 medium - hard
             return LoadCore(
                 game,
                 new[] {
@@ -36,12 +35,12 @@ var rotations = new[] {
                     new[] { -2, 0, 1, 0, 1 },
                     new[] { 0, -1, 0, 1, 0 },
                     new[] { 1, -2, 0, 0, 1 },
-                }
+                },
+                new[] { 0, 0, 2, 2, 3, 3 }
             );
         }
 
         public static LevelContext Load_Hard(GameController game) {
-            //0144 hard
             return LoadCore(
                 game,
                 new[]  {
@@ -50,11 +49,12 @@ var rotations = new[] {
                     new[] { 2, 0, -1, 0, -1 },
                     new[] { 2, 0, 1, -1, 0 },
                     new[] { -1, 0, 1, 0, 1 },
-                }
+                },
+                new[] { 0, 1, 4, 4 }
             );
         }
 
-        static LevelContext LoadCore(GameController game, int[][] rotations) {
+        static LevelContext LoadCore(GameController game, int[][] rotations, int[] solution) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.HitTestVisible = false;
 
@@ -107,7 +107,14 @@ var rotations = new[] {
                 }
             }.Start(game);
 
-            return default;
+            var hints = new List<HintSymbol[]>();
+            hints.Add(new HintSymbol[] { SvgIcon.Reload });
+            for(int i = 0; i < solution.Length; i += 2) {
+                hints.Add(new HintSymbol[] { "TOUCH"[solution[i]], SvgIcon.Tap }
+                    .Concat(i < solution.Length - 1 ? new HintSymbol[] { "TOUCH"[solution[i + 1]], SvgIcon.Tap } : Enumerable.Empty<HintSymbol>() ).ToArray());
+            }
+            hints.Add(ElementExtensions.TapButtonHint);
+            return hints.ToArray();
         }
         static void VerifyPositiveAngle(Letter letter) {
             //TODO use logging

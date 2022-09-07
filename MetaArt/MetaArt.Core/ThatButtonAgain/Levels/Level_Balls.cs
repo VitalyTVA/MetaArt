@@ -5,7 +5,7 @@ namespace ThatButtonAgain {
             game.VerifyExpectedLevelIndex(20);
             game.RemoveLastLevelLetter();
             bool ballSnapped = false;
-            return LoadCore(
+            LoadCore(
                 game,
                 onElementsCreated: (letters, balls) => { },
                 onHit: (b1, b2) => false,
@@ -31,11 +31,16 @@ namespace ThatButtonAgain {
                     }
                 }
             );
+            return new[] {
+                new HintSymbol[] { SvgIcon.Ball, SvgIcon.Arrows },
+                new HintSymbol[] { SvgIcon.Ball, SvgIcon.Up, '1' },
+                ElementExtensions.TapButtonHint,
+            };
         }
         public static LevelContext Load_KeepO(GameController game) {
             Ball oBall = null!;
             Vector2 oBallLocation = default;
-            return LoadCore(
+            LoadCore(
                 game,
                 onElementsCreated: (letters, balls) => {
                     letters[1].IsVisible = false;
@@ -56,8 +61,14 @@ namespace ThatButtonAgain {
                 canEnableButton: () => true,
                 ballsUpdated: simulation => { }
             );
+
+            return new[] {
+                new HintSymbol[] { SvgIcon.Ball, SvgIcon.Arrows },
+                new HintSymbol[] { 'O', SvgIcon.Alert },
+                ElementExtensions.TapButtonHint,
+            };
         }
-        static LevelContext LoadCore(
+        static void LoadCore(
             GameController game,
             Action<Letter[], IEnumerable<Ball>> onElementsCreated,
             Func<Ball, Ball, bool> onHit,
@@ -178,8 +189,6 @@ namespace ThatButtonAgain {
                 }
                 return !win;
             }).Start(game);
-
-            return default;
         }
         const int Steps = 10;
         static BallElement Element(this Ball ball) => (BallElement)ball.payload;
