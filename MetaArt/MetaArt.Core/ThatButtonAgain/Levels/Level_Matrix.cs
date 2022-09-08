@@ -20,10 +20,6 @@ namespace ThatButtonAgain {
                 "OOTHCUHUU",
                 "TOOCCCHCH"
             };
-            //9 row CCC
-            //2 col OOO
-            //4 col HHH
-            //6 col UUU
 
             Letter?[,] letters = null!;
             letters = CreateLetters(game, button, chars, hovered => {
@@ -66,7 +62,14 @@ namespace ThatButtonAgain {
                 item!.Style = ElementExtensions.ToStyle(item!.Value);
             }
 
-            return default;
+            return new[] {
+                new HintSymbol[] { '9', 'C', SvgIcon.DragRight, 'C' },
+                new HintSymbol[] { '2', 'O', SvgIcon.DragDown, 'O' },
+                new HintSymbol[] { '4', 'H', SvgIcon.DragDown, 'H' },
+                new HintSymbol[] { '6', 'U', SvgIcon.DragDown, 'U' },
+                new HintSymbol[] { '9', 'T', SvgIcon.DragRight, 'H' },
+                ElementExtensions.TapButtonHint,
+            };
         }
 
         public static LevelContext Load_FindWord(GameController game) {

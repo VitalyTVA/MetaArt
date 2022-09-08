@@ -2,67 +2,43 @@
 namespace ThatButtonAgain {
     static class Level_16Game {
         public static LevelContext Load_3x3(GameController game) {
-            return LoadCore(game, 3);
+            LoadCore(game, 3);
+            return new[] {
+                new HintSymbol[] { SvgIcon.Left, SvgIcon.Up, SvgIcon.Right, SvgIcon.Down },
+                new HintSymbol[] { SvgIcon.Repeat, '5' },
+                ElementExtensions.TapButtonHint,
+            };
         }
         public static LevelContext Load_3x3Hard(GameController game) {
-            return LoadCore(game, 3, removeFarCorner: true);
+            LoadCore(game, 3, removeFarCorner: true);
+            return new[] {
+                new HintSymbol[] { SvgIcon.Up, SvgIcon.Right, SvgIcon.Left, SvgIcon.Left, SvgIcon.Right },
+                new HintSymbol[] { SvgIcon.Left, SvgIcon.Up, SvgIcon.Left, SvgIcon.Down, SvgIcon.Up },
+                new HintSymbol[] { SvgIcon.Right, SvgIcon.Down, SvgIcon.Up, SvgIcon.Left, SvgIcon.Left },
+                new HintSymbol[] { SvgIcon.Left, SvgIcon.Right, SvgIcon.Up, SvgIcon.Left, SvgIcon.Up },
+                new HintSymbol[] { SvgIcon.Left },
+                ElementExtensions.TapButtonHint,
+            };
         }
         public static LevelContext Load_3x3Extreme(GameController game) {
-            #region solution
-            /*
-            Up
-            Right
-            Left
-            Down
-            Up
-            Right
-            Down
-            Left
-            Right
-            Up
-            Left
-            Down
-            Left
-            Down
-            Up
-            Up
-            Left
-            Right
-            Up
-            Down
-            */
-            #endregion
-            return LoadCore(game, 3, removeFarCorner: true, removeNearCorner: true);
+            LoadCore(game, 3, removeFarCorner: true, removeNearCorner: true);
+            return new[] {
+                new HintSymbol[] { SvgIcon.Up, SvgIcon.Right, SvgIcon.Left, SvgIcon.Down, SvgIcon.Up },
+                new HintSymbol[] { SvgIcon.Right, SvgIcon.Down, SvgIcon.Left, SvgIcon.Right, SvgIcon.Up },
+                new HintSymbol[] { SvgIcon.Left, SvgIcon.Down, SvgIcon.Left, SvgIcon.Down, SvgIcon.Up },
+                new HintSymbol[] { SvgIcon.Up, SvgIcon.Left, SvgIcon.Right, SvgIcon.Up, SvgIcon.Down },
+                ElementExtensions.TapButtonHint,
+            };
         }
         public static LevelContext Load_4x4(GameController game) {
-            #region solution
-            /*
-            Up
-            Right
-            Left
-            Left
-            Right
-            Left
-            Up
-            Left
-            Down
-            Up
-            Right
-            Down
-            Up
-            Left
-            Left
-            Left
-            Right
-            Up
-            Left
-            Up
-            Left
-             */
-            #endregion
-            return LoadCore(game, 4);
+            LoadCore(game, 4);
+            return new[] {
+                new HintSymbol[] { SvgIcon.Up, SvgIcon.Right, SvgIcon.Down, SvgIcon.Left },
+                new HintSymbol[] { SvgIcon.Elipsis },
+                ElementExtensions.TapButtonHint,
+            };
         }
-        static LevelContext LoadCore(GameController game, int size, bool removeFarCorner = false, bool removeNearCorner = false) {
+        static void LoadCore(GameController game, int size, bool removeFarCorner = false, bool removeNearCorner = false) {
             var button = game.CreateButton(() => game.StartNextLevelAnimation()).AddTo(game);
             button.IsEnabled = false;
             button.Rect = button.Rect.Offset(new Vector2(0, -1.5f * game.letterDragBoxHeight));
@@ -212,8 +188,6 @@ namespace ThatButtonAgain {
                 game.playSound(SoundKind.BrakeBall);
                 game.StartReloadLevelAnimation();
             }
-
-            return default;
         }
 
         enum Value {

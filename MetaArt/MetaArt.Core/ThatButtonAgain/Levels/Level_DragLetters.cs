@@ -78,7 +78,12 @@ namespace ThatButtonAgain {
                     };
                 }
             );
-            return default;
+            return new[] {
+                new HintSymbol[] {SvgIcon.Mirror },
+                new HintSymbol[] { '?', SvgIcon.Drag, 'T', SvgIcon.Button },
+                new HintSymbol[] { SvgIcon.Elipsis },
+                ElementExtensions.TapButtonHint,
+            };
         }
 
         static void LoadCore(

@@ -86,7 +86,11 @@ namespace ThatButtonAgain {
                 };
             }, "56723401=");
 
-            return default;
+            return new[] {
+                new HintSymbol[] { 'I', 'U', 'C', 'O', 'I' },
+                new HintSymbol[] { '=' },
+                ElementExtensions.TapButtonHint,
+            };
         }
         static int StringToNumber(string s) => s
             .Select((c, i) => (c, i: s.Length - 1 - i))

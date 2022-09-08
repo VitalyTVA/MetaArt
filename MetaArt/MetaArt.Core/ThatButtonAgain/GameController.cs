@@ -54,6 +54,7 @@ namespace ThatButtonAgain {
         Arrows,
         Ball,
         Fast,
+        Mirror,
     }
     public abstract class SvgDrawing { }
     public class GameController {

@@ -33,32 +33,23 @@ namespace ThatButtonAgain {
                 onWin: () => { }
             );
 
-            return default;
+            return new[] {
+                new HintSymbol[] { 'U', SvgIcon.Down, 'C', SvgIcon.Down, SvgIcon.Left, SvgIcon.Up },
+                new HintSymbol[] { 'T', SvgIcon.Up, SvgIcon.Left, SvgIcon.Up, SvgIcon.Left, SvgIcon.Down },
+                new HintSymbol[] { 'O', SvgIcon.Right, SvgIcon.Up, SvgIcon.Left },
+                new HintSymbol[] { 'U', SvgIcon.Down, SvgIcon.Right, SvgIcon.Up, SvgIcon.Left },
+                new HintSymbol[] { 'O', SvgIcon.Up, 'U', SvgIcon.Up, 'H', SvgIcon.Up },
+                new HintSymbol[] { 'C', SvgIcon.Up, SvgIcon.Elipsis },
+                ElementExtensions.TapButtonHint,
+            };
             #region solution
             /*
-            'U' Down
-            'C' Down
-            'C' Left
-            'C' Up
-            'T' Up
-            'T' Left
-            'T' Up
-            'T' Left
-            'T' Down
-            'O' Right
-            'O' Up
-            'O' Left
-            'U' Down
-            'U' Right
-            'U' Up
-            'U' Left
-            'O' Up
-            'U' Up
-            'H' Up
-            'C' Up
+            ....
+
             'H' Right
             'H' Down
             'H' Right
+
             'C' Right
             'H' Down
             'T' Right
@@ -88,48 +79,28 @@ namespace ThatButtonAgain {
                 game.playSound(direction.GetSound());
             });
 
-            return default;
+            return new[] {
+                new HintSymbol[] { SvgIcon.Up, SvgIcon.Up, SvgIcon.Left, SvgIcon.Down, SvgIcon.Left },
+                new HintSymbol[] { SvgIcon.Down, SvgIcon.Up, SvgIcon.Up, SvgIcon.Left, SvgIcon.Down },
+                new HintSymbol[] { SvgIcon.Left, SvgIcon.Left, SvgIcon.Up, SvgIcon.Down, SvgIcon.Right },
+                new HintSymbol[] { SvgIcon.Right, SvgIcon.Right, SvgIcon.Up, SvgIcon.Right, SvgIcon.Right },
+                new HintSymbol[] { SvgIcon.Up, SvgIcon.Left, SvgIcon.Down, SvgIcon.Left, SvgIcon.Down },
+                new HintSymbol[] { SvgIcon.Down, SvgIcon.Down, SvgIcon.Down, SvgIcon.Up, SvgIcon.Elipsis },
+                ElementExtensions.TapButtonHint,
+            };
 
             #region solution
-/*
-Up
-Up
-Left
-Down
-Left
-Down
-Up
-Up
-Left
-Down
-Left
-Left
-Up
-Down
-Right
-Right
-Right
-Up
-Right
-Right
-Up
-Left
-Down
-Left
-Down
-Down
-Down
-Down
-Up
-Right
-Up
-Up
-Up
-Down
-Left
-Left
-Down
- */
+            /*
+            ...
+            Right
+            Up
+            Up
+            Up
+            Down
+            Left
+            Left
+            Down
+             */
             #endregion
         }
         public static LevelContext Load_Sokoban(GameController game) {
@@ -168,12 +139,15 @@ Down
                 }
             });
 
-            return default;
-
             #region solution
-            /*
-             TODO ;)
-             */
+            return new[] {
+                new HintSymbol[] { 'A', SvgIcon.MoveToTop, SvgIcon.Alert },
+                new HintSymbol[] { 'A', SvgIcon.MoveToBottom, SvgIcon.Alert },
+                new HintSymbol[] { 'A', SvgIcon.MoveToLeft, SvgIcon.Alert },
+                new HintSymbol[] { 'A', SvgIcon.MoveToRight, SvgIcon.Alert },
+                new HintSymbol[] { SvgIcon.Elipsis },
+                ElementExtensions.TapButtonHint,
+            };
             #endregion
         }
 
