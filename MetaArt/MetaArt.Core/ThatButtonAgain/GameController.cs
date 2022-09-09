@@ -234,25 +234,22 @@ namespace ThatButtonAgain {
         }
 
         Func<Vector2, NoInputState, InputState> GetClickHandler(Action click, Button button, Action? disabledClick = null) {
-            return (startPoint, releaseState) => {
-                return new TapInputState(
-                    button,
-                    () => {
-                        if(button.IsEnabled)
-                            click();
-                    },
-                    setState: isPressed => {
-                        if(isPressed == button.IsPressed)
-                            return;
-                        button.IsPressed = isPressed;
-                        if(isPressed && !button.IsEnabled) {
-                            disabledClick?.Invoke();
-                            playSound(SoundKind.ErrorClick);
-                        }
-                    },
-                    releaseState
-                );
-            };
+            return TapInputState.GetClickHandler(
+                button,
+                () => {
+                    if(button.IsEnabled)
+                        click();
+                },
+                setState: isPressed => {
+                    if(isPressed == button.IsPressed)
+                        return;
+                    button.IsPressed = isPressed;
+                    if(isPressed && !button.IsEnabled) {
+                        disabledClick?.Invoke();
+                        playSound(SoundKind.ErrorClick);
+                    }
+                }
+            );
         }
 
         internal Rect GetButtonRect() {
@@ -352,7 +349,7 @@ namespace ThatButtonAgain {
                             HitTestVisible = true,
                             Rect = GetLetterTargetRect(i + 1.5f, GetButtonRect())
                         }.AddTo(game);
-                        letter.GetPressState = Element.GetPressReleaseStateFactory(
+                        letter.GetPressState = TapInputState.GetPressReleaseHandler(
                             letter,
                             () => {
                                 playSound(SoundKind.Snap);
@@ -380,7 +377,7 @@ namespace ThatButtonAgain {
                     HitTestVisible = true,
                     Rect = GetLetterTargetRect(4f, GetButtonRect())
                 }.AddTo(game);
-                nextLevel.GetPressState = Element.GetPressReleaseStateFactory(
+                nextLevel.GetPressState = TapInputState.GetPressReleaseHandler(
                     nextLevel,
                     () => ChangLevelIndex(+1),
                     () => { }
@@ -391,7 +388,7 @@ namespace ThatButtonAgain {
                     HitTestVisible = true,  
                     Rect = GetLetterTargetRect(0f, GetButtonRect())
                 }.AddTo(game);
-                prevLevel.GetPressState = Element.GetPressReleaseStateFactory(
+                prevLevel.GetPressState = TapInputState.GetPressReleaseHandler(
                     prevLevel,
                     () => ChangLevelIndex(-1),
                     () => { }
@@ -434,10 +431,10 @@ namespace ThatButtonAgain {
                             offsetY
                         )
                     );
-                    levelNumberElement.GetPressState = Element.GetPressReleaseStateFactory(
+                    levelNumberElement.GetPressState = TapInputState.GetClickHandler(
                         levelNumberElement,
                         SetSelectLevelAnimation,
-                        () => { }
+                        isPressed => levelNumberLeterrs.ForEach(x => x.ActiveRatio = isPressed ? 1 : 0)
                     );
                     scene.AddElement(levelNumberElement);
                     digitIndex++;
@@ -445,13 +442,13 @@ namespace ThatButtonAgain {
                 }
                 var levelContext = Levels[levelIndex].action(this);
 
-                bulb.GetPressState = Element.GetPressReleaseStateFactory(
+                bulb.GetPressState = TapInputState.GetClickHandler(
                     bulb,
                     () => {
                         var elements = new List<Element>();
-                        var fadeElement = new InputHandlerElement { 
+                        var fadeElement = new InputHandlerElement {
                             HitTestVisible = true,
-                            Rect = scene.Bounds 
+                            Rect = scene.Bounds
                         }.AddTo(game);
                         elements.Add(fadeElement);
 
@@ -477,15 +474,15 @@ namespace ThatButtonAgain {
                                         var hint = symbols[row][col];
                                         var rect = GetLetterTargetRect(col, buttonRect, row: -3 + row);
                                         const float scale = 0.65f;
-                                        Element element = hint switch { 
-                                            (SvgIcon icon, null) => 
+                                        Element element = hint switch {
+                                            (SvgIcon icon, null) =>
                                                 new SvgElement(icons[icon]) {
                                                     Rect = rect,
                                                     Size = letterSize * scale,
                                                     Style = LetterStyle.Accent1,
                                                 },
-                                               
-                                            (null, char letter) => 
+
+                                            (null, char letter) =>
                                                 new Letter {
                                                     Value = letter,
                                                     Rect = rect,
@@ -499,14 +496,14 @@ namespace ThatButtonAgain {
                                 }
                             }
                         }.Start(game);
-                        
-                        fadeElement.GetPressState = Element.GetPressReleaseStateFactory(
+
+                        fadeElement.GetPressState = TapInputState.GetPressReleaseHandler(
                             fadeElement,
                             () => elements.ForEach(x => scene.RemoveElement(x)),
                             () => { }
                         );
                     },
-                    () => { }
+                    isPressed => bulb.Style = isPressed ? LetterStyle.Accent1 : LetterStyle.Inactive
                 );
 
                 return new SceneContext(animations.ClearAll);

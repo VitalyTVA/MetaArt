@@ -36,7 +36,7 @@ namespace ThatButtonAgain {
                     game.animations.RemoveAnimation(animation);
                     letter.Scale = Letter.NoScale;
                 };
-                letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, onRelease);
+                letter.GetPressState = TapInputState.GetPressReleaseHandler(letter, onPress, onRelease);
 
             }, Click);
             new WaitConditionAnimation(

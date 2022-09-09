@@ -23,7 +23,7 @@ namespace ThatButtonAgain {
             var letters = game.CreateLetters((letter, index) => {
                 letter.Rect = game.GetLetterTargetRect(2, button.Rect, row: index - 2);
                 letter.HitTestVisible = true;
-                letter.GetPressState = Element.GetPressReleaseStateFactory(
+                letter.GetPressState = TapInputState.GetPressReleaseHandler(
                     letter,
                     onPress: () => {
                         if(!area.Move(letter.Value, direction)) {

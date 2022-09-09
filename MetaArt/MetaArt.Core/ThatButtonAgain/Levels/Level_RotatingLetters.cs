@@ -86,7 +86,7 @@ var rotations = new[] {
                         }
                     }
                 };
-                letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, () => { });
+                letter.GetPressState = TapInputState.GetPressReleaseHandler(letter, onPress, () => { });
                 letter.HitTestVisible = true;
                 letter.Angle = MathFEx.PI;
             });

@@ -27,7 +27,7 @@ namespace ThatButtonAgain {
                     game.playSound(SoundKind.SuccessSwitch);
                     letters.Last().HitTestVisible = false;
 
-                    letters[2].GetPressState = Element.GetPressReleaseStateFactory(
+                    letters[2].GetPressState = TapInputState.GetPressReleaseHandler(
                         letters[2],
                         () => {
                             letters[2].HitTestVisible = false;

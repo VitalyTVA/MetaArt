@@ -127,26 +127,6 @@ public abstract class Element {
         };
     }
 
-    public static Func<Vector2, NoInputState, InputState> GetPressReleaseStateFactory(
-        Element element,
-        Action onPress,
-        Action onRelease
-     ) {
-        return (startPoint, releaseState) => {
-            if(!element.HitTestVisible)
-                return releaseState;
-            onPress();
-            return new TapInputState(
-                element,
-                () => { },
-                setState: isPressed => {
-                    if(!isPressed) onRelease?.Invoke();
-                },
-                releaseState
-            );
-        };
-    }
-
     public Rect Rect { get; set; }
     public bool HitTestVisible { get; set; }
     public bool IsVisible { get; set; } = true;
@@ -309,12 +289,44 @@ public class HoverInputState : InputState {
 }
 
 public class TapInputState : InputState {
+    public static Func<Vector2, NoInputState, InputState> GetClickHandler(Element element, Action click, Action<bool> setState) {
+        return (startPoint, releaseState) => {
+            return new TapInputState(
+                element,
+                click,
+                setState: setState,
+                releaseState
+            );
+        };
+    }
+    public static Func<Vector2, NoInputState, InputState> GetPressReleaseHandler(
+        Element element,
+        Action onPress,
+        Action onRelease
+     ) {
+        return (startPoint, releaseState) => {
+            if(!element.HitTestVisible) {
+                Debug.Fail("handler on hit test invisible element");
+                return releaseState;
+            }
+            onPress();
+            return new TapInputState(
+                element,
+                () => { },
+                setState: isPressed => {
+                    if(!isPressed) onRelease?.Invoke();
+                },
+                releaseState
+            );
+        };
+    }
+
     readonly Element element;
     readonly Action onTap;
     readonly Action<bool> setState;
     readonly InputState releaseState;
 
-    public TapInputState(Element element, Action onTap, Action<bool> setState, InputState releaseState) {
+    TapInputState(Element element, Action onTap, Action<bool> setState, InputState releaseState) {
         this.element = element;
         this.onTap = onTap;
         this.setState = setState;

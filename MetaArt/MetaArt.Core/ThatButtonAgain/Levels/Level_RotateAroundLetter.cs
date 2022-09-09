@@ -30,7 +30,7 @@ namespace ThatButtonAgain {
                         game.AddRotateAnimation(letter, MathFEx.PI, MathFEx.PI * 2, leftLetter);
                     }
                 };
-                letter.GetPressState = Element.GetPressReleaseStateFactory(letter, onPress, () => { });
+                letter.GetPressState = TapInputState.GetPressReleaseHandler(letter, onPress, () => { });
                 letter.HitTestVisible = true;
             });
 

@@ -44,27 +44,23 @@ namespace ThatButtonAgain {
             letters = game.CreateLetters((letter, index) => {
                 letter.HitTestVisible = true;
                 letter.Rect = game.GetLetterTargetRect(index, button.Rect);
-                letter.GetPressState = (startPoint, releaseState) => {
-                    return new TapInputState(
-                        button,
-                        () => {
-                            game.playSound(SoundKind.Tap);
-                            value = changeValue(value, index);
-                            SetLetters();
-                            if(value == target) {
-                                foreach(var item in letters) {
-                                    item.HitTestVisible = false;
-                                }
-                                button.HitTestVisible = true;
+                letter.GetPressState = TapInputState.GetClickHandler(
+                    button,
+                    () => {
+                        game.playSound(SoundKind.Tap);
+                        value = changeValue(value, index);
+                        SetLetters();
+                        if(value == target) {
+                            foreach(var item in letters) {
+                                item.HitTestVisible = false;
                             }
-                        },
-                        setState: isPressed => {
-                            button.IsPressed = isPressed;
-                        },
-                        releaseState
-                    );
-                };
-
+                            button.HitTestVisible = true;
+                        }
+                    },
+                    setState: isPressed => {
+                        button.IsPressed = isPressed;
+                    }
+                );
             });
             SetLetters();
         }

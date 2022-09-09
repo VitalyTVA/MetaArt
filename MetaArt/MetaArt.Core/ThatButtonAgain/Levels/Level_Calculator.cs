@@ -55,35 +55,32 @@ namespace ThatButtonAgain {
                 letter.HitTestVisible = true;
                 if(letter.Value != '=')
                     letter.Value = digitToChar[(byte)letter.Value - (byte)'0'];
-                letter.GetPressState = (startPoint, releaseState) => {
-                    return new TapInputState(
-                        letter,
-                        () => {
-                            if(button.IsVisible) {
+                letter.GetPressState = TapInputState.GetClickHandler(
+                    letter,
+                    () => {
+                        if(button.IsVisible) {
+                            game.playSound(SoundKind.ErrorClick);
+                            return;
+                        }
+                        if(letter.Value != '=') {
+                            if(answerLetters[0].Value != ' ') {
                                 game.playSound(SoundKind.ErrorClick);
                                 return;
                             }
-                            if(letter.Value != '=') {
-                                if(answerLetters[0].Value != ' ') {
-                                    game.playSound(SoundKind.ErrorClick);
-                                    return;
-                                }
-                                game.playSound(SoundKind.Tap);
-                                answer = answer * 8 + charToDigit[letter.Value];
-                                FillLetters(answerLetters, answer);
-                            } else {
-                                game.playSound(SoundKind.Tap);
-                                FillLetters(touchLetters, click + answer);
-                                button.IsVisible = true;
-                                button.IsEnabled = click + answer == touch;
-                            }
-                        },
-                        setState: isPressed => {
-                            letter.ActiveRatio = isPressed ? 1 : 0;
-                        },
-                        releaseState
-                    );
-                };
+                            game.playSound(SoundKind.Tap);
+                            answer = answer * 8 + charToDigit[letter.Value];
+                            FillLetters(answerLetters, answer);
+                        } else {
+                            game.playSound(SoundKind.Tap);
+                            FillLetters(touchLetters, click + answer);
+                            button.IsVisible = true;
+                            button.IsEnabled = click + answer == touch;
+                        }
+                    },
+                    setState: isPressed => {
+                        letter.ActiveRatio = isPressed ? 1 : 0;
+                    }
+                );
             }, "56723401=");
 
             return new[] {
