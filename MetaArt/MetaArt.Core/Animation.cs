@@ -114,12 +114,12 @@
             };
         }
 
-        internal void ClearAll() { 
+        public void ClearAll() { 
             animations.Clear();
             blockInputAnimations.Clear();
         }
 
-        internal void VerifyEmpty() {
+        public void VerifyEmpty() {
             if(animations.Any())
                 throw new InvalidOperationException();
         }

@@ -27,16 +27,28 @@ namespace MetaArt.Wpf {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class SketchesWindow : Window {
+        private const string MetaButtonPath = @"c:\Work\github\MetaButton\src\MetaButton.Sketch\bin\Debug\netstandard2.0\";
+
         public SketchesWindow() {
             InitializeComponent();
 
-            var sketches = new[] {
-                "MetaArt.ThatButtonAgain.dll",
-                "MetaArt.Sketches.dll",
-                "MetaArt.Sketches.Skia.dll",
-            }
-            .SelectMany(x => SketchDisplayInfo.LoadSketches(Assembly.LoadFile(System.IO.Path.Combine(Directory.GetCurrentDirectory(), x)))
-            .ToList());
+            ResolveEventHandler handler = (o, e) => {
+                var name = e.Name.Substring(0, e.Name.IndexOf(','));
+                return Assembly.LoadFile(System.IO.Path.Combine(MetaButtonPath, name + ".dll"));
+            };
+            //AppDomain.CurrentDomain.AssemblyResolve += handler;
+
+            var sketches = (new (string dll, string? path)[] {
+                //("MetaButton.Sketch.dll", MetaButtonPath),
+                ("MetaArt.Sketches.dll", null),
+                ("MetaArt.Sketches.Skia.dll", null),
+            })
+            .SelectMany(x => {
+                string path = x.path ?? Directory.GetCurrentDirectory();
+                return SketchDisplayInfo.LoadSketches(Assembly.LoadFile(System.IO.Path.Combine(path, x.dll)))
+                            .ToList();
+            }).ToArray();
+            AppDomain.CurrentDomain.AssemblyResolve -= handler;
 
             btn.Focus();
             Closed += async (o, e) => {

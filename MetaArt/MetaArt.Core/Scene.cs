@@ -1,6 +1,4 @@
 ﻿
-using ThatButtonAgain;
-
 namespace MetaArt.Core;
 public class Scene {
     public readonly float width, height;
@@ -133,6 +131,7 @@ public abstract class Element {
     public Func<Vector2, NoInputState, InputState>? GetPressState { get; set; }
 }
 
+public abstract class SvgDrawing { }
 public class SvgElement : Element {
     public readonly SvgDrawing Svg;
     public float? Size { get; set; }
