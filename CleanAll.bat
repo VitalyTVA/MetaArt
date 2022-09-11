@@ -1,19 +1,31 @@
 @echo off
 
 echo.
-echo METAART
-git clean -fdx
-rmdir %userprofile%\.nuget\packages\metaart /q /s
-rmdir %userprofile%\.nuget\packages\metaart /q /s
+echo METACORE
+cd ..\MetaCore\src
+dotnet clean --configuration Debug
+dotnet clean --configuration Release
 
 echo.
-echo METACORE
-cd ../metacore
-git clean -fdx
-rmdir %userprofile%\.nuget\packages\metacore /q /s
+echo METAART
+cd ..\..\MetaArt\MetaArt
+dotnet clean --configuration Debug
+dotnet clean --configuration Release
 
 echo.
 echo METABUTTON
-cd ../metabutton
-git clean -fdx
-cd ../metaart
+cd ..\..\MetaButton\src
+dotnet clean --configuration Debug
+dotnet clean --configuration Release
+
+echo.
+echo METAART_VIEWERS
+cd ..\..\MetaArt\MetaArt.Viewers
+dotnet clean --configuration Debug MetaArt.Viewers.sln
+dotnet clean --configuration Release MetaArt.Viewers.sln
+
+cd ..\..\MetaArt
+
+rmdir %userprofile%\.nuget\packages\metacore /q /s
+rmdir %userprofile%\.nuget\packages\metaart /q /s
+rmdir %userprofile%\.nuget\packages\metaart /q /s

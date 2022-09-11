@@ -19,7 +19,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\MetaArt.3D\MetaArt.3D.csproj" />
 	  <ProjectReference Include="..\MetaArt.Sketches\MetaArt.Sketches.csproj" />
-	  <ProjectReference Include="..\MetaArt\MetaArt.csproj" />
+	  <ProjectReference Include="..\..\MetaArt\MetaArt\MetaArt.csproj" />
 	</ItemGroup>
 
 
