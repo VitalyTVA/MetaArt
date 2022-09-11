@@ -27,28 +27,35 @@ namespace MetaArt.Wpf {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class SketchesWindow : Window {
-        private const string MetaButtonPath = @"c:\Work\github\MetaButton\src\MetaButton.Sketch\bin\Debug\netstandard2.0\";
+        const string MetaButtonPath = @"..\..\..\..\..\..\MetaButton\src\MetaButton.Sketch\bin\Debug\netstandard2.0\";
+        const string SketchesPath = @"..\..\..\..\MetaArt.Sketches\bin\Debug\netstandard2.0\";
+        const string SketchesSkiaPath = @"..\..\..\..\MetaArt.Sketches.Skia\bin\Debug\netstandard2.0\";
 
         public SketchesWindow() {
             InitializeComponent();
 
+            var sketchPaths = new (string dll, string path)[] {
+                ("MetaButton.Sketch.dll", MetaButtonPath),
+                ("MetaArt.Sketches.dll", SketchesPath),
+                ("MetaArt.Sketches.Skia.dll", SketchesSkiaPath),
+            };
+
             ResolveEventHandler handler = (o, e) => {
                 var name = e.Name.Substring(0, e.Name.IndexOf(','));
-                return Assembly.LoadFile(System.IO.Path.Combine(MetaButtonPath, name + ".dll"));
+                var path = sketchPaths
+                    .Select(x => System.IO.Path.Combine(System.IO.Path.GetFullPath(x.path),  name + ".dll"))
+                    .FirstOrDefault(x => File.Exists(x));
+                return path != null ? Assembly.LoadFile(path) : null;
             };
-            //AppDomain.CurrentDomain.AssemblyResolve += handler;
+            AppDomain.CurrentDomain.AssemblyResolve += handler;
 
-            var sketches = (new (string dll, string? path)[] {
-                //("MetaButton.Sketch.dll", MetaButtonPath),
-                ("MetaArt.Sketches.dll", null),
-                ("MetaArt.Sketches.Skia.dll", null),
-            })
-            .SelectMany(x => {
-                string path = x.path ?? Directory.GetCurrentDirectory();
-                return SketchDisplayInfo.LoadSketches(Assembly.LoadFile(System.IO.Path.Combine(path, x.dll)))
-                            .ToList();
-            }).ToArray();
-            AppDomain.CurrentDomain.AssemblyResolve -= handler;
+            var sketches = sketchPaths
+                .SelectMany(x => {
+                    string path = System.IO.Path.GetFullPath(x.path);
+                    return SketchDisplayInfo.LoadSketches(Assembly.LoadFile(System.IO.Path.Combine(path, x.dll)))
+                                .ToList();
+                }).ToArray();
+            //AppDomain.CurrentDomain.AssemblyResolve -= handler;
 
             btn.Focus();
             Closed += async (o, e) => {
