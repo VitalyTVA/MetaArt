@@ -1,14 +1,16 @@
-echo
-echo "METAART"
+@echo off
+
+echo.
+echo METAART
 git pull
 
-echo
-echo "METACORE"
+echo.
+echo METACORE
 cd ../metacore
 git pull
 
-echo
-echo "METABUTTON"
+echo.
+echo METABUTTON
 cd ../metabutton
 git pull
 cd ../metaart
