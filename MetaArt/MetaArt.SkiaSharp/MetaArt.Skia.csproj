@@ -2,8 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	<OutputPath>..\..\..\MetaBinaries</OutputPath>
-	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<PackageOutputPath>..\..\..\MetaBinaries</PackageOutputPath>
+	<IncludeSymbols>true</IncludeSymbols>
+	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	<Version>0.0.1-alpha</Version>
   </PropertyGroup>
 	
   <ItemGroup>
@@ -13,4 +16,9 @@
   <ItemGroup>
     <ProjectReference Include="..\MetaArt\MetaArt.csproj" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="rmdir %25userprofile%25\.nuget\packages\metaart.skia /q /s" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
+    <Exec Command="rm -rf ~/.nuget/packages/metaart.skia" Condition="$([MSBuild]::IsOSPlatform('OSX'))" />
+  </Target>
 </Project>
