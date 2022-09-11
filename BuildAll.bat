@@ -8,13 +8,13 @@ dotnet build --configuration Debug
 
 echo.
 echo METAART
-cd ..\MetaArt\MetaArt
-dotnet restore
-dotnet build --configuration Debug
+cd ..\..\MetaArt\MetaArt
+dotnet restore MetaArt.sln
+dotnet build --configuration Debug MetaArt.sln
 
 echo.
 echo METABUTTON
-cd ..\MetaButton\src
+cd ..\..\MetaButton\src
 dotnet restore
 dotnet build --configuration Debug
 
