@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "\nmetaart\n"
+git push
+
+echo "\nmetacore\n"
+cd ../metacore
+git push
+
+echo "\nmetabutton\n"
+cd ../metabutton
+git push
+cd ../metaart
