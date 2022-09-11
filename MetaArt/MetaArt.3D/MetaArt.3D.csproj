@@ -7,11 +7,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="MetaCore">
-			<HintPath>..\..\..\MetaBinaries\netstandard2.0\MetaCore.dll</HintPath>
-		</Reference>
+        <PackageReference Include="MetaCore" Version="0.0.1-alpha" />
 	</ItemGroup>
 </Project>
