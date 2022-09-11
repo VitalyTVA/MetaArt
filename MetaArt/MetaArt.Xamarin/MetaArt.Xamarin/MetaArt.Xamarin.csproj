@@ -17,7 +17,6 @@
     <PackageReference Include="Xam.Plugin.SimpleAudioPlayer" Version="1.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MetaArt.3D\MetaArt.3D.csproj" />
     <ProjectReference Include="..\..\MetaArt.Sketches.Skia\MetaArt.Sketches.Skia.csproj" />
     <ProjectReference Include="..\..\MetaArt.Sketches\MetaArt.Sketches.csproj" />
     <ProjectReference Include="..\..\MetaArt.SkiaSharp\MetaArt.Skia.csproj" />
@@ -27,5 +26,11 @@
   <ItemGroup>
     <None Remove="SkiaSharp.Views.Forms" />
     <None Remove="Xam.Plugin.SimpleAudioPlayer" />
+    <None Remove="MetaButton.Sketch" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MetaButton.Sketch">
+      <HintPath>..\..\..\..\MetaButton\src\MetaButton.Sketch\bin\Debug\netstandard2.0\MetaButton.Sketch.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
