@@ -1,15 +1,27 @@
 #!/bin/bash
-echo "\nmetaart\n"
-git clean -fdx
+
+echo "\nMETACORE"
+cd ../MetaCore/src
+dotnet clean --configuration Debug
+dotnet clean --configuration Release
+
+echo "\nMETAART"
+cd ../../MetaArt/MetaArt
+dotnet clean --configuration Debug
+dotnet clean --configuration Release
+
+echo "\nMETABUTTON"
+cd ../../MetaButton/src
+dotnet clean --configuration Debug
+dotnet clean --configuration Release
+
+echo "\nMETAART_VIEWERS"
+cd ../../MetaArt/MetaArt.Viewers
+dotnet clean --configuration Debug MetaArt.Xamarin.sln
+dotnet clean --configuration Release MetaArt.Xamarin.sln
+
+cd ../../MetaArt
+
+rm -rf ~/.nuget/packages/metacore
 rm -rf ~/.nuget/packages/metaart
 rm -rf ~/.nuget/packages/metaart.skia
-
-echo "\nmetacore\n"
-cd ../metacore
-git clean -fdx
-rm -rf ~/.nuget/packages/metacore
-
-echo "\nmetabutton\n"
-cd ../metabutton
-git clean -fdx
-cd ../metaart
