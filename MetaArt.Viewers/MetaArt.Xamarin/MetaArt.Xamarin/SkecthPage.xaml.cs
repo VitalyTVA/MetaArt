@@ -1,7 +1,10 @@
 ﻿using MetaArt.Skia;
 using Plugin.SimpleAudioPlayer;
+using SkiaSharp;
+using Xamarin.Essentials;
+using Xamarin.Forms;
 
-namespace MetaArt.Maui;
+namespace MetaArt.Xamarin;
 
 [QueryProperty(nameof(Sketch), nameof(Sketch))]
 public partial class SkecthPage : ContentPage
@@ -23,35 +26,29 @@ public partial class SkecthPage : ContentPage
     public SkecthPage()
 	{
 		InitializeComponent();
-#if IOS
-        view.HasRenderLoop = true;
-#endif
+        if (Device.RuntimePlatform == Device.iOS) {
+            this.view.HasRenderLoop = true;
+        }
         this.view.PaintSurface += (o, e) => {
-#if IOS
-            if (view.CanvasSize.IsEmpty)
-                return;
-#endif
             if (Sketch == null) return;
             if (painter == null) {
-                var (info, _) = Sketch!;
+                var info = Sketch!.Current;
                 ShowSketch(info);
-                e.Surface.Canvas.Clear(SkiaSharp.SKColors.Black);
+                e.Surface.Canvas.Clear(SKColors.Black);
                 return;
             }
 
             painter?.PaintSurface(e.Surface);
-            //e.Surface.Canvas.();
         };
+        
         this.view.EnableTouchEvents = true;
         this.view.Touch += (o, e) => {
-            if (e.ActionType == SkiaSharp.Views.Maui.SKTouchAction.Pressed)
-            {
+            if (e.ActionType == SkiaSharp.Views.Forms.SKTouchAction.Pressed) {
                 //painter?.OnMouseOver(e.Location.X, e.Location.Y);
                 painter?.OnMouseDown(e.Location.X, e.Location.Y, isLeft: false);
             }
-            if (e.ActionType == SkiaSharp.Views.Maui.SKTouchAction.Moved) painter?.OnMouseOver(e.Location.X, e.Location.Y);
-            if (e.ActionType == SkiaSharp.Views.Maui.SKTouchAction.Released)
-            {
+            if (e.ActionType == SkiaSharp.Views.Forms.SKTouchAction.Moved) painter?.OnMouseOver(e.Location.X, e.Location.Y);
+            if (e.ActionType == SkiaSharp.Views.Forms.SKTouchAction.Released) {
                 painter?.OnMouseUp(e.Location.X, e.Location.Y);
                 painter?.OnMouseLeave();
             }
@@ -59,25 +56,11 @@ public partial class SkecthPage : ContentPage
 
         };
     }
-    protected override void OnNavigatedTo(NavigatedToEventArgs args)
-    {
-        base.OnNavigatedTo(args);
-        //        painter?.Dispose();
-
-        //var (info, _) = Sketch!;
-        //ShowSketch(info);
-
-    }
-
-    private void DisposePainter() {
-        painter?.Dispose();
-        painter = null;
-    }
 
     SketchDisplayInfo? currentSketch;
     private void ShowSketch(SketchDisplayInfo info)
     {
-        Preferences.Default.Set("SketchName", info.Name);
+        Preferences.Set("SketchName", info.Name);
         painter?.Dispose();
 
         painter = new Painter(
@@ -85,44 +68,35 @@ public partial class SkecthPage : ContentPage
             info.Parameters,
             () =>
             {
-#if ANDROID
-                this.Dispatcher.Dispatch(this.view.InvalidateSurface);
-#elif IOS
-                //this.view.InvalidateSurface();
-#endif
+                if (Device.RuntimePlatform == Device.Android) {
+                    //this.view.InvalidateSurface();
+                    this.Dispatcher.BeginInvokeOnMainThread(this.view.InvalidateSurface);
+                } else {
+                    //this.view.InvalidateSurface();
+                }
             },
             feedback => {
-#if IOS
-                fpsLabel.Text = ((int)feedback.DrawTime.TotalMilliseconds).ToString();
-#endif
+                if (Device.RuntimePlatform == Device.iOS) {
+                    fpsLabel.Text = ((int)feedback.DrawTime.TotalMilliseconds).ToString();
+                }
             },
             displayDensity: (float)DeviceDisplay.MainDisplayInfo.Density,
             deviceType: DeviceType.Mobile,
             createSoundFile: CreateSoundFile
         );
-
         painter.SetSize((int)view.CanvasSize.Width, (int)view.CanvasSize.Height);
         painter.Setup();
 
         this.view.InvalidateSurface();
-        this.Dispatcher.Dispatch(() => {
+        this.Dispatcher.BeginInvokeOnMainThread(() => {
             this.title.Text = info.Name;
         });
         currentSketch = info;
     }
-#if !ANDROID
-    class MauiSoundFile : SoundFile {
-        public override void play() {
-        }
-    }
-    static SoundFile CreateSoundFile(Stream stream) {
-        return new MauiSoundFile();
-    }
-#else
-    class MauiSoundFile : SoundFile {
+    class XamarinSoundFile : SoundFile {
         readonly ISimpleAudioPlayer player;
 
-        public MauiSoundFile(ISimpleAudioPlayer player) {
+        public XamarinSoundFile(ISimpleAudioPlayer player) {
             this.player = player;
         }
         public override void play() {
@@ -132,19 +106,25 @@ public partial class SkecthPage : ContentPage
     static SoundFile CreateSoundFile(Stream stream) {
         ISimpleAudioPlayer player = Plugin.SimpleAudioPlayer.CrossSimpleAudioPlayer.CreateSimpleAudioPlayer();
         player.Load(stream);
-        return new MauiSoundFile(player);
-    }
-#endif
-    protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
-    {
-        base.OnNavigatedFrom(args);
+        return new XamarinSoundFile(player);
+    } 
+    //protected override void OnNavigatedFrom(NavigationEventArgs e) {
+    //    base.OnNavigatedFrom(args);
+
+    //}
+    protected override bool OnBackButtonPressed() {
         DisposePainter();
         this.Sketch = null;
+        return base.OnBackButtonPressed();
     }
 
-    void Button_Clicked(System.Object sender, System.EventArgs e)
-    {
-        var (_, list) = Sketch!;
+    private void DisposePainter() {
+        painter?.Dispose();
+        painter = null;
+    }
+
+    void Button_Clicked(System.Object sender, System.EventArgs e) {
+        var list = Sketch!.Lists;
         var index = list.IndexOf(currentSketch!) - 1;
         if (index < 0) index = list.Count - 1;
         DisposePainter();
@@ -155,7 +135,7 @@ public partial class SkecthPage : ContentPage
 
     void Button_Clicked_1(System.Object sender, System.EventArgs e)
     {
-        var (_, list) = Sketch!;
+        var list = Sketch!.Lists;
         var index = list.IndexOf(currentSketch!) + 1;
         if (index >= list.Count) index = list.Count;
         DisposePainter();
