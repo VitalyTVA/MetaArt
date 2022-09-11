@@ -20,7 +20,6 @@
     <ProjectReference Include="..\..\MetaArt.Sketches.Skia\MetaArt.Sketches.Skia.csproj" />
     <ProjectReference Include="..\..\MetaArt.Sketches\MetaArt.Sketches.csproj" />
     <ProjectReference Include="..\..\MetaArt.SkiaSharp\MetaArt.Skia.csproj" />
-    <ProjectReference Include="..\..\MetaArt.ThatButtonAgain\MetaArt.ThatButtonAgain.csproj" />
     <ProjectReference Include="..\..\MetaArt\MetaArt.csproj" />
   </ItemGroup>
   <ItemGroup>
