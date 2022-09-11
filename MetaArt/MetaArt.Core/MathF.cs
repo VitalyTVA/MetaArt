@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 
 namespace MetaArt.Core;
-public static class MathFEx {
+public static class MathF {
     public const float PI = (float)Math.PI; //TODO additional PI constants
     const float delta = 0.0002f;
     public static float Constrain(float amt, float low, float high) => Math.Min(Math.Max(amt, low), high);

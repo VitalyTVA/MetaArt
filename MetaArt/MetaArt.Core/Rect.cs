@@ -32,10 +32,10 @@ namespace MetaArt.Core {
             => new Rect(Location, size);
 
         public bool Contains(Vector2 point) =>
-            MathFEx.LessOrEqual(Location.X, point.X) &&
-            MathFEx.LessOrEqual(Location.Y, point.Y) &&
-            MathFEx.LessOrEqual(point.X, Location.X + Size.X) &&
-            MathFEx.LessOrEqual(point.Y, Location.Y + Size.Y);
+            MathF.LessOrEqual(Location.X, point.X) &&
+            MathF.LessOrEqual(Location.Y, point.Y) &&
+            MathF.LessOrEqual(point.X, Location.X + Size.X) &&
+            MathF.LessOrEqual(point.Y, Location.Y + Size.Y);
 
         public bool Intersects(Rect rect) => 
             Contains(rect.Location) || Contains(rect.Location + rect.Size) || 
@@ -46,10 +46,10 @@ namespace MetaArt.Core {
 
         public Rect ContainingRect(Rect other) {
             return FromLTRB(
-                MathFEx.Min(Left, other.Left),
-                MathFEx.Min(Top, other.Top),
-                MathFEx.Max(Right, other.Right),
-                MathFEx.Max(Bottom, other.Bottom)
+                MathF.Min(Left, other.Left),
+                MathF.Min(Top, other.Top),
+                MathF.Max(Right, other.Right),
+                MathF.Max(Bottom, other.Bottom)
             );
         }
     }

@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using static MetaArt.Core.MathFEx;
+using static MetaArt.Core.MathF;
 
 namespace MetaArt.D3;
 

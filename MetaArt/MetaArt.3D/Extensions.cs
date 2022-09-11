@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using MetaArt.D3;
-using static MetaArt.Core.MathFEx;
+using static MetaArt.Core.MathF;
 
 namespace MetaArt.D3;
 public static class Extensions {

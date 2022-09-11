@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using System.Numerics;
 using System.Reflection;
-using static MetaArt.Core.MathFEx;
+using static MetaArt.Core.MathF;
 using static MetaArt.Sketches.Tests.TestExtensions;
 
 namespace MetaArt.Sketches.Tests {

@@ -52,7 +52,7 @@
         TimeSpan time = TimeSpan.Zero;
         public sealed override bool Next(TimeSpan deltaTime) {
             time += deltaTime;
-            float amount = MathFEx.Min(1, (float)(time.TotalMilliseconds / Duration.TotalMilliseconds));
+            float amount = MathF.Min(1, (float)(time.TotalMilliseconds / Duration.TotalMilliseconds));
             var value = LerpCore(From, To, amount);
             SetValueCore(value);
             return amount < 1;
@@ -75,9 +75,9 @@
         public Vector2 Center { get; init; } = default!;
         public Action<Vector2> SetLocation { get; init; } = null!;
 
-        protected override float LerpCore(float from, float to, float amount) => MathFEx.Lerp(from, to, amount);
+        protected override float LerpCore(float from, float to, float amount) => MathF.Lerp(from, to, amount);
         protected override void SetValueCore(float value) {
-            SetLocation(Center + Radius * new Vector2(MathFEx.Cos(value), MathFEx.Sin(value)));
+            SetLocation(Center + Radius * new Vector2(MathF.Cos(value), MathF.Sin(value)));
         }
     }
 
