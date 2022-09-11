@@ -26,6 +26,10 @@
 	<ItemGroup>
 		<EmbeddedResource Include="..\Models\*.obj" LinkBase="Models" />
 	</ItemGroup>
-
+	<ItemGroup>
+		<Reference Include="MetaCore">
+			<HintPath>..\..\..\MetaBinaries\netstandard2.0\MetaCore.dll</HintPath>
+		</Reference>
+	</ItemGroup>
 
 </Project>
