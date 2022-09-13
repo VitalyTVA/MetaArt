@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Meta3D\Meta3D.Sketch\Meta3D.Sketch.csproj" />
     <ProjectReference Include="..\..\MetaArt\MetaArt.Skia\MetaArt.Skia.csproj" />
     <ProjectReference Include="..\..\MetaArt\MetaArt\MetaArt.csproj" />
     <ProjectReference Include="..\MetaArt.Sketches.Skia\MetaArt.Sketches.Skia.csproj" />

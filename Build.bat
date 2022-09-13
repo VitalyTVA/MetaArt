@@ -11,6 +11,11 @@ cd ..\..\MetaArt\MetaArt
 dotnet build --configuration Debug
 
 echo.
+echo META3D
+cd ..\Meta3D
+dotnet build --configuration Debug
+
+echo.
 echo METABUTTON
 cd ..\..\MetaButton\src
 dotnet build --configuration Debug

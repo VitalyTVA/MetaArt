@@ -10,6 +10,11 @@ cd ../../MetaArt/MetaArt
 dotnet clean --configuration Debug
 dotnet clean --configuration Release
 
+echo "\nMETA3D"
+cd ../Meta3D
+dotnet clean --configuration Debug
+dotnet clean --configuration Release
+
 echo "\nMETABUTTON"
 cd ../../MetaButton/src
 dotnet clean --configuration Debug

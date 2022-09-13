@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Meta3D\Meta3D.csproj" />
     <ProjectReference Include="..\..\MetaArt\MetaArt\MetaArt.csproj" />
   </ItemGroup>
 
@@ -19,6 +20,6 @@
 
   <ItemGroup>
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+	<PackageReference Include="MetaCore" Version="0.0.1-alpha" />
   </ItemGroup>
-
 </Project>

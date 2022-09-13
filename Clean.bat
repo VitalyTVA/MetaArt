@@ -13,6 +13,12 @@ dotnet clean --configuration Debug
 dotnet clean --configuration Release
 
 echo.
+echo META3D
+cd ..\Meta3D
+dotnet clean --configuration Debug
+dotnet clean --configuration Release
+
+echo.
 echo METABUTTON
 cd ..\..\MetaButton\src
 dotnet clean --configuration Debug

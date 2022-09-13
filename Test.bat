@@ -11,6 +11,11 @@ cd ..\..\MetaArt\MetaArt
 dotnet test
 
 echo.
+echo META3D
+cd ..\Meta3D
+dotnet test
+
+echo.
 echo METABUTTON
 cd ..\..\MetaButton\src
 dotnet test

@@ -14,16 +14,15 @@
 		<PackageReference Include="NUnit" Version="3.13.1" />
 		<PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
 		<PackageReference Include="System.Runtime" Version="4.3.1" />
+		<PackageReference Include="MetaCore" Version="0.0.1-alpha" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\MetaArt.Sketches\MetaArt.Sketches.csproj" />
+	  <ProjectReference Include="..\Meta3D\Meta3D.csproj" />
 	  <ProjectReference Include="..\..\MetaArt\MetaArt\MetaArt.csproj" />
 	</ItemGroup>
-
 
 	<ItemGroup>
 		<EmbeddedResource Include="..\Models\*.obj" LinkBase="Models" />
 	</ItemGroup>
-
 </Project>
