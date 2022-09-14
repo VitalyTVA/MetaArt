@@ -229,7 +229,8 @@ namespace MetaArt {
             return Graphics.createFont(stream, size);
         }
 
-        public static SoundFile createSound(string fileName) => painter!.createSoundFile(GetStream(fileName));
+        public static SoundFile createSound(string fileName) => createSound(GetStream(fileName));
+        public static SoundFile createSound(Stream stream) => painter!.createSoundFile(stream);
 
         public static void textFont(PFont font) => Graphics.textFont(font);
         public static float textAscent() => Graphics.textAscent();
