@@ -1,0 +1,23 @@
+#!/bin/bash
+
+echo "\nMETACORE"
+cd ../MetaCore/src
+dotnet test
+
+echo "\nMETAART"
+cd ../../MetaArt/MetaArt
+dotnet test
+
+echo "\nMETA3D"
+cd ../Meta3D
+dotnet test
+
+echo "\nMETABUTTON"
+cd ../../MetaButton/src
+dotnet test
+
+echo "\nMETAART_VIEWERS"
+cd ../../MetaArt/MetaArt.Viewers
+dotnet test MetaArt.Xamarin.sln
+
+cd ../../MetaArt
