@@ -22,8 +22,8 @@ dotnet clean --configuration Release
 
 echo "\nMETAART_VIEWERS"
 cd ../../MetaArt/MetaArt.Viewers
-dotnet clean --configuration Debug MetaArt.Xamarin.sln
-dotnet clean --configuration Release MetaArt.Xamarin.sln
+dotnet clean --configuration Debug MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
+dotnet clean --configuration Release MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
 
 cd ../../MetaArt
 

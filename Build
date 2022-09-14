@@ -18,6 +18,7 @@ dotnet build --configuration Debug
 
 echo "\nMETAART_VIEWERS"
 cd ../../MetaArt/MetaArt.Viewers
-dotnet build --configuration Debug MetaArt.Xamarin.sln
+dotnet build --configuration Debug MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
+#dotnet build --configuration Debug MetaArt.Xamarin.sln
 
 cd ../../MetaArt

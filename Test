@@ -18,6 +18,7 @@ dotnet test
 
 echo "\nMETAART_VIEWERS"
 cd ../../MetaArt/MetaArt.Viewers
-dotnet test MetaArt.Xamarin.sln
+dotnet test MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
+#dotnet test MetaArt.Xamarin.sln
 
 cd ../../MetaArt
