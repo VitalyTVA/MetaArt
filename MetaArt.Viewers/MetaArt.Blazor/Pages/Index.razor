@@ -83,6 +83,7 @@ div.scrollable {
         selectedSkecth = info;
         //viewStyle = "height:1080px; width:1920px;";
         StateHasChanged();
+        var values = new Dictionary<string, string?>();
         painter = new Painter(
             info.Type,
             info.Parameters,
@@ -91,8 +92,10 @@ div.scrollable {
             },
             displayDensity: 1,
             deviceType: DeviceType.Desktop,
-            createSoundFile: _ => new BlazorSoundFile()
-    );
+            createSoundFile: _ => new BlazorSoundFile(),
+            getValue: name => values.TryGetValue(name, out var value) ? value : null,
+            setValue: (name, value) => values[name] = value
+        );
         painter.Setup();
         viewStyle = $"height:{painter!.Height}px; width:{painter!.Width}px;";
         StateHasChanged();

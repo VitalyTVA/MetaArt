@@ -53,6 +53,8 @@ namespace MetaArt {
 
         internal readonly DeviceType deviceType;
         internal readonly Func<Stream, SoundFile> createSoundFile;
+        internal readonly Func<string, string?> getValue;
+        internal readonly Action<string, string?> setValue;
 
         protected PainterBase(
             Type sketchType,
@@ -62,7 +64,9 @@ namespace MetaArt {
             Action<PaintFeedback> feedback,
             float displayDensity,
             DeviceType deviceType,
-            Func<Stream, SoundFile> createSoundFile
+            Func<Stream, SoundFile> createSoundFile,
+            Func<string, string?> getValue,
+            Action<string, string?> setValue
         ) {
             this.invalidate = invalidate;
             this.feedback = feedback;
@@ -84,6 +88,8 @@ namespace MetaArt {
             SettingsCore();
 
             this.createSoundFile = createSoundFile;
+            this.getValue = getValue;
+            this.setValue = setValue;
         }
 
         internal static MethodInfo GetSkecthMethod(Type type, string name)

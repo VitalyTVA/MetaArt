@@ -82,7 +82,9 @@ public partial class SkecthPage : ContentPage
             },
             displayDensity: (float)DeviceDisplay.MainDisplayInfo.Density,
             deviceType: DeviceType.Mobile,
-            createSoundFile: CreateSoundFile
+            createSoundFile: CreateSoundFile,
+            getValue: name => Preferences.Get("Sketch_" + name, default(string)),
+            setValue: (name, value) => Preferences.Set("Sketch_" + name, value)
         );
         painter.SetSize((int)view.CanvasSize.Width, (int)view.CanvasSize.Height);
         painter.Setup();

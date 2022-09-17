@@ -238,6 +238,8 @@ namespace MetaArt {
         public static float textWidth(string text) => Graphics.textWidth(text);
 
         public static DeviceType deviceType() => Painter.deviceType;
+        public static string? readValue(string name) => Painter.getValue(Painter.sketch.GetType().Name + "_" + name);
+        public static void writeValue(string name, string? value) => Painter.setValue(Painter.sketch.GetType().Name + "_" + name, value);
     }
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {

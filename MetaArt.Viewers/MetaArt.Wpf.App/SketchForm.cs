@@ -4,6 +4,7 @@ using SkiaSharp.Views.Desktop;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -15,6 +16,23 @@ using System.Windows.Forms;
 using System.Windows.Media;
 
 namespace MetaArt.Wpf {
+    [Serializable]
+    public class KeyValue { 
+        public string? Key { get; set; }
+        public string? Value { get; set; }
+    }
+    partial class Settings {
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public List<KeyValue> SketchValues {
+            get {
+                return ((List<KeyValue>)(this["SketchValues"]));
+            }
+            set {
+                this["SketchValues"] = value;
+            }
+        }
+    }
     public partial class SketchForm : Form {
         Painter painter;
         System.Drawing.Rectangle ownerRect;
@@ -35,7 +53,20 @@ namespace MetaArt.Wpf {
                 () => skglControl1.Invalidate(), 
                 feedback, displayDensity: 1, 
                 deviceType: DeviceType.Desktop,
-                createSoundFile: CreateSoundFile
+                createSoundFile: CreateSoundFile,
+                getValue: name => {
+                    return Settings.Default.SketchValues?.FirstOrDefault(x => x.Key == name)?.Value;
+                },
+                setValue: (name, value) => {
+                    if(Settings.Default.SketchValues == null)
+                        Settings.Default.SketchValues = new List<KeyValue>();
+                    var key = Settings.Default.SketchValues.FirstOrDefault(x => x.Key == name);
+                    if(key == null)
+                        Settings.Default.SketchValues.Add(new KeyValue { Key = name, Value = value });
+                    else
+                        key.Value = value;
+                    Settings.Default.Save();
+                }
             );
             painter.Setup();
             skglControl1.MouseMove += SkglControl1_MouseMove;
@@ -50,6 +81,7 @@ namespace MetaArt.Wpf {
             Width = Screen.PrimaryScreen.WorkingArea.Width;
             Height = Screen.PrimaryScreen.WorkingArea.Height;
         }
+
         class WpfSoundFile : SoundFile {
             readonly SimpleAudioPlayerImplementation player;
 

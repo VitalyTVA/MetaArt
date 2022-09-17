@@ -109,6 +109,8 @@ namespace MetaArt.Wpf {
                     .Cast<SketchDisplayInfo>()
                     .FirstOrDefault(x => x.Type.FullName == sketchTypeFullName && x.Name == sketchName);
             }), DispatcherPriority.ContextIdle);
+
+
         }
 
         protected override void OnActivated(EventArgs e) {

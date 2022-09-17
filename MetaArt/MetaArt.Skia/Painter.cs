@@ -58,8 +58,20 @@ namespace MetaArt.Skia {
             Action<PaintFeedback> feedback,
             float displayDensity,
             DeviceType deviceType,
-            Func<Stream, SoundFile> createSoundFile
-        ) : base(sketchType, parameters, new SkiaGraphics(), invalidate, feedback, displayDensity, deviceType, createSoundFile) {
+            Func<Stream, SoundFile> createSoundFile,
+            Func<string, string?> getValue,
+            Action<string, string?> setValue
+        ) : base(
+            sketchType, 
+            parameters, 
+            new SkiaGraphics(), 
+            invalidate, 
+            feedback, 
+            displayDensity, 
+            deviceType, 
+            createSoundFile,
+            getValue,
+            setValue) {
         }
 
         void ClearSurface() {
