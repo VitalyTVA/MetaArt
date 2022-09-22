@@ -64,10 +64,8 @@ public partial class SkecthPage : ContentPage
         painter?.Dispose();
 
         painter = new Painter(
-            info.Type,
-            info.Parameters,
-            () =>
-            {
+            info.CreateSketch(),
+            () => {
                 if (Device.RuntimePlatform == Device.Android) {
                     //this.view.InvalidateSurface();
                     this.Dispatcher.BeginInvokeOnMainThread(this.view.InvalidateSurface);

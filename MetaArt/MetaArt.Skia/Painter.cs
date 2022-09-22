@@ -52,8 +52,7 @@ namespace MetaArt.Skia {
 
 
         public Painter(
-            Type sketchType,
-            object[]? parameters,
+            object sketch,
             Action invalidate,
             Action<PaintFeedback> feedback,
             float displayDensity,
@@ -62,8 +61,7 @@ namespace MetaArt.Skia {
             Func<string, string?> getValue,
             Action<string, string?> setValue
         ) : base(
-            sketchType, 
-            parameters, 
+            sketch, 
             new SkiaGraphics(), 
             invalidate, 
             feedback, 

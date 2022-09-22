@@ -57,8 +57,7 @@ namespace MetaArt {
         internal readonly Action<string, string?> setValue;
 
         protected PainterBase(
-            Type sketchType,
-            object[]? parameters,
+            object sketch,
             Graphics graphics,
             Action invalidate,
             Action<PaintFeedback> feedback,
@@ -75,7 +74,7 @@ namespace MetaArt {
             this.displayDensity = displayDensity;
             this.deviceType = deviceType;
 
-            sketch = Activator.CreateInstance(sketchType, parameters);
+            this.sketch = sketch;
             drawMethod = GetSkecthMethod(sketch.GetType(), "draw");
             setupwMethod = GetSkecthMethod(sketch.GetType(), "setup");
             settingsMethod = GetSkecthMethod(sketch.GetType(), "settings");

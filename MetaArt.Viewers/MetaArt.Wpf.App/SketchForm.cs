@@ -48,8 +48,7 @@ namespace MetaArt.Wpf {
             this.sketchSizeChanged = sketchSizeChanged;
             this.mouseWheel = mouseWheel;
             painter = new Painter(
-                sketchType!, 
-                parameters,
+                SketchDisplayInfo.CreateSketch(sketchType!, parameters),
                 () => skglControl1.Invalidate(), 
                 feedback, displayDensity: 1, 
                 deviceType: DeviceType.Desktop,

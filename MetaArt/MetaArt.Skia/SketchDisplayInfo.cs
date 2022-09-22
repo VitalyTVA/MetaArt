@@ -23,7 +23,8 @@ namespace MetaArt.Skia {
             return sketches;
         }
 
-
         public bool DescriptionVisibility => Description != null;
+        public object CreateSketch() => CreateSketch(Type, Parameters);
+        public static object CreateSketch(Type type, object[]? parameters) => Activator.CreateInstance(type, parameters);
     }
 }
