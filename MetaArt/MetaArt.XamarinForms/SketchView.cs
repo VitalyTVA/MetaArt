@@ -1,6 +1,7 @@
 ﻿using MetaArt.Skia;
 using Plugin.SimpleAudioPlayer;
 using SkiaSharp;
+using SkiaSharp.Views.Forms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,12 @@ using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-namespace MetaArt.Xamarin {
-    [XamlCompilation(XamlCompilationOptions.Compile)]
+namespace MetaArt.XamarinForms {
     public partial class SketchView : ContentView {
+        SKGLView view;
         public SketchView() {
-            InitializeComponent();
+            this.view = new SKGLView();
+            this.Content = view;
             if(Device.RuntimePlatform == Device.iOS) {
                 this.view.HasRenderLoop = true;
             }

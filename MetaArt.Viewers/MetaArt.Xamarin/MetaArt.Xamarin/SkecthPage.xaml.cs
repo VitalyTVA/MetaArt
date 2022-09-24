@@ -1,5 +1,4 @@
 ﻿using MetaArt.Skia;
-using Plugin.SimpleAudioPlayer;
 using SkiaSharp;
 using Xamarin.Essentials;
 using Xamarin.Forms;
