@@ -30,5 +30,7 @@
 	<string>MetaArt.Xamarin</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 </dict>
 </plist>
