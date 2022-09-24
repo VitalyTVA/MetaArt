@@ -1,24 +1,25 @@
 #!/bin/bash
+MSBuildExtensionsPath="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mono/xbuild;/Library/Frameworks/Mono.framework/External/xbuild/;/Applications/Visual Studio (Preview).app/Contents/MonoBundle/AddIns/MonoDevelop.Docker/MSbuild"
 
 echo "\nMETACORE"
 cd ../MetaCore/src
-dotnet test
+dotnet test -clp:ErrorsOnly 
 
 echo "\nMETAART"
 cd ../../MetaArt/MetaArt
-dotnet test
+dotnet test -clp:ErrorsOnly 
 
 echo "\nMETA3D"
 cd ../Meta3D
-dotnet test
+dotnet test -clp:ErrorsOnly 
 
 echo "\nMETABUTTON"
 cd ../../MetaButton/src
-dotnet test -p:MSBuildExtensionsPath="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mono/xbuild;/Library/Frameworks/Mono.framework/External/xbuild/;/Applications/Visual Studio (Preview).app/Contents/MonoBundle/AddIns/MonoDevelop.Docker/MSbuild"
+dotnet test -clp:ErrorsOnly
 
 echo "\nMETAART_VIEWERS"
 cd ../../MetaArt/MetaArt.Viewers
-dotnet test MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
+dotnet test -clp:ErrorsOnly  MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
 #dotnet test MetaArt.Xamarin.sln
 
 cd ../../MetaArt

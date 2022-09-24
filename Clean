@@ -3,31 +3,32 @@ MSBuildExtensionsPath="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mo
 
 echo "\nMETACORE"
 cd ../MetaCore/src
-dotnet clean --configuration Debug
-dotnet clean --configuration Release
+dotnet clean -clp:ErrorsOnly --configuration Debug
+dotnet clean -clp:ErrorsOnly --configuration Release
 
 echo "\nMETAART"
 cd ../../MetaArt/MetaArt
-dotnet clean --configuration Debug
-dotnet clean --configuration Release
+dotnet clean -clp:ErrorsOnly --configuration Debug
+dotnet clean -clp:ErrorsOnly --configuration Release
 
 echo "\nMETA3D"
 cd ../Meta3D
-dotnet clean --configuration Debug
-dotnet clean --configuration Release
+dotnet clean -clp:ErrorsOnly --configuration Debug
+dotnet clean -clp:ErrorsOnly --configuration Release
 
 echo "\nMETABUTTON"
 cd ../../MetaButton/src
-dotnet clean --configuration Debug -p:MSBuildExtensionsPath="$MSBuildExtensionsPath"
-dotnet clean --configuration Release -p:MSBuildExtensionsPath="$MSBuildExtensionsPath"
+dotnet clean -clp:ErrorsOnly --configuration Debug
+dotnet clean -clp:ErrorsOnly --configuration Release
 
 echo "\nMETAART_VIEWERS"
 cd ../../MetaArt/MetaArt.Viewers
-dotnet clean --configuration Debug MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
-dotnet clean --configuration Release MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
+dotnet clean -clp:ErrorsOnly --configuration Debug MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
+dotnet clean -clp:ErrorsOnly --configuration Release MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
 
 cd ../../MetaArt
 
 rm -rf ~/.nuget/packages/metacore
 rm -rf ~/.nuget/packages/metaart
 rm -rf ~/.nuget/packages/metaart.skia
+rm -rf ~/.nuget/packages/metaart.xamarinforms
