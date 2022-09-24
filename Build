@@ -15,6 +15,7 @@ dotnet build -clp:ErrorsOnly --configuration Debug
 
 echo "\nMETABUTTON"
 cd ../../MetaButton/src
+#dotnet build -clp:ErrorsOnly p:MSBuildExtensionsPath="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mono/xbuild"
 dotnet build -clp:ErrorsOnly --configuration Debug
 
 echo "\nMETAART_VIEWERS"

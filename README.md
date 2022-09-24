@@ -1,6 +1,8 @@
 # MetaArt
 
 # Links
+https://stackoverflow.com/questions/59252419/dotnet-build-xamarin-project-fails-using-console
+
 https://github.com/8/SkiaSharp-Wpf-Example
 
 https://github.com/AvaloniaUI/Avalonia/issues/1756
