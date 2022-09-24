@@ -1,4 +1,5 @@
 #!/bin/bash
+MSBuildExtensionsPath="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mono/xbuild;/Library/Frameworks/Mono.framework/External/xbuild/;/Applications/Visual Studio (Preview).app/Contents/MonoBundle/AddIns/MonoDevelop.Docker/MSbuild"
 
 echo "\nMETACORE"
 cd ../MetaCore/src
@@ -17,8 +18,8 @@ dotnet clean --configuration Release
 
 echo "\nMETABUTTON"
 cd ../../MetaButton/src
-dotnet clean --configuration Debug
-dotnet clean --configuration Release
+dotnet clean --configuration Debug -p:MSBuildExtensionsPath="$MSBuildExtensionsPath"
+dotnet clean --configuration Release -p:MSBuildExtensionsPath="$MSBuildExtensionsPath"
 
 echo "\nMETAART_VIEWERS"
 cd ../../MetaArt/MetaArt.Viewers

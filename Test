@@ -14,7 +14,7 @@ dotnet test
 
 echo "\nMETABUTTON"
 cd ../../MetaButton/src
-dotnet test
+dotnet test -p:MSBuildExtensionsPath="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mono/xbuild;/Library/Frameworks/Mono.framework/External/xbuild/;/Applications/Visual Studio (Preview).app/Contents/MonoBundle/AddIns/MonoDevelop.Docker/MSbuild"
 
 echo "\nMETAART_VIEWERS"
 cd ../../MetaArt/MetaArt.Viewers
