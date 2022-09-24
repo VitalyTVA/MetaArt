@@ -3,26 +3,26 @@
 echo.
 echo METACORE
 cd ..\MetaCore\src
-dotnet test
+dotnet test -clp:ErrorsOnly
 
 echo.
 echo METAART
 cd ..\..\MetaArt\MetaArt
-dotnet test
+dotnet test -clp:ErrorsOnly
 
 echo.
 echo META3D
 cd ..\Meta3D
-dotnet test
+dotnet test -clp:ErrorsOnly
 
 echo.
 echo METABUTTON
 cd ..\..\MetaButton\src
-dotnet test
+dotnet test -clp:ErrorsOnly
 
 echo.
 echo METAART_VIEWERS
 cd ..\..\MetaArt\MetaArt.Viewers
-dotnet test MetaArt.Viewers.sln
+dotnet test -clp:ErrorsOnly MetaArt.Viewers.sln
 
 cd ..\..\MetaArt

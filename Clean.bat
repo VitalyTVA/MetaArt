@@ -3,32 +3,32 @@
 echo.
 echo METACORE
 cd ..\MetaCore\src
-dotnet clean --configuration Debug
-dotnet clean --configuration Release
+dotnet clean -clp:ErrorsOnly --configuration Debug
+dotnet clean -clp:ErrorsOnly --configuration Release
 
 echo.
 echo METAART
 cd ..\..\MetaArt\MetaArt
-dotnet clean --configuration Debug
-dotnet clean --configuration Release
+dotnet clean -clp:ErrorsOnly --configuration Debug
+dotnet clean -clp:ErrorsOnly --configuration Release
 
 echo.
 echo META3D
 cd ..\Meta3D
-dotnet clean --configuration Debug
-dotnet clean --configuration Release
+dotnet clean -clp:ErrorsOnly --configuration Debug
+dotnet clean -clp:ErrorsOnly --configuration Release
 
 echo.
 echo METABUTTON
 cd ..\..\MetaButton\src
-dotnet clean --configuration Debug
-dotnet clean --configuration Release
+dotnet clean -clp:ErrorsOnly --configuration Debug
+dotnet clean -clp:ErrorsOnly --configuration Release
 
 echo.
 echo METAART_VIEWERS
 cd ..\..\MetaArt\MetaArt.Viewers
-dotnet clean --configuration Debug MetaArt.Viewers.sln
-dotnet clean --configuration Release MetaArt.Viewers.sln
+dotnet clean -clp:ErrorsOnly --configuration Debug MetaArt.Viewers.sln
+dotnet clean -clp:ErrorsOnly --configuration Release MetaArt.Viewers.sln
 
 cd ..\..\MetaArt
 
