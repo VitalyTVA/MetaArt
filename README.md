@@ -1,6 +1,13 @@
 # MetaArt
 
 # Links
+
+<key>UIStatusBarHidden</key>
+<true/>
+<key>UIViewControllerBasedStatusBarAppearance</key>
+<false/>
+https://stackoverflow.com/questions/45785104/xamarin-forms-removing-status-bar-in-ios-10
+
 https://stackoverflow.com/questions/59252419/dotnet-build-xamarin-project-fails-using-console
 
 https://github.com/8/SkiaSharp-Wpf-Example
