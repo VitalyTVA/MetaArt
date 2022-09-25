@@ -1,26 +1,28 @@
 #!/bin/bash
 MSBuildExtensionsPath="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mono/xbuild;/Library/Frameworks/Mono.framework/External/xbuild/;/Applications/Visual Studio (Preview).app/Contents/MonoBundle/AddIns/MonoDevelop.Docker/MSbuild"
 
+_Config="Debug"
+
 echo "\nMETACORE"
 cd ../MetaCore/src
-dotnet build -clp:ErrorsOnly --configuration Debug
+dotnet build -clp:ErrorsOnly --configuration $_Config
 
 echo "\nMETAART"
 cd ../../MetaArt/MetaArt
-dotnet build -clp:ErrorsOnly --configuration Debug
+dotnet build -clp:ErrorsOnly --configuration $_Config
 
 echo "\nMETA3D"
 cd ../Meta3D
-dotnet build -clp:ErrorsOnly --configuration Debug
+dotnet build -clp:ErrorsOnly --configuration $_Config
 
 echo "\nMETABUTTON"
 cd ../../MetaButton/src
 #dotnet build -clp:ErrorsOnly p:MSBuildExtensionsPath="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/mono/xbuild"
-dotnet build -clp:ErrorsOnly --configuration Debug
+dotnet build -clp:ErrorsOnly --configuration $_Config
 
 echo "\nMETAART_VIEWERS"
 cd ../../MetaArt/MetaArt.Viewers
-dotnet build -clp:ErrorsOnly --configuration Debug MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
+dotnet build -clp:ErrorsOnly --configuration $_Config MetaArt.Viewers.sln /p:EnableWindowsTargeting=true
 #dotnet build --configuration Debug MetaArt.Xamarin.sln
 
 cd ../../MetaArt
