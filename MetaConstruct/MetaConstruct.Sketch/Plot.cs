@@ -97,23 +97,29 @@ record Line(Point From, Point To) {
 record Circle(Point From, Point To) {
 }
 
-class Plot<T> { 
+abstract record Plot<T> { 
 }
 
 
 static class Constructor {
+    record class ValueConctruct<T>(T Value) : Plot<T>;
+    record class FutureConctruct<TSource, TSelect, TResult>(
+        Plot<TSource> Source, 
+        Func<TSource, Plot<TSelect>> PlotSelector,
+        Func<TSource, TSelect, TResult> ResultSelector
+    ) : Plot<TResult>;
 
-    public static Plot<Point> Point() => throw new NotImplementedException();
-    public static Plot<Line> Line(Point p1, Point p2) => throw new NotImplementedException();
-    public static Plot<Circle> Circle(Point center, Point point) => throw new NotImplementedException();
-    public static Plot<T> AsPlot<T>(T source) => throw new NotImplementedException();
+    public static Plot<Point> Point() => new Point().AsConstruct();
+    public static Plot<Line> Line(Point p1, Point p2) => new Line(p1, p2).AsConstruct();
+    public static Plot<Circle> Circle(Point center, Point point) => new Circle(center, point).AsConstruct();
+    static Plot<T> AsConstruct<T>(this T source) => new ValueConctruct<T>(source);
 
     public static Plot<(Point p1, Point p2)> Intersect(Circle c1, Circle c2) => throw new NotImplementedException();
     public static Plot<Point> Intersect(Line l1, Line l2) => throw new NotImplementedException();
     public static Plot<(Point p1, Point p2)> Intersect(Circle c, Line l) => throw new NotImplementedException();
 
     public static Plot<TResult> Select<TSource, TResult>(this Plot<TSource> source, Func<TSource, TResult> selector) { 
-        return source.SelectMany(x => AsPlot(selector(x)));
+        return source.SelectMany(x => selector(x).AsConstruct());
     }
 
     public static Plot<TResult> SelectMany<TSource, TResult>(this Plot<TSource> source, Func<TSource, Plot<TResult>> selector) { 
@@ -121,9 +127,10 @@ static class Constructor {
     }
 
     public static Plot<TResult> SelectMany<TSource, TSelect, TResult>(
-        this Plot<TSource> source, Func<TSource, Plot<TSelect>> collectionSelector, 
+        this Plot<TSource> source, 
+        Func<TSource, Plot<TSelect>> plotSelector, 
         Func<TSource, TSelect, TResult> resultSelector
     ) { 
-        throw new NotImplementedException();
+        return new FutureConctruct<TSource, TSelect, TResult>(Source: source, PlotSelector: plotSelector, ResultSelector: resultSelector);
     }
 }
