@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Assets\**" />
+    <EmbeddedResource Remove="Assets\**" />
+    <None Remove="Assets\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MetaArt.Skia" Version="0.0.1-alpha" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MetaConstruct\MetaConstruct.csproj" />
+  </ItemGroup>
+</Project>
