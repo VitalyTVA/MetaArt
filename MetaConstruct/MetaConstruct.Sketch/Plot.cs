@@ -1,6 +1,7 @@
 ﻿using MetaArt.Core;
 using System.Diagnostics;
 using System.Numerics;
+using static MetaConstruct.Constructor;
 
 namespace MetaConstruct;
 
@@ -11,70 +12,74 @@ public class Plot {
             size(400, 700);
         fullRedraw();
 
-        int[] numbers = { 5, 10, 8, 3, 6, 12 };
-
-        IEnumerable<int> numQuery0 =
-            from num in numbers
-            let n2 = num * 3
-            select n2 * 2;
-        IEnumerable<int> numQuery1 =
-            from num in numbers
-            from num2 in Enumerable.Range(0, num)
-            from num3 in Enumerable.Range(0, num2)
-            where num3 % 2 == 0
-            orderby num3
-            select num3 * 2;
 
         var x1 =
-            from p1 in Constructor.Point()
-            from p2 in Constructor.Point()
-            select new Line(p1, p2)
+            from p1 in Point()
+            from p2 in Point()
+            select Line(p1, p2)
         ;
 
         var x2 =
-            from p1 in Constructor.Point()
-            from p2 in Constructor.Point()
-            select new Circle(p1, p2)
-        ;
-
-        var x3 =
-            from p1 in Constructor.Point()
-            from c in new Circle(p1, Constructor.Point())
-            select c
-        ;
-
-        var x4 =
-            from p1 in Constructor.Point()
-            from l in new Line(p1, Constructor.Point())
-            select l
+            from p1 in Point()
+            from p2 in Point()
+            select Circle(p1, p2)
         ;
 
         var x5 =
-            from p1 in Constructor.Point()
-            from p2 in Constructor.Point()
-            from l in new Line(p1, p2)
+            from p1 in Point()
+            from p2 in Point()
+            from l in Line(p1, p2)
             select l
         ;
 
         var x6 =
-            from p1 in Constructor.Point()
-            from p2 in Constructor.Point()
-            from c in new Circle(p1, p2)
+            from p1 in Point()
+            from p2 in Point()
+            from c in Circle(p1, p2)
             select c
         ;
 
-        //var x7 =
-        //    from p1 in Constructor.Point()
-        //    let l = new Line(p1, Constructor.Point())
-        //    select l
-        //;
+        var x7 =
+            from p1 in Point()
+            let l = new Line(p1, new Point())
+            select l
+        ;
 
-        //var x7 =
-        //    from p1 in Constructor.Point()
-        //    from p2 in Constructor.Point()
-        //    let l = new Line(p1, p2)
-        //    select l
-        //;
+        var x8 =
+            from p1 in Constructor.Point()
+            from p2 in Constructor.Point()
+            let l = new Line(p1, p2)
+            select l
+        ;
+
+        var circles =
+            from center in Point()
+            from top in Point()
+            let centerCircle = new Circle(center, top)
+            let c1 = new Circle(top, center)
+
+            from i1 in Intersect(centerCircle, c1)
+            let c2 = new Circle(i1.p1, center)
+
+            from i2 in Intersect(c1, c2)
+            let c3 = new Circle(i2.p1, center)
+
+            from i3 in Intersect(c2, c3)
+            let c4 = new Circle(i3.p1, center)
+
+            from i4 in Intersect(c3, c4)
+            let c5 = new Circle(i4.p1, center)
+
+            select (c1, c2, c3, c4);
+
+        //var center = new Point();
+        //var point = new Point();
+        //var centerCircle = new Circle(center, point);
+
+        //var c1 = new Circle(point, center);
+        //var intersection1 = new CirclesIntersection(centerCircle, c1);
+
+        //Enumerable.SelectMany
     }
 
 
@@ -84,47 +89,41 @@ public class Plot {
     }
 }
 
-abstract record Construct() { }
 
-record Point : Construct { 
+record Point { 
 }
-record Line(Point From, Point To) : Construct { 
+record Line(Point From, Point To) { 
 }
-record Circle(Point From, Point To) : Construct {
+record Circle(Point From, Point To) {
 }
-record CirclesIntersection(Circle c1, Circle c2) : Construct { 
+
+class Plot<T> { 
 }
-record LinesIntersection(Line l1, Line l2) : Construct {
-}
+
 
 static class Constructor {
 
-    public static TResult SelectMany<T, TResult>(this T source, Func<T, Point> selector, Func<T, Point, TResult> resultSelector) {
-        var p2 = selector(source);
-        return resultSelector(source, p2);
+    public static Plot<Point> Point() => throw new NotImplementedException();
+    public static Plot<Line> Line(Point p1, Point p2) => throw new NotImplementedException();
+    public static Plot<Circle> Circle(Point center, Point point) => throw new NotImplementedException();
+    public static Plot<T> AsPlot<T>(T source) => throw new NotImplementedException();
+
+    public static Plot<(Point p1, Point p2)> Intersect(Circle c1, Circle c2) => throw new NotImplementedException();
+    public static Plot<Point> Intersect(Line l1, Line l2) => throw new NotImplementedException();
+    public static Plot<(Point p1, Point p2)> Intersect(Circle c, Line l) => throw new NotImplementedException();
+
+    public static Plot<TResult> Select<TSource, TResult>(this Plot<TSource> source, Func<TSource, TResult> selector) { 
+        return source.SelectMany(x => AsPlot(selector(x)));
     }
 
-    public static TResult SelectMany<T, TResult>(this T source, Func<T, Line> selector, Func<T, Line, TResult> resultSelector) 
-        {
-        var p2 = selector(source);
-        return resultSelector(source, p2);
+    public static Plot<TResult> SelectMany<TSource, TResult>(this Plot<TSource> source, Func<TSource, Plot<TResult>> selector) { 
+        return source.SelectMany(selector, (_, x) => x);
     }
 
-    public static TResult SelectMany<T, TResult>(this T source, Func<T, Circle> selector, Func<T, Circle, TResult> resultSelector) {
-        var p2 = selector(source);
-        return resultSelector(source, p2);
+    public static Plot<TResult> SelectMany<TSource, TSelect, TResult>(
+        this Plot<TSource> source, Func<TSource, Plot<TSelect>> collectionSelector, 
+        Func<TSource, TSelect, TResult> resultSelector
+    ) { 
+        throw new NotImplementedException();
     }
-
-    //public static Line Select<T>(this T source, Func<T, Line> selector) {
-    //    var p2 = selector(source);
-    //    return p2;
-    //}
-    //public static Point Select<T>(this T source, Func<T, Point> selector) {
-    //    var p2 = selector(source);
-    //    return p2;
-    //}
-
-    public static Point Point() => new Point();
-    public static CirclesIntersection Intersect(Circle c1, Circle c2) => new CirclesIntersection(c1, c2);
-    public static LinesIntersection Intersect(Line l1, Line l2) => new LinesIntersection(l1, l2);
 }
