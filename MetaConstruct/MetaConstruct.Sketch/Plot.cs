@@ -151,38 +151,10 @@ class Plotter {
     }
 
     static Vector2 Intersect(CircleF c1, CircleF c2, CircleIntersectionKind intersection) {
-        var (p1, p2) = GetCircleIntersections(c1.center, c2.center, c1.radius, c2.radius);
+        var (p1, p2) = ConstructHelper.GetCircleIntersections(c1.center, c2.center, c1.radius, c2.radius)!.Value;
         return intersection == CircleIntersectionKind.First ? p1 : p2;
     }
-
-    static (Vector2, Vector2) GetCircleIntersections(Vector2 center1, Vector2 center2, float radius1, float radius2) {
-        var (r1, r2) = (radius1, radius2);
-        (float x1, float y1, float x2, float y2) = (center1.X, center1.Y, center2.X, center2.Y);
-        // d = distance from center1 to center2
-        float d = MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2));
-        // Return an empty array if there are no intersections
-        if(!(MathF.Abs(r1 - r2) <= d && d <= r1 + r2)) throw new NotImplementedException();
-
-        // Intersections i1 and possibly i2 exist
-        var dsq = d * d;
-        var (r1sq, r2sq) = (r1 * r1, r2 * r2);
-        var r1sq_r2sq = r1sq - r2sq;
-        var a = r1sq_r2sq / (2 * dsq);
-        var c = MathF.Sqrt(2 * (r1sq + r2sq) / dsq - (r1sq_r2sq * r1sq_r2sq) / (dsq * dsq) - 1);
-
-        var fx = (x1 + x2) / 2 + a * (x2 - x1);
-        var gx = c * (y2 - y1) / 2;
-
-        var fy = (y1 + y2) / 2 + a * (y2 - y1);
-        var gy = c * (x1 - x2) / 2;
-
-        var i1 = new Vector2((float)(fx + gx), (float)(fy + gy));
-        var i2 = new Vector2((float)(fx - gx), (float)(fy - gy));
-
-        return (i1, i2);
-    }
 }
-
 abstract record Point;
 sealed record FixedPoint : Point {
     public readonly object obj = new object();

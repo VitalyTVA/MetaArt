@@ -40,6 +40,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaConstruct", "..\MetaCon
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaConstruct.Sketch", "..\MetaConstruct\MetaConstruct.Sketch\MetaConstruct.Sketch.csproj", "{C2136501-3EB0-4882-8580-07703D494189}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaContruct.Tests", "..\MetaConstruct\MetaConstruct.Tests\MetaContruct.Tests.csproj", "{C6F6DD63-6EA2-456F-B98D-BC1A5A433305}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +96,10 @@ Global
 		{C2136501-3EB0-4882-8580-07703D494189}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2136501-3EB0-4882-8580-07703D494189}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2136501-3EB0-4882-8580-07703D494189}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6F6DD63-6EA2-456F-B98D-BC1A5A433305}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6F6DD63-6EA2-456F-B98D-BC1A5A433305}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6F6DD63-6EA2-456F-B98D-BC1A5A433305}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6F6DD63-6EA2-456F-B98D-BC1A5A433305}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -109,6 +115,7 @@ Global
 		{FE942470-2A5B-4726-87DE-2F5448A69442} = {847CE78A-0D73-4B70-95D8-821506A9F344}
 		{64DFAB72-09A2-4E41-AC1C-9E23BE113C85} = {43E9DA66-E447-4071-86D4-503A49BC0EFB}
 		{C2136501-3EB0-4882-8580-07703D494189} = {43E9DA66-E447-4071-86D4-503A49BC0EFB}
+		{C6F6DD63-6EA2-456F-B98D-BC1A5A433305} = {43E9DA66-E447-4071-86D4-503A49BC0EFB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {870AAA66-0D5A-43F7-AC2E-BD9D40287115}
