@@ -3,7 +3,43 @@ using System.Numerics;
 
 namespace MetaConstruct {
     public static class ConstructHelper {
-        public static (Vector2, Vector2)? GetCircleIntersections(Vector2 center1, Vector2 center2, float radius1, float radius2) {
+        public static (Vector2, Vector2)? GetLineCircleIntersections(Vector2 center, float radius, Vector2 point1, Vector2 point2) {
+            float cx = center.X;
+            float cy = center.Y;
+
+            var d = point2 - point1;
+
+            float A = d.LengthSquared();
+            float B = 2 * (d.X * (point1.X - cx) + d.Y * (point1.Y - cy));
+            float C = (point1.X - cx) * (point1.X - cx) + (point1.Y - cy) * (point1.Y - cy) - radius * radius;
+
+            float det = B * B - 4 * A * C;
+            if(MathF.FloatsEqual(A, 0) || MathF.Less(det, 0)) {
+                return null;
+            } else {
+                var t1 = (float)((-B + Math.Sqrt(det)) / (2 * A));
+                var intersection1 = new Vector2(point1.X + t1 * d.X, point1.Y + t1 * d.Y);
+
+                var t2 = (float)((-B - Math.Sqrt(det)) / (2 * A));
+                var intersection2 = new Vector2(point1.X + t2 * d.X, point1.Y + t2 * d.Y);
+
+                return (intersection1, intersection2);
+            }
+        }
+
+
+        public static Vector2? GetLinesIntersection(Vector2 a1, Vector2 a2, Vector2 b1, Vector2 b2) {
+            // determinant
+            float d = (a1.X - a2.X) * (b1.Y - b2.Y) - (a1.Y - a2.Y) * (b1.X - b2.X);
+
+            // check if lines are parallel
+            if(MathF.FloatsEqual(d, 0)) return null;
+
+            float px = (a1.X * a2.Y - a1.Y * a2.X) * (b1.X - b2.X) - (a1.X - a2.X) * (b1.X * b2.Y - b1.Y * b2.X);
+            float py = (a1.X * a2.Y - a1.Y * a2.X) * (b1.Y - b2.Y) - (a1.Y - a2.Y) * (b1.X * b2.Y - b1.Y * b2.X);
+            return new Vector2(px, py) / d;
+        }
+        public static (Vector2, Vector2)? GetCirclesIntersections(Vector2 center1, Vector2 center2, float radius1, float radius2) {
             var (r1, r2) = (radius1, radius2);
             (float x1, float y1, float x2, float y2) = (center1.X, center1.Y, center2.X, center2.Y);
             // d = distance from center1 to center2

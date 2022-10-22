@@ -91,67 +91,18 @@ class Plotter {
     }
 
     static Vector2 Intersect(CircleF c, LineF l, CircleIntersectionKind intersection) {
-        var (p1, p2) = FindLineCircleIntersections(c.center.X, c.center.Y, c.radius, l.from, l.to);
+        var (p1, p2) = ConstructHelper.GetLineCircleIntersections(c.center, c.radius, l.from, l.to)!.Value;
         return intersection == CircleIntersectionKind.First ? p1 : p2;
     }
 
-    // Find the points of intersection.
-    static (Vector2, Vector2) FindLineCircleIntersections(float cx, float cy, float radius,
-                                            Vector2 point1, Vector2 point2) {
-        float dx, dy, A, B, C, det, t;
-
-        dx = point2.X - point1.X;
-        dy = point2.Y - point1.Y;
-
-        A = dx * dx + dy * dy;
-        B = 2 * (dx * (point1.X - cx) + dy * (point1.Y - cy));
-        C = (point1.X - cx) * (point1.X - cx) + (point1.Y - cy) * (point1.Y - cy) - radius * radius;
-
-        det = B * B - 4 * A * C;
-        if((A <= 0.0000001) || (det < 0)) {
-            throw new InvalidOperationException();
-            // No real solutions.
-            //intersection1 = new PointF(float.NaN, float.NaN);
-            //intersection2 = new PointF(float.NaN, float.NaN);
-            //return 0;
-        } else if(det == 0) {
-            throw new InvalidOperationException();
-            // One solution.
-            //t = -B / (2 * A);
-            //intersection1 = new PointF(point1.X + t * dx, point1.Y + t * dy);
-            //intersection2 = new PointF(float.NaN, float.NaN);
-            //return 1;
-        } else {
-            // Two solutions.
-            t = (float)((-B + Math.Sqrt(det)) / (2 * A));
-            var intersection1 = new Vector2(point1.X + t * dx, point1.Y + t * dy);
-            t = (float)((-B - Math.Sqrt(det)) / (2 * A));
-            var intersection2 = new Vector2(point1.X + t * dx, point1.Y + t * dy);
-            return (intersection1, intersection2);
-        }
-    }
-
     static Vector2 Intersect(LineF l1, LineF l2) {
-        return GetIntersectingPoint(l1.from, l1.to, l2.from, l2.to);
+        return ConstructHelper.GetLinesIntersection(l1.from, l1.to, l2.from, l2.to)!.Value;
     }
 
-    static Vector2 GetIntersectingPoint(Vector2 a1, Vector2 a2, Vector2 b1, Vector2 b2) {
 
-        // determinant
-
-        float d = (a1.X - a2.X) * (b1.Y - b2.Y) - (a1.Y - a2.Y) * (b1.X - b2.X);
-
-        // check if lines are parallel
-        if(MathF.FloatsEqual(d, 0)) throw new NotImplementedException();
-
-        float px = (a1.X * a2.Y - a1.Y * a2.X) * (b1.X - b2.X) - (a1.X - a2.X) * (b1.X * b2.Y - b1.Y * b2.X);
-        float py = (a1.X * a2.Y - a1.Y * a2.X) * (b1.Y - b2.Y) - (a1.Y - a2.Y) * (b1.X * b2.Y - b1.Y * b2.X);
-
-        return new Vector2(px, py) / d;
-    }
 
     static Vector2 Intersect(CircleF c1, CircleF c2, CircleIntersectionKind intersection) {
-        var (p1, p2) = ConstructHelper.GetCircleIntersections(c1.center, c2.center, c1.radius, c2.radius)!.Value;
+        var (p1, p2) = ConstructHelper.GetCirclesIntersections(c1.center, c2.center, c1.radius, c2.radius)!.Value;
         return intersection == CircleIntersectionKind.First ? p1 : p2;
     }
 }
