@@ -6,18 +6,42 @@ using static MetaConstruct.Constructor;
 namespace MetaConstruct;
 
 public class Plot {
+    Painter painter = null!; 
 
     void setup() {
         if(deviceType() == DeviceType.Desktop)
             size(800, 800);
         //fullRedraw();
+
+        painter = new Painter(
+            DrawCircle: circle => {
+                stroke(White);
+                Sketch.circle(circle.center.X, circle.center.Y, circle.radius * 2);
+            },
+            DrawLine: l => {
+                var v = Vector2.Normalize(l.from - l.to);
+                var p1 = l.to + v * (width + height);
+                var p2 = l.from - v * (width + height);
+                stroke(color(50));
+                line(p1.X, p1.Y, p2.X, p2.Y);
+
+                stroke(White);
+                line(l.from.X, l.from.Y, l.to.X, l.to.Y);
+            }
+        );
     }
 
     void draw() {
         background(Black);
         stroke(White);
         noFill();
+        var info = Plots.Test();
+        Plotter.Draw(info.Points, painter, info.Primitives);
+    }
+}
 
+static class Plots {
+    public static PlotInfo Test() {
         var center = Point();
         var top = Point();
         var centerCircle = Circle(center, top);
@@ -36,28 +60,44 @@ public class Plot {
         var p2 = Intersect(Line(p1, c6.Center), c6);
         var l3 = Line(p1, p2.Point1);
 
-        var plotter = new Plotter(new[] { 
-            (center, new Vector2(400, 400)), 
-            (top, new Vector2(400, 300)),
-        });
-
-        foreach(var c in new[] { centerCircle, c1, c2, c3, c4, c5, c6 }) {
-            var circleF = plotter.CalcCircle(c);
-            circle(circleF.center.X, circleF.center.Y, circleF.radius * 2);
-        }
-
-        foreach(var l in new[] { l1, l2, l3 }) {
-            var lineF = plotter.CalcLine(l);
-            line(lineF.from.X, lineF.from.Y, lineF.to.X, lineF.to.Y);
-        }
+        return new PlotInfo(
+            new[] {
+                (center, new Vector2(400, 400)),
+                (top, new Vector2(400, 300)),
+            },
+            new Primitive[] { centerCircle, c1, c2, c3, c4, c5, c6, l1, l2, l3 }
+        );
     }
 }
 
+record struct PlotInfo((FixedPoint, Vector2)[] Points, Primitive[] Primitives);
+
+record Painter(Action<CircleF> DrawCircle, Action<LineF> DrawLine);
+
 record struct CircleF(Vector2 center, float radius);
 record struct LineF(Vector2 from, Vector2 to);
+
 class Plotter {
+    public static void Draw((FixedPoint, Vector2)[] points, Painter painter, IEnumerable<Primitive> primitives) { 
+        var plotter = new Plotter(points);
+        foreach(var primitive in primitives) {
+            switch(primitive) {
+                case Line l:
+                    var lineF = plotter.CalcLine(l);
+                    painter.DrawLine(lineF);
+                    break;
+                case Circle c:
+                    var circleF = plotter.CalcCircle(c);
+                    painter.DrawCircle(circleF);
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+    }
+
     readonly Dictionary<FixedPoint, Vector2> points;
-    public Plotter((FixedPoint, Vector2)[] points) {
+    Plotter((FixedPoint, Vector2)[] points) {
         this.points = points.ToDictionary(
             x => x.Item1, 
             x => x.Item2,
@@ -119,8 +159,10 @@ sealed record LineCirclePoint(Line Line, Circle Circle, CircleIntersectionKind I
 sealed record CircleCirclePoint(Circle Circle1, Circle Circle2, CircleIntersectionKind Intersection) : Point;
 
 record struct CircleIntersection(Point Point1, Point Point2);
-record struct Line(Point From, Point To);
-record struct Circle(Point Center, Point Point);
+
+abstract record Primitive;
+record Line(Point From, Point To) : Primitive;
+record Circle(Point Center, Point Point) : Primitive;
 
 
 public class DelegateEqualityComparer<T> : IEqualityComparer<T> {
