@@ -30,7 +30,8 @@ class Plot {
                 var p2 = l.from - v * (width + height);
                 stroke(color(50));
                 line(p1.X, p1.Y, p2.X, p2.Y);
-
+            },
+            DrawLineSegment: l => {
                 stroke(White);
                 line(l.from.X, l.from.Y, l.to.X, l.to.Y);
             }
@@ -41,7 +42,7 @@ class Plot {
         background(Black);
         stroke(White);
         noFill();
-        Plotter.Draw(info.Points, painter, info.Primitives);
+        Plotter.Draw(info.Points, painter, info.Entities);
     }
 }
 
@@ -78,7 +79,11 @@ static class PlotsHelpers {
                 (center, new Vector2(400, 400)),
                 (top, new Vector2(400, 300)),
             },
-            new Primitive[] { centerCircle, c1, c2, c3, c4, c5, c6, l1, l2, l3 }
+            new Entity[] { 
+                centerCircle, 
+                c1, c2, c3, c4, c5, c6, l1, l2, l3, 
+                LineSegment(l1), LineSegment(l2), LineSegment(l3) 
+            }
         );
     }
 
@@ -99,26 +104,31 @@ static class PlotsHelpers {
                 (center, new Vector2(400, 400)),
                 (top, new Vector2(400, 300)),
             },
-            new Primitive[] { centerCircle, c1, c2, c3, c4, c5, c6 }
+            new Entity[] { centerCircle, c1, c2, c3, c4, c5, c6 }
         );
     }
 }
 
-record struct PlotInfo((FixedPoint, Vector2)[] Points, Primitive[] Primitives);
+record struct PlotInfo((FixedPoint, Vector2)[] Points, Entity[] Entities);
 
-record Painter(Action<CircleF> DrawCircle, Action<LineF> DrawLine);
+record Painter(Action<CircleF> DrawCircle, Action<LineF> DrawLine, Action<LineF> DrawLineSegment);
 
 record struct CircleF(Vector2 center, float radius);
 record struct LineF(Vector2 from, Vector2 to);
 
 class Plotter {
-    public static void Draw((FixedPoint, Vector2)[] points, Painter painter, IEnumerable<Primitive> primitives) { 
+    public static void Draw((FixedPoint, Vector2)[] points, Painter painter, IEnumerable<Entity> primitives) { 
         var plotter = new Plotter(points);
         foreach(var primitive in primitives) {
             switch(primitive) {
                 case Line l:
                     var lineF = plotter.CalcLine(l);
                     painter.DrawLine(lineF);
+                    break;
+                case LineSegment l:
+                    l.Verify();
+                    var lineSegmentF = plotter.CalcLine(l.From, l.To);
+                    painter.DrawLineSegment(lineSegmentF);
                     break;
                 case Circle c:
                     var circleF = plotter.CalcCircle(c);
@@ -138,19 +148,25 @@ class Plotter {
             new DelegateEqualityComparer<FixedPoint>((x, y) => Object.ReferenceEquals(x, y), x => x.obj.GetHashCode())
         );
     }
-    public CircleF CalcCircle(Circle c) {
+    CircleF CalcCircle(Circle c) {
         var center = CalcPoint(c.Center);
         var point = CalcPoint(c.Point);
         return new CircleF(center, (point - center).Length());
     }
 
-    public LineF CalcLine(Line l) {
+    LineF CalcLine(Point p1, Point p2) {
+        var from = CalcPoint(p1);
+        var to = CalcPoint(p2);
+        return new LineF(from, to);
+    }
+
+    LineF CalcLine(Line l) {
         var from = CalcPoint(l.From);
         var to = CalcPoint(l.To);
         return new LineF(from, to);
     }
 
-    public Vector2 CalcPoint(Point p) {
+    Vector2 CalcPoint(Point p) {
         return p switch { 
             FixedPoint fixedPoint 
                 => points[fixedPoint],
@@ -194,10 +210,39 @@ sealed record CircleCirclePoint(Circle Circle1, Circle Circle2, CircleIntersecti
 
 record struct CircleIntersection(Point Point1, Point Point2);
 
-abstract record Primitive;
+abstract record Entity;
+abstract record Primitive : Entity;
 record Line(Point From, Point To) : Primitive;
 record Circle(Point Center, Point Point) : Primitive;
 
+record LineSegment(Line Line, Point From, Point To) : Entity {
+    public void Verify() {
+        //TODO move to costructor
+        VerifyPoint(From);
+        VerifyPoint(To);
+    }
+
+    void VerifyPoint(Point p) {
+        if(p != Line.From && p != Line.To)
+            throw new InvalidOperationException();
+        //switch(p) {
+        //    //case LineLinePoint lineLinePoint:
+        //    //    if(lineLinePoint.Line1 != Line && lineLinePoint.Line2 != Line)
+        //    //        throw new InvalidOperationException();
+        //    //    break;
+        //    //case LineCirclePoint lineCirclePoint:
+        //    //    if(lineCirclePoint.Line != Line)
+        //    //        throw new InvalidOperationException();
+        //    //    break;
+        //    case CircleCirclePoint circleCirclePoint:
+        //        if(circleCirclePoint != Line.From && circleCirclePoint != Line.To)
+        //            throw new InvalidOperationException();
+        //        break;
+        //    default:
+        //        throw new InvalidOperationException();
+        //};
+    }
+}
 
 public class DelegateEqualityComparer<T> : IEqualityComparer<T> {
     private readonly Func<T, T, bool> _equals;
@@ -218,6 +263,12 @@ public class DelegateEqualityComparer<T> : IEqualityComparer<T> {
 
 static class Constructor {
     public static FixedPoint Point() => new FixedPoint();
+    public static LineSegment LineSegment(Line line) => LineSegment(line, line.From, line.To);
+    static LineSegment LineSegment(Line line, Point from, Point to) { 
+        var l = new LineSegment(line, from, to);
+        l.Verify();
+        return l;
+    }
     public static Line Line(Point p1, Point p2) => new Line(p1, p2);
     public static Circle Circle(Point center, Point point) => new Circle(center, point);
 
