@@ -1,7 +1,17 @@
+using MetaConstruct;
 using System.Reflection;
 
 public class MetaCostructSketches : ISkecthesProvider {
     ICollection<SketchGroup> ISkecthesProvider.Groups => new[] {
-        SketchGroup.FromNamespace("Construct", Assembly.GetExecutingAssembly()),
+        new SketchGroup {
+            Name = "That Button Again",
+            Sketches = PlotsHelpers.Plots
+                .Select((x, i) => new SkecthInfo(
+                    typeof(Plot),
+                    parameters: new object[] { x.action },
+                    name: i + " - " + x.name
+                ))
+                .ToArray()
+        }
     };
 }

@@ -1,12 +1,18 @@
 ﻿using MetaArt.Core;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using static MetaConstruct.Constructor;
 
 namespace MetaConstruct;
 
-public class Plot {
-    Painter painter = null!; 
+class Plot {
+    Painter painter = null!;
+    readonly PlotInfo info;
+
+    public Plot(Func<PlotInfo> getPlot) {
+        info = getPlot();
+    }
 
     void setup() {
         if(deviceType() == DeviceType.Desktop)
@@ -35,13 +41,20 @@ public class Plot {
         background(Black);
         stroke(White);
         noFill();
-        var info = Plots.Test();
         Plotter.Draw(info.Points, painter, info.Primitives);
     }
 }
 
-static class Plots {
-    public static PlotInfo Test() {
+static class PlotsHelpers {
+    public static readonly (Func<PlotInfo> action, string name)[] Plots = new[] {
+            RegisterPlot(Test),
+            RegisterPlot(SixCircles),
+        };
+    static (Func<PlotInfo>, string) RegisterPlot(Func<PlotInfo> action, [CallerArgumentExpression("action")] string name = "") {
+        return (action, name);
+    }
+
+    static PlotInfo Test() {
         var center = Point();
         var top = Point();
         var centerCircle = Circle(center, top);
@@ -66,6 +79,27 @@ static class Plots {
                 (top, new Vector2(400, 300)),
             },
             new Primitive[] { centerCircle, c1, c2, c3, c4, c5, c6, l1, l2, l3 }
+        );
+    }
+
+    static PlotInfo SixCircles() {
+        var center = Point();
+        var top = Point();
+        var centerCircle = Circle(center, top);
+        var c1 = Circle(top, center);
+
+        var c2 = Circle(Intersect(centerCircle, c1).Point1, center);
+        var c3 = Circle(Intersect(centerCircle, c2).Point1, center);
+        var c4 = Circle(Intersect(centerCircle, c3).Point1, center);
+        var c5 = Circle(Intersect(centerCircle, c4).Point1, center);
+        var c6 = Circle(Intersect(centerCircle, c5).Point1, center);
+
+        return new PlotInfo(
+            new[] {
+                (center, new Vector2(400, 400)),
+                (top, new Vector2(400, 300)),
+            },
+            new Primitive[] { centerCircle, c1, c2, c3, c4, c5, c6 }
         );
     }
 }
