@@ -52,11 +52,36 @@
         }
     }
 
+    public record CircleSegment(Circle Circle, Point From, Point To) : Entity {
+        protected override void Validate() {
+            base.Validate();
+            VerifyPoint(From);
+            VerifyPoint(To);
+        }
+
+        void VerifyPoint(Point p) {
+            if(Circle.Point == p)
+                return;
+            switch(p) {
+                case LineCirclePoint lineCirclePoint:
+                    if(lineCirclePoint.Circle != Circle)
+                        throw new InvalidOperationException();
+                    break;
+                case CircleCirclePoint circleCirclePoint:
+                    if(circleCirclePoint.Circle1 != Circle && circleCirclePoint.Circle2 != Circle)
+                        throw new InvalidOperationException();
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            };
+        }
+    }
 
     public static class Constructor {
         public static FreePoint Point() => new FreePoint();
         public static LineSegment LineSegment(Line line) => LineSegment(line, line.From, line.To);
-        static LineSegment LineSegment(Line line, Point from, Point to) => new LineSegment(line, from, to);
+        public static LineSegment LineSegment(Line line, Point from, Point to) => new LineSegment(line, from, to);
+        public static CircleSegment CircleSegment(Circle circle, Point from, Point to) => new CircleSegment(circle, from, to);
         public static Line Line(Point p1, Point p2) => new Line(p1, p2);
         public static Circle Circle(Point center, Point point) => new Circle(center, point);
 
