@@ -109,7 +109,7 @@ static class PlotsHelpers {
     }
 }
 
-record struct PlotInfo((FixedPoint, Vector2)[] Points, Entity[] Entities);
+record struct PlotInfo((FreePoint, Vector2)[] Points, Entity[] Entities);
 
 record Painter(Action<CircleF> DrawCircle, Action<LineF> DrawLine, Action<LineF> DrawLineSegment);
 
@@ -117,7 +117,7 @@ record struct CircleF(Vector2 center, float radius);
 record struct LineF(Vector2 from, Vector2 to);
 
 class Plotter {
-    public static void Draw((FixedPoint, Vector2)[] points, Painter painter, IEnumerable<Entity> primitives) { 
+    public static void Draw((FreePoint, Vector2)[] points, Painter painter, IEnumerable<Entity> primitives) { 
         var plotter = new Plotter(points);
         foreach(var primitive in primitives) {
             switch(primitive) {
@@ -140,12 +140,12 @@ class Plotter {
         }
     }
 
-    readonly Dictionary<FixedPoint, Vector2> points;
-    Plotter((FixedPoint, Vector2)[] points) {
+    readonly Dictionary<FreePoint, Vector2> points;
+    Plotter((FreePoint, Vector2)[] points) {
         this.points = points.ToDictionary(
             x => x.Item1, 
             x => x.Item2,
-            new DelegateEqualityComparer<FixedPoint>((x, y) => Object.ReferenceEquals(x, y), x => x.obj.GetHashCode())
+            new DelegateEqualityComparer<FreePoint>((x, y) => ReferenceEquals(x, y), x => x.GetHashCodeEx())
         );
     }
     CircleF CalcCircle(Circle c) {
@@ -168,7 +168,7 @@ class Plotter {
 
     Vector2 CalcPoint(Point p) {
         return p switch { 
-            FixedPoint fixedPoint 
+            FreePoint fixedPoint 
                 => points[fixedPoint],
             CircleCirclePoint circleCirclePoint 
                 => Intersect(CalcCircle(circleCirclePoint.Circle1), CalcCircle(circleCirclePoint.Circle2), circleCirclePoint.Intersection),
@@ -189,58 +189,9 @@ class Plotter {
         return ConstructHelper.GetLinesIntersection(l1.from, l1.to, l2.from, l2.to)!.Value;
     }
 
-
-
     static Vector2 Intersect(CircleF c1, CircleF c2, CircleIntersectionKind intersection) {
         var (p1, p2) = ConstructHelper.GetCirclesIntersections(c1.center, c2.center, c1.radius, c2.radius)!.Value;
         return intersection == CircleIntersectionKind.First ? p1 : p2;
-    }
-}
-abstract record Point;
-sealed record FixedPoint : Point {
-    public readonly object obj = new object();
-    public override int GetHashCode() {
-        throw new NotImplementedException();
-    }
-}
-sealed record LineLinePoint(Line Line1, Line Line2) : Point;
-enum CircleIntersectionKind { First, Second }
-sealed record LineCirclePoint(Line Line, Circle Circle, CircleIntersectionKind Intersection) : Point;
-sealed record CircleCirclePoint(Circle Circle1, Circle Circle2, CircleIntersectionKind Intersection) : Point;
-
-record struct CircleIntersection(Point Point1, Point Point2);
-
-abstract record Entity;
-abstract record Primitive : Entity;
-record Line(Point From, Point To) : Primitive;
-record Circle(Point Center, Point Point) : Primitive;
-
-record LineSegment(Line Line, Point From, Point To) : Entity {
-    public void Verify() {
-        //TODO move to costructor
-        VerifyPoint(From);
-        VerifyPoint(To);
-    }
-
-    void VerifyPoint(Point p) {
-        if(p != Line.From && p != Line.To)
-            throw new InvalidOperationException();
-        //switch(p) {
-        //    //case LineLinePoint lineLinePoint:
-        //    //    if(lineLinePoint.Line1 != Line && lineLinePoint.Line2 != Line)
-        //    //        throw new InvalidOperationException();
-        //    //    break;
-        //    //case LineCirclePoint lineCirclePoint:
-        //    //    if(lineCirclePoint.Line != Line)
-        //    //        throw new InvalidOperationException();
-        //    //    break;
-        //    case CircleCirclePoint circleCirclePoint:
-        //        if(circleCirclePoint != Line.From && circleCirclePoint != Line.To)
-        //            throw new InvalidOperationException();
-        //        break;
-        //    default:
-        //        throw new InvalidOperationException();
-        //};
     }
 }
 
@@ -259,24 +210,4 @@ public class DelegateEqualityComparer<T> : IEqualityComparer<T> {
     public int GetHashCode(T obj) {
         return _hashCode(obj);
     }
-}
-
-static class Constructor {
-    public static FixedPoint Point() => new FixedPoint();
-    public static LineSegment LineSegment(Line line) => LineSegment(line, line.From, line.To);
-    static LineSegment LineSegment(Line line, Point from, Point to) { 
-        var l = new LineSegment(line, from, to);
-        l.Verify();
-        return l;
-    }
-    public static Line Line(Point p1, Point p2) => new Line(p1, p2);
-    public static Circle Circle(Point center, Point point) => new Circle(center, point);
-
-    public static CircleIntersection Intersect(Circle c1, Circle c2) 
-        => new CircleIntersection(new CircleCirclePoint(c1, c2, CircleIntersectionKind.First), new CircleCirclePoint(c1, c2, CircleIntersectionKind.Second));
-    public static CircleIntersection Intersect(Line l, Circle c)
-        => new CircleIntersection(new LineCirclePoint(l, c, CircleIntersectionKind.First), new LineCirclePoint(l, c, CircleIntersectionKind.Second));
-
-    public static Point Intersect(Line l1, Line l2) => new LineLinePoint(l1, l2);
-
 }
