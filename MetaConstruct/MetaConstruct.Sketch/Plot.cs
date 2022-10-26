@@ -21,14 +21,18 @@ class Plot {
 
         painter = new Painter(
             DrawCircle: circle => {
-                stroke(White);
+                stroke(color(70));
                 Sketch.circle(circle.center.X, circle.center.Y, circle.radius * 2);
+            },
+            DrawCircleSegment: segment => {
+                stroke(White);
+                Sketch.arc(segment.circle.center.X, segment.circle.center.Y, segment.circle.radius * 2, segment.circle.radius * 2, segment.from, segment.to);
             },
             DrawLine: l => {
                 var v = Vector2.Normalize(l.from - l.to);
                 var p1 = l.to + v * (width + height);
                 var p2 = l.from - v * (width + height);
-                stroke(color(50));
+                stroke(color(70));
                 line(p1.X, p1.Y, p2.X, p2.Y);
             },
             DrawLineSegment: l => {
@@ -104,16 +108,30 @@ static class PlotsHelpers {
                 (center, new Vector2(400, 400)),
                 (top, new Vector2(400, 300)),
             },
-            new Entity[] { centerCircle, c1, c2, c3, c4, c5, c6 }
+            new Entity[] { 
+                centerCircle, 
+                c1, c2, c3, c4, c5, c6,
+                CircleSegment(c1, centerCircle),
+                CircleSegment(c2, centerCircle),
+                CircleSegment(c3, centerCircle),
+                CircleSegment(c4, centerCircle),
+                CircleSegment(c5, centerCircle),
+                CircleSegment(c6, centerCircle),
+            }
         );
     }
 }
 
 record struct PlotInfo((FreePoint, Vector2)[] Points, Entity[] Entities);
 
-record Painter(Action<CircleF> DrawCircle, Action<LineF> DrawLine, Action<LineF> DrawLineSegment);
+record Painter(
+    Action<CircleF> DrawCircle, 
+    Action<CircleSegmentF> DrawCircleSegment, 
+    Action<LineF> DrawLine, 
+    Action<LineF> DrawLineSegment);
 
 record struct CircleF(Vector2 center, float radius);
+record struct CircleSegmentF(CircleF circle, float from, float to);
 record struct LineF(Vector2 from, Vector2 to);
 
 class Plotter {
@@ -126,13 +144,16 @@ class Plotter {
                     painter.DrawLine(lineF);
                     break;
                 case LineSegment l:
-                    l.Verify();
-                    var lineSegmentF = plotter.CalcLine(l.From, l.To);
+                    var lineSegmentF = plotter.CalcLineSegment(l.From, l.To);
                     painter.DrawLineSegment(lineSegmentF);
                     break;
                 case Circle c:
                     var circleF = plotter.CalcCircle(c);
                     painter.DrawCircle(circleF);
+                    break;
+                case CircleSegment segment:
+                    var circleSegmentF = plotter.CalcCircleSegment(segment);
+                    painter.DrawCircleSegment(circleSegmentF);
                     break;
                 default:
                     throw new InvalidOperationException();
@@ -154,7 +175,12 @@ class Plotter {
         return new CircleF(center, (point - center).Length());
     }
 
-    LineF CalcLine(Point p1, Point p2) {
+    CircleSegmentF CalcCircleSegment(CircleSegment segment) {
+        var circle = CalcCircle(segment.Circle);
+        return new CircleSegmentF(circle, 0, MathF.PI);
+    }
+
+    LineF CalcLineSegment(Point p1, Point p2) {
         var from = CalcPoint(p1);
         var to = CalcPoint(p2);
         return new LineF(from, to);

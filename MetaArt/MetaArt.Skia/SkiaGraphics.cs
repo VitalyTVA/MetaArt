@@ -149,7 +149,7 @@ namespace MetaArt.Skia {
                 Canvas.DrawOval(point, size, strokePaint);
         }
         public override void arc(float x, float y, float width, float height, float start, float stop) {
-            var rect = new SKRect(x - width / 2, y - height / 2, x + width / 2, x + height / 2);
+            var rect = new SKRect(x - width / 2, y - height / 2, x + width / 2, y + height / 2);
             if(!_noFill)
                 Canvas.DrawArc(rect, Extensions.ConvertRadiansToDegrees(start), Extensions.ConvertRadiansToDegrees(stop - start), false, fillPaint);
             if(!_noStroke)

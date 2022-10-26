@@ -92,6 +92,15 @@
         public static LineSegment LineSegment(Line line) => LineSegment(line, line.From, line.To);
         public static LineSegment LineSegment(Line line, Point from, Point to) => new LineSegment(line, from, to);
         public static CircleSegment CircleSegment(Circle circle, Point from, Point to) => new CircleSegment(circle, from, to);
+        public static CircleSegment CircleSegment(Circle circle, Circle other) {
+            var intersection = Intersect(circle, other);
+            return new CircleSegment(circle, intersection.Point1, intersection.Point2);
+        }
+        public static CircleSegment CircleSegment(Circle circle, Line line) {
+            var intersection = Intersect(line, circle);
+            return new CircleSegment(circle, intersection.Point1, intersection.Point2);
+        }
+
         public static Line Line(Point p1, Point p2) => new Line(p1, p2);
         public static Circle Circle(Point center, Point point) => new Circle(center, point);
 
