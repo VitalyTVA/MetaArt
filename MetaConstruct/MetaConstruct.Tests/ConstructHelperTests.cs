@@ -55,5 +55,13 @@ namespace MetaContruct.Tests {
 
             Assert.Null(ConstructHelper.GetLineCircleIntersections(new Vector2(4, 5), 6, new Vector2(2, 1), new Vector2(2, 1)));
         }
+
+        [Test]
+        public void AngleBetween() {
+            Assert.AreEqual(MathF.PI / 4, ConstructHelper.AngleTo(new Vector2(3, 3)));
+            Assert.AreEqual(3 * MathF.PI / 4, ConstructHelper.AngleTo(new Vector2(-3, 3)));
+            Assert.AreEqual(5 * MathF.PI / 4, ConstructHelper.AngleTo(new Vector2(-3, -3)));
+            Assert.AreEqual(7 * MathF.PI / 4, ConstructHelper.AngleTo(new Vector2(3, -3)));
+        }
     }
 }

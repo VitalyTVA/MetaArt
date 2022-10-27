@@ -8,10 +8,10 @@ namespace MetaConstruct;
 
 class Plot {
     Painter painter = null!;
-    readonly PlotInfo info;
+    readonly Func<PlotInfo> getPlot;
 
     public Plot(Func<PlotInfo> getPlot) {
-        info = getPlot();
+        this.getPlot = getPlot;
     }
 
     void setup() {
@@ -46,6 +46,8 @@ class Plot {
         background(Black);
         stroke(White);
         noFill();
+
+        var info = getPlot();
         Plotter.Draw(info.Points, painter, info.Entities);
     }
 }
@@ -177,7 +179,13 @@ class Plotter {
 
     CircleSegmentF CalcCircleSegment(CircleSegment segment) {
         var circle = CalcCircle(segment.Circle);
-        return new CircleSegmentF(circle, 0, MathF.PI);
+        var from = CalcPoint(segment.From);
+        var to = CalcPoint(segment.To);
+        float angleFrom = ConstructHelper.AngleTo(from - circle.center);
+        float angleTo = ConstructHelper.AngleTo(to - circle.center);
+        if(angleFrom > angleTo)
+            angleFrom -= MathF.PI * 2;
+        return new CircleSegmentF(circle, angleFrom, angleTo);
     }
 
     LineF CalcLineSegment(Point p1, Point p2) {

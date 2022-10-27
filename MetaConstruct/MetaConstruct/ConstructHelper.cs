@@ -3,6 +3,14 @@ using System.Numerics;
 
 namespace MetaConstruct {
     public static class ConstructHelper {
+        public static float AngleTo(Vector2 vector) {
+            vector = Vector2.Normalize(vector);
+            double num = MathF.Atan2(vector.Y, vector.X);
+            if(vector.Y < 0)
+                num = MathF.PI * 2 + num;
+            return (float)num;
+        }
+
         public static (Vector2, Vector2)? GetLineCircleIntersections(Vector2 center, float radius, Vector2 point1, Vector2 point2) {
             float cx = center.X;
             float cy = center.Y;
