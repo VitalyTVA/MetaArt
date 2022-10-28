@@ -242,6 +242,10 @@ namespace MetaArt.Skia {
                 points.Add(new SKPoint(x, y));
             }
         }
+        public override void arcVertex(float x, float y, float width, float height, float start, float stop) {
+            var rect = new SKRect(x - width / 2, y - height / 2, x + width / 2, y + height / 2);
+            vertices!.ArcTo(rect, Extensions.ConvertRadiansToDegrees(start), Extensions.ConvertRadiansToDegrees(stop - start), false);
+        }
         public override void endShape(EndShapeMode mode) {
             if(vertices != null) {
                 if(mode == EndShapeMode.CLOSE)

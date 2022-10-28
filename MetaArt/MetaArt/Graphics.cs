@@ -42,6 +42,7 @@ namespace MetaArt.Internal {
         public abstract void beginShape(BeginShapeMode mode);
         public abstract void endShape(EndShapeMode mode);
         public abstract void vertex(float x, float y);
+        public abstract void arcVertex(float x, float y, float width, float height, float start, float stop);
 
         public abstract void noSmooth();
 

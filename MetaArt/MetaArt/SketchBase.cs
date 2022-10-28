@@ -147,6 +147,7 @@ namespace MetaArt {
         public static BeginShapeMode POINTS => BeginShapeMode.POINTS;
         public static void endShape(EndShapeMode mode = EndShapeMode.OPEN) => Graphics.endShape(mode);
         public static void vertex(float x, float y) => Graphics.vertex(x, y);
+        public static void arcVertex(float x, float y, float width, float height, float start, float stop) => Graphics.arcVertex(x, y, width, height, start, stop);
 
         public static int floor(float d) => (int)Math.Floor(d);
         public static int ceil(float d) => (int)Math.Ceiling(d);
