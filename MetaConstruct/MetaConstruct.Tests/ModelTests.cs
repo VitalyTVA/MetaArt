@@ -154,6 +154,22 @@ namespace MetaContruct.Tests {
         }
 
         [Test]
+        public void LineSegmentFromLineCircleIntersectionWithCommonPoint() {
+            var p = Point();
+            var l = Line(Point(), p);
+            var c = Circle(Point(), p);
+            var intersection = Intersect(l, c);
+            var segment = LineSegment(l, c);
+            Assert.AreEqual(l, segment.Line);
+            Assert.AreEqual(intersection.Point1, segment.From);
+            Assert.AreEqual(intersection.Point2, segment.To);
+
+            var p2 = Point();
+            var intersection2 = Intersect(Line(Point(), p2), Circle(Point(), p2));
+            Assert.Throws<InvalidOperationException>(() => LineSegment(l, p, intersection2.Point2));
+        }
+
+        [Test]
         public void LinesIntersectionTest() {
             var p1 = Point();
             var p2 = Point();
@@ -236,5 +252,51 @@ namespace MetaContruct.Tests {
             Assert.AreNotEqual(Line(p1, p2), Line(p1, p3));
         }
 
+        [Test]
+        public void CirclesIntersection_CommonPointTest() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+
+            var c1 = Circle(p1, p3);
+            var c2 = Circle(p2, p3);
+
+            var s1 = CircleSegment(c1, c2);
+            Assert.AreEqual(p3, s1.From);
+            Assert.AreNotEqual(p3, s1.To);
+
+            var s2 = CircleSegment(c2, c1);
+            Assert.AreEqual(p3, s2.From);
+            Assert.AreNotEqual(p3, s2.To);
+
+            var s3 = CircleSegment(c1, Intersect(c1, Circle(Point(), Point())).Point1, Intersect(c1, Circle(Point(), p3)).Point2);
+            var s4 = CircleSegment(c1, Intersect(c1, Circle(Point(), Point())).Point1, Intersect(Circle(Point(), p3), c1).Point2);
+
+            Assert.Throws<InvalidOperationException>(() => CircleSegment(c1, p3, Intersect(c2, Circle(Point(), p3)).Point2));
+            Assert.Throws<InvalidOperationException>(() => CircleSegment(c1, Intersect(c2, Circle(Point(), p3)).Point2, p3));
+            Assert.Throws<InvalidOperationException>(() => CircleSegment(c1, p3, Intersect(Circle(Point(), p3), c2).Point2));
+            Assert.Throws<InvalidOperationException>(() => CircleSegment(c1, Intersect(Circle(Point(), p3), c2).Point2, p3));
+            Assert.Throws<InvalidOperationException>(() => CircleSegment(c1, p3, Intersect(Circle(Point(), p3), Circle(Point(), p3)).Point2));
+        }
+
+        [Test]
+        public void LineCircleIntersection_CommonPointTest() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+
+            var l = Line(p1, p3);
+            var c = Circle(p2, p3);
+
+            var s1 = CircleSegment(c, l);
+            Assert.AreEqual(p3, s1.From);
+            Assert.AreNotEqual(p3, s1.To);
+
+            var s3 = CircleSegment(c, Intersect(Line(Point(), Point()), c).Point1, Intersect(Line(Point(), p3), c).Point2);
+            var s4 = CircleSegment(c, Intersect(Line(Point(), Point()), c).Point1, Intersect(Line(Point(), p3), c).Point2);
+
+            var intersection = Intersect(l, c);
+            Assert.Throws<InvalidOperationException>(() => CircleSegment(c, intersection.Point1, Intersect(l, Circle(Point(), Point())).Point1));
+        }
     }
 }

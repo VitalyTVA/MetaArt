@@ -108,6 +108,29 @@ circleSegment (1.0000 4.0000) 4.2426 -213.3651 33.3651
         }
 
         [Test]
+        public void CirclesIntersection_CommonPointTest() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+
+            var c1 = Circle(p1, p3);
+            var c2 = Circle(p2, p3);
+
+            AssertPlot(
+@"circleSegment (-4.0000 0.0000) 5.0000 36.8699 323.1301
+circleSegment (4.0000 0.0000) 5.0000 143.1301 216.8699
+",
+                points: new[] {
+                    (p1, new Vector2(-4, 0)),
+                    (p2, new Vector2(4, 0)),
+                    (p3, new Vector2(0, 3)),
+                },
+                CircleSegment(c1, c2),
+                CircleSegment(c2, c1)
+            );
+        }
+
+        [Test]
         public void LinesIntersectionTest() {
             var p1 = Point();
             var p2 = Point();

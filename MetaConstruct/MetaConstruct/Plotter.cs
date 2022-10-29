@@ -97,6 +97,8 @@ namespace MetaConstruct {
                     => points[fixedPoint],
                 CircleCirclePoint circleCirclePoint
                     => Intersect(CalcCircle(circleCirclePoint.Circle1), CalcCircle(circleCirclePoint.Circle2), circleCirclePoint.Intersection),
+                CirclesWithCommonPointSecondPoint circlesWithCommonPointSecondPoint
+                    => IntersectEx(CalcCircle(circlesWithCommonPointSecondPoint.Circle1), CalcCircle(circlesWithCommonPointSecondPoint.Circle2), CalcPoint(circlesWithCommonPointSecondPoint.Circle1.Point)),
                 LineLinePoint lineLinePoint
                     => Intersect(CalcLine(lineLinePoint.Line1), CalcLine(lineLinePoint.Line2)),
                 LineCirclePoint lineCirclePoint
@@ -117,6 +119,16 @@ namespace MetaConstruct {
         static Vector2 Intersect(CircleF c1, CircleF c2, CircleIntersectionKind intersection) {
             var (p1, p2) = ConstructHelper.GetCirclesIntersections(c1.center, c2.center, c1.radius, c2.radius)!.Value;
             return intersection == CircleIntersectionKind.First ? p1 : p2;
+        }
+
+        static Vector2 IntersectEx(CircleF c1, CircleF c2, Vector2 commonPoint) {
+            var (p1, p2) = ConstructHelper.GetCirclesIntersections(c1.center, c2.center, c1.radius, c2.radius)!.Value;
+            if(MathF.VectorsEqual(p1, commonPoint))
+                return p2;
+            else if(MathF.VectorsEqual(p2, commonPoint))
+                return p1;
+            else
+                throw new InvalidOperationException();
         }
     }
 }

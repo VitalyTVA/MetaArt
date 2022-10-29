@@ -55,14 +55,15 @@ record struct PlotInfo((FreePoint, Vector2)[] Points, Entity[] Entities);
 
 static class PlotsHelpers {
     public static readonly (Func<PlotInfo> action, string name)[] Plots = new[] {
-            RegisterPlot(Test),
+            RegisterPlot(Test1),
+            RegisterPlot(Test2),
             RegisterPlot(SixCircles),
         };
     static (Func<PlotInfo>, string) RegisterPlot(Func<PlotInfo> action, [CallerArgumentExpression("action")] string name = "") {
         return (action, name);
     }
 
-    static PlotInfo Test() {
+    static PlotInfo Test1() {
         var center = Point();
         var top = Point();
         var centerCircle = Circle(center, top);
@@ -107,6 +108,29 @@ static class PlotsHelpers {
                 LineSegment(l2), 
                 LineSegment(l3),
                 s1, s2
+            }
+        );
+    }
+
+    static PlotInfo Test2() {
+        var p1 = Point();
+        var p2 = Point();
+        var p3 = Point();
+
+        var c1 = Circle(p1, p3);
+        var c2 = Circle(p2, p3);
+
+        return new PlotInfo(
+            new[] {
+                    (p1, new Vector2(300, 400)),
+                    (p2, new Vector2(500, 400)),
+                    (p3, new Vector2(400, 300)),
+            },
+            new Entity[] {
+                c1, 
+                c2,
+                CircleSegment(c1, c2),
+                CircleSegment(c2, c1),
             }
         );
     }
