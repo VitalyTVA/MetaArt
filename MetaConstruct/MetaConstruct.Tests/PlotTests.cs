@@ -128,7 +128,89 @@ circleSegment (4.0000 0.0000) 5.0000 143.1301 216.8699
                 CircleSegment(c1, c2),
                 CircleSegment(c2, c1)
             );
+
+            AssertPlot(
+@"circleSegment (-4.0000 0.0000) 5.0000 -36.8699 36.8699
+circleSegment (4.0000 0.0000) 5.0000 -143.1301 143.1301
+",
+                points: new[] {
+                    (p1, new Vector2(-4, 0)),
+                    (p2, new Vector2(4, 0)),
+                    (p3, new Vector2(0, 3)),
+                },
+                CircleSegment(c1, c2).Invert(),
+                CircleSegment(c2, c1).Invert()
+            );
         }
+
+        [Test]
+        public void LineCircleIntersection_CommonPointTest1() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+
+            var l = Line(p1, p3);
+            var c = Circle(p2, p3);
+
+            AssertPlot(
+@"circleSegment (4.0000 0.0000) 5.0000 -216.8699 110.6097
+lineSegment (0.0000 3.0000) (2.2400 4.6800)
+",
+                points: new[] {
+                    (p1, new Vector2(-4, 0)),
+                    (p2, new Vector2(4, 0)),
+                    (p3, new Vector2(0, 3)),
+                },
+                CircleSegment(c, l),
+                LineSegment(l, c)
+            );
+        }
+
+        [Test]
+        public void LineCircleIntersection_CommonPointTest2() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+
+            var l = Line(p3, p1);
+            var c = Circle(p2, p3);
+
+            AssertPlot(
+@"circleSegment (4.0000 0.0000) 5.0000 -216.8699 110.6097
+lineSegment (0.0000 3.0000) (2.2400 4.6800)
+",
+                points: new[] {
+                    (p1, new Vector2(-4, 0)),
+                    (p2, new Vector2(4, 0)),
+                    (p3, new Vector2(0, 3)),
+                },
+                CircleSegment(c, l),
+                LineSegment(l, c)
+            );
+        }
+        [Test]
+        public void LineCircleIntersection_CommonPointTest3() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+
+            var l = Line(p3, p1);
+            var c = Circle(p2, p3);
+
+            AssertPlot(
+@"circleSegment (4.0000 4.0000) 1.0000 -90.0000 180.0000
+lineSegment (4.0000 3.0000) (3.0000 4.0000)
+",
+                points: new[] {
+                    (p1, new Vector2(3, 4)),
+                    (p2, new Vector2(4, 4)),
+                    (p3, new Vector2(4, 3)),
+                },
+                CircleSegment(c, l),
+                LineSegment(l, c)
+            );
+        }
+
 
         [Test]
         public void LinesIntersectionTest() {

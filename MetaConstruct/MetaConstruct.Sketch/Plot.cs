@@ -57,6 +57,7 @@ static class PlotsHelpers {
     public static readonly (Func<PlotInfo> action, string name)[] Plots = new[] {
             RegisterPlot(Test1),
             RegisterPlot(Test2),
+            RegisterPlot(Test3),
             RegisterPlot(SixCircles),
         };
     static (Func<PlotInfo>, string) RegisterPlot(Func<PlotInfo> action, [CallerArgumentExpression("action")] string name = "") {
@@ -136,6 +137,29 @@ static class PlotsHelpers {
                 c2,
                 CircleSegment(c1, c2),
                 CircleSegment(c2, c1).Invert(),
+            }
+        );
+    }
+
+    static PlotInfo Test3() {
+        var p1 = Point();
+        var p2 = Point();
+        var p3 = Point();
+
+        var l = Line(p3, p1);
+        var c = Circle(p2, p3);
+
+        return new PlotInfo(
+            new[] {
+                    (p1, new Vector2(300, 400)),
+                    (p2, new Vector2(400, 400)),
+                    (p3, new Vector2(400, 300)),
+            },
+            new Entity[] {
+                l,
+                c,
+                CircleSegment(c, l),
+                LineSegment(l, c),
             }
         );
     }
