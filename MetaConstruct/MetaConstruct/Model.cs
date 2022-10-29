@@ -37,7 +37,9 @@
         }
     }
 
-    public record LineSegment(Line Line, Point From, Point To) : Entity {
+    public abstract record Segment : Entity;
+
+    public record LineSegment(Line Line, Point From, Point To) : Segment {
         protected override void Validate() {
             base.Validate();
             VerifyPoint(From);
@@ -62,7 +64,7 @@
         }
     }
 
-    public record CircleSegment(Circle Circle, Point From, Point To) : Entity {
+    public record CircleSegment(Circle Circle, Point From, Point To) : Segment {
         protected override void Validate() {
             base.Validate();
             VerifyPoint(From);
@@ -87,10 +89,17 @@
         }
     }
 
+    public record Contour(Segment[] Segments) : Entity { 
+    }
+
     public static class Constructor {
         public static FreePoint Point() => new FreePoint();
         public static LineSegment LineSegment(Line line) => LineSegment(line, line.From, line.To);
         public static LineSegment LineSegment(Line line, Point from, Point to) => new LineSegment(line, from, to);
+        public static LineSegment LineSegment(Line line, Circle circle) {
+            var intersection = Intersect(line, circle);
+            return new LineSegment(line, intersection.Point1, intersection.Point2);
+        }
         public static CircleSegment CircleSegment(Circle circle, Point from, Point to) => new CircleSegment(circle, from, to);
         public static CircleSegment CircleSegment(Circle circle, Circle other) {
             var intersection = Intersect(circle, other);

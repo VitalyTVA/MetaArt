@@ -2,6 +2,8 @@
 using NUnit.Framework;
 using System;
 using System.Linq;
+using System.Numerics;
+using System.Text;
 using static MetaConstruct.Constructor;
 
 namespace MetaContruct.Tests {
@@ -128,6 +130,7 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(intersection.Point1, segment.From);
             Assert.AreEqual(intersection.Point2, segment.To);
         }
+
         [Test]
         public void CircleSegmentFromLineCircleIntersection() {
             var l = Line(Point(), Point());
@@ -138,6 +141,18 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(intersection.Point1, segment.From);
             Assert.AreEqual(intersection.Point2, segment.To);
         }
+
+        [Test]
+        public void LineSegmentFromLineCircleIntersection() {
+            var l = Line(Point(), Point());
+            var c = Circle(Point(), Point());
+            var intersection = Intersect(l, c);
+            var segment = LineSegment(l, c);
+            Assert.AreEqual(l, segment.Line);
+            Assert.AreEqual(intersection.Point1, segment.From);
+            Assert.AreEqual(intersection.Point2, segment.To);
+        }
+
         [Test]
         public void LinesIntersectionTest() {
             var p1 = Point();
