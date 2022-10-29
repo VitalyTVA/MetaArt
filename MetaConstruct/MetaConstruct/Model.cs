@@ -125,6 +125,8 @@
             return new CircleSegment(circle, intersection.Point1, intersection.Point2);
         }
 
+        public static CircleSegment Invert(this CircleSegment segment) => new CircleSegment(segment.Circle, segment.To, segment.From);
+
         public static Line Line(Point p1, Point p2) => new Line(p1, p2);
         public static Circle Circle(Point center, Point point) => new Circle(center, point);
 

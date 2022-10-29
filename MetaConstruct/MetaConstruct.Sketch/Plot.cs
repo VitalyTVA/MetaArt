@@ -92,6 +92,11 @@ static class PlotsHelpers {
             Intersect(c2, c1).Point2,
             Intersect(c2, centerCircle).Point1
         );
+        var s3 = CircleSegment(
+            centerCircle,
+            Intersect(centerCircle, c1).Point1,
+            Intersect(centerCircle, c2).Point2
+        );
         var contour = new Contour(new Segment[] { 
 
         });
@@ -107,7 +112,7 @@ static class PlotsHelpers {
                 LineSegment(l1), 
                 LineSegment(l2), 
                 LineSegment(l3),
-                s1, s2
+                s1, s2, s3
             }
         );
     }
@@ -130,7 +135,7 @@ static class PlotsHelpers {
                 c1, 
                 c2,
                 CircleSegment(c1, c2),
-                CircleSegment(c2, c1),
+                CircleSegment(c2, c1).Invert(),
             }
         );
     }

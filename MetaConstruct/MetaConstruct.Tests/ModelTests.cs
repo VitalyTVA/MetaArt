@@ -129,6 +129,11 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(c1, segment.Circle);
             Assert.AreEqual(intersection.Point1, segment.From);
             Assert.AreEqual(intersection.Point2, segment.To);
+
+            segment = segment.Invert();
+            Assert.AreEqual(c1, segment.Circle);
+            Assert.AreEqual(intersection.Point1, segment.To);
+            Assert.AreEqual(intersection.Point2, segment.From);
         }
 
         [Test]
