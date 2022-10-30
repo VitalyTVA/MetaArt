@@ -94,6 +94,7 @@
 
     public static class Constructor {
         public static FreePoint Point() => new FreePoint();
+        public static LineSegment LineSegment(Point from, Point to) => LineSegment(Line(from, to));
         public static LineSegment LineSegment(Line line) => LineSegment(line, line.From, line.To);
         public static LineSegment LineSegment(Line line, Point from, Point to) => new LineSegment(line, from, to);
         public static LineSegment LineSegment(Line line, Circle circle) {
@@ -110,7 +111,8 @@
             return new CircleSegment(circle, intersection.Point1, intersection.Point2);
         }
 
-        public static CircleSegment Invert(this CircleSegment segment) => new CircleSegment(segment.Circle, segment.To, segment.From);
+        public static CircleSegment Invert(this CircleSegment segment) => CircleSegment(segment.Circle, segment.To, segment.From);
+        public static Line AsLine(this CircleIntersection intersection) => Line(intersection.Point1, intersection.Point2);
 
         public static Line Line(Point p1, Point p2) => new Line(p1, p2);
         public static Circle Circle(Point center, Point point) => new Circle(center, point);
@@ -146,5 +148,6 @@
                 return l1.To;
             return new LineLinePoint(l1, l2);
         }
+
     }
 }

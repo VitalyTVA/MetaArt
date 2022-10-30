@@ -71,6 +71,7 @@ static class PlotsHelpers {
             RegisterPlot(Test1),
             RegisterPlot(Test2),
             RegisterPlot(Test3),
+            RegisterPlot(Pentagon),
             RegisterPlot(SixCircles),
         };
     static (Func<PlotInfo>, string) RegisterPlot(Func<PlotInfo> action, [CallerArgumentExpression("action")] string name = "") {
@@ -178,6 +179,47 @@ static class PlotsHelpers {
         );
     }
 
+    static PlotInfo Pentagon() {
+        var center = Point();
+        var vertex0 = Point();
+        var circle = Circle(center, vertex0);
+        var line0 = Line(center, vertex0);
+
+        var line1 = PlotPrimitives.Bisection(vertex0, Intersect(line0, circle).Point2);
+
+        var point0 = Intersect(line1, circle).Point2;
+        var line3 = PlotPrimitives.Bisection(center, point0);
+        var circle5 = Circle(Intersect(line1, line3), vertex0);
+
+        var intersection = Intersect(line1, circle5);
+        var circle6 = Circle(vertex0, intersection.Point2);
+        var circle7 = Circle(vertex0, intersection.Point1);
+
+        var (vertex4, vertex1) = Intersect(circle, circle7);
+        var (vertex3, vertex2) = Intersect(circle, circle6);
+
+        return new PlotInfo(
+            new[] {
+                    (center, new Vector2(400, 400)),
+                    (vertex0, new Vector2(400, 300)),
+            },
+            new Entity[] {
+                circle,
+                line1,
+                line0,
+                line3,
+                circle5,
+                circle6,
+                circle7,
+                LineSegment(vertex0, vertex1),
+                LineSegment(vertex1, vertex2),
+                LineSegment(vertex2, vertex3),
+                LineSegment(vertex3, vertex4),
+                LineSegment(vertex4, vertex0),
+            }
+        );
+    }
+
     static PlotInfo SixCircles() {
         var center = Point();
         var top = Point();
@@ -207,4 +249,8 @@ static class PlotsHelpers {
             }
         );
     }
+}
+
+static class PlotPrimitives {
+    public static Line Bisection(Point p1, Point p2) => Intersect(Circle(p1, p2), Circle(p2, p1)).AsLine();
 }

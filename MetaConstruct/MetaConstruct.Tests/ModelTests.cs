@@ -137,6 +137,16 @@ namespace MetaContruct.Tests {
         }
 
         [Test]
+        public void LineFromCirclesIntersection() {
+            var c1 = Circle(Point(), Point());
+            var c2 = Circle(Point(), Point());
+            var intersection = Intersect(c1, c2);
+            var line = intersection.AsLine();
+            Assert.AreEqual(intersection.Point1, line.From);
+            Assert.AreEqual(intersection.Point2, line.To);
+        }
+
+        [Test]
         public void CircleSegmentFromLineCircleIntersection() {
             var l = Line(Point(), Point());
             var c = Circle(Point(), Point());
@@ -302,6 +312,17 @@ namespace MetaContruct.Tests {
 
             var intersection = Intersect(l, c);
             Assert.Throws<InvalidOperationException>(() => CircleSegment(c, intersection.Point1, Intersect(l, Circle(Point(), Point())).Point1));
+        }
+
+        [Test]
+        public void LineSegmentFromPoints() {
+            var p1 = Point();
+            var p2 = Point();
+            var segment = LineSegment(p1, p2);
+            Assert.AreEqual(segment.Line.From, segment.From);
+            Assert.AreEqual(segment.Line.To, segment.To);
+            Assert.AreEqual(p1, segment.From);
+            Assert.AreEqual(p2, segment.To);
         }
     }
 }
