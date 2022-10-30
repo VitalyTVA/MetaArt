@@ -6,7 +6,9 @@ namespace MetaConstruct {
         Action<CircleF> DrawCircle,
         Action<CircleSegmentF> DrawCircleSegment,
         Action<LineF> DrawLine,
-        Action<LineF> DrawLineSegment);
+        Action<LineF> DrawLineSegment,
+        Action<CircleSegmentF[]> FillContour
+    );
 
     public record struct CircleF(Vector2 center, float radius);
     public record struct CircleSegmentF(CircleF circle, float from, float to);
@@ -48,6 +50,10 @@ namespace MetaConstruct {
                         var circleSegmentF = plotter.CalcCircleSegment(segment);
                         painter.DrawCircleSegment(circleSegmentF);
                         break;
+                    case Contour contour:
+                        var segments = plotter.CalcContour(contour);
+                        painter.FillContour(segments);
+                        break;
                     default:
                         throw new InvalidOperationException();
                 }
@@ -62,6 +68,15 @@ namespace MetaConstruct {
                 new DelegateEqualityComparer<FreePoint>((x, y) => ReferenceEquals(x, y), x => x.GetHashCodeEx())
             );
         }
+
+        CircleSegmentF[] CalcContour(Contour contour) {
+            var segments = contour.Segments
+                .Cast<CircleSegment>()
+                .Select(s => CalcCircleSegment(s))
+                .ToArray();
+            return segments;
+        }
+
         CircleF CalcCircle(Circle c) {
             var center = CalcPoint(c.Center);
             var point = CalcPoint(c.Point);

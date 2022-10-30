@@ -235,15 +235,65 @@ lineSegment (4.0000 3.0000) (3.0000 4.0000)
             );
         }
 
+        [Test]
+        public void ContourTest() {
+            var center = Point();
+            var top = Point();
+            var centerCircle = Circle(center, top);
+            var c1 = Circle(top, center);
+            var c2 = Circle(Intersect(centerCircle, c1).Point1, center);
+            var s1 = CircleSegment(
+                c1,
+                Intersect(c1, centerCircle).Point2,
+                Intersect(c1, c2).Point2
+            );
+            var s2 = CircleSegment(
+                c2,
+                Intersect(c2, c1).Point2,
+                Intersect(c2, centerCircle).Point1
+            );
+            var s3 = CircleSegment(
+                centerCircle,
+                Intersect(centerCircle, c1).Point1,
+                Intersect(centerCircle, c2).Point2
+            );
+            var contour = new Contour(new Segment[] {
+                s1, s2, s3
+            });
+            AssertPlot(
+@"contour {
+    circleSegment (0.0000 1.0000) 1.0000 -30.0000 30.0000
+    circleSegment (0.8660 0.5000) 1.0000 90.0000 150.0000
+    circleSegment (0.0000 0.0000) 1.0000 30.0000 90.0000
+}
+",
+                 points: new[] {
+                    (center, new Vector2(0, 0)),
+                    (top, new Vector2(0, 1)),
+                },
+                contour
+            );
+        }
+
         static void AssertPlot(string expected, (FreePoint, Vector2)[] points, params Entity[] primitives) {
             var sb = new StringBuilder();
+            StringBuilder AppendCircleSegment(CircleSegmentF s)
+                => sb.AppendLine($"circleSegment {s.circle.center.VectorToString()} {s.circle.radius.FloatToString()} {s.from.RadToDeg().FloatToString()} {s.to.RadToDeg().FloatToString()}");
             Plotter.Draw(
                 points: points,
                 new Painter(
                     DrawLine: l => sb.AppendLine($"line {l.from.VectorToString()} {l.to.VectorToString()}"),
                     DrawLineSegment: s => sb.AppendLine($"lineSegment {s.from.VectorToString()} {s.to.VectorToString()}"),
                     DrawCircle: c => sb.AppendLine($"circle {c.center.VectorToString()} {c.radius.FloatToString()}"),
-                    DrawCircleSegment: s => sb.AppendLine($"circleSegment {s.circle.center.VectorToString()} {s.circle.radius.FloatToString()} {s.from.RadToDeg().FloatToString()} {s.to.RadToDeg().FloatToString()}")
+                    DrawCircleSegment: s => AppendCircleSegment(s),
+                    FillContour: contour => {
+                        sb.AppendLine("contour {");
+                        foreach(var item in contour) {
+                            sb.Append("    ");
+                            AppendCircleSegment(item);
+                        }
+                        sb.AppendLine("}");
+                    }
                 ),
                 primitives: primitives
             );

@@ -22,22 +22,35 @@ class Plot {
         painter = new Painter(
             DrawCircle: circle => {
                 stroke(color(70));
+                noFill();
                 Sketch.circle(circle.center.X, circle.center.Y, circle.radius * 2);
             },
             DrawCircleSegment: segment => {
                 stroke(White);
-                Sketch.arc(segment.circle.center.X, segment.circle.center.Y, segment.circle.radius * 2, segment.circle.radius * 2, segment.from, segment.to);
+                noFill();
+                arc(segment.circle.center.X, segment.circle.center.Y, segment.circle.radius * 2, segment.circle.radius * 2, segment.from, segment.to);
             },
             DrawLine: l => {
                 var v = Vector2.Normalize(l.from - l.to);
                 var p1 = l.to + v * (width + height);
                 var p2 = l.from - v * (width + height);
                 stroke(color(70));
+                noFill();
                 line(p1.X, p1.Y, p2.X, p2.Y);
             },
             DrawLineSegment: l => {
                 stroke(White);
+                noFill();
                 line(l.from.X, l.from.Y, l.to.X, l.to.Y);
+            },
+            FillContour: segments => {
+                noStroke();
+                fill(White);
+                beginShape();
+                foreach(var segment in segments) {
+                    arcVertex(segment.circle.center.X, segment.circle.center.Y, segment.circle.radius * 2, segment.circle.radius * 2, segment.from, segment.to);
+                }
+                endShape(CLOSE);
             }
         );
     }
@@ -99,7 +112,7 @@ static class PlotsHelpers {
             Intersect(centerCircle, c2).Point2
         );
         var contour = new Contour(new Segment[] { 
-
+            s1, s2, s3
         });
 
         return new PlotInfo(
@@ -113,7 +126,8 @@ static class PlotsHelpers {
                 LineSegment(l1), 
                 LineSegment(l2), 
                 LineSegment(l3),
-                s1, s2, s3
+                s1, s2, s3,
+                contour
             }
         );
     }

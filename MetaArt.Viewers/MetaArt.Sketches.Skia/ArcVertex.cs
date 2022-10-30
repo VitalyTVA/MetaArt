@@ -23,7 +23,7 @@ class ArcVertex {
 
 
 		beginShape();
-		vertex(300, 200);
+		//vertex(300, 200);
 		arcVertex(200, 100, 100, 100, 0, PI / 2);
 		arcVertex(200, 200, 100, 100, 3 * PI / 2, PI);
 		vertex(300, 200);
