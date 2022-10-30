@@ -96,49 +96,42 @@ namespace MetaConstruct {
                 FreePoint fixedPoint
                     => points[fixedPoint],
                 CircleCirclePoint circleCirclePoint
-                    => Intersect(CalcCircle(circleCirclePoint.Circle1), CalcCircle(circleCirclePoint.Circle2), circleCirclePoint.Intersection),
-                CirclesWithCommonPointSecondPoint circlesWithCommonPointSecondPoint
-                    => IntersectEx(CalcCircle(circlesWithCommonPointSecondPoint.Circle1), CalcCircle(circlesWithCommonPointSecondPoint.Circle2), CalcPoint(circlesWithCommonPointSecondPoint.Circle1.Point)),
+                    => Intersect(CalcCircle(circleCirclePoint.Circle1), CalcCircle(circleCirclePoint.Circle2), CalcPoint(circleCirclePoint.Circle1.Point), circleCirclePoint.Intersection),
                 LineLinePoint lineLinePoint
                     => Intersect(CalcLine(lineLinePoint.Line1), CalcLine(lineLinePoint.Line2)),
                 LineCirclePoint lineCirclePoint
-                    => Intersect(CalcCircle(lineCirclePoint.Circle), CalcLine(lineCirclePoint.Line), lineCirclePoint.Intersection),
-                LineCircleWithCommonPointSecondPoint lineCircleWithCommonPointSecondPoint
-                    => IntersectEx(CalcCircle(lineCircleWithCommonPointSecondPoint.Circle), CalcLine(lineCircleWithCommonPointSecondPoint.Line), CalcPoint(lineCircleWithCommonPointSecondPoint.Circle.Point)),
+                    => Intersect(CalcCircle(lineCirclePoint.Circle), CalcLine(lineCirclePoint.Line), CalcPoint(lineCirclePoint.Circle.Point), lineCirclePoint.Intersection),
                 _ => throw new NotImplementedException()
             };
         }
 
-        static Vector2 Intersect(CircleF c, LineF l, CircleIntersectionKind intersection) {
+        static Vector2 Intersect(CircleF c, LineF l, Vector2 circlePoint, CircleIntersectionKind intersection) {
             var (p1, p2) = ConstructHelper.GetLineCircleIntersections(c.center, c.radius, l.from, l.to)!.Value;
+            if(intersection == CircleIntersectionKind.Secondary) {
+                if(MathF.VectorsEqual(p2, circlePoint))
+                    return p1;
+                else if(MathF.VectorsEqual(p1, circlePoint))
+                    return p2;
+                throw new InvalidOperationException();
+            }
             return intersection == CircleIntersectionKind.First ? p1 : p2;
-        }
-        static Vector2 IntersectEx(CircleF c, LineF l, Vector2 circlePoint) {
-            var (p1, p2) = ConstructHelper.GetLineCircleIntersections(c.center, c.radius, l.from, l.to)!.Value;
-            if(MathF.VectorsEqual(p2, circlePoint))
-                return p1;
-            else if(MathF.VectorsEqual(p1, circlePoint))
-                return p2;
-            throw new InvalidOperationException();
         }
 
         static Vector2 Intersect(LineF l1, LineF l2) {
             return ConstructHelper.GetLinesIntersection(l1.from, l1.to, l2.from, l2.to)!.Value;
         }
 
-        static Vector2 Intersect(CircleF c1, CircleF c2, CircleIntersectionKind intersection) {
+        static Vector2 Intersect(CircleF c1, CircleF c2, Vector2 commonPoint, CircleIntersectionKind intersection) {
             var (p1, p2) = ConstructHelper.GetCirclesIntersections(c1.center, c2.center, c1.radius, c2.radius)!.Value;
+            if(intersection == CircleIntersectionKind.Secondary) {
+                if(MathF.VectorsEqual(p1, commonPoint))
+                    return p2;
+                else if(MathF.VectorsEqual(p2, commonPoint))
+                    return p1;
+                else
+                    throw new InvalidOperationException();
+            }
             return intersection == CircleIntersectionKind.First ? p1 : p2;
-        }
-
-        static Vector2 IntersectEx(CircleF c1, CircleF c2, Vector2 commonPoint) {
-            var (p1, p2) = ConstructHelper.GetCirclesIntersections(c1.center, c2.center, c1.radius, c2.radius)!.Value;
-            if(MathF.VectorsEqual(p1, commonPoint))
-                return p2;
-            else if(MathF.VectorsEqual(p2, commonPoint))
-                return p1;
-            else
-                throw new InvalidOperationException();
         }
     }
 }

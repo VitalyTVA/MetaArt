@@ -8,12 +8,9 @@
         //public Line Line1 { get; init; } 
         //public Line Line2 { get; init; } 
     }
-    public enum CircleIntersectionKind { First, Second }
+    public enum CircleIntersectionKind { First, Second, Secondary }
     public sealed record LineCirclePoint(Line Line, Circle Circle, CircleIntersectionKind Intersection) : Point;
     public sealed record CircleCirclePoint(Circle Circle1, Circle Circle2, CircleIntersectionKind Intersection) : Point;
-    public sealed record CirclesWithCommonPointSecondPoint(Circle Circle1, Circle Circle2) : Point;
-    public sealed record LineCircleWithCommonPointSecondPoint(Line Line, Circle Circle) : Point;
-
 
     public record struct CircleIntersection(Point Point1, Point Point2);
 
@@ -61,10 +58,6 @@
                     if(lineCirclePoint.Line != Line)
                         throw new InvalidOperationException();
                     break;
-                case LineCircleWithCommonPointSecondPoint lineCirclePoint:
-                    if(lineCirclePoint.Line != Line)
-                        throw new InvalidOperationException();
-                    break;
                 default:
                     throw new InvalidOperationException();
             };
@@ -88,14 +81,6 @@
                     break;
                 case CircleCirclePoint circleCirclePoint:
                     if(circleCirclePoint.Circle1 != Circle && circleCirclePoint.Circle2 != Circle)
-                        throw new InvalidOperationException();
-                    break;
-                case CirclesWithCommonPointSecondPoint circlesWithCommonPointSecondPoint:
-                    if(circlesWithCommonPointSecondPoint.Circle1 != Circle && circlesWithCommonPointSecondPoint.Circle2 != Circle)
-                        throw new InvalidOperationException();
-                    break;
-                case LineCircleWithCommonPointSecondPoint lineCircleWithCommonPointSecondPoint:
-                    if(lineCircleWithCommonPointSecondPoint.Circle != Circle)
                         throw new InvalidOperationException();
                     break;
                 default:
@@ -136,7 +121,7 @@
             if(c1.Point == c2.Point) {
                 return new CircleIntersection(
                     c1.Point,
-                    new CirclesWithCommonPointSecondPoint(c1, c2)
+                    new CircleCirclePoint(c1, c2, CircleIntersectionKind.Secondary)
                 );
             }
             return new CircleIntersection(
@@ -147,7 +132,7 @@
 
         public static CircleIntersection Intersect(Line l, Circle c) {
             if(l.From == c.Point || l.To == c.Point) {
-                return new CircleIntersection(c.Point, new LineCircleWithCommonPointSecondPoint(l, c));
+                return new CircleIntersection(c.Point, new LineCirclePoint(l, c, CircleIntersectionKind.Secondary));
             }
             return new CircleIntersection(new LineCirclePoint(l, c, CircleIntersectionKind.First), new LineCirclePoint(l, c, CircleIntersectionKind.Second));
         }
