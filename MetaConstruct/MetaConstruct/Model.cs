@@ -51,17 +51,9 @@
         }
     }
 
-    public record Contour(Segment[] Segments) : Entity { 
+    public record Contour(Segment[] Segments) : Segment { 
     }
-    //enum DisplayStyle { Background, Visible }
-    //public class Canvas {
-    //    readonly List<(Entity, DisplayStyle)> entities = new List<(Entity, DisplayStyle)>();
-    //    public void Add(Line line, DisplayStyle style = DisplayStyle.Background) => AddCore(line, style);
-
-    //    void AddCore(Entity entity, DisplayStyle style) {
-    //        entities.Add((entity, style));
-    //    }
-    //}
+    public enum DisplayStyle { Background, Visible }
 
     public static class ConstructorHelper {
         public static CircleSegment CircleSegment(this Constructor constructor, Circle circle, Circle other, bool invert = false) {
@@ -81,8 +73,8 @@
         public static LineSegment LineSegment(Line line, Point from, Point to) => new LineSegment(line, from, to);
         public static CircleSegment CircleSegment(Circle circle, Point from, Point to) => new CircleSegment(circle, from, to);
 
-        public static LineSegment LineSegment(this Constructor constructor, Point from, Point to) => LineSegment(constructor.Line(from, to));
-        public static LineSegment LineSegment(Line line) => LineSegment(line, line.From, line.To);
+        public static LineSegment LineSegment(this Constructor constructor, Point from, Point to) => constructor.Line(from, to).AsLineSegment();
+        public static LineSegment AsLineSegment(this Line line) => LineSegment(line, line.From, line.To);
         public static LineSegment LineSegment(this Constructor constructor, Line line, Circle circle) {
             var intersection = constructor.Intersect(line, circle);
             return LineSegment(line, intersection.Point1, intersection.Point2);

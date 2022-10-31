@@ -13,15 +13,19 @@ namespace MetaContruct.Tests {
         public void LineTest() {
             var p1 = Point();
             var p2 = Point();
+            var p3 = Point();
 
             AssertPlot(
 @"line (1.0000 2.0000) (5.0000 6.0000)
+line:Background (1.0000 2.0000) (9.0000 13.0000)
 ",
                  points: new[] {
                     (p1, new Vector2(1, 2)),
-                    (p2, new Vector2(5, 6))
+                    (p2, new Vector2(5, 6)),
+                    (p3, new Vector2(9, 13)),
                 },
-                Line(p1, p2)
+                (Line(p1, p2), DisplayStyle.Visible),
+                (Line(p1, p3), DisplayStyle.Background)
             );
         }
 
@@ -45,15 +49,19 @@ namespace MetaContruct.Tests {
         public void CircleTest() {
             var p1 = Point();
             var p2 = Point();
+            var p3 = Point();
 
             AssertPlot(
 @"circle (1.0000 2.0000) 5.6569
+circle:Background (1.0000 2.0000) 13.6015
 ",
                  points: new[] {
                     (p1, new Vector2(1, 2)),
-                    (p2, new Vector2(5, 6))
+                    (p2, new Vector2(5, 6)),
+                    (p3, new Vector2(9, 13)),
                 },
-                Circle(p1, p2)
+                (Circle(p1, p2), DisplayStyle.Visible),
+                (Circle(p1, p3), DisplayStyle.Background)
             );
         }
 
@@ -177,15 +185,15 @@ lineSegment (0.0000 3.0000) (2.2400 4.6800)
 
             AssertPlot(
 @"circleSegment (4.0000 0.0000) 5.0000 -216.8699 110.6097
-lineSegment (0.0000 3.0000) (2.2400 4.6800)
+lineSegment:Background (0.0000 3.0000) (2.2400 4.6800)
 ",
                 points: new[] {
                     (p1, new Vector2(-4, 0)),
                     (p2, new Vector2(4, 0)),
                     (p3, new Vector2(0, 3)),
                 },
-                CircleSegment(c, l),
-                LineSegment(l, c)
+                (CircleSegment(c, l), DisplayStyle.Visible),
+                (LineSegment(l, c), DisplayStyle.Background)
             );
         }
         [Test]
@@ -198,7 +206,7 @@ lineSegment (0.0000 3.0000) (2.2400 4.6800)
             var c = Circle(p2, p3);
 
             AssertPlot(
-@"circleSegment (4.0000 4.0000) 1.0000 -90.0000 180.0000
+@"circleSegment:Background (4.0000 4.0000) 1.0000 -90.0000 180.0000
 lineSegment (4.0000 3.0000) (3.0000 4.0000)
 ",
                 points: new[] {
@@ -206,8 +214,8 @@ lineSegment (4.0000 3.0000) (3.0000 4.0000)
                     (p2, new Vector2(4, 4)),
                     (p3, new Vector2(4, 3)),
                 },
-                CircleSegment(c, l),
-                LineSegment(l, c)
+                (CircleSegment(c, l), DisplayStyle.Background),
+                (LineSegment(l, c), DisplayStyle.Visible)
             );
         }
 
@@ -273,24 +281,41 @@ lineSegment (4.0000 3.0000) (3.0000 4.0000)
                 },
                 contour
             );
+            AssertPlot(
+@"contour {
+    circleSegment:Background (0.0000 1.0000) 1.0000 -30.0000 30.0000
+    circleSegment:Background (0.8660 0.5000) 1.0000 90.0000 150.0000
+    circleSegment:Background (0.0000 0.0000) 1.0000 30.0000 90.0000
+}
+",
+                 points: new[] {
+                    (center, new Vector2(0, 0)),
+                    (top, new Vector2(0, 1)),
+                },
+                (contour, DisplayStyle.Background)
+            );
         }
-
-        static void AssertPlot(string expected, (FreePoint, Vector2)[] points, params Entity[] primitives) {
+        static void AssertPlot(
+            string expected, (FreePoint, Vector2)[] points, params Entity[] primitives) {
+            AssertPlot(expected, points, primitives.Select(x => (x, DisplayStyle.Visible)).ToArray());
+        }
+        static void AssertPlot(string expected, (FreePoint, Vector2)[] points, params (Entity, DisplayStyle) [] primitives) {
             var sb = new StringBuilder();
-            StringBuilder AppendCircleSegment(CircleSegmentF s)
-                => sb.AppendLine($"circleSegment {s.circle.center.VectorToString()} {s.circle.radius.FloatToString()} {s.from.RadToDeg().FloatToString()} {s.to.RadToDeg().FloatToString()}");
+            StringBuilder AppendCircleSegment(CircleSegmentF s, DisplayStyle style)
+                => sb.AppendLine($"circleSegment{GetStyleString(style)} {s.circle.center.VectorToString()} {s.circle.radius.FloatToString()} {s.from.RadToDeg().FloatToString()} {s.to.RadToDeg().FloatToString()}");
+            static string GetStyleString(DisplayStyle style) => style == DisplayStyle.Visible ? string.Empty : ":" + style.ToString();
             Plotter.Draw(
                 points: points,
                 new Painter(
-                    DrawLine: l => sb.AppendLine($"line {l.from.VectorToString()} {l.to.VectorToString()}"),
-                    DrawLineSegment: s => sb.AppendLine($"lineSegment {s.from.VectorToString()} {s.to.VectorToString()}"),
-                    DrawCircle: c => sb.AppendLine($"circle {c.center.VectorToString()} {c.radius.FloatToString()}"),
-                    DrawCircleSegment: s => AppendCircleSegment(s),
-                    FillContour: contour => {
+                    DrawLine: (l, style) => sb.AppendLine($"line{GetStyleString(style)} {l.from.VectorToString()} {l.to.VectorToString()}"),
+                    DrawLineSegment: (s, style) => sb.AppendLine($"lineSegment{GetStyleString(style)} {s.from.VectorToString()} {s.to.VectorToString()}"),
+                    DrawCircle: (c, style) => sb.AppendLine($"circle{GetStyleString(style)} {c.center.VectorToString()} {c.radius.FloatToString()}"),
+                    DrawCircleSegment: (s, style) => AppendCircleSegment(s, style),
+                    FillContour: (contour, style) => {
                         sb.AppendLine("contour {");
                         foreach(var item in contour) {
                             sb.Append("    ");
-                            AppendCircleSegment(item);
+                            AppendCircleSegment(item, style);
                         }
                         sb.AppendLine("}");
                     }

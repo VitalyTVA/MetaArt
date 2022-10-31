@@ -3,37 +3,37 @@ using System.Numerics;
 
 namespace MetaConstruct {
     public record Painter(
-        Action<CircleF> DrawCircle,
-        Action<CircleSegmentF> DrawCircleSegment,
-        Action<LineF> DrawLine,
-        Action<LineF> DrawLineSegment,
-        Action<CircleSegmentF[]> FillContour
+        Action<CircleF, DisplayStyle> DrawCircle,
+        Action<CircleSegmentF, DisplayStyle> DrawCircleSegment,
+        Action<LineF, DisplayStyle> DrawLine,
+        Action<LineF, DisplayStyle> DrawLineSegment,
+        Action<CircleSegmentF[], DisplayStyle> FillContour
     );
     public record struct CircleSegmentF(CircleF circle, float from, float to);
     public static class Plotter {
-        public static void Draw((FreePoint, Vector2)[] points, Painter painter, IEnumerable<Entity> primitives) {
+        public static void Draw((FreePoint, Vector2)[] points, Painter painter, IEnumerable<(Entity, DisplayStyle)> primitives) {
             var calculator = new Calculator(points);
-            foreach(var primitive in primitives) {
+            foreach(var (primitive, style) in primitives) {
                 switch(primitive) {
                     case Line l:
                         var lineF = calculator.CalcLine(l);
-                        painter.DrawLine(lineF);
+                        painter.DrawLine(lineF, style);
                         break;
                     case LineSegment l:
                         var lineSegmentF = calculator.CalcLineSegment(l.From, l.To);
-                        painter.DrawLineSegment(lineSegmentF);
+                        painter.DrawLineSegment(lineSegmentF, style);
                         break;
                     case Circle c:
                         var circleF = calculator.CalcCircle(c);
-                        painter.DrawCircle(circleF);
+                        painter.DrawCircle(circleF, style);
                         break;
                     case CircleSegment segment:
                         var circleSegmentF = calculator.CalcCircleSegment(segment);
-                        painter.DrawCircleSegment(circleSegmentF);
+                        painter.DrawCircleSegment(circleSegmentF, style);
                         break;
                     case Contour contour:
                         var segments = calculator.CalcContour(contour);
-                        painter.FillContour(segments);
+                        painter.FillContour(segments, style);
                         break;
                     default:
                         throw new InvalidOperationException();
