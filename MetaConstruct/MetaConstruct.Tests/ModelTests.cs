@@ -30,8 +30,8 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(line, segment.Line);
             Assert.AreEqual(p1, segment.From);
             Assert.AreEqual(p2, segment.To);
-            Assert.Throws<InvalidOperationException>(() => LineSegment(line, p1, new FreePoint()));
-            Assert.Throws<InvalidOperationException>(() => LineSegment(line, new FreePoint(), p2));
+            Assert.Throws<InvalidOperationException>(() => LineSegment(line, p1, Point()));
+            Assert.Throws<InvalidOperationException>(() => LineSegment(line, Point(), p2));
         }
 
         [Test]

@@ -29,15 +29,10 @@
     }
     public sealed record Circle(Point Center, Point Point) : Primitive;
 
-    public sealed record FreePoint : Point {
-        readonly object obj = new object();
-        public int GetHashCodeEx() => obj.GetHashCode();
-        public override int GetHashCode() {
-            throw new InvalidOperationException($"Use {nameof(GetHashCodeEx)} instead.");
-        }
-    }
+    public sealed record FreePoint(string Id) : Point;
     public class Constructor {
-        public FreePoint Point() => new FreePoint();
+        int idCount = 0;
+        public FreePoint Point() => new FreePoint("P" + idCount++);
         public CircleIntersection Intersect(Circle c1, Circle c2) {
             if(c1 == c2)
                 throw new InvalidOperationException();

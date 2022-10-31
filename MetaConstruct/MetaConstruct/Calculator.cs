@@ -6,11 +6,7 @@ namespace MetaConstruct {
     public class Calculator {
         readonly Dictionary<FreePoint, Vector2> points;
         public Calculator((FreePoint, Vector2)[] points) {
-            this.points = points.ToDictionary(
-                x => x.Item1,
-                x => x.Item2,
-                new DelegateEqualityComparer<FreePoint>((x, y) => ReferenceEquals(x, y), x => x.GetHashCodeEx())
-            );
+            this.points = points.ToDictionary(x => x.Item1, x => x.Item2);
         }
         public CircleF CalcCircle(Circle c) {
             var center = CalcPoint(c.Center);
@@ -22,11 +18,15 @@ namespace MetaConstruct {
             var to = CalcPoint(l.To);
             return new LineF(from, to);
         }
+        
+        //Dictionary<Point, Vector2> cache = new Dictionary<Point, Vector2>();
 
         public Vector2 CalcPoint(Point p) {
-            return p switch {
-                FreePoint fixedPoint
-                    => points[fixedPoint],
+            if(p is FreePoint freePoint)
+                return points[freePoint];
+            //if(cache.TryGetValue(p, out var value))
+            //    return value;
+            var value = p switch {
                 CircleCirclePoint circleCirclePoint
                     => Intersect(CalcCircle(circleCirclePoint.Circle1), CalcCircle(circleCirclePoint.Circle2), CalcPoint(circleCirclePoint.Circle1.Point), circleCirclePoint.Intersection),
                 LineLinePoint lineLinePoint
@@ -35,6 +35,8 @@ namespace MetaConstruct {
                     => Intersect(CalcCircle(lineCirclePoint.Circle), CalcLine(lineCirclePoint.Line), CalcPoint(lineCirclePoint.Circle.Point), lineCirclePoint.Intersection),
                 _ => throw new NotImplementedException()
             };
+            //cache.Add(p, value);
+            return value;
         }
 
         static Vector2 Intersect(CircleF c, LineF l, Vector2 circlePoint, CircleIntersectionKind intersection) {

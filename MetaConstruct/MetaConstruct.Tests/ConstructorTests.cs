@@ -26,8 +26,9 @@ namespace MetaContruct.Tests {
         public void FreePointTest() {
             var p1 = Point();
             var p2 = Point();
-            Assert.AreNotEqual(p1.GetHashCodeEx(), p2.GetHashCodeEx());
-            Assert.Throws<InvalidOperationException>(() => p1.GetHashCode());
+            Assert.AreEqual("P0", p1.Id);
+            Assert.AreEqual("P1", p2.Id);
+            Assert.AreNotEqual(p1.GetHashCode(), p2.GetHashCode());
         }
 
         [Test]
