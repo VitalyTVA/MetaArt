@@ -4,19 +4,23 @@ using System;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using static MetaConstruct.Constructor;
+using static MetaConstruct.ConstructorHelper;
 
 namespace MetaContruct.Tests {
     [TestFixture]
-    public class ModelTests {
-        [Test]
-        public void FreePointTest() {
-            var p1 = Point();
-            var p2 = Point();
-            Assert.AreNotEqual(p1.GetHashCodeEx(), p2.GetHashCodeEx());
-            Assert.Throws<InvalidOperationException>(() => p1.GetHashCode());
-        }
+    public abstract class ModelTestsBase : ConstructorTestsBase {
+        protected LineSegment LineSegment(Point from, Point to) => c.LineSegment(from, to);
+        protected LineSegment LineSegment(Line line, Circle circle) => c.LineSegment(line, circle);
+        protected CircleSegment CircleSegment(Circle circle, Circle other, bool invert = false) => c.CircleSegment(circle, other, invert);
+        protected CircleSegment CircleSegment(Circle circle, Line line, bool invert = false) => c.CircleSegment(circle, line, invert);
 
+        protected LineSegment LineSegment(Line line) => ConstructorHelper.LineSegment(line);
+        protected LineSegment LineSegment(Line line, Point from, Point to) => ConstructorHelper.LineSegment(line, from, to);
+        protected CircleSegment CircleSegment(Circle circle, Point from, Point to) => ConstructorHelper.CircleSegment(circle, from, to);
+    }
+
+    [TestFixture]
+    public class ModelTests : ModelTestsBase {
         [Test]
         public void LineSegmentTest1() {
             var p1 = Point();
@@ -130,20 +134,10 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(intersection.Point1, segment.From);
             Assert.AreEqual(intersection.Point2, segment.To);
 
-            segment = segment.Invert();
+            segment = CircleSegment(c1, c2, invert: true);
             Assert.AreEqual(c1, segment.Circle);
             Assert.AreEqual(intersection.Point1, segment.To);
             Assert.AreEqual(intersection.Point2, segment.From);
-        }
-
-        [Test]
-        public void LineFromCirclesIntersection() {
-            var c1 = Circle(Point(), Point());
-            var c2 = Circle(Point(), Point());
-            var intersection = Intersect(c1, c2);
-            var line = intersection.AsLine();
-            Assert.AreEqual(intersection.Point1, line.From);
-            Assert.AreEqual(intersection.Point2, line.To);
         }
 
         [Test]
@@ -185,86 +179,14 @@ namespace MetaContruct.Tests {
         }
 
         [Test]
-        public void LinesIntersectionTest() {
+        public void LineSegmentFromPoints() {
             var p1 = Point();
             var p2 = Point();
-            var p3 = Point();
-            var p4 = Point();
-
-            Assert.AreEqual(Intersect(Line(p1, p2), Line(p3, p4)), Intersect(Line(p1, p2), Line(p3, p4)));
-            Assert.AreNotEqual(Intersect(Line(p1, p2), Line(p3, p4)), Intersect(Line(p1, p2), Line(p3, Point())));
-
-            var i = Intersect(Line(p1, p2), Line(p3, p4));
-            Assert.AreNotEqual(p1, i);
-            Assert.AreNotEqual(p2, i);
-            Assert.AreNotEqual(p3, i);
-            Assert.AreNotEqual(p4, i);
-
-            Assert.AreEqual(p1, Intersect(Line(p1, p2), Line(p1, p3)));
-            Assert.AreEqual(p2, Intersect(Line(p1, p2), Line(p2, p3)));
-            Assert.AreEqual(p3, Intersect(Line(p1, p3), Line(p2, p3)));
-            Assert.AreEqual(p2, Intersect(Line(p2, p1), Line(p3, p2)));
-
-            Assert.Throws<InvalidOperationException>(() => Intersect(Line(p1, p2), Line(p1, p2)));
-        }
-
-        [Test]
-        public void CirclesIntersectionTest() {
-            var p1 = Point();
-            var p2 = Point();
-            var p3 = Point();
-            var p4 = Point();
-
-            Assert.AreEqual(Intersect(Circle(p1, p2), Circle(p3, p4)), Intersect(Circle(p1, p2), Circle(p3, p4)));
-            Assert.AreNotEqual(Intersect(Circle(p1, p2), Circle(p3, p4)), Intersect(Circle(p1, p2), Circle(p3, Point())));
-
-            var i = Intersect(Circle(p1, p2), Circle(p1, p4));
-            Assert.AreNotEqual(p1, i.Point1);
-            Assert.AreNotEqual(p2, i.Point1);
-            Assert.AreNotEqual(p4, i.Point1);
-            Assert.AreNotEqual(p1, i.Point2);
-            Assert.AreNotEqual(p2, i.Point2);
-            Assert.AreNotEqual(p4, i.Point2);
-
-            Assert.AreEqual(p3, Intersect(Circle(p1, p3), Circle(p2, p3)).Point1);
-            Assert.AreNotEqual(p3, Intersect(Circle(p1, p3), Circle(p2, p3)).Point2);
-
-            Assert.Throws<InvalidOperationException>(() => Intersect(Circle(p1, p2), Circle(p1, p2)));
-        }
-
-        [Test]
-        public void LineCircleIntersectionTest() {
-            var p1 = Point();
-            var p2 = Point();
-            var p3 = Point();
-            var p4 = Point();
-
-            Assert.AreEqual(Intersect(Line(p1, p2), Circle(p3, p4)), Intersect(Line(p1, p2), Circle(p3, p4)));
-            Assert.AreNotEqual(Intersect(Line(p1, p2), Circle(p3, p4)), Intersect(Line(p1, p2), Circle(p3, Point())));
-
-            var i = Intersect(Line(p1, p2), Circle(p3, p4));
-            Assert.AreNotEqual(p1, i.Point1);
-            Assert.AreNotEqual(p2, i.Point1);
-            Assert.AreNotEqual(p3, i.Point1);
-            Assert.AreNotEqual(p4, i.Point1);
-            Assert.AreNotEqual(p1, i.Point2);
-            Assert.AreNotEqual(p2, i.Point2);
-            Assert.AreNotEqual(p3, i.Point2);
-            Assert.AreNotEqual(p4, i.Point2);
-
-            Assert.AreEqual(p2, Intersect(Line(p1, p2), Circle(p1, p2)).Point1);
-            Assert.AreNotEqual(p2, Intersect(Line(p1, p2), Circle(p1, p2)).Point2);
-            Assert.AreEqual(p2, Intersect(Line(p2, p1), Circle(p1, p2)).Point1);
-            Assert.AreNotEqual(p2, Intersect(Line(p2, p1), Circle(p1, p2)).Point2);
-        }
-
-        [Test]
-        public void LineTest() {
-            var p1 = Point();
-            var p2 = Point();
-            var p3 = Point();
-            Assert.AreEqual(Line(p1, p2), Line(p1, p2));
-            Assert.AreNotEqual(Line(p1, p2), Line(p1, p3));
+            var segment = LineSegment(p1, p2);
+            Assert.AreEqual(segment.Line.From, segment.From);
+            Assert.AreEqual(segment.Line.To, segment.To);
+            Assert.AreEqual(p1, segment.From);
+            Assert.AreEqual(p2, segment.To);
         }
 
         [Test]
@@ -312,17 +234,6 @@ namespace MetaContruct.Tests {
 
             var intersection = Intersect(l, c);
             Assert.Throws<InvalidOperationException>(() => CircleSegment(c, intersection.Point1, Intersect(l, Circle(Point(), Point())).Point1));
-        }
-
-        [Test]
-        public void LineSegmentFromPoints() {
-            var p1 = Point();
-            var p2 = Point();
-            var segment = LineSegment(p1, p2);
-            Assert.AreEqual(segment.Line.From, segment.From);
-            Assert.AreEqual(segment.Line.To, segment.To);
-            Assert.AreEqual(p1, segment.From);
-            Assert.AreEqual(p2, segment.To);
         }
     }
 }

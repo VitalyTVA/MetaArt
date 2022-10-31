@@ -4,11 +4,11 @@ using System;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using static MetaConstruct.Constructor;
+using static MetaConstruct.ConstructorHelper;
 
 namespace MetaContruct.Tests {
     [TestFixture]
-    public class PlotTests {
+    public class PlotTests : ModelTestsBase {
         [Test]
         public void LineTest() {
             var p1 = Point();
@@ -138,8 +138,8 @@ circleSegment (4.0000 0.0000) 5.0000 -143.1301 143.1301
                     (p2, new Vector2(4, 0)),
                     (p3, new Vector2(0, 3)),
                 },
-                CircleSegment(c1, c2).Invert(),
-                CircleSegment(c2, c1).Invert()
+                CircleSegment(c1, c2, invert: true),
+                CircleSegment(c2, c1, invert: true)
             );
         }
 

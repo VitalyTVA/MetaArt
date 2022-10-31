@@ -2,15 +2,15 @@
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using static MetaConstruct.Constructor;
+using static MetaConstruct.ConstructorHelper;
 
 namespace MetaConstruct;
 
 class Plot {
     Painter painter = null!;
-    readonly Func<PlotInfo> getPlot;
+    readonly Func<Constructor, PlotInfo> getPlot;
 
-    public Plot(Func<PlotInfo> getPlot) {
+    public Plot(Func<Constructor, PlotInfo> getPlot) {
         this.getPlot = getPlot;
     }
 
@@ -60,57 +60,57 @@ class Plot {
         stroke(White);
         noFill();
 
-        var info = getPlot();
+        var info = getPlot(new Constructor());
         Plotter.Draw(info.Points, painter, info.Entities);
     }
 }
 record struct PlotInfo((FreePoint, Vector2)[] Points, Entity[] Entities);
 
 static class PlotsHelpers {
-    public static readonly (Func<PlotInfo> action, string name)[] Plots = new[] {
+    public static readonly (Func<Constructor, PlotInfo> action, string name)[] Plots = new[] {
             RegisterPlot(Test1),
             RegisterPlot(Test2),
             RegisterPlot(Test3),
             RegisterPlot(Pentagon),
             RegisterPlot(SixCircles),
         };
-    static (Func<PlotInfo>, string) RegisterPlot(Func<PlotInfo> action, [CallerArgumentExpression("action")] string name = "") {
+    static (Func<Constructor, PlotInfo>, string) RegisterPlot(Func<Constructor, PlotInfo> action, [CallerArgumentExpression("action")] string name = "") {
         return (action, name);
     }
 
-    static PlotInfo Test1() {
-        var center = Point();
-        var top = Point();
-        var centerCircle = Circle(center, top);
-        var c1 = Circle(top, center);
+    static PlotInfo Test1(Constructor c) {
+        var center = c.Point();
+        var top = c.Point();
+        var centerCircle = c.Circle(center, top);
+        var c1 = c.Circle(top, center);
 
-        var c2 = Circle(Intersect(centerCircle, c1).Point1, center);
-        var c3 = Circle(Intersect(centerCircle, c2).Point1, center);
-        var c4 = Circle(Intersect(centerCircle, c3).Point1, center);
-        var c5 = Circle(Intersect(centerCircle, c4).Point1, center);
-        var c6 = Circle(Intersect(centerCircle, c5).Point1, center);
+        var c2 = c.Circle(c.Intersect(centerCircle, c1).Point1, center);
+        var c3 = c.Circle(c.Intersect(centerCircle, c2).Point1, center);
+        var c4 = c.Circle(c.Intersect(centerCircle, c3).Point1, center);
+        var c5 = c.Circle(c.Intersect(centerCircle, c4).Point1, center);
+        var c6 = c.Circle(c.Intersect(centerCircle, c5).Point1, center);
 
-        var l1 = Line(c2.Center, c4.Center);
-        var l2 = Line(c1.Center, c3.Center);
+        var l1 = c.Line(c2.Center, c4.Center);
+        var l2 = c.Line(c1.Center, c3.Center);
 
-        var p1 = Intersect(l1, l2);
-        var p2 = Intersect(Line(p1, c6.Center), c6);
-        var l3 = Line(p1, p2.Point1);
+        var p1 = c.Intersect(l1, l2);
+        var p2 = c.Intersect(c.Line(p1, c6.Center), c6);
+        var l3 = c.Line(p1, p2.Point1);
 
         var s1 = CircleSegment(
             c1,
-            Intersect(c1, centerCircle).Point2,
-            Intersect(c1, c2).Point2
+            c.Intersect(c1, centerCircle).Point2,
+            c.Intersect(c1, c2).Point2
         );
         var s2 = CircleSegment(
             c2,
-            Intersect(c2, c1).Point2,
-            Intersect(c2, centerCircle).Point1
+            c.Intersect(c2, c1).Point2,
+            c.Intersect(c2, centerCircle).Point1
         );
         var s3 = CircleSegment(
             centerCircle,
-            Intersect(centerCircle, c1).Point1,
-            Intersect(centerCircle, c2).Point2
+            c.Intersect(centerCircle, c1).Point1,
+            c.Intersect(centerCircle, c2).Point2
         );
         var contour = new Contour(new Segment[] { 
             s1, s2, s3
@@ -123,9 +123,9 @@ static class PlotsHelpers {
             },
             new Entity[] { 
                 centerCircle, 
-                c1, c2, c3, c4, c5, c6, l1, l2, l3, 
-                LineSegment(l1), 
-                LineSegment(l2), 
+                c1, c2, c3, c4, c5, c6, l1, l2, l3,
+                LineSegment(l1),
+                LineSegment(l2),
                 LineSegment(l3),
                 s1, s2, s3,
                 contour
@@ -133,13 +133,13 @@ static class PlotsHelpers {
         );
     }
 
-    static PlotInfo Test2() {
-        var p1 = Point();
-        var p2 = Point();
-        var p3 = Point();
+    static PlotInfo Test2(Constructor c) {
+        var p1 = c.Point();
+        var p2 = c.Point();
+        var p3 = c.Point();
 
-        var c1 = Circle(p1, p3);
-        var c2 = Circle(p2, p3);
+        var c1 = c.Circle(p1, p3);
+        var c2 = c.Circle(p2, p3);
 
         return new PlotInfo(
             new[] {
@@ -150,19 +150,19 @@ static class PlotsHelpers {
             new Entity[] {
                 c1, 
                 c2,
-                CircleSegment(c1, c2),
-                CircleSegment(c2, c1).Invert(),
+                c.CircleSegment(c1, c2),
+                c.CircleSegment(c2, c1, invert: true),
             }
         );
     }
 
-    static PlotInfo Test3() {
-        var p1 = Point();
-        var p2 = Point();
-        var p3 = Point();
+    static PlotInfo Test3(Constructor c) {
+        var p1 = c.Point();
+        var p2 = c.Point();
+        var p3 = c.Point();
 
-        var l = Line(p3, p1);
-        var c = Circle(p2, p3);
+        var l = c.Line(p3, p1);
+        var c_ = c.Circle(p2, p3);
 
         return new PlotInfo(
             new[] {
@@ -172,31 +172,31 @@ static class PlotsHelpers {
             },
             new Entity[] {
                 l,
-                c,
-                CircleSegment(c, l),
-                LineSegment(l, c),
+                c_,
+                c.CircleSegment(c_, l),
+                c.LineSegment(l, c_),
             }
         );
     }
 
-    static PlotInfo Pentagon() {
-        var center = Point();
-        var vertex0 = Point();
-        var circle = Circle(center, vertex0);
-        var line0 = Line(center, vertex0);
+    static PlotInfo Pentagon(Constructor c) {
+        var center = c.Point();
+        var vertex0 = c.Point();
+        var circle = c.Circle(center, vertex0);
+        var line0 = c.Line(center, vertex0);
 
-        var line1 = PlotPrimitives.Bisection(vertex0, Intersect(line0, circle).Point2);
+        var line1 = PlotPrimitives.Bisection(c, vertex0, c.Intersect(line0, circle).Point2);
 
-        var point0 = Intersect(line1, circle).Point2;
-        var line3 = PlotPrimitives.Bisection(center, point0);
-        var circle5 = Circle(Intersect(line1, line3), vertex0);
+        var point0 = c.Intersect(line1, circle).Point2;
+        var line3 = PlotPrimitives.Bisection(c, center, point0);
+        var circle5 = c.Circle(c.Intersect(line1, line3), vertex0);
 
-        var intersection = Intersect(line1, circle5);
-        var circle6 = Circle(vertex0, intersection.Point2);
-        var circle7 = Circle(vertex0, intersection.Point1);
+        var intersection = c.Intersect(line1, circle5);
+        var circle6 = c.Circle(vertex0, intersection.Point2);
+        var circle7 = c.Circle(vertex0, intersection.Point1);
 
-        var (vertex4, vertex1) = Intersect(circle, circle7);
-        var (vertex3, vertex2) = Intersect(circle, circle6);
+        var (vertex4, vertex1) = c.Intersect(circle, circle7);
+        var (vertex3, vertex2) = c.Intersect(circle, circle6);
 
         return new PlotInfo(
             new[] {
@@ -211,26 +211,26 @@ static class PlotsHelpers {
                 circle5,
                 circle6,
                 circle7,
-                LineSegment(vertex0, vertex1),
-                LineSegment(vertex1, vertex2),
-                LineSegment(vertex2, vertex3),
-                LineSegment(vertex3, vertex4),
-                LineSegment(vertex4, vertex0),
+                c.LineSegment(vertex0, vertex1),
+                c.LineSegment(vertex1, vertex2),
+                c.LineSegment(vertex2, vertex3),
+                c.LineSegment(vertex3, vertex4),
+                c.LineSegment(vertex4, vertex0),
             }
         );
     }
 
-    static PlotInfo SixCircles() {
-        var center = Point();
-        var top = Point();
-        var centerCircle = Circle(center, top);
-        var c1 = Circle(top, center);
+    static PlotInfo SixCircles(Constructor c) {
+        var center = c.Point();
+        var top = c.Point();
+        var centerCircle = c.Circle(center, top);
+        var c1 = c.Circle(top, center);
 
-        var c2 = Circle(Intersect(centerCircle, c1).Point1, center);
-        var c3 = Circle(Intersect(centerCircle, c2).Point1, center);
-        var c4 = Circle(Intersect(centerCircle, c3).Point1, center);
-        var c5 = Circle(Intersect(centerCircle, c4).Point1, center);
-        var c6 = Circle(Intersect(centerCircle, c5).Point1, center);
+        var c2 = c.Circle(c.Intersect(centerCircle, c1).Point1, center);
+        var c3 = c.Circle(c.Intersect(centerCircle, c2).Point1, center);
+        var c4 = c.Circle(c.Intersect(centerCircle, c3).Point1, center);
+        var c5 = c.Circle(c.Intersect(centerCircle, c4).Point1, center);
+        var c6 = c.Circle(c.Intersect(centerCircle, c5).Point1, center);
 
         return new PlotInfo(
             new[] {
@@ -240,17 +240,17 @@ static class PlotsHelpers {
             new Entity[] { 
                 centerCircle, 
                 c1, c2, c3, c4, c5, c6,
-                CircleSegment(c1, centerCircle),
-                CircleSegment(c2, centerCircle),
-                CircleSegment(c3, centerCircle),
-                CircleSegment(c4, centerCircle),
-                CircleSegment(c5, centerCircle),
-                CircleSegment(c6, centerCircle),
+                c.CircleSegment(c1, centerCircle),
+                c.CircleSegment(c2, centerCircle),
+                c.CircleSegment(c3, centerCircle),
+                c.CircleSegment(c4, centerCircle),
+                c.CircleSegment(c5, centerCircle),
+                c.CircleSegment(c6, centerCircle),
             }
         );
     }
 }
 
 static class PlotPrimitives {
-    public static Line Bisection(Point p1, Point p2) => Intersect(Circle(p1, p2), Circle(p2, p1)).AsLine();
+    public static Line Bisection(this Constructor c, Point p1, Point p2) => c.AsLine(c.Intersect(c.Circle(p1, p2), c.Circle(p2, p1)));
 }
