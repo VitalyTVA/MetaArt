@@ -307,9 +307,9 @@ lineSegment (4.0000 3.0000) (3.0000 4.0000)
             Plotter.Draw(
                 points: points,
                 new Painter(
-                    DrawLine: (l, style) => sb.AppendLine($"line{GetStyleString(style)} {l.from.VectorToString()} {l.to.VectorToString()}"),
-                    DrawLineSegment: (s, style) => sb.AppendLine($"lineSegment{GetStyleString(style)} {s.from.VectorToString()} {s.to.VectorToString()}"),
-                    DrawCircle: (c, style) => sb.AppendLine($"circle{GetStyleString(style)} {c.center.VectorToString()} {c.radius.FloatToString()}"),
+                    DrawLine: (l, style) => sb.AppendLine($"line{GetStyleString(style)} {l.LineFToString()}"),
+                    DrawLineSegment: (s, style) => sb.AppendLine($"lineSegment{GetStyleString(style)} {s.LineFToString()}"),
+                    DrawCircle: (c, style) => sb.AppendLine($"circle{GetStyleString(style)} {c.CircleFToString()}"),
                     DrawCircleSegment: (s, style) => AppendCircleSegment(s, style),
                     FillContour: (contour, style) => {
                         sb.AppendLine("contour {");
@@ -327,6 +327,9 @@ lineSegment (4.0000 3.0000) (3.0000 4.0000)
     }
 
     static class TestExtensions {
+        public static string LineFToString(this LineF l) => $"{l.from.VectorToString()} {l.to.VectorToString()}";
+        public static string CircleFToString(this CircleF c) => $"{c.center.VectorToString()} {c.radius.FloatToString()}";
+
         public static string VectorToString(this Vector2 v) => $"({v.X:n4} {v.Y:n4})";
         public static string FloatToString(this float v) => v.ToString("n4");
         public static float RadToDeg(this float v) => v * 180 / MathF.PI;

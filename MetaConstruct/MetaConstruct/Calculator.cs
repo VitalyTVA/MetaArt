@@ -19,14 +19,14 @@ namespace MetaConstruct {
             return new LineF(from, to);
         }
         
-        //Dictionary<Point, Vector2> cache = new();
+        readonly Dictionary<Point, Vector2> cache = new();
 
         public Vector2 CalcPoint(Point p) {
             if(p is FreePoint freePoint)
                 return points[freePoint];
-            //if(cache.TryGetValue(p, out var value))
-            //    return value;
-            return /*cache[p] =*/ p switch {
+            if(cache.TryGetValue(p, out var value))
+                return value;
+            return cache[p] = p switch {
                 CircleCirclePoint circleCirclePoint
                     => Intersect(CalcCircle(circleCirclePoint.Circle1), CalcCircle(circleCirclePoint.Circle2), CalcPoint(circleCirclePoint.Circle1.Point), circleCirclePoint.Intersection),
                 LineLinePoint lineLinePoint
@@ -36,8 +36,15 @@ namespace MetaConstruct {
                 _ => throw new NotImplementedException()
             };
         }
-
-        static Vector2 Intersect(CircleF c, LineF l, Vector2 circlePoint, CircleIntersectionKind intersection) {
+#if DEBUG
+        public int LineCircleCalcCountForTests { get; private set; }
+        public int LinesCalcCountForTests { get; private set; }
+        public int CirclesCalcCountForTests { get; private set; }
+#endif
+        Vector2 Intersect(CircleF c, LineF l, Vector2 circlePoint, CircleIntersectionKind intersection) {
+#if DEBUG
+            LineCircleCalcCountForTests++;
+#endif
             var (p1, p2) = ConstructHelper.GetLineCircleIntersections(c.center, c.radius, l.from, l.to)!.Value;
             if(intersection == CircleIntersectionKind.Secondary) {
                 if(MathF.VectorsEqual(p2, circlePoint))
@@ -49,11 +56,17 @@ namespace MetaConstruct {
             return intersection == CircleIntersectionKind.First ? p1 : p2;
         }
 
-        static Vector2 Intersect(LineF l1, LineF l2) {
+        Vector2 Intersect(LineF l1, LineF l2) {
+#if DEBUG
+            LinesCalcCountForTests++;
+#endif
             return ConstructHelper.GetLinesIntersection(l1.from, l1.to, l2.from, l2.to)!.Value;
         }
 
-        static Vector2 Intersect(CircleF c1, CircleF c2, Vector2 commonPoint, CircleIntersectionKind intersection) {
+        Vector2 Intersect(CircleF c1, CircleF c2, Vector2 commonPoint, CircleIntersectionKind intersection) {
+#if DEBUG
+            CirclesCalcCountForTests++;
+#endif
             var (p1, p2) = ConstructHelper.GetCirclesIntersections(c1.center, c2.center, c1.radius, c2.radius)!.Value;
             if(intersection == CircleIntersectionKind.Secondary) {
                 if(MathF.VectorsEqual(p1, commonPoint))
