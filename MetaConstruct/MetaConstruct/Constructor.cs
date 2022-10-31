@@ -1,18 +1,36 @@
 ﻿namespace MetaConstruct {
-    public abstract record Point;
-    public sealed record LineLinePoint(Line Line1, Line Line2) : Point {
-        //public LineLinePoint(Line line1, Line line2) {
-        //    Line1 = line1;
-        //    Line2 = line2;
-        //}
-        //public Line Line1 { get; init; } 
-        //public Line Line2 { get; init; } 
+    public abstract class Point { }
+    public sealed class LineLinePoint : Point {
+        public LineLinePoint(Line line1, Line line2) {
+            Line1 = line1;
+            Line2 = line2;
+        }
+        public Line Line1 { get; }
+        public Line Line2 { get; }
     }
     public enum CircleIntersectionKind { First, Second, Secondary }
-    public sealed record LineCirclePoint(Line Line, Circle Circle, CircleIntersectionKind Intersection) : Point;
-    public sealed record CircleCirclePoint(Circle Circle1, Circle Circle2, CircleIntersectionKind Intersection) : Point;
+    public sealed class LineCirclePoint : Point {
+        public LineCirclePoint(Line line, Circle circle, CircleIntersectionKind intersection) {
+            Line = line;
+            Circle = circle;
+            Intersection = intersection;
+        }
+        public Line Line { get; } 
+        public Circle Circle { get; }
+        public CircleIntersectionKind Intersection { get; }
+    }
+    public sealed class CircleCirclePoint : Point {
+        public CircleCirclePoint(Circle circle1, Circle circle2, CircleIntersectionKind intersection) {
+            Circle1 = circle1;
+            Circle2 = circle2;
+            Intersection = intersection;
+        }
+        public Circle Circle1 { get; }
+        public Circle Circle2 { get; }
+        public CircleIntersectionKind Intersection { get; }
+    }
 
-    public record struct CircleIntersection(Point Point1, Point Point2);
+    public record class CircleIntersection(Point Point1, Point Point2);
 
     public abstract record Entity {
         protected Entity() => Validate();
@@ -29,30 +47,43 @@
     }
     public sealed record Circle(Point Center, Point Point) : Primitive;
 
-    public sealed record FreePoint(string Id) : Point;
+    public sealed class FreePoint : Point {
+        public string Id { get; }
+
+        public FreePoint(string id) {
+            Id = id;
+        }
+    }
     public class Constructor {
         int idCount = 0;
         public FreePoint Point() => new FreePoint("P" + idCount++);
+
+        readonly Dictionary<(Circle, Circle), CircleIntersection> circleIntersections = new();
+        readonly Dictionary<(Line, Circle), CircleIntersection> lineCircleIntersections = new();
+        readonly Dictionary<(Line, Line), Point> lineIntersections = new();
+
         public CircleIntersection Intersect(Circle c1, Circle c2) {
             if(c1 == c2)
                 throw new InvalidOperationException();
-            if(c1.Point == c2.Point) {
-                return new CircleIntersection(
+            if(circleIntersections.TryGetValue((c1, c2), out var result))
+                return result;
+            return circleIntersections[(c1, c2)] = c1.Point == c2.Point
+                ? new CircleIntersection(
                     c1.Point,
                     new CircleCirclePoint(c1, c2, CircleIntersectionKind.Secondary)
+                )
+                : new CircleIntersection(
+                    new CircleCirclePoint(c1, c2, CircleIntersectionKind.First),
+                    new CircleCirclePoint(c1, c2, CircleIntersectionKind.Second)
                 );
-            }
-            return new CircleIntersection(
-                new CircleCirclePoint(c1, c2, CircleIntersectionKind.First),
-                new CircleCirclePoint(c1, c2, CircleIntersectionKind.Second)
-            );
         }
 
         public CircleIntersection Intersect(Line l, Circle c) {
-            if(l.From == c.Point || l.To == c.Point) {
-                return new CircleIntersection(c.Point, new LineCirclePoint(l, c, CircleIntersectionKind.Secondary));
-            }
-            return new CircleIntersection(new LineCirclePoint(l, c, CircleIntersectionKind.First), new LineCirclePoint(l, c, CircleIntersectionKind.Second));
+            if(lineCircleIntersections.TryGetValue((l, c), out var result))
+                return result;
+            return lineCircleIntersections[(l, c)] = l.From == c.Point || l.To == c.Point
+                ? new CircleIntersection(c.Point, new LineCirclePoint(l, c, CircleIntersectionKind.Secondary))
+                : new CircleIntersection(new LineCirclePoint(l, c, CircleIntersectionKind.First), new LineCirclePoint(l, c, CircleIntersectionKind.Second));
         }
 
         public Point Intersect(Line l1, Line l2) {
@@ -62,7 +93,9 @@
                 return l1.From;
             if(l1.To == l2.From || l1.To == l2.To)
                 return l1.To;
-            return new LineLinePoint(l1, l2);
+            if(lineIntersections.TryGetValue((l1, l2), out var result))
+                return result;
+            return lineIntersections[(l1, l2)] = new LineLinePoint(l1, l2);
         }
 
         public Line Line(Point p1, Point p2) => new Line(p1, p2);

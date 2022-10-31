@@ -47,7 +47,9 @@ namespace MetaContruct.Tests {
             var p3 = Point();
             var p4 = Point();
 
-            Assert.AreEqual(Intersect(Line(p1, p2), Line(p3, p4)), Intersect(Line(p1, p2), Line(p3, p4)));
+            Point i1 = Intersect(Line(p1, p2), Line(p3, p4));
+            Point i2 = Intersect(Line(p1, p2), Line(p3, p4));
+            Assert.AreSame(i1, i2);
             Assert.AreNotEqual(Intersect(Line(p1, p2), Line(p3, p4)), Intersect(Line(p1, p2), Line(p3, Point())));
 
             var i = Intersect(Line(p1, p2), Line(p3, p4));
@@ -71,7 +73,11 @@ namespace MetaContruct.Tests {
             var p3 = Point();
             var p4 = Point();
 
-            Assert.AreEqual(Intersect(Circle(p1, p2), Circle(p3, p4)), Intersect(Circle(p1, p2), Circle(p3, p4)));
+            var i1 = Intersect(Circle(p1, p2), Circle(p3, p4));
+            var i2 = Intersect(Circle(p1, p2), Circle(p3, p4));
+            Assert.AreSame(i1.Point1, i2.Point1);
+            Assert.AreSame(i1.Point2, i2.Point2);
+            Assert.AreSame(i1, i2);
             Assert.AreNotEqual(Intersect(Circle(p1, p2), Circle(p3, p4)), Intersect(Circle(p1, p2), Circle(p3, Point())));
 
             var i = Intersect(Circle(p1, p2), Circle(p1, p4));
@@ -89,13 +95,31 @@ namespace MetaContruct.Tests {
         }
 
         [Test]
+        public void CirclesIntersection_WithCommonPointTest() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+
+            var i1 = Intersect(Circle(p1, p2), Circle(p3, p2));
+            var i2 = Intersect(Circle(p1, p2), Circle(p3, p2));
+            Assert.AreSame(i1.Point1, i2.Point1);
+            Assert.AreSame(i1.Point2, i2.Point2);
+            Assert.AreSame(i1, i2);
+            Assert.AreNotEqual(Intersect(Circle(p1, p2), Circle(p3, p2)), Intersect(Circle(p1, p2), Circle(p3, Point())));
+        }
+
+        [Test]
         public void LineCircleIntersectionTest() {
             var p1 = Point();
             var p2 = Point();
             var p3 = Point();
             var p4 = Point();
 
-            Assert.AreEqual(Intersect(Line(p1, p2), Circle(p3, p4)), Intersect(Line(p1, p2), Circle(p3, p4)));
+            var i1 = Intersect(Line(p1, p2), Circle(p3, p4));
+            var i2 = Intersect(Line(p1, p2), Circle(p3, p4));
+            Assert.AreSame(i1.Point1, i2.Point1);
+            Assert.AreSame(i1.Point2, i2.Point2);
+            Assert.AreSame(i1, i2);
             Assert.AreNotEqual(Intersect(Line(p1, p2), Circle(p3, p4)), Intersect(Line(p1, p2), Circle(p3, Point())));
 
             var i = Intersect(Line(p1, p2), Circle(p3, p4));
@@ -112,6 +136,19 @@ namespace MetaContruct.Tests {
             Assert.AreNotEqual(p2, Intersect(Line(p1, p2), Circle(p1, p2)).Point2);
             Assert.AreEqual(p2, Intersect(Line(p2, p1), Circle(p1, p2)).Point1);
             Assert.AreNotEqual(p2, Intersect(Line(p2, p1), Circle(p1, p2)).Point2);
+        }
+
+        [Test]
+        public void LineCircleIntersection_WithCommonPointTest() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+
+            var i1 = Intersect(Line(p1, p2), Circle(p3, p2));
+            var i2 = Intersect(Line(p1, p2), Circle(p3, p2));
+            Assert.AreSame(i1.Point1, i2.Point1);
+            Assert.AreSame(i1.Point2, i2.Point2);
+            Assert.AreSame(i1, i2);
         }
 
         [Test]
@@ -153,6 +190,29 @@ namespace MetaContruct.Tests {
             var s1 = Intersect(l, c);
             Assert.AreEqual(p3, s1.Point1);
             Assert.AreNotEqual(p3, s1.Point2);
+        }
+
+        [Test]
+        public void FreePointReferenceEqualityTest() {
+            Assert.AreNotEqual(new FreePoint("P0"), new FreePoint("P0"));
+        }
+        [Test]
+        public void CirclesPointReferenceEqualityTest() {
+            var c1 = Circle(Point(), Point());
+            var c2 = Circle(Point(), Point());
+            Assert.AreNotEqual(new CircleCirclePoint(c1, c2, CircleIntersectionKind.First), new CircleCirclePoint(c1, c2, CircleIntersectionKind.First));
+        }
+        [Test]
+        public void LineCirclePointReferenceEqualityTest() {
+            var c = Circle(Point(), Point());
+            var l = Line(Point(), Point());
+            Assert.AreNotEqual(new LineCirclePoint(l, c, CircleIntersectionKind.First), new LineCirclePoint(l, c, CircleIntersectionKind.First));
+        }
+        [Test]
+        public void LinesPointReferenceEqualityTest() {
+            var l1 = Line(Point(), Point());
+            var l2 = Line(Point(), Point());
+            Assert.AreNotEqual(new LineLinePoint(l1, l2), new LineLinePoint(l1, l2));
         }
     }
 }
