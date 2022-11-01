@@ -77,6 +77,7 @@ static class PlotsHelpers {
             RegisterPlot(Test2),
             RegisterPlot(Test3),
             RegisterPlot(Bisection),
+            RegisterPlot(DivideX16),
             RegisterPlot(Square),
             RegisterPlot(Pentagon),
             RegisterPlot(Pentaspiral),
@@ -180,7 +181,7 @@ static class PlotsHelpers {
         var p2 = c.Point();
 
         c.LineSegment(p1, p2).Add(s, DisplayStyle.Visible);
-        var (bisection, (c1, c2)) = c.Bisection(p1, p2);
+        var (bisection, _, (c1, c2)) = c.Bisection(p1, p2);
         bisection.Add(s);
         c1.Add(s);
         c2.Add(s);
@@ -189,6 +190,25 @@ static class PlotsHelpers {
             new[] {
                 (p1, new Vector2(300, 400)),
                 (p2, new Vector2(500, 400)),
+            }
+        );
+    }
+    static PlotInfo DivideX16(Constructor c, Surface s) {
+        var p1 = c.Point();
+        var p2 = c.Point();
+
+        c.LineSegment(p1, p2).Add(s);
+
+        var (points, segments) = c.DivideNTimes(p1, p2, 4);
+
+        foreach(var item in segments) {
+            item.Add(s, DisplayStyle.Background);
+        }
+
+        return new PlotInfo(
+            new[] {
+                (p1, new Vector2(200, 400)),
+                (p2, new Vector2(600, 400)),
             }
         );
     }
@@ -338,15 +358,29 @@ public static class CanvasExtensions {
 }
 
 static class PlotPrimitives {
-    public static (Line bisection, (Circle c1, Circle c2) primitives) Bisection(this Constructor c, Point p1, Point p2) {
+    public static (Line bisection, Point middle, (Circle c1, Circle c2) primitives) Bisection(this Constructor c, Point p1, Point p2) {
         var c1 = c.Circle(p1, p2);
         var c2 = c.Circle(p2, p1);
-        return (c.AsLine(c.Intersect(c1, c2)), (c1, c2));
+        var bisection = c.AsLine(c.Intersect(c1, c2));
+        var middle = c.Intersect(bisection, c.Line(p1, p2));
+        return (bisection, middle,(c1, c2));
     }
-    //public static Point Middle(this Constructor c, Point p1, Point p2) {
-    //    var bisection = c.Bisection(p1, p2).bisection;
-    //    return c.Intersect(bisection, c.Line(p1, p2));
-    //}
+
+    public static (Point[] result, Segment[] segments) DivideNTimes(this Constructor c, Point p1, Point p2, int n) {
+        var points = new List<Point> { p1, p2 };
+        var segments = new List<Segment>();
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < points.Count - 1; j++) {
+                var (bisection, middle, (c1, c2)) = c.Bisection(points[j], points[j + 1]);
+                points.Insert(j + 1, middle);
+                j++;
+                segments.Add(c.CircleSegment(c1, c2));
+                segments.Add(c.CircleSegment(c2, c1));
+                segments.Add(c.AsLine(c.Intersect(c2, c1)).AsLineSegment());
+            }
+        }
+        return (points.ToArray(), segments.ToArray());
+    }
 
     public static 
         (
