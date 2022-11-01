@@ -77,6 +77,7 @@ static class PlotsHelpers {
             RegisterPlot(Test2),
             RegisterPlot(Test3),
             RegisterPlot(Bisection),
+            RegisterPlot(Square),
             RegisterPlot(Pentagon),
             RegisterPlot(Pentaspiral),
             RegisterPlot(SixCircles),
@@ -188,6 +189,29 @@ static class PlotsHelpers {
             new[] {
                 (p1, new Vector2(300, 400)),
                 (p2, new Vector2(500, 400)),
+            }
+        );
+    }
+
+    static PlotInfo Square(Constructor c, Surface s) {
+        var center = c.Point();
+        var vertex0 = c.Point();
+
+        var ((vertex1, vertex2, vertex3), (circle, diameter1, diameter2)) = c.Square(center, vertex0);
+
+        circle.Add(s);
+        c.LineSegment(diameter1, circle).Add(s, DisplayStyle.Background);
+        c.LineSegment(diameter2, circle).Add(s, DisplayStyle.Background);
+
+        c.LineSegment(vertex0, vertex1).Add(s);
+        c.LineSegment(vertex1, vertex2).Add(s);
+        c.LineSegment(vertex2, vertex3).Add(s);
+        c.LineSegment(vertex3, vertex0).Add(s);
+
+        return new PlotInfo(
+            new[] {
+                (center, new Vector2(400, 400)),
+                (vertex0, new Vector2(300, 300)),
             }
         );
     }
@@ -351,5 +375,19 @@ static class PlotPrimitives {
         var (vertex3, vertex2) = c.Intersect(circle, circle3);
         
         return ((vertex1, vertex2, vertex3, vertex4), (circle, diameter, bisection1, bisection2, circle1, circle2, circle3));
+    }
+
+    public static 
+        (
+            (Point vertex1, Point vertex2, Point vertex3) result, 
+            (Circle circle, Line diameter1, Line diameter2) primitives
+        )
+        Square(this Constructor c, Point center, Point vertex0) {
+        var circle = c.Circle(center, vertex0);
+        var diameter1 = c.Line(center, vertex0);
+        var diameter2 = c.Bisection(vertex0, c.Intersect(diameter1, circle).Point2).bisection;
+        var vertex2 = c.Intersect(diameter1, circle).Point2;
+        var (vertex1, vertex3) = c.Intersect(diameter2, circle);
+        return ((vertex1, vertex2, vertex3), (circle, diameter1, diameter2));
     }
 }
