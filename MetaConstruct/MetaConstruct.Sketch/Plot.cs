@@ -82,6 +82,7 @@ static class PlotsHelpers {
             RegisterPlot(Pentagon),
             RegisterPlot(Pentaspiral),
             RegisterPlot(SixCircles),
+            RegisterPlot(Art1),
         };
     static (Func<Constructor, Surface, PlotInfo>, string) RegisterPlot(Func<Constructor, Surface, PlotInfo> action, [CallerArgumentExpression("action")] string name = "") {
         return (action, name);
@@ -337,6 +338,61 @@ static class PlotsHelpers {
             }
         );
     }
+
+    static PlotInfo Art1(Constructor c, Surface s) {
+        var center = c.Point();
+        var vertex0 = c.Point();
+        var ((vertex1, vertex2, vertex3), _) = c.Square(center, vertex0);
+
+        c.LineSegment(vertex0, vertex1).Add(s);
+        c.LineSegment(vertex1, vertex2).Add(s);
+        c.LineSegment(vertex2, vertex3).Add(s);
+        c.LineSegment(vertex3, vertex0).Add(s);
+
+        var n = 5;
+        var countN = 2 << (n - 1);
+        var points1 = c.DivideNTimes(vertex0, vertex1, n).result;
+        var points2 = c.DivideNTimes(vertex1, vertex2, n).result;
+        var points3 = c.DivideNTimes(vertex2, vertex3, n).result;
+        var points4 = c.DivideNTimes(vertex3, vertex0, n).result;
+
+        for(int i = 0; i < countN; i++) {
+            c.LineSegment(points1[i], points2[i]).Add(s);
+            c.LineSegment(points2[i], points3[i]).Add(s);
+            c.LineSegment(points3[i], points4[i]).Add(s);
+            c.LineSegment(points4[i], points1[i]).Add(s);
+        }
+
+        var diameterPoints1 = c.DivideNTimes(vertex0, vertex2, 4).result;
+        var diameterPoints2 = c.DivideNTimes(vertex1, vertex3, 4).result;
+        var (p1, p2) = (diameterPoints1[6], diameterPoints1[10]);
+        var (p3, p4) = (diameterPoints2[6], diameterPoints2[10]);
+        c.LineSegment(p1, p2).Add(s);
+        c.LineSegment(p3, p4).Add(s);
+
+        var m = 4;
+        var countM = 2 << (m - 1);
+        var innerPoints1 = c.DivideNTimes(p1, p2, m).result;
+        var innerPoints2 = c.DivideNTimes(p3, p4, m).result;
+        for(int i = 0; i < countM / 2; i++) {
+            c.LineSegment(innerPoints1[i], innerPoints2[countM / 2 - 1 - i]).Add(s);
+            c.LineSegment(innerPoints1[i], innerPoints2[countM / 2 + 1 + i]).Add(s);
+            c.LineSegment(innerPoints1[countM - 1 - i], innerPoints2[countM / 2 - 1 - i]).Add(s);
+            c.LineSegment(innerPoints1[countM - 1 - i], innerPoints2[countM / 2 + 1 + i]).Add(s);
+            c.LineSegment(innerPoints1[i], points4[i]).Add(s);
+            c.LineSegment(innerPoints2[i], points1[i]).Add(s);
+            c.LineSegment(innerPoints1[countM - 1 - i], points2[i]).Add(s);
+            c.LineSegment(innerPoints2[countM - 1 - i], points3[i]).Add(s);
+        }
+
+        return new PlotInfo(
+            new[] {
+                (center, new Vector2(400, 400)),
+                (vertex0, new Vector2(100, 100)),
+            }
+        );
+    }
+
 }
 
 public class Surface {
@@ -357,7 +413,7 @@ public static class CanvasExtensions {
     }
 }
 
-static class PlotPrimitives {
+static class PlotPrimitives { 
     public static (Line bisection, Point middle, (Circle c1, Circle c2) primitives) Bisection(this Constructor c, Point p1, Point p2) {
         var c1 = c.Circle(p1, p2);
         var c2 = c.Circle(p2, p1);
