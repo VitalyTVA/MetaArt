@@ -61,6 +61,9 @@ class Plot {
             },
             DrawPoint: (p, kind, style) => {
                 SetStyle(style);
+                if(kind == PointKind.Free) {
+                    stroke(255, 255, 0);
+                }
                 strokeWeight(4);
                 point(p.X, p.Y);
             }
@@ -68,7 +71,7 @@ class Plot {
 
         controller = new PlotController((int)(width / displayDensity()), (int)(height / displayDensity()));
 
-        var surface = new Surface();
+        var surface = new Surface(10);
         var info = getPlot(surface.Constructor, surface);
         surface.SetPoints(info.Points);
         controller.Load(surface);
@@ -78,8 +81,13 @@ class Plot {
         background(Black);
         stroke(White);
         noFill();
-
-        Plotter.Draw(controller.Surface, painter);
+        foreach(var item in controller.scene.VisibleElements) {
+            switch(item) {
+                case PlotElement p:
+                    Plotter.Draw(controller.Surface, painter);
+                    break;
+            }
+        }
     }
 
     void mousePressed() {

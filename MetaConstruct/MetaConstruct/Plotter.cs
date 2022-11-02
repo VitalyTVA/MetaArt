@@ -14,21 +14,39 @@ namespace MetaConstruct {
     public record struct CircleSegmentF(CircleF circle, float from, float to);
 
     public class Surface {
+        readonly int PointHitTestDistance;
+        public Surface(int pointHitTestDistance) {
+            PointHitTestDistance = pointHitTestDistance;
+        }
+
         public Constructor Constructor { get; } = new();
         readonly List<(Entity, DisplayStyle)> entities = new List<(Entity, DisplayStyle)>();
         public void Add(Entity entity, DisplayStyle style) => entities.Add((entity, style));
 
         public IEnumerable<(Entity, DisplayStyle)> GetEntities() => entities;
-        public (FreePoint, Vector2)[] Points { get; private set; } = null!;
+        Dictionary<FreePoint, Vector2> points = null!;
 
         public void SetPoints((FreePoint, Vector2)[] points) {
-            Points = points;
+            this.points = points.ToDictionary(x => x.Item1, x => x.Item2);
+        }
+
+        public Vector2 GetPointLocation(FreePoint p) => points[p];
+
+        public FreePoint? HitTest(Vector2 point) {
+            var closestPoint = points.OrderBy(x => Vector2.DistanceSquared(x.Value, point)).First();
+            if(Vector2.DistanceSquared(closestPoint.Value, point) < PointHitTestDistance * PointHitTestDistance)
+                return closestPoint.Key;
+            return null;
+        }
+
+        public void SetPointLocation(FreePoint point, Vector2 location) { 
+            points[point] = location;
         }
     }
 
     public static class Plotter {
         public static void Draw(Surface surface, Painter painter) {
-            var calculator = new Calculator(surface.Points);
+            var calculator = new Calculator(surface.GetPointLocation);
             foreach(var (primitive, style) in surface.GetEntities()) {
                 switch(primitive) {
                     case Line l:

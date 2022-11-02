@@ -13,12 +13,13 @@ namespace MetaContruct.Tests {
             var p2 = Point();
             var p3 = Point();
             var p4 = Point();
-            var calculator = new Calculator(new[] {
+            var points = new[] {
                 (p1, new Vector2(0, 0)),
                 (p2, new Vector2(1, 1)),
                 (p3, new Vector2(1, 0)),
                 (p4, new Vector2(0, 1)),
-            });
+            };
+            var calculator = TestExtensions.CreateCalculator(points);
             var l1 = Line(p1, p2);
             var l2 = Line(p3, p4);
             var c1 = Circle(p1, p2);
@@ -35,6 +36,7 @@ namespace MetaContruct.Tests {
             Assert.AreEqual("(3.3635 3.3635) 5.6498", calculator.CalcCircle(Circle(x1, x2)).CircleFToString());
             AssertCalcCounts(calculator, 1, 3, 1);
         }
+
         void AssertCalcCounts(Calculator calculator, int lines = 0, int lineCircle = 0, int circles = 0) {
             Assert.AreEqual(lines, calculator.LinesCalcCountForTests);
             Assert.AreEqual(lineCircle, calculator.LineCircleCalcCountForTests);

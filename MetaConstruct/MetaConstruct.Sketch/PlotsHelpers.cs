@@ -165,7 +165,7 @@ namespace MetaConstruct {
 
             c.LineSegment(points.First(), points.Last()).Add(s);
 
-            foreach(var item in new[] { p1, p2 }.Concat(points)) {
+            foreach(var item in new[] { p1, p2, p4 }.Concat(points)) {
                 item.AsView().Add(s);
             }
 
@@ -174,7 +174,7 @@ namespace MetaConstruct {
                 (p1, new Vector2(200, 300)),
                 (p2, new Vector2(250, 300)),
                 (p3, new Vector2(200, 450)),
-                (p4, new Vector2(300, 450)),
+                (p4, new Vector2(600, 450)),
                 }
             );
         }

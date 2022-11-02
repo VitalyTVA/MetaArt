@@ -358,20 +358,50 @@ LinesPoint (2.3333 2.6667)
                 (contour, DisplayStyle.Background)
             );
         }
+
+        [Test]
+        public void MovePointTest() {
+            var p1 = Point();
+            var p2 = Point();
+
+            var surface = TestExtensions.CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(1, 2)),
+                (p2, new Vector2(5, 6)),
+            });
+            surface.Add(Line(p1, p2), DisplayStyle.Visible);
+
+            AssertPlot(
+@"line (1.0000 2.0000) (5.0000 6.0000)
+",
+                surface
+            );
+
+            surface.SetPointLocation(p1, new Vector2(2, 1));
+            AssertPlot(
+@"line (2.0000 1.0000) (5.0000 6.0000)
+",
+                surface
+            );
+        }
+
         static void AssertPlot(
             string expected, (FreePoint, Vector2)[] points, params Entity[] primitives) {
             AssertPlot(expected, points, primitives.Select(x => (x, DisplayStyle.Visible)).ToArray());
         }
-        static void AssertPlot(string expected, (FreePoint, Vector2)[] points, params (Entity, DisplayStyle) [] primitives) {
-            var sb = new StringBuilder();
-            StringBuilder AppendCircleSegment(CircleSegmentF s, DisplayStyle style)
-                => sb.AppendLine($"circleSegment{GetStyleString(style)} {s.circle.center.VectorToString()} {s.circle.radius.FloatToString()} {s.from.RadToDeg().FloatToString()} {s.to.RadToDeg().FloatToString()}");
-            static string GetStyleString(DisplayStyle style) => style == DisplayStyle.Visible ? string.Empty : ":" + style.ToString();
-            var surface = new Surface();
+        static void AssertPlot(string expected, (FreePoint, Vector2)[] points, params (Entity, DisplayStyle)[] primitives) {
+            var surface = TestExtensions.CreateTestSurface();
             surface.SetPoints(points);
             foreach(var (entity, style) in primitives) {
                 surface.Add(entity, style);
             }
+            AssertPlot(expected, surface);
+        }
+        static void AssertPlot(string expected, Surface surface) {
+            var sb = new StringBuilder();
+            StringBuilder AppendCircleSegment(CircleSegmentF s, DisplayStyle style)
+                => sb.AppendLine($"circleSegment{GetStyleString(style)} {s.circle.center.VectorToString()} {s.circle.radius.FloatToString()} {s.from.RadToDeg().FloatToString()} {s.to.RadToDeg().FloatToString()}");
+            static string GetStyleString(DisplayStyle style) => style == DisplayStyle.Visible ? string.Empty : ":" + style.ToString();
             Plotter.Draw(
                 surface,
                 new Painter(
@@ -394,7 +424,60 @@ LinesPoint (2.3333 2.6667)
         }
     }
 
+    [TestFixture]
+    public class SurfaceTests : ConstructorTestsBase {
+        [Test]
+        public void MovePointTest() {
+            var p1 = Point();
+            var p2 = Point();
+            var surface = TestExtensions.CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(1, 2)), 
+                (p2, new Vector2(3, 4)),
+            });
+
+            Assert.AreEqual(new Vector2(1, 2), surface.GetPointLocation(p1));
+            Assert.AreEqual(new Vector2(3, 4), surface.GetPointLocation(p2));
+
+            surface.SetPointLocation(p1, new Vector2(9, 13));
+            Assert.AreEqual(new Vector2(9, 13), surface.GetPointLocation(p1));
+            Assert.AreEqual(new Vector2(3, 4), surface.GetPointLocation(p2));
+
+            surface.SetPointLocation(p2, new Vector2(117, 253));
+            Assert.AreEqual(new Vector2(9, 13), surface.GetPointLocation(p1));
+            Assert.AreEqual(new Vector2(117, 253), surface.GetPointLocation(p2));
+        }
+
+        [Test]
+        public void HitTestPointTest() {
+            var p1 = Point();
+            var p2 = Point();
+            var surface = TestExtensions.CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(1, 2)),
+                (p2, new Vector2(3, 4)),
+            });
+
+            Assert.AreSame(p1, surface.HitTest(new Vector2(2, 3)));
+            Assert.AreSame(p1, surface.HitTest(new Vector2(2 - 0.001f, 3 - 0.001f)));
+            Assert.AreSame(p2, surface.HitTest(new Vector2(2 + 0.001f, 3 + 0.001f)));
+
+            Assert.AreSame(p1, surface.HitTest(new Vector2(1 - 5 + 0.001f, 2)));
+            Assert.Null(surface.HitTest(new Vector2(1 - 5, 2)));
+        }
+    }
+
     static class TestExtensions {
+        public static Surface CreateTestSurface() {
+            return new Surface(5);
+        }
+        public static Calculator CreateCalculator((FreePoint, Vector2)[] points) {
+            var surface = CreateTestSurface();
+            surface.SetPoints(points);
+            var calculator = new Calculator(surface.GetPointLocation);
+            return calculator;
+        }
+
         public static string LineFToString(this LineF l) => $"{l.from.VectorToString()} {l.to.VectorToString()}";
         public static string CircleFToString(this CircleF c) => $"{c.center.VectorToString()} {c.radius.FloatToString()}";
 

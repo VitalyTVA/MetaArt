@@ -4,9 +4,9 @@ namespace MetaConstruct {
     public record struct CircleF(Vector2 center, float radius);
     public record struct LineF(Vector2 from, Vector2 to);
     public class Calculator {
-        readonly Dictionary<FreePoint, Vector2> points;
-        public Calculator((FreePoint, Vector2)[] points) {
-            this.points = points.ToDictionary(x => x.Item1, x => x.Item2);
+        readonly Func<FreePoint, Vector2> getPointLocation;
+        public Calculator(Func<FreePoint, Vector2> getPointLocation) {
+            this.getPointLocation = getPointLocation;
         }
         public CircleF CalcCircle(Circle c) {
             var center = CalcPoint(c.Center);
@@ -24,7 +24,7 @@ namespace MetaConstruct {
 
         public Vector2 CalcPoint(Point p) {
             if(p is FreePoint freePoint)
-                return points[freePoint];
+                return getPointLocation(freePoint);
             if(cache.TryGetValue(p, out var value))
                 return value;
             return cache[p] = p switch {
