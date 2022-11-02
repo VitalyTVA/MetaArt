@@ -295,13 +295,13 @@ static class PlotsHelpers {
             var center_ = c.Intersect(s1.Line, s4.Line);
             var circle = c.Circle(center_, segments[i].From);
             var inersection = c.Intersect(line.Line, circle);
-            CircleSegment(circle, circle.Point, inersection.Point2).Add(s);
+            CircleSegment(circle, circle.GetPointOnCircle(), inersection.Point2).Add(s);
         }
         for(int i = 0; i < 5; i ++) {
             var circle = c.Circle(segments[(i + 3) % 5].From, segments_[i].From);
             var line = c.Line(segments_[i].From, center);
             var inersection = c.Intersect(line, circle);
-            CircleSegment(circle, circle.Point, inersection.Point2).Add(s);
+            CircleSegment(circle, circle.GetPointOnCircle(), inersection.Point2).Add(s);
         }
 
         return new PlotInfo(
@@ -437,6 +437,19 @@ static class PlotPrimitives {
         }
         return (points.ToArray(), segments.ToArray());
     }
+
+    //public static (Point[] result, Segment[] segments) MakeLineSegments(this Constructor c, Point p1, Point p2, LineSegment start, int n) {
+    //    var points = new List<Point>() { start };
+    //    var segments = new List<Segment>();
+    //    for(int i = 0; i < n; i++) {
+    //        var circle = c.Circle(start, )
+    //            segments.Add(c.CircleSegment(c1, c2));
+    //            segments.Add(c.CircleSegment(c2, c1));
+    //            segments.Add(c.AsLine(c.Intersect(c2, c1)).AsLineSegment());
+
+    //    }
+    //    return (points.ToArray(), segments.ToArray());
+    //}
 
     public static 
         (

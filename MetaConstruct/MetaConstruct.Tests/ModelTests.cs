@@ -217,6 +217,21 @@ namespace MetaContruct.Tests {
         }
 
         [Test]
+        public void CirclesIntersection_CommonPointTest_NonSimpleCircle() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+
+            var c1 = Circle(p1, Point(), p3);
+            var c2 = Circle(p2, p3);
+
+            var s = CircleSegment(c1, c2);
+            Assert.AreNotEqual(p3, s.From);
+            Assert.AreNotEqual(p3, s.To);
+            Assert.Throws<InvalidOperationException>(() => CircleSegment(c1, p3, Intersect(c1, c2).Point2));
+        }
+
+        [Test]
         public void LineCircleIntersection_CommonPointTest() {
             var p1 = Point();
             var p2 = Point();

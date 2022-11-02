@@ -34,7 +34,7 @@
         }
 
         void VerifyPoint(Point p) {
-            if(Circle.Point == p)
+            if(Circle.TryGetPointOnCircle() == p)
                 return;
             switch(p) {
                 case LineCirclePoint lineCirclePoint:

@@ -152,6 +152,33 @@ circleSegment (4.0000 0.0000) 5.0000 -143.1301 143.1301
         }
 
         [Test]
+        public void CirclesIntersection_CommonPointTest_NonSimpleCircle() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var p4 = Point();
+
+            var c1 = Circle(p1, p4, p3);
+            var c2 = Circle(p2, p3);
+
+            var s1 = CircleSegment(c1, c2);
+            var s2 = CircleSegment(c2, c1);
+            AssertPlot(
+@"circleSegment (-4.0000 0.0000) 5.0080 -36.8965 36.8965
+circleSegment (4.0000 0.0000) 5.0000 143.0346 216.9654
+",
+                points: new[] {
+                    (p1, new Vector2(-4, 0)),
+                    (p2, new Vector2(4, 0)),
+                    (p3, new Vector2(0, 3)),
+                    (p4, new Vector2(-4.01f, 0)),
+                },
+                s1,
+                s2
+            );
+        }
+
+        [Test]
         public void LineCircleIntersection_CommonPointTest1() {
             var p1 = Point();
             var p2 = Point();
@@ -219,6 +246,30 @@ lineSegment (4.0000 3.0000) (3.0000 4.0000)
             );
         }
 
+        [Test]
+        public void LineCircleIntersection_CommonPointTest_NonSimpleCircle() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var p4 = Point();
+
+            var l = Line(p1, p3);
+            var c = Circle(p2, p4, p3);
+
+            AssertPlot(
+@"circleSegment (4.0000 0.0000) 5.0080 110.2986 143.4412
+lineSegment (2.2627 4.6970) (-0.0227 2.9830)
+",
+                points: new[] {
+                    (p1, new Vector2(-4, 0)),
+                    (p2, new Vector2(4, 0)),
+                    (p3, new Vector2(0, 3)),
+                    (p4, new Vector2(4.01f, 0)),
+                },
+                CircleSegment(c, l),
+                LineSegment(l, c)
+            );
+        }
 
         [Test]
         public void LinesIntersectionTest() {

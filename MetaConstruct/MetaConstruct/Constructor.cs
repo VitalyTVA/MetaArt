@@ -45,7 +45,26 @@
         public Point From { get; init; }
         public Point To { get; init; }
     }
-    public sealed record Circle(Point Center, Point Point) : Primitive;
+    public sealed record Circle(Point Center, Point Radius1, Point Radius2) : Primitive {
+        public bool IsSimpleCircle => Radius1 == Center || Radius2 == Center;
+        public Point GetPointOnCircle() {
+            VerifySimple();
+            return GetPointOnCircleCore();
+        }
+
+        Point GetPointOnCircleCore() => Radius1 == Center ? Radius2 : Radius1;
+
+        public Point? TryGetPointOnCircle() {
+            if(!IsSimpleCircle)
+                return null;
+            return GetPointOnCircleCore();
+        }
+        public bool VerifySimple() {
+            if(!IsSimpleCircle)
+                throw new InvalidOperationException();
+            return true;
+        }
+    }
 
     public sealed class FreePoint : Point {
         public string Id { get; }
@@ -67,9 +86,9 @@
                 throw new InvalidOperationException();
             if(circleIntersections.TryGetValue((c1, c2), out var result))
                 return result;
-            return circleIntersections[(c1, c2)] = c1.Point == c2.Point
+            return circleIntersections[(c1, c2)] = c1.IsSimpleCircle && c1.TryGetPointOnCircle() == c2.TryGetPointOnCircle()
                 ? new CircleIntersection(
-                    c1.Point,
+                    c1.GetPointOnCircle(),
                     new CircleCirclePoint(c1, c2, CircleIntersectionKind.Secondary)
                 )
                 : new CircleIntersection(
@@ -81,8 +100,8 @@
         public CircleIntersection Intersect(Line l, Circle c) {
             if(lineCircleIntersections.TryGetValue((l, c), out var result))
                 return result;
-            return lineCircleIntersections[(l, c)] = l.From == c.Point || l.To == c.Point
-                ? new CircleIntersection(c.Point, new LineCirclePoint(l, c, CircleIntersectionKind.Secondary))
+            return lineCircleIntersections[(l, c)] = l.From == c.TryGetPointOnCircle() || l.To == c.TryGetPointOnCircle()
+                ? new CircleIntersection(c.GetPointOnCircle(), new LineCirclePoint(l, c, CircleIntersectionKind.Secondary))
                 : new CircleIntersection(new LineCirclePoint(l, c, CircleIntersectionKind.First), new LineCirclePoint(l, c, CircleIntersectionKind.Second));
         }
 
@@ -99,6 +118,7 @@
         }
 
         public Line Line(Point p1, Point p2) => new Line(p1, p2);
-        public Circle Circle(Point center, Point point) => new Circle(center, point);
+        public Circle Circle(Point center, Point point) => Circle(center, center, point);
+        public Circle Circle(Point center, Point radius1, Point radius2) => new Circle(center, radius1, radius2);
     }
 }
