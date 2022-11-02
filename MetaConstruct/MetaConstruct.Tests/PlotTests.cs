@@ -367,8 +367,13 @@ LinesPoint (2.3333 2.6667)
             StringBuilder AppendCircleSegment(CircleSegmentF s, DisplayStyle style)
                 => sb.AppendLine($"circleSegment{GetStyleString(style)} {s.circle.center.VectorToString()} {s.circle.radius.FloatToString()} {s.from.RadToDeg().FloatToString()} {s.to.RadToDeg().FloatToString()}");
             static string GetStyleString(DisplayStyle style) => style == DisplayStyle.Visible ? string.Empty : ":" + style.ToString();
+            var surface = new Surface();
+            surface.SetPoints(points);
+            foreach(var (entity, style) in primitives) {
+                surface.Add(entity, style);
+            }
             Plotter.Draw(
-                points: points,
+                surface,
                 new Painter(
                     DrawLine: (l, style) => sb.AppendLine($"line{GetStyleString(style)} {l.LineFToString()}"),
                     DrawLineSegment: (s, style) => sb.AppendLine($"lineSegment{GetStyleString(style)} {s.LineFToString()}"),
@@ -383,8 +388,7 @@ LinesPoint (2.3333 2.6667)
                         sb.AppendLine("}");
                     },
                     DrawPoint: (p, kind, style) => sb.AppendLine($"{kind}Point{GetStyleString(style)} {p.VectorToString()}")
-                ),
-                primitives: primitives
+                )
             );
             Assert.AreEqual(expected, sb.ToString());
         }

@@ -12,10 +12,24 @@ namespace MetaConstruct {
     );
     public enum PointKind { Free, Circles, Lines, LineCircle }
     public record struct CircleSegmentF(CircleF circle, float from, float to);
+
+    public class Surface {
+        public Constructor Constructor { get; } = new();
+        readonly List<(Entity, DisplayStyle)> entities = new List<(Entity, DisplayStyle)>();
+        public void Add(Entity entity, DisplayStyle style) => entities.Add((entity, style));
+
+        public IEnumerable<(Entity, DisplayStyle)> GetEntities() => entities;
+        public (FreePoint, Vector2)[] Points { get; private set; } = null!;
+
+        public void SetPoints((FreePoint, Vector2)[] points) {
+            Points = points;
+        }
+    }
+
     public static class Plotter {
-        public static void Draw((FreePoint, Vector2)[] points, Painter painter, IEnumerable<(Entity, DisplayStyle)> primitives) {
-            var calculator = new Calculator(points);
-            foreach(var (primitive, style) in primitives) {
+        public static void Draw(Surface surface, Painter painter) {
+            var calculator = new Calculator(surface.Points);
+            foreach(var (primitive, style) in surface.GetEntities()) {
                 switch(primitive) {
                     case Line l:
                         var lineF = calculator.CalcLine(l);
