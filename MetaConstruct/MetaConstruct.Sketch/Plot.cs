@@ -21,6 +21,7 @@ class Plot {
 
         void SetStyle(DisplayStyle style) {
             stroke(color(style == DisplayStyle.Background ? 70 : 255));
+            strokeWeight(1);
         }
 
         painter = new Painter(
@@ -55,6 +56,11 @@ class Plot {
                     arcVertex(segment.circle.center.X, segment.circle.center.Y, segment.circle.radius * 2, segment.circle.radius * 2, segment.from, segment.to);
                 }
                 endShape(CLOSE);
+            },
+            DrawPoint: (p, kind, style) => {
+                SetStyle(style);
+                strokeWeight(4);
+                point(p.X, p.Y);
             }
         );
     }
@@ -78,6 +84,7 @@ static class PlotsHelpers {
             RegisterPlot(Test3),
             RegisterPlot(Bisection),
             RegisterPlot(DivideX16),
+            RegisterPlot(LineSegments),
             RegisterPlot(Square),
             RegisterPlot(Pentagon),
             RegisterPlot(Pentaspiral),
@@ -194,6 +201,7 @@ static class PlotsHelpers {
             }
         );
     }
+
     static PlotInfo DivideX16(Constructor c, Surface s) {
         var p1 = c.Point();
         var p2 = c.Point();
@@ -210,6 +218,37 @@ static class PlotsHelpers {
             new[] {
                 (p1, new Vector2(200, 400)),
                 (p2, new Vector2(600, 400)),
+            }
+        );
+    }
+
+    static PlotInfo LineSegments(Constructor c, Surface s) {
+        var p1 = c.Point();
+        var p2 = c.Point();
+        var p3 = c.Point();
+        var p4 = c.Point();
+
+        c.LineSegment(p1, p2).Add(s);
+        var line = c.Line(p3, p4).Add(s);
+
+        var (points, circles) = c.MakeLineSegments(p1, p2, line.AsLineSegment(), 7);
+
+        foreach(var item in circles) {
+            item.Add(s, DisplayStyle.Background);
+        }
+
+        c.LineSegment(points.First(), points.Last()).Add(s);
+
+        foreach(var item in new[] { p1, p2 }.Concat(points)) {
+            item.AsView().Add(s);
+        }
+
+        return new PlotInfo(
+            new[] {
+                (p1, new Vector2(200, 300)),
+                (p2, new Vector2(250, 300)),
+                (p3, new Vector2(200, 450)),
+                (p4, new Vector2(300, 450)),
             }
         );
     }
@@ -377,13 +416,16 @@ static class PlotsHelpers {
         for(int i = 0; i < countM / 2; i++) {
             c.LineSegment(innerPoints1[i], innerPoints2[countM / 2 - 1 - i]).Add(s);
             c.LineSegment(innerPoints1[i], innerPoints2[countM / 2 + 1 + i]).Add(s);
-            c.LineSegment(innerPoints1[countM - 1 - i], innerPoints2[countM / 2 - 1 - i]).Add(s);
-            c.LineSegment(innerPoints1[countM - 1 - i], innerPoints2[countM / 2 + 1 + i]).Add(s);
+            c.LineSegment(innerPoints1[countM - i], innerPoints2[countM / 2 - 1 - i]).Add(s);
+            c.LineSegment(innerPoints1[countM - i], innerPoints2[countM / 2 + 1 + i]).Add(s);
+        }
+        for(int i = 0; i < countM / 2 + 1; i++) {
             c.LineSegment(innerPoints1[i], points4[i]).Add(s);
             c.LineSegment(innerPoints2[i], points1[i]).Add(s);
-            c.LineSegment(innerPoints1[countM - 1 - i], points2[i]).Add(s);
-            c.LineSegment(innerPoints2[countM - 1 - i], points3[i]).Add(s);
+            c.LineSegment(innerPoints1[countM - i], points2[i]).Add(s);
+            c.LineSegment(innerPoints2[countM - i], points3[i]).Add(s);
         }
+
 
         return new PlotInfo(
             new[] {
@@ -405,7 +447,7 @@ public static class CanvasExtensions {
     public static T Add<T>(this T entity, Surface surface, DisplayStyle? style = null) where T : Entity {
         style = style ?? entity switch { 
             Primitive => DisplayStyle.Background,
-            Segment => DisplayStyle.Visible,
+            Segment or PointView => DisplayStyle.Visible,
             _ => throw new InvalidOperationException()
         };
         surface.Add(entity, style.Value);
@@ -438,18 +480,18 @@ static class PlotPrimitives {
         return (points.ToArray(), segments.ToArray());
     }
 
-    //public static (Point[] result, Segment[] segments) MakeLineSegments(this Constructor c, Point p1, Point p2, LineSegment start, int n) {
-    //    var points = new List<Point>() { start };
-    //    var segments = new List<Segment>();
-    //    for(int i = 0; i < n; i++) {
-    //        var circle = c.Circle(start, )
-    //            segments.Add(c.CircleSegment(c1, c2));
-    //            segments.Add(c.CircleSegment(c2, c1));
-    //            segments.Add(c.AsLine(c.Intersect(c2, c1)).AsLineSegment());
-
-    //    }
-    //    return (points.ToArray(), segments.ToArray());
-    //}
+    public static (Point[] result, Circle[] circles) MakeLineSegments(this Constructor c, Point p1, Point p2, LineSegment start, int n) {
+        var point = start.From;
+        var points = new List<Point>() { point };
+        var circles = new List<Circle>();
+        for(int i = 0; i < n; i++) {
+            var circle = c.Circle(point, p1, p2);
+            point = c.Intersect(start.Line, circle).Point1;
+            points.Add(point);
+            circles.Add(circle);
+        }
+        return (points.ToArray(), circles.ToArray());
+    }
 
     public static 
         (

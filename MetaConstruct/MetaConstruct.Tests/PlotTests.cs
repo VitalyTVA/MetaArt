@@ -18,6 +18,8 @@ namespace MetaContruct.Tests {
             AssertPlot(
 @"line (1.0000 2.0000) (5.0000 6.0000)
 line:Background (1.0000 2.0000) (9.0000 13.0000)
+FreePoint (1.0000 2.0000)
+FreePoint:Background (5.0000 6.0000)
 ",
                  points: new[] {
                     (p1, new Vector2(1, 2)),
@@ -25,7 +27,9 @@ line:Background (1.0000 2.0000) (9.0000 13.0000)
                     (p3, new Vector2(9, 13)),
                 },
                 (Line(p1, p2), DisplayStyle.Visible),
-                (Line(p1, p3), DisplayStyle.Background)
+                (Line(p1, p3), DisplayStyle.Background),
+                (p1.AsView(), DisplayStyle.Visible),
+                (p2.AsView(), DisplayStyle.Background)
             );
         }
 
@@ -75,9 +79,11 @@ circle:Background (1.0000 2.0000) 13.6015
             var c = Circle(p1, p2);
             var l = Line(p3, p4);
 
+            var s = LineSegment(l, c);
             AssertPlot(
 @"lineSegment (6.7720 -1.7720) (-1.7720 6.7720)
 circleSegment (1.0000 1.0000) 6.4031 -25.6526 115.6526
+LineCirclePoint (6.7720 -1.7720)
 ",
                  points: new[] {
                     (p1, new Vector2(1, 1)),
@@ -85,8 +91,9 @@ circleSegment (1.0000 1.0000) 6.4031 -25.6526 115.6526
                     (p3, new Vector2(1, 4)),
                     (p4, new Vector2(4, 1)),
                 },
-                LineSegment(l, c),
-                CircleSegment(c, l)
+                s,
+                CircleSegment(c, l),
+                s.From.AsView()
             );
         }
 
@@ -100,9 +107,11 @@ circleSegment (1.0000 1.0000) 6.4031 -25.6526 115.6526
             var c1 = Circle(p1, p2);
             var c2 = Circle(p3, p4);
 
+            var s = CircleSegment(c1, c2);
             AssertPlot(
 @"circleSegment (1.0000 1.0000) 6.4031 56.4006 123.5994
 circleSegment (1.0000 4.0000) 4.2426 -213.3651 33.3651
+CirclesPoint (4.5434 6.3333)
 ",
                  points: new[] {
                     (p1, new Vector2(1, 1)),
@@ -110,8 +119,9 @@ circleSegment (1.0000 4.0000) 4.2426 -213.3651 33.3651
                     (p3, new Vector2(1, 4)),
                     (p4, new Vector2(4, 1)),
                 },
-                CircleSegment(c1, c2),
-                CircleSegment(c2, c1)
+                s,
+                CircleSegment(c2, c1),
+                s.From.AsView()
             );
         }
 
@@ -283,6 +293,7 @@ lineSegment (2.2627 4.6970) (-0.0227 2.9830)
 
             AssertPlot(
 @"line (2.3333 2.6667) (1.0000 -14.0000)
+LinesPoint (2.3333 2.6667)
 ",
                  points: new[] {
                     (p1, new Vector2(1, 1)),
@@ -290,7 +301,8 @@ lineSegment (2.2627 4.6970) (-0.0227 2.9830)
                     (p3, new Vector2(1, 4)),
                     (p4, new Vector2(4, 1)),
                 },
-                Line(i1, i2)
+                Line(i1, i2),
+                i1.AsView()
             );
         }
 
@@ -369,7 +381,8 @@ lineSegment (2.2627 4.6970) (-0.0227 2.9830)
                             AppendCircleSegment(item, style);
                         }
                         sb.AppendLine("}");
-                    }
+                    },
+                    DrawPoint: (p, kind, style) => sb.AppendLine($"{kind}Point{GetStyleString(style)} {p.VectorToString()}")
                 ),
                 primitives: primitives
             );

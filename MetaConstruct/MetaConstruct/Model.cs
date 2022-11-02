@@ -1,4 +1,7 @@
 ﻿namespace MetaConstruct {
+
+    public record PointView(Point point) : Entity;
+
     public abstract record Segment : Entity;
 
     public record LineSegment(Line Line, Point From, Point To) : Segment {
@@ -56,6 +59,8 @@
     public enum DisplayStyle { Background, Visible }
 
     public static class ConstructorHelper {
+        public static PointView AsView(this Point p) => new PointView(p);
+
         public static CircleSegment CircleSegment(this Constructor constructor, Circle circle, Circle other, bool invert = false) {
             var (p1, p2) = constructor.Intersect(circle, other);
             return CircleSegment(circle, invert, p1, p2);

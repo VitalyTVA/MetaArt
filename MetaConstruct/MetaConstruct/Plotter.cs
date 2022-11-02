@@ -7,8 +7,10 @@ namespace MetaConstruct {
         Action<CircleSegmentF, DisplayStyle> DrawCircleSegment,
         Action<LineF, DisplayStyle> DrawLine,
         Action<LineF, DisplayStyle> DrawLineSegment,
-        Action<CircleSegmentF[], DisplayStyle> FillContour
+        Action<CircleSegmentF[], DisplayStyle> FillContour,
+        Action<Vector2, PointKind, DisplayStyle> DrawPoint
     );
+    public enum PointKind { Free, Circles, Lines, LineCircle }
     public record struct CircleSegmentF(CircleF circle, float from, float to);
     public static class Plotter {
         public static void Draw((FreePoint, Vector2)[] points, Painter painter, IEnumerable<(Entity, DisplayStyle)> primitives) {
@@ -34,6 +36,17 @@ namespace MetaConstruct {
                     case Contour contour:
                         var segments = calculator.CalcContour(contour);
                         painter.FillContour(segments, style);
+                        break;
+                    case PointView point:
+                        var kind = point.point switch { 
+                            FreePoint => PointKind.Free,
+                            LineCirclePoint => PointKind.LineCircle,
+                            CircleCirclePoint => PointKind.Circles,
+                            LineLinePoint => PointKind.Lines,
+                            _ => throw new NotImplementedException(),
+                        };
+                        var pointF = calculator.CalcPoint(point.point);
+                        painter.DrawPoint(pointF, kind, style);
                         break;
                     default:
                         throw new InvalidOperationException();
