@@ -16,23 +16,6 @@ using System.Windows.Forms;
 using System.Windows.Media;
 
 namespace MetaArt.Wpf {
-    [Serializable]
-    public class KeyValue { 
-        public string? Key { get; set; }
-        public string? Value { get; set; }
-    }
-    partial class Settings {
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public List<KeyValue> SketchValues {
-            get {
-                return ((List<KeyValue>)(this["SketchValues"]));
-            }
-            set {
-                this["SketchValues"] = value;
-            }
-        }
-    }
     public partial class SketchForm : Form {
         Painter painter;
         System.Drawing.Rectangle ownerRect;
