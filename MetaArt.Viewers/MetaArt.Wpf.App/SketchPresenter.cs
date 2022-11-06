@@ -90,9 +90,11 @@ namespace MetaArt.Wpf {
                 form = new SketchForm(
                     skecthType, 
                     parameters,
-                    rect, size => {
+                    rect, 
+                    (size, toolbarHeight) => {
                         Dispatcher.BeginInvoke(new Action(() => {
                             sketchSize = size;
+                            this.toolbarHeight = toolbarHeight;
                             scrollViewer.InvalidateScrollInfo();
                         }));
                     },
@@ -124,6 +126,7 @@ namespace MetaArt.Wpf {
         double totalDrawTime;
 
         System.Drawing.Size sketchSize;
+        int toolbarHeight;
         ScrollContentPresenter Presenter => FindVisualChildren<ScrollContentPresenter>(scrollViewer).Single();
         System.Drawing.Point offset;
         void ChangeOffset(int dx, int dy) {
@@ -164,7 +167,7 @@ namespace MetaArt.Wpf {
 
             double IScrollInfo.VerticalOffset => owner.offset.Y;
 
-            double IScrollInfo.ViewportHeight => owner.Presenter.ActualHeight;
+            double IScrollInfo.ViewportHeight => owner.Presenter.ActualHeight - owner.toolbarHeight;
 
             double IScrollInfo.ViewportWidth => owner.Presenter.ActualWidth;
 

@@ -13,16 +13,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.Integration;
 using System.Windows.Media;
 
 namespace MetaArt.Wpf {
     public partial class SketchForm : Form {
         Painter painter;
         System.Drawing.Rectangle ownerRect;
-        readonly Action<System.Drawing.Size> sketchSizeChanged;
+        readonly Action<System.Drawing.Size, int> sketchSizeChanged;
         readonly Action<int> mouseWheel;
 
-        public SketchForm(Type sketchType, object[]? parameters, System.Drawing.Rectangle ownerRect, Action<System.Drawing.Size> sketchSizeChanged, Action<int> mouseWheel, Action<PaintFeedback> feedback) {
+        public SketchForm(Type sketchType, object[]? parameters, System.Drawing.Rectangle ownerRect, Action<System.Drawing.Size, int> sketchSizeChanged, Action<int> mouseWheel, Action<PaintFeedback> feedback) {
             InitializeComponent();
             ShowInTaskbar = false;
             FormBorderStyle = FormBorderStyle.None;
@@ -51,6 +52,7 @@ namespace MetaArt.Wpf {
                 }
             );
             painter.Setup();
+            skglControl1.Dock = DockStyle.None;
             skglControl1.MouseMove += SkglControl1_MouseMove;
             skglControl1.MouseLeave += SkglControl1_MouseLeave;
             skglControl1.KeyDown += SkglControl1_KeyDown;
@@ -62,7 +64,15 @@ namespace MetaArt.Wpf {
             //skglControl1.Visible = false;
             Width = Screen.PrimaryScreen.WorkingArea.Width;
             Height = Screen.PrimaryScreen.WorkingArea.Height;
+
+            ctrlHost = new ElementHost();
+            ctrlHost.Dock = DockStyle.Top;
+            ctrlHost.AutoSize = true;
+            ctrlHost.Child = new SketchUIControl(painter);
+            Controls.Add(ctrlHost);
         }
+
+        ElementHost ctrlHost;
 
         class WpfSoundFile : SoundFile {
             readonly SimpleAudioPlayerImplementation player;
@@ -137,10 +147,10 @@ namespace MetaArt.Wpf {
         public void SetLocation(System.Drawing.Rectangle ownerRect) {
             BeginInvoke(() => {
                 Location = ownerRect.Location;
-                ClientSize = ownerRect.Size;
+                ClientSize = ownerRect.Size;// + new Size(0, ctrlHost.Height);
                 var sketchSize = new System.Drawing.Size(painter.Width, painter.Height);
                 skglControl1.Size = sketchSize;
-                sketchSizeChanged(sketchSize);
+                sketchSizeChanged(sketchSize, ctrlHost.Height);
                 TopMost = true;
                 TopMost = false;
             });

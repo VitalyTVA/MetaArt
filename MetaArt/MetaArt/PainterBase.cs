@@ -373,6 +373,7 @@ namespace MetaArt {
         Pixels? pixelsContainer;
 
         internal Color[] pixels => pixelsContainer!.PixelsArray;
+
         internal void loadPixels()
         {
             if (pixelsContainer != null)
@@ -383,6 +384,27 @@ namespace MetaArt {
         {
             pixelsContainer!.UpdatePixelsAndDispose();
             pixelsContainer = null;
+        }
+
+        protected internal abstract void uiCommand(Action exectute, string caption);
+        protected internal abstract UICaption uiCaption(string caption);
+    }
+    public class UICaption {
+        public UICaption(Action onChanged) {
+            this.onChanged = onChanged;
+        }
+
+        string? text;
+        readonly Action onChanged;
+
+        public string? Text {
+            get => text;
+            set {
+                if(text == value)
+                    return;
+                text = value;
+                onChanged();
+            }
         }
     }
 }

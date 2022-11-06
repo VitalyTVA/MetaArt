@@ -98,5 +98,19 @@ namespace MetaArt.Skia {
             }
         }
 
+        public List<UIElementInfo> UIElements { get; } = new();
+        protected override void uiCommand(Action exectute, string caption) {
+            UIElements.Add(new UICommandInfo(exectute, caption));
+        }
+        protected override UICaption uiCaption(string caption) {
+            var uiCaption = new UICaption(() => UIElementChanged?.Invoke(this, EventArgs.Empty));
+            UIElements.Add(new UICaptionInfo(caption, uiCaption));
+            return uiCaption;
+        }
+
+        public event EventHandler? UIElementChanged;
     }
+    public abstract record UIElementInfo;
+    public record UICommandInfo(Action Exectute, string Caption) : UIElementInfo;
+    public record UICaptionInfo(string Caption, UICaption uiCaption) : UIElementInfo;
 }

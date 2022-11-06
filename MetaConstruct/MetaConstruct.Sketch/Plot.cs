@@ -75,6 +75,30 @@ class Plot {
         var info = getPlot(surface.Constructor, surface);
         surface.SetPoints(info.Points);
         controller.Load(surface);
+
+        var toolCaption = caption("Tool");
+
+        command(
+            exectute: () => {
+                toolCaption.Text = "Pointer";
+            }, 
+            caption: "Pointer"
+        );
+
+        command(
+            exectute: () => {
+                toolCaption.Text = "Point";
+            },
+            caption: "Point"
+        );
+
+        command(
+            exectute: () => {
+                toolCaption.Text = "Line";
+            },
+            caption: "Line"
+        );
+
     }
 
     void draw() {
