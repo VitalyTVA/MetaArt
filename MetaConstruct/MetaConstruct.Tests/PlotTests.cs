@@ -364,7 +364,7 @@ LinesPoint (2.3333 2.6667)
             var p1 = Point();
             var p2 = Point();
 
-            var surface = TestExtensions.CreateTestSurface();
+            var surface = CreateTestSurface();
             surface.SetPoints(new[] {
                 (p1, new Vector2(1, 2)),
                 (p2, new Vector2(5, 6)),
@@ -385,12 +385,51 @@ LinesPoint (2.3333 2.6667)
             );
         }
 
-        static void AssertPlot(
+        [Test]
+        public void AddLineTwice() {
+            var p1 = Point();
+            var p2 = Point();
+
+            var surface = CreateTestSurface();
+            surface.Add(Line(p1, p2), DisplayStyle.Visible);
+
+            Assert.Throws<InvalidOperationException>(() => surface.Add(Line(p1, p2), DisplayStyle.Background));
+        }
+
+        [Test]
+        public void RemoveFreePoint() {
+            var surface = CreateTestSurface();
+            var p = Point();
+            surface.SetPoints(new[] {
+                (p, new Vector2(1, 2)),
+            });
+            surface.Add(p.AsView(), DisplayStyle.Background);
+            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Item1);
+            Assert.AreEqual(new Vector2(1, 2), surface.GetPointLocation(p));
+            surface.Remove(p);
+            CollectionAssert.IsEmpty(surface.GetEntities());
+            Assert.Throws<InvalidOperationException>(() => surface.Remove(p));
+            Assert.Throws<KeyNotFoundException>(() => surface.GetPointLocation(p));
+        }
+        [Test]
+        public void RemoveLine() {
+            var surface = CreateTestSurface();
+            var p1 = Point();
+            var p2 = Point();
+            var l = Line(p1, p2);
+            surface.Add(l, DisplayStyle.Background);
+            Assert.AreEqual(l, surface.GetEntities().Single().Item1);
+            surface.Remove(l);
+            CollectionAssert.IsEmpty(surface.GetEntities());
+            Assert.Throws<InvalidOperationException>(() => surface.Remove(l));
+        }
+
+        void AssertPlot(
             string expected, (FreePoint, Vector2)[] points, params Entity[] primitives) {
             AssertPlot(expected, points, primitives.Select(x => (x, DisplayStyle.Visible)).ToArray());
         }
-        static void AssertPlot(string expected, (FreePoint, Vector2)[] points, params (Entity, DisplayStyle)[] primitives) {
-            var surface = TestExtensions.CreateTestSurface();
+        void AssertPlot(string expected, (FreePoint, Vector2)[] points, params (Entity, DisplayStyle)[] primitives) {
+            var surface = CreateTestSurface();
             surface.SetPoints(points);
             foreach(var (entity, style) in primitives) {
                 surface.Add(entity, style);
@@ -430,7 +469,7 @@ LinesPoint (2.3333 2.6667)
         public void MovePointTest() {
             var p1 = Point();
             var p2 = Point();
-            var surface = TestExtensions.CreateTestSurface();
+            var surface = CreateTestSurface();
             surface.SetPoints(new[] {
                 (p1, new Vector2(1, 2)), 
                 (p2, new Vector2(3, 4)),
@@ -449,35 +488,57 @@ LinesPoint (2.3333 2.6667)
         }
 
         [Test]
-        public void HitTestPointTest() {
+        public void HitTestFreePointTest() {
             var p1 = Point();
             var p2 = Point();
-            var surface = TestExtensions.CreateTestSurface();
+            var surface = CreateTestSurface();
             surface.SetPoints(new[] {
                 (p1, new Vector2(1, 2)),
                 (p2, new Vector2(3, 4)),
             });
+            CollectionAssert.IsEmpty(surface.HitTest(new Vector2(2, 3)));
 
-            Assert.AreSame(p1, surface.HitTest(new Vector2(2, 3)));
-            Assert.AreSame(p1, surface.HitTest(new Vector2(2 - 0.001f, 3 - 0.001f)));
-            Assert.AreSame(p2, surface.HitTest(new Vector2(2 + 0.001f, 3 + 0.001f)));
+            surface.Add(p1.AsView(), DisplayStyle.Background);
+            surface.Add(p2.AsView(), DisplayStyle.Visible);
 
-            Assert.AreSame(p1, surface.HitTest(new Vector2(1 - 5 + 0.001f, 2)));
-            Assert.Null(surface.HitTest(new Vector2(1 - 5, 2)));
+            CollectionAssert.AreEqual(new[] { p1, p2 }, surface.HitTest(new Vector2(2, 3)));
+            CollectionAssert.AreEqual(new[] { p1, p2 }, surface.HitTest(new Vector2(2 - 0.001f, 3 - 0.001f)));
+            CollectionAssert.AreEqual(new[] { p2, p1 }, surface.HitTest(new Vector2(2 + 0.001f, 3 + 0.001f)));
+
+            CollectionAssert.AreEqual(new[] { p1 }, surface.HitTest(new Vector2(1 - 5 + 0.001f, 2)));
+            CollectionAssert.IsEmpty(surface.HitTest(new Vector2(1 - 5, 2)));
         }
+
+        [Test]
+        public void HitTestIntersectionPointTest() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var p4 = Point();
+            var l1 = Line(p1, p2);
+            var l2 = Line(p3, p4);
+            var i = Intersect(l1, l2);
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(10, 0)),
+                (p2, new Vector2(-10, 0)),
+                (p3, new Vector2(0, 10)),
+                (p4, new Vector2(0, -10)),
+            });
+            surface.Add(l1, DisplayStyle.Background);
+            surface.Add(l2, DisplayStyle.Background);
+
+            CollectionAssert.IsEmpty(surface.HitTest(new Vector2(0, 0)));
+
+            surface.Add(p1.AsView(), DisplayStyle.Background);
+            surface.Add(p2.AsView(), DisplayStyle.Visible);
+            surface.Add(i.AsView(), DisplayStyle.Visible);
+            CollectionAssert.AreEqual(new[] { i }, surface.HitTest(new Vector2(0, 0)));
+        }
+
     }
 
     static class TestExtensions {
-        public static Surface CreateTestSurface() {
-            return new Surface(5);
-        }
-        public static Calculator CreateCalculator((FreePoint, Vector2)[] points) {
-            var surface = CreateTestSurface();
-            surface.SetPoints(points);
-            var calculator = new Calculator(surface.GetPointLocation);
-            return calculator;
-        }
-
         public static string LineFToString(this LineF l) => $"{l.from.VectorToString()} {l.to.VectorToString()}";
         public static string CircleFToString(this CircleF c) => $"{c.center.VectorToString()} {c.radius.FloatToString()}";
 

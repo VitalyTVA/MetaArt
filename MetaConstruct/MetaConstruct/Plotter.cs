@@ -15,13 +15,26 @@ namespace MetaConstruct {
 
     public class Surface {
         readonly int PointHitTestDistance;
-        public Surface(int pointHitTestDistance) {
+        public Surface(Constructor constructor, int pointHitTestDistance) {
             PointHitTestDistance = pointHitTestDistance;
+            Constructor = constructor;
         }
 
-        public Constructor Constructor { get; } = new();
+        public Constructor Constructor { get; }
         readonly List<(Entity, DisplayStyle)> entities = new List<(Entity, DisplayStyle)>();
-        public void Add(Entity entity, DisplayStyle style) => entities.Add((entity, style));
+        public void Add(Entity entity, DisplayStyle style) {
+            if(entities.Any(x => x.Item1 == entity))
+                throw new InvalidOperationException();
+            entities.Add((entity, style));
+        }
+
+        public void Remove(FreePoint point) {
+            entities.Remove(entities.Single(x => (x.Item1 as PointView)?.point == point));
+            points.Remove(point);
+        }
+        public void Remove(Line line) {
+            entities.Remove(entities.Single(x => x.Item1 == line));
+        }
 
         public IEnumerable<(Entity, DisplayStyle)> GetEntities() => entities;
         Dictionary<FreePoint, Vector2> points = null!;
@@ -32,11 +45,18 @@ namespace MetaConstruct {
 
         public Vector2 GetPointLocation(FreePoint p) => points[p];
 
-        public FreePoint? HitTest(Vector2 point) {
-            var closestPoint = points.OrderBy(x => Vector2.DistanceSquared(x.Value, point)).First();
-            if(Vector2.DistanceSquared(closestPoint.Value, point) < PointHitTestDistance * PointHitTestDistance)
-                return closestPoint.Key;
-            return null;
+        public IEnumerable<Point> HitTest(Vector2 point) {
+            var calculator = CreateCalculator();
+            return entities
+                .Where(x => x.Item1 is PointView)
+                .Select(x => (point: ((PointView)x.Item1).point, location: calculator.CalcPoint(((PointView)x.Item1).point)))
+                .OrderBy(x => Vector2.DistanceSquared(x.location, point))
+                .Where(x => Vector2.DistanceSquared(x.location, point) < PointHitTestDistance * PointHitTestDistance)
+                .Select(x => x.point);
+        }
+
+        public Calculator CreateCalculator() {
+            return new Calculator(GetPointLocation);
         }
 
         public void SetPointLocation(FreePoint point, Vector2 location) { 
@@ -46,7 +66,7 @@ namespace MetaConstruct {
 
     public static class Plotter {
         public static void Draw(Surface surface, Painter painter) {
-            var calculator = new Calculator(surface.GetPointLocation);
+            var calculator = surface.CreateCalculator();
             foreach(var (primitive, style) in surface.GetEntities()) {
                 switch(primitive) {
                     case Line l:

@@ -71,34 +71,30 @@ class Plot {
 
         controller = new PlotController((int)(width / displayDensity()), (int)(height / displayDensity()));
 
-        var surface = new Surface(10);
+        var constructor = new Constructor();
+        var surface = new Surface(constructor, 10);
         var info = getPlot(surface.Constructor, surface);
         surface.SetPoints(info.Points);
         controller.Load(surface);
+        
 
         var toolCaption = caption("Tool");
 
-        command(
-            exectute: () => {
-                toolCaption.Text = "Pointer";
-            }, 
-            caption: "Pointer"
-        );
+        void SetTool(Tool tool) { 
+            controller.SetTool(tool);
+            toolCaption.Text = tool.ToString();
+        }
 
-        command(
-            exectute: () => {
-                toolCaption.Text = "Point";
-            },
-            caption: "Point"
-        );
+        SetTool(Tool.Point);
 
-        command(
-            exectute: () => {
-                toolCaption.Text = "Line";
-            },
-            caption: "Line"
-        );
-
+        foreach(Tool tool in Enum.GetValues(typeof(Tool))) {
+            command(
+                exectute: () => {
+                    SetTool(tool);
+                },
+                caption: tool.ToString()
+            );
+        }
     }
 
     void draw() {

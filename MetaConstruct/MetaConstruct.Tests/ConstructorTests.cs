@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Linq;
+using System.Numerics;
 using static MetaConstruct.ConstructorHelper;
 
 namespace MetaContruct.Tests {
@@ -19,6 +20,15 @@ namespace MetaContruct.Tests {
         protected CircleIntersection Intersect(Circle c1, Circle c2) => c.Intersect(c1, c2);
         protected CircleIntersection Intersect(Line l, Circle c_) => c.Intersect(l, c_);
         protected Point Intersect(Line l1, Line l2) => c.Intersect(l1, l2);
+
+        protected Surface CreateTestSurface() {
+            return new Surface(c, 5);
+        }
+        protected Calculator CreateCalculator((FreePoint, Vector2)[] points) {
+            var surface = CreateTestSurface();
+            surface.SetPoints(points);
+            return surface.CreateCalculator();
+        }
     }
 
     [TestFixture]

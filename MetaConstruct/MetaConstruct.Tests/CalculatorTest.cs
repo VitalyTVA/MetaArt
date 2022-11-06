@@ -19,7 +19,7 @@ namespace MetaContruct.Tests {
                 (p3, new Vector2(1, 0)),
                 (p4, new Vector2(0, 1)),
             };
-            var calculator = TestExtensions.CreateCalculator(points);
+            var calculator = CreateCalculator(points);
             var l1 = Line(p1, p2);
             var l2 = Line(p3, p4);
             var c1 = Circle(p1, p2);
