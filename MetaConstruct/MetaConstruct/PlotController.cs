@@ -45,32 +45,31 @@ namespace MetaConstruct {
                             onDrag: offset => {
                                 var point = Surface
                                     .HitTest(startPoint + offset)
-                                    .Where(x => x != toPoint && x != fromPoint)
+                                    .Where(x => x != toPoint /*&& x != fromPoint*/)
                                     .FirstOrDefault();
                                 if(point != null) {
-                                    if(toPoint != null && line != null) {
-                                        Surface.Remove(toPoint);
-                                        toPoint = null;
-                                        Surface.Remove(line);
-                                        line = null;
-                                    }
-                                    if(line == null) {
-                                        line = Surface.Constructor.Line(fromPoint, point);
-                                        Surface.Add(line, DisplayStyle.Background);
-                                    }
+                                    //if(toPoint != null && line != null) {
+                                    //    Surface.Remove(toPoint);
+                                    //    toPoint = null;
+                                    //    Surface.Remove(line);
+                                    //    line = null;
+                                    //}
+                                    //if(line == null) {
+                                    //    line = Surface.Constructor.Line(fromPoint, point);
+                                    //    Surface.Add(line, DisplayStyle.Background);
+                                    //}
                                 } else {
-                                    if(line != null && toPoint == null) {
-                                        Surface.Remove(line);
-                                        line = null;
-                                    }
+                                    //if(line != null && toPoint == null) {
+                                    //    Surface.Remove(line);
+                                    //    line = null;
+                                    //}
                                     if(/*offset.LengthSquared() > 25 && */toPoint == null) {
                                         toPoint = Surface.Constructor.Point();
                                         Surface.Add(toPoint.AsView(), DisplayStyle.Visible);
-                                        Surface.SetPointLocation(toPoint, startPoint);
                                         line = Surface.Constructor.Line(fromPoint, toPoint);
                                         Surface.Add(line, DisplayStyle.Background);
                                     }
-                                    if(toPoint != null)
+                                    //if(toPoint != null)
                                         Surface.SetPointLocation(toPoint, startPoint + offset);
 
                                 }
