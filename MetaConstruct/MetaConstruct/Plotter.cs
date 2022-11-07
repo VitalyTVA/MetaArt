@@ -13,6 +13,7 @@ namespace MetaConstruct {
     public enum PointKind { Free, Circles, Lines, LineCircle }
     public record struct CircleSegmentF(CircleF circle, float from, float to);
 
+    public record struct EntityViewInfo(Entity Entity, DisplayStyle Style);
     public class Surface {
         readonly int PointHitTestDistance;
         public Surface(Constructor constructor, int pointHitTestDistance) {
@@ -21,22 +22,22 @@ namespace MetaConstruct {
         }
 
         public Constructor Constructor { get; }
-        readonly List<(Entity, DisplayStyle)> entities = new List<(Entity, DisplayStyle)>();
+        readonly List<EntityViewInfo> entities = new();
         public void Add(Entity entity, DisplayStyle style) {
-            if(entities.Any(x => x.Item1 == entity))
+            if(entities.Any(x => x.Entity == entity))
                 throw new InvalidOperationException();
-            entities.Add((entity, style));
+            entities.Add(new EntityViewInfo(entity, style));
         }
 
         public void Remove(FreePoint point) {
-            entities.Remove(entities.Single(x => (x.Item1 as PointView)?.point == point));
+            entities.Remove(entities.Single(x => (x.Entity as PointView)?.point == point));
             points.Remove(point);
         }
         public void Remove(Line line) {
-            entities.Remove(entities.Single(x => x.Item1 == line));
+            entities.Remove(entities.Single(x => x.Entity == line));
         }
 
-        public IEnumerable<(Entity, DisplayStyle)> GetEntities() => entities;
+        public IEnumerable<EntityViewInfo> GetEntities() => entities;
         Dictionary<FreePoint, Vector2> points = new();
 
         public void SetPoints((FreePoint, Vector2)[] points) {
@@ -50,8 +51,8 @@ namespace MetaConstruct {
         public IEnumerable<Point> HitTest(Vector2 point) {
             var calculator = CreateCalculator();
             return entities
-                .Where(x => x.Item1 is PointView)
-                .Select(x => (point: ((PointView)x.Item1).point, location: calculator.CalcPoint(((PointView)x.Item1).point)))
+                .Where(x => x.Entity is PointView)
+                .Select(x => (point: ((PointView)x.Entity).point, location: calculator.CalcPoint(((PointView)x.Entity).point)))
                 .OrderBy(x => Vector2.DistanceSquared(x.location, point))
                 .Where(x => Vector2.DistanceSquared(x.location, point) < PointHitTestDistance * PointHitTestDistance)
                 .Select(x => x.point);

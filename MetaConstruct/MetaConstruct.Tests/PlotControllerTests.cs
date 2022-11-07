@@ -19,15 +19,15 @@ namespace MetaContruct.Tests {
             surface.Add(p.AsView(), DisplayStyle.Background);
 
             controller.scene.Press(new Vector2(48, 48));
-            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Item1);
+            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(50, 50), surface.GetPointLocation(p));
 
             controller.scene.Drag(new Vector2(58, 68));
-            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Item1);
+            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(60, 70), surface.GetPointLocation(p));
 
             controller.scene.Release(new Vector2(58, 68));
-            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Item1);
+            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(60, 70), surface.GetPointLocation(p));
         }
 
@@ -42,15 +42,15 @@ namespace MetaContruct.Tests {
             surface.Add(p.AsView(), DisplayStyle.Background);
 
             controller.scene.Press(new Vector2(48, 48));
-            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Item1);
+            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(50, 50), surface.GetPointLocation(p));
 
             controller.scene.Drag(new Vector2(48, 48));
-            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Item1);
+            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(50, 50), surface.GetPointLocation(p));
 
             controller.scene.Release(new Vector2(48, 48));
-            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Item1);
+            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(50, 50), surface.GetPointLocation(p));
         }
 
@@ -61,11 +61,11 @@ namespace MetaContruct.Tests {
             CollectionAssert.IsEmpty(surface.GetEntities());
 
             controller.scene.Press(new Vector2(48, 48));
-            var p = (FreePoint)((PointView)surface.GetEntities().Single().Item1).point;
+            var p = (FreePoint)((PointView)surface.GetEntities().Single().Entity).point;
             Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p));
 
             controller.scene.Release(new Vector2(48, 48));
-            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Item1);
+            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p));
         }
 
@@ -76,15 +76,15 @@ namespace MetaContruct.Tests {
             CollectionAssert.IsEmpty(surface.GetEntities());
 
             controller.scene.Press(new Vector2(48, 48));
-            var p = (FreePoint)((PointView)surface.GetEntities().Single().Item1).point;
+            var p = (FreePoint)((PointView)surface.GetEntities().Single().Entity).point;
             Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p));
 
             controller.scene.Drag(new Vector2(58, 68));
-            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Item1);
+            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(58, 68), surface.GetPointLocation(p));
 
             controller.scene.Release(new Vector2(58, 68));
-            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Item1);
+            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(58, 68), surface.GetPointLocation(p));
         }
     }

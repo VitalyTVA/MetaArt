@@ -404,7 +404,7 @@ LinesPoint (2.3333 2.6667)
                 (p, new Vector2(1, 2)),
             });
             surface.Add(p.AsView(), DisplayStyle.Background);
-            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Item1);
+            Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(1, 2), surface.GetPointLocation(p));
             surface.Remove(p);
             CollectionAssert.IsEmpty(surface.GetEntities());
@@ -418,7 +418,7 @@ LinesPoint (2.3333 2.6667)
             var p2 = Point();
             var l = Line(p1, p2);
             surface.Add(l, DisplayStyle.Background);
-            Assert.AreEqual(l, surface.GetEntities().Single().Item1);
+            Assert.AreEqual(l, surface.GetEntities().Single().Entity);
             surface.Remove(l);
             CollectionAssert.IsEmpty(surface.GetEntities());
             Assert.Throws<InvalidOperationException>(() => surface.Remove(l));
