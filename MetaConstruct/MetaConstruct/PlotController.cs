@@ -79,7 +79,7 @@ namespace MetaConstruct {
                         );
                     }
 
-                    return null;
+                    throw new NotImplementedException();
                 }
             });
         }
@@ -91,7 +91,7 @@ namespace MetaConstruct {
         }
     }
 
-    class PlotElement : Element {
+    public class PlotElement : Element {
         public PlotElement() {
             HitTestVisible = true;
         }

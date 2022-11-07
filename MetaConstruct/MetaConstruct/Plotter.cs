@@ -37,10 +37,12 @@ namespace MetaConstruct {
         }
 
         public IEnumerable<(Entity, DisplayStyle)> GetEntities() => entities;
-        Dictionary<FreePoint, Vector2> points = null!;
+        Dictionary<FreePoint, Vector2> points = new();
 
         public void SetPoints((FreePoint, Vector2)[] points) {
-            this.points = points.ToDictionary(x => x.Item1, x => x.Item2);
+            foreach(var (point, location) in points) {
+                this.points.Add(point, location);
+            }
         }
 
         public Vector2 GetPointLocation(FreePoint p) => points[p];

@@ -21,6 +21,13 @@ namespace MetaContruct.Tests {
         protected CircleIntersection Intersect(Line l, Circle c_) => c.Intersect(l, c_);
         protected Point Intersect(Line l1, Line l2) => c.Intersect(l1, l2);
 
+        protected (PlotController, Surface) CreateTestController() {
+            var controller = new PlotController(100, 100);
+            var surface = CreateTestSurface();
+            controller.Load(surface);
+            return (controller, surface);
+        }
+
         protected Surface CreateTestSurface() {
             return new Surface(c, 5);
         }
