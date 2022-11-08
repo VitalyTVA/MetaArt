@@ -15,7 +15,7 @@ namespace MetaConstruct {
 
     public record struct EntityViewInfo(Entity Entity, DisplayStyle Style);
     public class Surface {
-        readonly int PointHitTestDistance;
+        public readonly int PointHitTestDistance;
         public Surface(Constructor constructor, int pointHitTestDistance) {
             PointHitTestDistance = pointHitTestDistance;
             Constructor = constructor;
