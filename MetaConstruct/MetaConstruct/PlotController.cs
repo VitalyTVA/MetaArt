@@ -18,43 +18,46 @@ namespace MetaConstruct {
                         var point = Surface.HitTest(startPoint).OfType<FreePoint>().FirstOrDefault();
                         var startPointLocation = point != null ? Surface.GetPointLocation(point) : startPoint;
                         bool isNew = point == null;
-                        point = point ?? Surface.Constructor.Point();
-                        var transaction = undoManager.CreateTransaction(
-                            (point: point, location: isNew ? startPoint : Surface.GetPointLocation(point), isNew: isNew),
-                            redo: state => {
-                                if(state.isNew) {
-                                    Surface.Add(point.AsView(), DisplayStyle.Visible);
-                                    Surface.SetPointLocation(point, state.location);
-                                    return (state.point, location: default(Vector2), isNew: state.isNew);
-                                } else {
+                        var transaction = isNew
+                            ? undoManager.CreateTransaction(
+                                (point: Surface.Constructor.Point(), location: startPoint),
+                                redo: state => {
+                                    Surface.Add(state.point.AsView(), DisplayStyle.Visible);
+                                    Surface.SetPointLocation(state.point, state.location);
+                                    return state.point;
+                                },
+                                undo: statePoint => {
+                                    var location = Surface.GetPointLocation(statePoint);
+                                    Surface.Remove(statePoint);
+                                    return (statePoint, location);
+                                },
+                                update: (FreePoint statePoint, Vector2 offset) => {
+                                    Surface.SetPointLocation(statePoint, startPointLocation + offset);
+                                }
+                            )
+                            : undoManager.CreateTransaction(
+                                (point: point!, location: Surface.GetPointLocation(point!)),
+                                redo: state => {
+                                        var location = Surface.GetPointLocation(state.point);
+                                        Surface.SetPointLocation(state.point, state.location);
+                                        return (state.point, location);
+                                },
+                                undo: state => {
                                     var location = Surface.GetPointLocation(state.point);
-                                    Surface.SetPointLocation(state.point, state.location);
-                                    return (state.point, location, isNew: state.isNew);
+                                        Surface.SetPointLocation(state.point, state.location);
+                                        return (state.point, location);
+                                },
+                                update: ((FreePoint point, Vector2 location) state, Vector2 offset) => {
+                                    Surface.SetPointLocation(state.point, startPointLocation + offset);
                                 }
-                            },
-                            undo: state => {
-                                var location = Surface.GetPointLocation(state.point);
-                                if(state.isNew) {
-                                    Surface.Remove(state.point);
-                                    return (state.point, location, state.isNew);
-                                } else {
-                                    Surface.SetPointLocation(state.point, state.location);
-                                    return (state.point, location, state.isNew);
-                                }
-                            },
-                            update: ((FreePoint point, Vector2 location, bool isNew) state, Vector2 offset) => {
-                                Surface.SetPointLocation(state.point, startPointLocation + offset);
-                            }
-                        );
+                            );
                         if(isNew)
                             transaction.Commit();
-                        //var startPointLocation = Surface.GetPointLocation(point);
                         return DragInputState.GetDragState(
                             startPoint,
                             onDrag: offset => {
                                 if(offset.LengthSquared() > 0)
                                     transaction.Commit().Update(offset);
-                                //Surface.SetPointLocation(point, startPointLocation + offset);
                                 return true;
                             }
                         );
@@ -125,12 +128,8 @@ namespace MetaConstruct {
         }
     }
 
-
-    interface IUndoAction {
-        IRedoAction Undo();
-    }
-    interface IRedoAction {
-        IUndoAction Redo();
+    public interface IUpdatableTransaction<TUpdate> {
+        void Update(TUpdate update);
     }
     public class UndoManager {
         Stack<IUndoAction> undoStack = new();
@@ -153,7 +152,7 @@ namespace MetaConstruct {
         //    return new UndoAction<TDo, TUndo>(redo(data), redo, undo);
         //}
 
-        public UndoActionUpdatable<TDo, TUndo, TUpdate> Execute<TDo, TUndo, TUpdate>(
+        IUpdatableTransaction<TUpdate> Execute<TDo, TUndo, TUpdate>(
             TDo data,
             Func<TDo, TUndo> redo,
             Func<TUndo, TDo> undo,
@@ -165,7 +164,7 @@ namespace MetaConstruct {
             return action;
         }
 
-        public Transaction<TDo, TUndo, TUpdate> CreateTransaction<TDo, TUndo, TUpdate>(
+        public ITransaction<TUpdate> CreateTransaction<TDo, TUndo, TUpdate>(
             TDo data,
             Func<TDo, TUndo> redo,
             Func<TUndo, TDo> undo,
@@ -173,72 +172,81 @@ namespace MetaConstruct {
         ) {
             return new Transaction<TDo, TUndo, TUpdate>(this, data, redo, undo, update);
         }
-    }
 
-    public class UndoAction<TDo, TUndo> : IUndoAction {
-        protected readonly TUndo data;
-        readonly Func<TDo, TUndo> redo;
-        readonly Func<TUndo, TDo> undo;
-        public UndoAction(TUndo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo) {
-            this.data = data;
-            this.redo = redo;
-            this.undo = undo;
+        interface IUndoAction {
+            IRedoAction Undo();
         }
-        IRedoAction IUndoAction.Undo() {
-            var redoData = undo(data);
-            return new RedoAction<TDo, TUndo>(redoData, redo, undo);
-        }
-    }
-
-    public class RedoAction<TDo, TUndo> : IRedoAction {
-        protected TDo data;
-        readonly Func<TDo, TUndo> redo;
-        readonly Func<TUndo, TDo> undo;
-        public RedoAction(TDo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo) {
-            this.data = data;
-            this.redo = redo;
-            this.undo = undo;
-        }
-        IUndoAction IRedoAction.Redo() {
-            var undoData = redo(data);
-            return new UndoAction<TDo, TUndo>(undoData, redo, undo);
-        }
-    }
-
-    public class UndoActionUpdatable<TDo, TUndo, TUpdate> : UndoAction<TDo, TUndo> {
-        readonly Action<TUndo, TUpdate> update;
-        public UndoActionUpdatable(TUndo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo, Action<TUndo, TUpdate> update) : base(data, redo, undo) {
-            this.update = update;
-        }
-        public void Update(TUpdate data) {
-            update(this.data, data);
-            //this.data = data;
-        }
-    }
-
-    public sealed class Transaction<TDo, TUndo, TUpdate>  {
-        readonly UndoManager manager;
-        readonly TDo data;
-        readonly Func<TDo, TUndo> redo;
-        readonly Func<TUndo, TDo> undo;
-        readonly Action<TUndo, TUpdate> update;
-
-        public Transaction(UndoManager manager, TDo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo, Action<TUndo, TUpdate> update) {
-            this.manager = manager;
-            this.data = data;
-            this.redo = redo;
-            this.undo = undo;
-            this.update = update;
+        interface IRedoAction {
+            IUndoAction Redo();
         }
 
-        UndoActionUpdatable<TDo, TUndo, TUpdate>? action;
+        sealed class Transaction<TDo, TUndo, TUpdate> : ITransaction<TUpdate> {
+            readonly UndoManager manager;
+            readonly TDo data;
+            readonly Func<TDo, TUndo> redo;
+            readonly Func<TUndo, TDo> undo;
+            readonly Action<TUndo, TUpdate> update;
 
-        public UndoActionUpdatable<TDo, TUndo, TUpdate> Commit() {
-            if(action == null) {
-                action = manager.Execute(data, redo, undo, update);
+            public Transaction(UndoManager manager, TDo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo, Action<TUndo, TUpdate> update) {
+                this.manager = manager;
+                this.data = data;
+                this.redo = redo;
+                this.undo = undo;
+                this.update = update;
             }
-            return action;
+
+            IUpdatableTransaction<TUpdate>? action;
+
+            IUpdatableTransaction<TUpdate> ITransaction<TUpdate>.Commit() {
+                if(action == null) {
+                    action = manager.Execute(data, redo, undo, update);
+                }
+                return action;
+            }
+        }
+        class UndoAction<TDo, TUndo> : IUndoAction {
+            protected readonly TUndo data;
+            readonly Func<TDo, TUndo> redo;
+            readonly Func<TUndo, TDo> undo;
+            public UndoAction(TUndo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo) {
+                this.data = data;
+                this.redo = redo;
+                this.undo = undo;
+            }
+            IRedoAction IUndoAction.Undo() {
+                var redoData = undo(data);
+                return new RedoAction<TDo, TUndo>(redoData, redo, undo);
+            }
+        }
+
+        class RedoAction<TDo, TUndo> : IRedoAction {
+            protected TDo data;
+            readonly Func<TDo, TUndo> redo;
+            readonly Func<TUndo, TDo> undo;
+            public RedoAction(TDo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo) {
+                this.data = data;
+                this.redo = redo;
+                this.undo = undo;
+            }
+            IUndoAction IRedoAction.Redo() {
+                var undoData = redo(data);
+                return new UndoAction<TDo, TUndo>(undoData, redo, undo);
+            }
+        }
+
+        class UndoActionUpdatable<TDo, TUndo, TUpdate> : UndoAction<TDo, TUndo>, IUpdatableTransaction<TUpdate> {
+            readonly Action<TUndo, TUpdate> update;
+            public UndoActionUpdatable(TUndo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo, Action<TUndo, TUpdate> update) : base(data, redo, undo) {
+                this.update = update;
+            }
+            public void Update(TUpdate data) {
+                update(this.data, data);
+                //this.data = data;
+            }
         }
     }
 
+    public interface ITransaction<TUpdate> {
+        IUpdatableTransaction<TUpdate> Commit();
+    }
 }
