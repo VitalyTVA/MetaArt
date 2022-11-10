@@ -95,6 +95,20 @@ class Plot {
                 caption: tool.ToString()
             );
         }
+        command(
+            exectute: () => {
+                if(controller.undoManager.CanUndo)
+                    controller.undoManager.Undo();
+            },
+            caption: "Undo"
+        );
+        command(
+            exectute: () => {
+                if(controller.undoManager.CanRedo)
+                    controller.undoManager.Redo();
+            },
+            caption: "Redo"
+        );
     }
 
     void draw() {
