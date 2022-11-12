@@ -1,4 +1,5 @@
 ﻿using MetaArt.Core;
+using MetaCore;
 using System.Numerics;
 
 namespace MetaConstruct {
@@ -33,22 +34,24 @@ namespace MetaConstruct {
                                 },
                                 update: (FreePoint statePoint, Vector2 offset) => {
                                     Surface.SetPointLocation(statePoint, startPointLocation + offset);
+                                    return statePoint;
                                 }
                             )
                             : undoManager.CreateTransaction(
                                 (point: point!, location: Surface.GetPointLocation(point!)),
                                 redo: state => {
-                                        var location = Surface.GetPointLocation(state.point);
-                                        Surface.SetPointLocation(state.point, state.location);
-                                        return (state.point, location);
+                                    var location = Surface.GetPointLocation(state.point);
+                                    Surface.SetPointLocation(state.point, state.location);
+                                    return (state.point, location);
                                 },
                                 undo: state => {
                                     var location = Surface.GetPointLocation(state.point);
-                                        Surface.SetPointLocation(state.point, state.location);
-                                        return (state.point, location);
+                                    Surface.SetPointLocation(state.point, state.location);
+                                    return (state.point, location);
                                 },
                                 update: ((FreePoint point, Vector2 location) state, Vector2 offset) => {
                                     Surface.SetPointLocation(state.point, startPointLocation + offset);
+                                    return state;
                                 }
                             );
                         if(isNew)
@@ -64,6 +67,86 @@ namespace MetaConstruct {
                     }
 
                     if(tool == Tool.Line) {
+                        var point = Surface.HitTest(startPoint).FirstOrDefault();
+
+                        Either<Point, (FreePoint point, Vector2 location)> from = point != null
+                            ? point.AsLeft()
+                            : (Surface.Constructor.Point(), startPoint).AsRight();
+
+                        var transaction = undoManager.CreateTransaction(
+                            (
+                                from: from, 
+                                to: default((FreePoint point, Line line, Vector2 location)?)
+                            ),
+                            redo: state => {
+                                Point? fromPoint = null;
+                                switch(state.from) {
+                                    case (Point existingPoint, null):
+                                        fromPoint = existingPoint;
+                                        break;
+                                    case (null, (FreePoint newPoint, Vector2 location)):
+                                        fromPoint = newPoint;
+                                        Surface.Add(newPoint.AsView(), DisplayStyle.Visible);
+                                        Surface.SetPointLocation(newPoint, location);
+                                        break;
+                                }
+
+                                var toInfo = state.to;
+                                if(toInfo != null) {
+                                    Surface.Add(toInfo.Value.point.AsView(), DisplayStyle.Visible);
+                                    Surface.SetPointLocation(toInfo.Value.point, toInfo.Value.location);
+                                    Surface.Add(toInfo.Value.line, DisplayStyle.Background);
+
+                                }
+
+                                return (
+                                    from: (point: fromPoint!, isNew: state.from.IsRight()),
+                                    to: toInfo != null ? (toInfo.Value.point, toInfo.Value.line) : null
+                                );
+                            },
+                            undo: state => {
+                                var toLocation = Surface.GetPointLocation(state.to!.Value.point);
+
+                                Either<Point, (FreePoint point, Vector2 location)> from;
+                                if(state.from.isNew) {
+                                    from = ((FreePoint)state.from.point, Surface.GetPointLocation((FreePoint)state.from.point)).AsRight();
+                                    Surface.Remove(state.from.point);
+                                } else {
+                                    from = state.from.point.AsLeft();
+                                }
+                                Surface.Remove(state.to!.Value.point);
+                                Surface.Remove(state.to!.Value.line);
+
+                                return (
+                                    from, 
+                                    (state.to!.Value.point, state.to!.Value.line, toLocation)
+                                );
+                            },
+                            update: (((Point point, bool isNew) from, (FreePoint point, Line line)? to) state, Vector2 offset) => {
+                                var toInfo = state.to;
+                                if(toInfo == null) {
+                                    var pointTo = Surface.Constructor.Point();
+                                    Surface.Add(pointTo.AsView(), DisplayStyle.Visible);
+                                    var line = Surface.Constructor.Line(state.from.point, pointTo);
+                                    Surface.Add(line, DisplayStyle.Background);
+
+                                    toInfo = (pointTo, line);
+                                }
+                                Surface.SetPointLocation(toInfo.Value.point, startPoint + offset);
+                                return (state.from, toInfo);
+                            }
+                        );
+                        transaction.Commit();
+                        return DragInputState.GetDragState(
+                            startPoint,
+                            onDrag: offset => {
+                                //if(offset.LengthSquared() > 0)
+                                    transaction.Commit().Update(offset);
+                                return true;
+                            }
+                        );
+
+                        /*
                         var fromPoint = Surface.HitTest(startPoint).FirstOrDefault();
                         if(fromPoint == null) {
                             var newPoint = Surface.Constructor.Point();
@@ -108,6 +191,7 @@ namespace MetaConstruct {
                                 return true;
                             }
                         );
+                        */
                     }
 
                     throw new NotImplementedException();
@@ -156,7 +240,7 @@ namespace MetaConstruct {
             TDo data,
             Func<TDo, TUndo> redo,
             Func<TUndo, TDo> undo,
-            Action<TUndo, TUpdate> update
+            Func<TUndo, TUpdate, TUndo> update
         ) {
             var action = new UndoActionUpdatable<TDo, TUndo, TUpdate>(redo(data), redo, undo, update);
             undoStack.Push(action);
@@ -168,7 +252,7 @@ namespace MetaConstruct {
             TDo data,
             Func<TDo, TUndo> redo,
             Func<TUndo, TDo> undo,
-            Action<TUndo, TUpdate> update
+            Func<TUndo, TUpdate, TUndo> update
         ) {
             return new Transaction<TDo, TUndo, TUpdate>(this, data, redo, undo, update);
         }
@@ -185,9 +269,9 @@ namespace MetaConstruct {
             readonly TDo data;
             readonly Func<TDo, TUndo> redo;
             readonly Func<TUndo, TDo> undo;
-            readonly Action<TUndo, TUpdate> update;
+            readonly Func<TUndo, TUpdate, TUndo> update;
 
-            public Transaction(UndoManager manager, TDo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo, Action<TUndo, TUpdate> update) {
+            public Transaction(UndoManager manager, TDo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo, Func<TUndo, TUpdate, TUndo> update) {
                 this.manager = manager;
                 this.data = data;
                 this.redo = redo;
@@ -205,7 +289,7 @@ namespace MetaConstruct {
             }
         }
         class UndoAction<TDo, TUndo> : IUndoAction {
-            protected readonly TUndo data;
+            protected TUndo data;
             readonly Func<TDo, TUndo> redo;
             readonly Func<TUndo, TDo> undo;
             public UndoAction(TUndo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo) {
@@ -220,7 +304,7 @@ namespace MetaConstruct {
         }
 
         class RedoAction<TDo, TUndo> : IRedoAction {
-            protected TDo data;
+            readonly TDo data;
             readonly Func<TDo, TUndo> redo;
             readonly Func<TUndo, TDo> undo;
             public RedoAction(TDo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo) {
@@ -235,13 +319,13 @@ namespace MetaConstruct {
         }
 
         class UndoActionUpdatable<TDo, TUndo, TUpdate> : UndoAction<TDo, TUndo>, IUpdatableTransaction<TUpdate> {
-            readonly Action<TUndo, TUpdate> update;
-            public UndoActionUpdatable(TUndo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo, Action<TUndo, TUpdate> update) : base(data, redo, undo) {
+            readonly Func<TUndo, TUpdate, TUndo> update;
+            public UndoActionUpdatable(TUndo data, Func<TDo, TUndo> redo, Func<TUndo, TDo> undo, Func<TUndo, TUpdate, TUndo> update) 
+                : base(data, redo, undo) {
                 this.update = update;
             }
             public void Update(TUpdate data) {
-                update(this.data, data);
-                //this.data = data;
+                this.data = update(this.data, data);
             }
         }
     }

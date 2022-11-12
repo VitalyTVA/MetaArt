@@ -29,12 +29,13 @@ namespace MetaConstruct {
             entities.Add(new EntityViewInfo(entity, style));
         }
 
-        public void Remove(FreePoint point) {
-            entities.Remove(entities.Single(x => (x.Entity as PointView)?.point == point));
-            points.Remove(point);
-        }
         public void Remove(Line line) {
             entities.Remove(entities.Single(x => x.Entity == line));
+        }
+        public void Remove(Point point) {
+            entities.Remove(entities.Single(x => (x.Entity as PointView)?.point == point));
+            if(point is FreePoint freePoint)
+                points.Remove(freePoint);
         }
 
         public IEnumerable<EntityViewInfo> GetEntities() => entities;
