@@ -143,7 +143,7 @@ namespace MetaArt {
             pos = null;
             invalidate();
         }
-        public void OnKeyPress(char key)
+        public virtual void OnKeyPress(char key, ModifierKeys modifier)
         {
             preRenderQueue.Enqueue(() =>
             {
@@ -184,7 +184,7 @@ namespace MetaArt {
             SetMouse(mouseX, mouseY);
             mouseReleasedMethod.Invoke(sketch, null);
         }
-        void KeyPressedCore(char key)
+        protected virtual void KeyPressedCore(char key)
         {
             if (keyPressedMethod == null)
                 return;
@@ -386,7 +386,7 @@ namespace MetaArt {
             pixelsContainer = null;
         }
 
-        protected internal abstract void uiCommand(Action exectute, string caption);
+        protected internal abstract void uiCommand(Action exectute, string caption, (char key, ModifierKeys modifier)? shortCut);
         protected internal abstract UICaption uiCaption(string caption);
     }
     public class UICaption {

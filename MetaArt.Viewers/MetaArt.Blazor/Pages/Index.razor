@@ -115,7 +115,7 @@ div.scrollable {
 
     void OnMouseOut(MouseEventArgs e) => painter.OnMouseLeave();
 
-    void OnKeyPress(KeyboardEventArgs e) => painter.OnKeyPress(e.Key[0]);
+    void OnKeyPress(KeyboardEventArgs e) => painter.OnKeyPress(e.Key[0], ModifierKeys.None);
 
     void OnPaintSurface(SKPaintGLSurfaceEventArgs e) {
         if(painter == null) return;

@@ -92,7 +92,15 @@ class Plot {
                 exectute: () => {
                     SetTool(tool);
                 },
-                caption: tool.ToString()
+                caption: tool.ToString(),
+                shortCut: tool switch {
+                    Tool.Hand => ('h', ModifierKeys.None),
+                    Tool.Point => ('p', ModifierKeys.None),
+                    Tool.Line => ('l', ModifierKeys.None),
+                    Tool.Circle => ('c', ModifierKeys.None),
+                    Tool.LineSegment => ('s', ModifierKeys.None),
+                    Tool.CircleSegment => ('a', ModifierKeys.None),
+                }
             );
         }
         command(
@@ -100,14 +108,16 @@ class Plot {
                 if(controller.undoManager.CanUndo)
                     controller.undoManager.Undo();
             },
-            caption: "Undo"
+            caption: "Undo",
+            shortCut: ('z', ModifierKeys.Ctrl)
         );
         command(
             exectute: () => {
                 if(controller.undoManager.CanRedo)
                     controller.undoManager.Redo();
             },
-            caption: "Redo"
+            caption: "Redo",
+            shortCut: ('y', ModifierKeys.Ctrl)
         );
     }
 

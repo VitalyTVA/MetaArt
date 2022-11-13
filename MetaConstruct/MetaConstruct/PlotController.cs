@@ -3,7 +3,7 @@ using MetaCore;
 using System.Numerics;
 
 namespace MetaConstruct {
-    public enum Tool { Pointer, Point, Line, Circle, LineSegment, CircleSegment }
+    public enum Tool { Hand, Point, Line, Circle, LineSegment, CircleSegment }
     public class PlotController {
         Engine engine;
         public Surface Surface { get; private set; } = null!;

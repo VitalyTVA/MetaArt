@@ -99,8 +99,8 @@ namespace MetaArt.Skia {
         }
 
         public List<UIElementInfo> UIElements { get; } = new();
-        protected override void uiCommand(Action exectute, string caption) {
-            UIElements.Add(new UICommandInfo(exectute, caption));
+        protected override void uiCommand(Action exectute, string caption, (char key, ModifierKeys modifier)? shortCut) {
+            UIElements.Add(new UICommandInfo(exectute, caption, shortCut));
         }
         protected override UICaption uiCaption(string caption) {
             var uiCaption = new UICaption(() => UIElementChanged?.Invoke(this, EventArgs.Empty));
@@ -109,8 +109,14 @@ namespace MetaArt.Skia {
         }
 
         public event EventHandler? UIElementChanged;
+
+        public override void OnKeyPress(char key, ModifierKeys modifier) {
+            var command = UIElements.OfType<UICommandInfo>().FirstOrDefault(x => x.ShortCut == (key, modifier));
+            command?.Exectute();
+            base.OnKeyPress(key, modifier);
+        }
     }
     public abstract record UIElementInfo;
-    public record UICommandInfo(Action Exectute, string Caption) : UIElementInfo;
+    public record UICommandInfo(Action Exectute, string Caption, (char key, ModifierKeys modifier)? ShortCut) : UIElementInfo;
     public record UICaptionInfo(string Caption, UICaption uiCaption) : UIElementInfo;
 }

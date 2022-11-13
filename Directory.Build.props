@@ -5,6 +5,6 @@
 	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 	<Nullable>enable</Nullable>
 	<ImplicitUsings>enable</ImplicitUsings>
-	<NoWarn>8509</NoWarn>
+	<NoWarn>8509, 8524</NoWarn>
   </PropertyGroup>
 </Project>

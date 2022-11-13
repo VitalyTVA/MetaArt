@@ -103,7 +103,17 @@ namespace MetaArt.Wpf {
         }
 
         private void SkglControl1_KeyPress(object? sender, KeyPressEventArgs e) {
-            painter.OnKeyPress(e.KeyChar);
+            var modifier = MetaArt.ModifierKeys.None;
+            var actualModifier = ModifierKeys;
+            var key = e.KeyChar;
+            if((actualModifier & Keys.Control) > 0) {
+                modifier |= MetaArt.ModifierKeys.Ctrl;
+                key = (char)(key + ((char)96));
+            }
+            if((actualModifier & Keys.Shift) > 0) {
+                modifier |= MetaArt.ModifierKeys.Shift;
+            }
+            painter.OnKeyPress(key, modifier);
         }
 
         private void SkglControl1_MouseLeave(object? sender, EventArgs e) {

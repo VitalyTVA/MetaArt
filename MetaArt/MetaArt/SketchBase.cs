@@ -242,9 +242,16 @@ namespace MetaArt {
         public static string? readValue(string name) => Painter.getValue(Painter.sketch.GetType().Name + "_" + name);
         public static void writeValue(string name, string? value) => Painter.setValue(Painter.sketch.GetType().Name + "_" + name, value);
 
-        public static void command(Action exectute, string caption) => Painter.uiCommand(exectute, caption);
+        public static void command(Action exectute, string caption, (char key, ModifierKeys modifier)? shortCut = null) => Painter.uiCommand(exectute, caption, shortCut);
         public static UICaption caption(string caption) => Painter.uiCaption(caption);
     }
+    [Flags]
+    public enum ModifierKeys { 
+        None = 0,
+        Shift = 1,
+        Ctrl = 2,
+    }
+
     //https://p5js.org/reference/#/p5/rectMode
     public enum RectMode {
         CORNER,
