@@ -434,6 +434,19 @@ LinesPoint (2.3333 2.6667)
             Assert.Throws<InvalidOperationException>(() => surface.Remove(l));
         }
 
+        [Test]
+        public void RemoveCircle() {
+            var surface = CreateTestSurface();
+            var p1 = Point();
+            var p2 = Point();
+            var c = Circle(p1, p2);
+            surface.Add(c, DisplayStyle.Background);
+            Assert.AreEqual(c, surface.GetEntities().Single().Entity);
+            surface.Remove(c);
+            CollectionAssert.IsEmpty(surface.GetEntities());
+            Assert.Throws<InvalidOperationException>(() => surface.Remove(c));
+        }
+
         void AssertPlot(
             string expected, (FreePoint, Vector2)[] points, params Entity[] primitives) {
             AssertPlot(expected, points, primitives.Select(x => (x, DisplayStyle.Visible)).ToArray());
