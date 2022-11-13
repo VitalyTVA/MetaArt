@@ -76,16 +76,13 @@ namespace MetaConstruct {
                         var transaction = undoManager.CreateTransaction(
                             (
                                 from: from, 
-                                to: default((FreePoint point, Line line, Vector2 location)?)
+                                to: default((FreePoint point, Vector2 location, Line line)?)
                             ),
                             redo: state => {
-                                Point? fromPoint = null;
                                 switch(state.from) {
                                     case (Point existingPoint, null):
-                                        fromPoint = existingPoint;
                                         break;
                                     case (null, (FreePoint newPoint, Vector2 location)):
-                                        fromPoint = newPoint;
                                         Surface.Add(newPoint.AsView(), DisplayStyle.Visible);
                                         Surface.SetPointLocation(newPoint, location);
                                         break;
@@ -99,8 +96,11 @@ namespace MetaConstruct {
 
                                 }
 
+                                var from = state.from.Match(
+                                    left: x => Either<Point, FreePoint>.Left(x), 
+                                    right: x => Either<Point, FreePoint>.Right(x.point));
                                 return (
-                                    from: (point: fromPoint!, isNew: state.from.IsRight()),
+                                    from: from,
                                     to: toInfo != null ? (toInfo.Value.point, toInfo.Value.line) : null
                                 );
                             },
@@ -108,26 +108,27 @@ namespace MetaConstruct {
                                 var toLocation = Surface.GetPointLocation(state.to!.Value.point);
 
                                 Either<Point, (FreePoint point, Vector2 location)> from;
-                                if(state.from.isNew) {
-                                    from = ((FreePoint)state.from.point, Surface.GetPointLocation((FreePoint)state.from.point)).AsRight();
-                                    Surface.Remove(state.from.point);
+                                if(state.from.IsRight()) {
+                                    var point = state.from.ToRight();
+                                    from = (point, Surface.GetPointLocation(point)).AsRight();
+                                    Surface.Remove(point);
                                 } else {
-                                    from = state.from.point.AsLeft();
+                                    from = state.from.ToLeft().AsLeft();
                                 }
                                 Surface.Remove(state.to!.Value.point);
                                 Surface.Remove(state.to!.Value.line);
 
                                 return (
                                     from, 
-                                    (state.to!.Value.point, state.to!.Value.line, toLocation)
+                                    (state.to!.Value.point, toLocation, state.to!.Value.line)
                                 );
                             },
-                            update: (((Point point, bool isNew) from, (FreePoint point, Line line)? to) state, Vector2 offset) => {
+                            update: ((Either<Point, FreePoint> from, (FreePoint point, Line line)? to) state, Vector2 offset) => {
                                 var toInfo = state.to;
                                 if(toInfo == null) {
                                     var pointTo = Surface.Constructor.Point();
                                     Surface.Add(pointTo.AsView(), DisplayStyle.Visible);
-                                    var line = Surface.Constructor.Line(state.from.point, pointTo);
+                                    var line = Surface.Constructor.Line(state.from.Match(x => x, x => x), pointTo);
                                     Surface.Add(line, DisplayStyle.Background);
 
                                     toInfo = (pointTo, line);
