@@ -67,132 +67,142 @@ namespace MetaConstruct {
                     }
 
                     if(tool == Tool.Line) {
-                        var point = Surface.HitTest(startPoint).FirstOrDefault();
-
-                        Either<Point, (FreePoint point, Vector2 location)> from = point != null
-                            ? point.AsLeft()
-                            : (Surface.Constructor.Point(), startPoint).AsRight();
-
-                        var transaction = undoManager.CreateTransaction(
-                            (
-                                from: from, 
-                                to: default((Either<Point, (FreePoint point, Vector2 location)> pointInfo, Line line)?)
-                            ),
-                            redo: state => {
-                                switch(state.from) {
-                                    case (Point existingPoint, null):
-                                        break;
-                                    case (null, (FreePoint newPoint, Vector2 location)):
-                                        Surface.Add(newPoint.AsView(), DisplayStyle.Visible);
-                                        Surface.SetPointLocation(newPoint, location);
-                                        break;
-                                }
-
-                                var toInfo = state.to;
-                                if(toInfo != null) {
-                                    if(toInfo.Value.pointInfo.IsRight()) { 
-                                        Surface.Add(toInfo.Value.pointInfo.ToRight().point.AsView(), DisplayStyle.Visible);
-                                        Surface.SetPointLocation(toInfo.Value.pointInfo.ToRight().point, toInfo.Value.pointInfo.ToRight().location);
-                                    }
-                                    Surface.Add(toInfo.Value.line, DisplayStyle.Background);
-                                }
-
-                                var from = state.from.Match(
-                                    left: x => Either<Point, FreePoint>.Left(x), 
-                                    right: x => Either<Point, FreePoint>.Right(x.point));
-                                var to = toInfo == null ? default(Either<Point, FreePoint>?) : toInfo.Value.pointInfo.Match(
-                                    left: x => Either<Point, FreePoint>.Left(x),
-                                    right: x => Either<Point, FreePoint>.Right(x.point));
-                                return (
-                                    from: from,
-                                    to: toInfo != null ? (to!.Value, toInfo.Value.line) : null
-                                );
-                            },
-                            undo: state => {
-
-                                Either<Point, (FreePoint point, Vector2 location)> from;
-                                if(state.from.IsRight()) {
-                                    var point = state.from.ToRight();
-                                    from = (point, Surface.GetPointLocation(point)).AsRight();
-                                    Surface.Remove(point);
-                                } else {
-                                    from = state.from.ToLeft().AsLeft();
-                                }
-
-                                if(state.to == null) {
-                                    return (from, null);
-                                }
-
-                                Surface.Remove(state.to!.Value.line);
-                                Either<Point, (FreePoint point, Vector2 location)> pointInfo;
-                                if(state.to!.Value.to.IsRight()) {
-                                    var toLocation = Surface.GetPointLocation(state.to!.Value.to.ToRight());
-                                    Surface.Remove(state.to!.Value.to.ToRight());
-                                    pointInfo = (state.to!.Value.to.ToRight(), toLocation).AsRight();
-                                } else {
-                                    pointInfo = state.to!.Value.to.ToLeft().AsLeft();
-                                }
-                                return (
-                                    from, 
-                                    (pointInfo, state.to!.Value.line)
-                                );
-                            },
-                            update: ((Either<Point, FreePoint> from, (Either<Point, FreePoint> to, Line line)? to) state, Vector2 offset) => {
-                                var toInfo = state.to;
-                                if(/*toInfo == null && */offset.LengthSquared() < Surface.PointHitTestDistance * Surface.PointHitTestDistance)
-                                    return state;
-
-                                var fromPoint = state.from.Match(x => x, x => x);
-                                var newToPoint = toInfo != null ? toInfo.Value.to.Match(x => null, x => (FreePoint?)x) : null;
-                                var point = Surface
-                                    .HitTest(startPoint + offset)
-                                    .Where(x => x != newToPoint && x != fromPoint)
-                                    .FirstOrDefault();
-                                if(point != null) {
-                                    if(newToPoint != null && toInfo != null && toInfo.Value.to.IsRight()) {
-                                        Surface.Remove(newToPoint!);
-                                        Surface.Remove(toInfo.Value.line);
-                                        toInfo = null;
-                                    }
-                                    if(toInfo == null) {
-                                        var line = Surface.Constructor.Line(fromPoint, point);
-                                        Surface.Add(line, DisplayStyle.Background);
-                                        toInfo = (point.AsLeft(), line);
-                                    }
-                                } else {
-                                    if(newToPoint == null && toInfo != null && toInfo.Value.to.IsLeft()) {
-                                        Surface.Remove(toInfo.Value.line);
-                                        toInfo = null;
-                                    }
-                                    if(toInfo == null) {
-                                        var pointTo = Surface.Constructor.Point();
-                                        Surface.Add(pointTo.AsView(), DisplayStyle.Visible);
-                                        var line = Surface.Constructor.Line(fromPoint, pointTo);
-                                        Surface.Add(line, DisplayStyle.Background);
-                                        toInfo = (pointTo.AsRight(), line);
-                                    }
-                                }
-
-                                if(toInfo.Value.to.IsRight())
-                                    Surface.SetPointLocation(toInfo.Value.to.ToRight(), startPoint + offset);
-                                return (state.from, toInfo);
-                            }
-                        );
-                        transaction.Commit();
-                        return DragInputState.GetDragState(
-                            startPoint,
-                            onDrag: offset => {
-                                //if(offset.LengthSquared() > 0)
-                                    transaction.Commit().Update(offset);
-                                return true;
-                            }
-                        );
+                        return CreateTwoPointsTool(startPoint, (c, p1, p2) => c.Line(p1, p2), DisplayStyle.Background);
+                    }
+                    if(tool == Tool.Circle) {
+                        return CreateTwoPointsTool(startPoint, (c, p1, p2) => c.Circle(p1, p2), DisplayStyle.Background);
+                    }
+                    if(tool == Tool.LineSegment) {
+                        return CreateTwoPointsTool(startPoint, (c, p1, p2) => c.LineSegment(p1, p2), DisplayStyle.Visible);
                     }
 
                     throw new NotImplementedException();
                 }
             });
         }
+
+        private InputState CreateTwoPointsTool(Vector2 startPoint, Func<Constructor, Point, Point, Entity> createEntity, DisplayStyle enitityStyle) {
+            var point = Surface.HitTest(startPoint).FirstOrDefault();
+
+            Either<Point, (FreePoint point, Vector2 location)> from = point != null
+                ? point.AsLeft()
+                : (Surface.Constructor.Point(), startPoint).AsRight();
+
+            var transaction = undoManager.CreateTransaction(
+                (
+                    from: from,
+                    to: default((Either<Point, (FreePoint point, Vector2 location)> pointInfo, Entity entity)?)
+                ),
+                redo: state => {
+                    switch(state.from) {
+                        case (Point existingPoint, null):
+                            break;
+                        case (null, (FreePoint newPoint, Vector2 location)):
+                            Surface.Add(newPoint.AsView(), DisplayStyle.Visible);
+                            Surface.SetPointLocation(newPoint, location);
+                            break;
+                    }
+
+                    var toInfo = state.to;
+                    if(toInfo != null) {
+                        if(toInfo.Value.pointInfo.IsRight()) {
+                            Surface.Add(toInfo.Value.pointInfo.ToRight().point.AsView(), DisplayStyle.Visible);
+                            Surface.SetPointLocation(toInfo.Value.pointInfo.ToRight().point, toInfo.Value.pointInfo.ToRight().location);
+                        }
+                        Surface.Add(toInfo.Value.entity, enitityStyle);
+                    }
+
+                    var from = state.from.Match(
+                        left: x => Either<Point, FreePoint>.Left(x),
+                        right: x => Either<Point, FreePoint>.Right(x.point));
+                    var to = toInfo == null ? default(Either<Point, FreePoint>?) : toInfo.Value.pointInfo.Match(
+                        left: x => Either<Point, FreePoint>.Left(x),
+                        right: x => Either<Point, FreePoint>.Right(x.point));
+                    return (
+                        from: from,
+                        to: toInfo != null ? (to!.Value, toInfo.Value.entity) : null
+                    );
+                },
+                undo: state => {
+                    Either<Point, (FreePoint point, Vector2 location)> from;
+                    if(state.from.IsRight()) {
+                        var point = state.from.ToRight();
+                        from = (point, Surface.GetPointLocation(point)).AsRight();
+                        Surface.Remove(point);
+                    } else {
+                        from = state.from.ToLeft().AsLeft();
+                    }
+
+                    if(state.to == null) {
+                        return (from, null);
+                    }
+
+                    Surface.Remove(state.to!.Value.entity);
+                    Either<Point, (FreePoint point, Vector2 location)> pointInfo;
+                    if(state.to!.Value.to.IsRight()) {
+                        var toLocation = Surface.GetPointLocation(state.to!.Value.to.ToRight());
+                        Surface.Remove(state.to!.Value.to.ToRight());
+                        pointInfo = (state.to!.Value.to.ToRight(), toLocation).AsRight();
+                    } else {
+                        pointInfo = state.to!.Value.to.ToLeft().AsLeft();
+                    }
+                    return (
+                        from,
+                        (pointInfo, state.to!.Value.entity)
+                    );
+                },
+                update: ((Either<Point, FreePoint> from, (Either<Point, FreePoint> to, Entity entity)? to) state, Vector2 offset) => {
+                    var toInfo = state.to;
+                    if(/*toInfo == null && */offset.LengthSquared() < Surface.PointHitTestDistance * Surface.PointHitTestDistance)
+                        return state;
+
+                    var fromPoint = state.from.Match(x => x, x => x);
+                    var newToPoint = toInfo != null ? toInfo.Value.to.Match(x => null, x => (FreePoint?)x) : null;
+                    var point = Surface
+                        .HitTest(startPoint + offset)
+                        .Where(x => x != newToPoint && x != fromPoint)
+                        .FirstOrDefault();
+                    if(point != null) {
+                        if(newToPoint != null && toInfo != null && toInfo.Value.to.IsRight()) {
+                            Surface.Remove(newToPoint!);
+                            Surface.Remove(toInfo.Value.entity);
+                            toInfo = null;
+                        }
+                        if(toInfo == null) {
+                            var entity = createEntity(Surface.Constructor, fromPoint, point);
+                            Surface.Add(entity, enitityStyle);
+                            toInfo = (point.AsLeft(), entity);
+                        }
+                    } else {
+                        if(newToPoint == null && toInfo != null && toInfo.Value.to.IsLeft()) {
+                            Surface.Remove(toInfo.Value.entity);
+                            toInfo = null;
+                        }
+                        if(toInfo == null) {
+                            var pointTo = Surface.Constructor.Point();
+                            Surface.Add(pointTo.AsView(), DisplayStyle.Visible);
+                            var entity = createEntity(Surface.Constructor, fromPoint, pointTo);
+                            Surface.Add(entity, enitityStyle);
+                            toInfo = (pointTo.AsRight(), entity);
+                        }
+                    }
+
+                    if(toInfo.Value.to.IsRight())
+                        Surface.SetPointLocation(toInfo.Value.to.ToRight(), startPoint + offset);
+                    return (state.from, toInfo);
+                }
+            );
+            transaction.Commit();
+            return DragInputState.GetDragState(
+                startPoint,
+                onDrag: offset => {
+                                //if(offset.LengthSquared() > 0)
+                                transaction.Commit().Update(offset);
+                    return true;
+                }
+            );
+        }
+
         public void Load(Surface surface) {
             this.Surface = surface;
         }

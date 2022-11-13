@@ -29,8 +29,8 @@ namespace MetaConstruct {
             entities.Add(new EntityViewInfo(entity, style));
         }
 
-        public void Remove(Primitive primitive) {
-            entities.Remove(entities.Single(x => x.Entity == primitive));
+        public void Remove(Entity entity) {
+            entities.Remove(entities.Single(x => x.Entity == entity));
         }
         public void Remove(Point point) {
             entities.Remove(entities.Single(x => (x.Entity as PointView)?.point == point));
