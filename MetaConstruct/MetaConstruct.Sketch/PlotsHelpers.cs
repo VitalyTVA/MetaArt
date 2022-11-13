@@ -309,11 +309,6 @@ namespace MetaConstruct {
             var vertex0 = c.Point();
             var ((vertex1, vertex2, vertex3), _) = c.Square(center, vertex0);
 
-            c.LineSegment(vertex0, vertex1).Add(s);
-            c.LineSegment(vertex1, vertex2).Add(s);
-            c.LineSegment(vertex2, vertex3).Add(s);
-            c.LineSegment(vertex3, vertex0).Add(s);
-
             var n = 5;
             var countN = 2 << n - 1;
             var points1 = c.DivideNTimes(vertex0, vertex1, n).result;
