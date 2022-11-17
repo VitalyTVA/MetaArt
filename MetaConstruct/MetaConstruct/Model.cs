@@ -75,6 +75,19 @@
             return new CircleSegment(circle, invert ? p2 : p1, invert ? p1 : p2);
         }
 
+        public static CircleSegment? CircleSegment(Point p1, Point p2) {
+            switch((p1, p2)) {
+                case (FreePoint from, CircleCirclePoint to):
+                    return CircleSegment(to.Circle2, false, p1, p2);
+                case (CircleCirclePoint from, FreePoint to) when from.Circle2.TryGetPointOnCircle() == to:
+                    return CircleSegment(from.Circle2, false, p1, p2);
+                case (CircleCirclePoint from, CircleCirclePoint to) when from.Circle2 == to.Circle2:
+                    return CircleSegment(from.Circle2, false, p1, p2);
+                default:
+                    return null;
+            }
+        }
+
         public static LineSegment LineSegment(Line line, Point from, Point to) => new LineSegment(line, from, to);
         public static CircleSegment CircleSegment(Circle circle, Point from, Point to) => new CircleSegment(circle, from, to);
 

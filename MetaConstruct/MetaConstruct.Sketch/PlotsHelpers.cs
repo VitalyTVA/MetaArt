@@ -56,8 +56,12 @@ namespace MetaConstruct {
                 c.Intersect(centerCircle, c2).Point2
             ).Add(s);
             new Contour(new Segment[] {
-            s1, s2, s3
-        }).Add(s);
+                s1, s2, s3
+            }).Add(s);
+
+            c.Intersect(centerCircle, c1).Point1.AsView().Add(s);
+            c.Intersect(centerCircle, c1).Point2.AsView().Add(s);
+
             l1.AsLineSegment().Add(s);
             l2.AsLineSegment().Add(s);
             l3.AsLineSegment().Add(s);

@@ -23,6 +23,7 @@ namespace MetaContruct.Tests {
             surface.Add(p.AsView(), DisplayStyle.Background);
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.False(controller.undoManager.CanUndo);
             Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(50, 50), surface.GetPointLocation(p));
 
@@ -60,6 +61,7 @@ namespace MetaContruct.Tests {
             surface.Add(p.AsView(), DisplayStyle.Background);
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.False(controller.undoManager.CanUndo);
             Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(50, 50), surface.GetPointLocation(p));
 
@@ -81,6 +83,7 @@ namespace MetaContruct.Tests {
             CollectionAssert.IsEmpty(surface.GetEntities());
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.True(controller.undoManager.CanUndo);
             var p = (FreePoint)((PointView)surface.GetEntities().Single().Entity).point;
             Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p));
 
@@ -109,6 +112,7 @@ namespace MetaContruct.Tests {
             CollectionAssert.IsEmpty(surface.GetEntities());
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.True(controller.undoManager.CanUndo);
             var p = (FreePoint)((PointView)surface.GetEntities().Single().Entity).point;
             Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p));
 
@@ -159,6 +163,7 @@ namespace MetaContruct.Tests {
             CollectionAssert.IsEmpty(surface.GetEntities());
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.True(controller.undoManager.CanUndo);
             var p1 = (FreePoint)((PointView)surface.GetEntities().Single().Entity).point;
             Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p1));
 
@@ -215,6 +220,7 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(p1.AsView(), surface.GetEntities().Single().Entity);
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.False(controller.undoManager.CanUndo);
             Assert.AreEqual(p1.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(50, 50), surface.GetPointLocation(p1));
 
@@ -272,6 +278,7 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(p2.AsView(), surface.GetEntities().Single().Entity);
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.True(controller.undoManager.CanUndo);
             Assert.AreEqual(p2.AsView(), surface.GetEntities().First().Entity);
             Assert.AreEqual(new Vector2(60, 70), surface.GetPointLocation(p2));
             var p1 = (FreePoint)((PointView)surface.GetEntities().ElementAt(1).Entity).point;
@@ -344,6 +351,7 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(p2.AsView(), surface.GetEntities().Single().Entity);
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.True(controller.undoManager.CanUndo);
             Assert.AreEqual(p2.AsView(), surface.GetEntities().First().Entity);
             Assert.AreEqual(new Vector2(60, 70), surface.GetPointLocation(p2));
             var p1 = (FreePoint)((PointView)surface.GetEntities().ElementAt(1).Entity).point;
@@ -416,6 +424,7 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(i.AsView(), surface.GetEntities().Single().Entity);
 
             controller.scene.Press(new Vector2(0, 0));
+            Assert.False(controller.undoManager.CanUndo);
             Assert.AreEqual(i.AsView(), surface.GetEntities().Single().Entity);
 
             controller.scene.Drag(new Vector2(58, 68));
@@ -451,6 +460,7 @@ namespace MetaContruct.Tests {
             CollectionAssert.IsEmpty(surface.GetEntities());
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.True(controller.undoManager.CanUndo);
             var p1 = (FreePoint)((PointView)surface.GetEntities().Single().Entity).point;
             Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p1));
 
@@ -478,6 +488,7 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(p2.AsView(), surface.GetEntities().Single().Entity);
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.True(controller.undoManager.CanUndo);
             Assert.AreEqual(p2.AsView(), surface.GetEntities().First().Entity);
             Assert.AreEqual(new Vector2(60, 70), surface.GetPointLocation(p2));
             var p1 = (FreePoint)((PointView)surface.GetEntities().ElementAt(1).Entity).point;
@@ -533,6 +544,7 @@ namespace MetaContruct.Tests {
             CollectionAssert.IsEmpty(surface.GetEntities());
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.True(controller.undoManager.CanUndo);
             var p1 = (FreePoint)((PointView)surface.GetEntities().Single().Entity).point;
             Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p1));
 
@@ -567,6 +579,7 @@ namespace MetaContruct.Tests {
             CollectionAssert.IsEmpty(surface.GetEntities());
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.True(controller.undoManager.CanUndo);
             var p1 = (FreePoint)((PointView)surface.GetEntities().Single().Entity).point;
             Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p1));
 
@@ -622,6 +635,7 @@ namespace MetaContruct.Tests {
             CollectionAssert.IsEmpty(surface.GetEntities());
 
             controller.scene.Press(new Vector2(48, 48));
+            Assert.True(controller.undoManager.CanUndo);
             var p1 = (FreePoint)((PointView)surface.GetEntities().Single().Entity).point;
             Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p1));
 
@@ -664,6 +678,197 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(DisplayStyle.Visible, surface.GetEntities().Skip(2).Single().Style);
             Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p1));
             Assert.AreEqual(new Vector2(60, 70), surface.GetPointLocation(p2));
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+        }
+        #endregion
+
+        #region circle segment
+        [Test]
+        public void CircleSegmentTool_ExistingFreePoint_ExistingCircleIntersectionPoint() {
+            var (controller, surface) = CreateTestController(Tool.CircleSegment);
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var c1 = Circle(p1, p3);
+            var c2 = Circle(p2, p3);
+            var (i1, i2) = Intersect(c1, c2);
+            surface.SetPoints(new[] {
+                (p1, new Vector2(-100, 0)),
+                (p2, new Vector2(100, 0)),
+                (p3, new Vector2(0, 50)),
+            });
+            Assert.AreSame(p3, i1);
+            foreach(var item in new[] { p1, p2, p3, i2 }) {
+                surface.Add(item.AsView(), DisplayStyle.Background);
+            }
+
+            Assert.AreEqual(4, surface.GetEntities().Count());
+
+            controller.scene.Press(new Vector2(0, 49));
+            Assert.AreEqual(4, surface.GetEntities().Count());
+            Assert.False(controller.undoManager.CanUndo);
+
+            controller.scene.Drag(new Vector2(-1, -49));
+            var arc = (CircleSegment)surface.GetEntities().Skip(4).Single().Entity;
+            Assert.AreSame(c2, arc.Circle);
+            Assert.AreSame(i1, arc.From);
+            Assert.AreSame(i2, arc.To);
+
+            controller.scene.Release(new Vector2(-1, -49));
+            Assert.AreSame(arc, (CircleSegment)surface.GetEntities().Skip(4).Single().Entity);
+            Assert.AreSame(c2, arc.Circle);
+            Assert.AreSame(i1, arc.From);
+            Assert.AreSame(i2, arc.To);
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+            controller.undoManager.Undo();
+            Assert.AreEqual(4, surface.GetEntities().Count());
+
+            Assert.False(controller.undoManager.CanUndo);
+            Assert.True(controller.undoManager.CanRedo);
+            controller.undoManager.Redo();
+            Assert.AreSame(arc, (CircleSegment)surface.GetEntities().Skip(4).Single().Entity);
+            Assert.AreSame(c2, arc.Circle);
+            Assert.AreSame(i1, arc.From);
+            Assert.AreSame(i2, arc.To);
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+        }
+
+        [Test]
+        public void CircleSegmentTool_ExistingCircleIntersectionPoint_ExistingFreePoint() {
+            var (controller, surface) = CreateTestController(Tool.CircleSegment);
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var c1 = Circle(p1, p3);
+            var c2 = Circle(p2, p3);
+            var (i1, i2) = Intersect(c1, c2);
+            surface.SetPoints(new[] {
+                (p1, new Vector2(-100, 0)),
+                (p2, new Vector2(100, 0)),
+                (p3, new Vector2(0, -50)),
+            });
+            Assert.AreSame(p3, i1);
+            foreach(var item in new[] { p1, p2, p3, i2 }) {
+                surface.Add(item.AsView(), DisplayStyle.Background);
+            }
+
+            Assert.AreEqual(4, surface.GetEntities().Count());
+
+            controller.scene.Press(new Vector2(0, 49));
+            Assert.AreEqual(4, surface.GetEntities().Count());
+            Assert.False(controller.undoManager.CanUndo);
+
+            controller.scene.Drag(new Vector2(-1, -49));
+            Assert.True(controller.undoManager.CanUndo);
+            var arc = (CircleSegment)surface.GetEntities().Skip(4).Single().Entity;
+            Assert.AreSame(c2, arc.Circle);
+            Assert.AreSame(i2, arc.From);
+            Assert.AreSame(i1, arc.To);
+
+            controller.scene.Drag(new Vector2(500, 500));
+            Assert.False(controller.undoManager.CanUndo);
+            Assert.AreEqual(4, surface.GetEntities().Count());
+
+            controller.scene.Drag(new Vector2(-1, -49));
+            Assert.True(controller.undoManager.CanUndo);
+            arc = (CircleSegment)surface.GetEntities().Skip(4).Single().Entity;
+            Assert.AreSame(c2, arc.Circle);
+            Assert.AreSame(i2, arc.From);
+            Assert.AreSame(i1, arc.To);
+
+            controller.scene.Release(new Vector2(-1, -49));
+            Assert.AreSame(arc, (CircleSegment)surface.GetEntities().Skip(4).Single().Entity);
+            Assert.AreSame(c2, arc.Circle);
+            Assert.AreSame(i2, arc.From);
+            Assert.AreSame(i1, arc.To);
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+            controller.undoManager.Undo();
+            Assert.AreEqual(4, surface.GetEntities().Count());
+
+            Assert.False(controller.undoManager.CanUndo);
+            Assert.True(controller.undoManager.CanRedo);
+            controller.undoManager.Redo();
+            Assert.AreSame(arc, (CircleSegment)surface.GetEntities().Skip(4).Single().Entity);
+            Assert.AreSame(c2, arc.Circle);
+            Assert.AreSame(i2, arc.From);
+            Assert.AreSame(i1, arc.To);
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+        }
+
+        [Test]
+        public void CircleSegmentTool_ExistingCircleIntersectionPoint_ExistingCircleIntersectionPoint() {
+            var (controller, surface) = CreateTestController(Tool.CircleSegment);
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var p4 = Point();
+            var p5 = Point();
+            var c1 = Circle(p1, p2);
+            var c2 = Circle(p3, p4);
+            var (i1, i2) = Intersect(c1, c2);
+            surface.SetPoints(new[] {
+                (p1, new Vector2(-40, 0)),
+                (p2, new Vector2(10, 0)),
+                (p3, new Vector2(40, 0)),
+                (p4, new Vector2(-10, 0)),
+                (p5, new Vector2(500, 500)),
+            });
+            foreach(var item in new[] { p1, p2, p3, p4, p5, i1, i2 }) {
+                surface.Add(item.AsView(), DisplayStyle.Background);
+            }
+
+            Assert.AreEqual(7, surface.GetEntities().Count());
+
+            controller.scene.Press(new Vector2(0, 30));
+            Assert.AreEqual(7, surface.GetEntities().Count());
+            Assert.False(controller.undoManager.CanUndo);
+
+            controller.scene.Drag(new Vector2(-1, -29));
+            Assert.True(controller.undoManager.CanUndo);
+            var arc = (CircleSegment)surface.GetEntities().Skip(7).Single().Entity;
+            Assert.AreSame(c2, arc.Circle);
+            Assert.AreSame(i2, arc.From);
+            Assert.AreSame(i1, arc.To);
+
+            controller.scene.Drag(new Vector2(500, 500));
+            Assert.False(controller.undoManager.CanUndo);
+            Assert.AreEqual(7, surface.GetEntities().Count());
+
+            controller.scene.Drag(new Vector2(-1, -29));
+            Assert.True(controller.undoManager.CanUndo);
+            arc = (CircleSegment)surface.GetEntities().Skip(7).Single().Entity;
+            Assert.AreSame(c2, arc.Circle);
+            Assert.AreSame(i2, arc.From);
+            Assert.AreSame(i1, arc.To);
+
+            controller.scene.Release(new Vector2(-1, -49));
+            Assert.AreSame(arc, (CircleSegment)surface.GetEntities().Skip(7).Single().Entity);
+            Assert.AreSame(c2, arc.Circle);
+            Assert.AreSame(i2, arc.From);
+            Assert.AreSame(i1, arc.To);
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+            controller.undoManager.Undo();
+            Assert.AreEqual(7, surface.GetEntities().Count());
+
+            Assert.False(controller.undoManager.CanUndo);
+            Assert.True(controller.undoManager.CanRedo);
+            controller.undoManager.Redo();
+            Assert.AreSame(arc, (CircleSegment)surface.GetEntities().Skip(7).Single().Entity);
+            Assert.AreSame(c2, arc.Circle);
+            Assert.AreSame(i2, arc.From);
+            Assert.AreSame(i1, arc.To);
 
             Assert.True(controller.undoManager.CanUndo);
             Assert.False(controller.undoManager.CanRedo);

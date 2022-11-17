@@ -13,6 +13,7 @@ namespace MetaContruct.Tests {
         protected LineSegment LineSegment(Line line, Circle circle) => c.LineSegment(line, circle);
         protected CircleSegment CircleSegment(Circle circle, Circle other, bool invert = false) => c.CircleSegment(circle, other, invert);
         protected CircleSegment CircleSegment(Circle circle, Line line, bool invert = false) => c.CircleSegment(circle, line, invert);
+        protected CircleSegment? CircleSegment(Point from, Point to) => ConstructorHelper.CircleSegment(from, to);
 
         protected LineSegment LineSegment(Line line) => line.AsLineSegment();
         protected LineSegment LineSegment(Line line, Point from, Point to) => ConstructorHelper.LineSegment(line, from, to);
