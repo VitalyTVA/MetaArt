@@ -76,5 +76,18 @@ namespace MetaConstruct {
 
             return (i1, i2);
         }
+
+        public static float DistanceToLine(Vector2 p, Vector2 a1, Vector2 a2) {
+            var lineVector = a1 - a2;
+            var normal = new Vector2(lineVector.Y, -lineVector.X);
+            var p2 = p + normal;
+            var i = GetLinesIntersection(p, p2, a1, a2)!.Value;
+            return Vector2.Distance(p, i);
+        }
+
+        public static float DistanceToCircle(Vector2 p, Vector2 center, float radius) {
+            return MathF.Abs(Vector2.Distance(p, center) - radius);
+        }
+
     }
 }

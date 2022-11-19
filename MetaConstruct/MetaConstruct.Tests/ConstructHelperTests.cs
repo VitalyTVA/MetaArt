@@ -63,5 +63,19 @@ namespace MetaContruct.Tests {
             Assert.AreEqual(5 * MathF.PI / 4, ConstructHelper.AngleTo(new Vector2(-3, -3)));
             Assert.AreEqual(7 * MathF.PI / 4, ConstructHelper.AngleTo(new Vector2(3, -3)));
         }
+
+        [Test]
+        public void DistanceToLine() {
+            Assert.AreEqual(3.1622777f, ConstructHelper.DistanceToLine(new Vector2(1, 2), new Vector2(3, 6), new Vector2(5, 0)));
+            Assert.AreEqual(0, ConstructHelper.DistanceToLine(new Vector2(4, 3), new Vector2(3, 6), new Vector2(5, 0)));
+        }
+
+        [Test]
+        public void DistanceToCircle() {
+            Assert.AreEqual(2.47213602f, ConstructHelper.DistanceToCircle(new Vector2(8, 5), new Vector2(4, 3), 2));
+            Assert.AreEqual(0, ConstructHelper.DistanceToCircle(new Vector2(4, 5), new Vector2(4, 3), 2));
+            Assert.AreEqual(0.585786462f, ConstructHelper.DistanceToCircle(new Vector2(5, 4), new Vector2(4, 3), 2));
+        }
+
     }
 }
