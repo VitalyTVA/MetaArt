@@ -78,7 +78,7 @@ namespace MetaContruct.Tests {
         }
 
         [Test]
-        public void PointTool_ClickAndCreateNewPoint() {
+        public void PointTool_ClickAndCreateNewFreePoint() {
             var (controller, surface) = CreateTestController(Tool.Point);
             CollectionAssert.IsEmpty(surface.GetEntities());
 

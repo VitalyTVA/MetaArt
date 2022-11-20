@@ -67,7 +67,17 @@ namespace MetaContruct.Tests {
         [Test]
         public void DistanceToLine() {
             Assert.AreEqual(3.1622777f, ConstructHelper.DistanceToLine(new Vector2(1, 2), new Vector2(3, 6), new Vector2(5, 0)));
+            Assert.AreEqual(3.1622777f, ConstructHelper.DistanceToLine(new Vector2(3, -4), new Vector2(3, 6), new Vector2(5, 0)));
+            Assert.AreEqual(3.1622777f, ConstructHelper.DistanceToLine(new Vector2(-1, 8), new Vector2(3, 6), new Vector2(5, 0)));
             Assert.AreEqual(0, ConstructHelper.DistanceToLine(new Vector2(4, 3), new Vector2(3, 6), new Vector2(5, 0)));
+        }
+
+        [Test]
+        public void DistanceToLineSegment() {
+            Assert.AreEqual(3.1622777f, ConstructHelper.DistanceToLineSegment(new Vector2(1, 2), new Vector2(3, 6), new Vector2(5, 0)));
+            Assert.AreEqual(4.47213602f, ConstructHelper.DistanceToLineSegment(new Vector2(3, -4), new Vector2(3, 6), new Vector2(5, 0)));
+            Assert.AreEqual(4.47213602f, ConstructHelper.DistanceToLineSegment(new Vector2(-1, 8), new Vector2(3, 6), new Vector2(5, 0)));
+            Assert.AreEqual(0, ConstructHelper.DistanceToLineSegment(new Vector2(4, 3), new Vector2(3, 6), new Vector2(5, 0)));
         }
 
         [Test]

@@ -135,4 +135,16 @@ namespace MetaConstruct {
             return new LineF(from, to);
         }
     }
+
+    public static class SurfaceExtensions {
+        public static T Add<T>(this T entity, Surface surface, DisplayStyle? style = null) where T : Entity {
+            style = style ?? entity switch {
+                Primitive => DisplayStyle.Background,
+                Segment or PointView => DisplayStyle.Visible,
+                _ => throw new InvalidOperationException()
+            };
+            surface.Add(entity, style.Value);
+            return entity;
+        }
+    }
 }

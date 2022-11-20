@@ -78,11 +78,31 @@ namespace MetaConstruct {
         }
 
         public static float DistanceToLine(Vector2 p, Vector2 a1, Vector2 a2) {
+            var i = GetPerpendicularPoint(p, a1, a2);
+            return Vector2.Distance(p, i);
+        }
+
+        public static float DistanceToLineSegment(Vector2 p, Vector2 a1, Vector2 a2) {
+            var i = GetPerpendicularPoint(p, a1, a2);
+            var d = Vector2.DistanceSquared(a1, a2);
+
+            var d1 = Vector2.DistanceSquared(a1, i);
+            if(d1 > d)
+                return Vector2.Distance(p, a2);
+
+            var d2 = Vector2.DistanceSquared(a2, i);
+            if(d2 > d)
+                return Vector2.Distance(p, a1);
+
+            return Vector2.Distance(p, i);
+        }
+
+        static Vector2 GetPerpendicularPoint(Vector2 p, Vector2 a1, Vector2 a2) {
             var lineVector = a1 - a2;
             var normal = new Vector2(lineVector.Y, -lineVector.X);
             var p2 = p + normal;
             var i = GetLinesIntersection(p, p2, a1, a2)!.Value;
-            return Vector2.Distance(p, i);
+            return i;
         }
 
         public static float DistanceToCircle(Vector2 p, Vector2 center, float radius) {
