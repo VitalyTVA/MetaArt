@@ -391,7 +391,9 @@ LinesPoint (2.3333 2.6667)
             var p2 = Point();
 
             var surface = CreateTestSurface();
+            Assert.False(surface.Contains(Line(p1, p2)));
             surface.Add(Line(p1, p2), DisplayStyle.Visible);
+            Assert.True(surface.Contains(Line(p1, p2)));
 
             Assert.Throws<InvalidOperationException>(() => surface.Add(Line(p1, p2), DisplayStyle.Background));
         }
@@ -403,10 +405,13 @@ LinesPoint (2.3333 2.6667)
             surface.SetPoints(new[] {
                 (p, new Vector2(1, 2)),
             });
+            Assert.False(surface.Contains(p.AsView()));
             surface.Add(p.AsView(), DisplayStyle.Background);
+            Assert.True(surface.Contains(p.AsView()));
             Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(1, 2), surface.GetPointLocation(p));
             surface.Remove(p);
+            Assert.False(surface.Contains(p.AsView()));
             CollectionAssert.IsEmpty(surface.GetEntities());
             Assert.Throws<InvalidOperationException>(() => surface.Remove(p));
             Assert.Throws<KeyNotFoundException>(() => surface.GetPointLocation(p));

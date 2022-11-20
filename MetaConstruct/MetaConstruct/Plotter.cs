@@ -1,4 +1,5 @@
 ﻿using MetaArt.Core;
+using MetaCore;
 using System.Numerics;
 
 namespace MetaConstruct {
@@ -24,9 +25,13 @@ namespace MetaConstruct {
         public Constructor Constructor { get; }
         readonly List<EntityViewInfo> entities = new();
         public void Add(Entity entity, DisplayStyle style) {
-            if(entities.Any(x => x.Entity == entity))
+            if(Contains(entity))
                 throw new InvalidOperationException();
             entities.Add(new EntityViewInfo(entity, style));
+        }
+
+        public bool Contains(Entity entity) {
+            return entities.Any(x => x.Entity == entity);
         }
 
         public void Remove(Entity entity) {
@@ -57,6 +62,55 @@ namespace MetaConstruct {
                 .OrderBy(x => Vector2.DistanceSquared(x.location, point))
                 .Where(x => Vector2.DistanceSquared(x.location, point) < PointHitTestDistance * PointHitTestDistance)
                 .Select(x => x.point);
+        }
+
+        public Point? HitTestIntersection(Vector2 point) {
+            var calculator = CreateCalculator();
+            var closeEntities = this.entities
+                .Where(x => {
+                    var distance = float.MaxValue;
+                    switch(x.Entity) {
+                        case Line l:
+                            var lineF = calculator.CalcLine(l);
+                            distance = ConstructHelper.DistanceToLine(point, lineF.from, lineF.to);
+                            break;
+                        case LineSegment s:
+                            var lineSegmentF = calculator.CalcLineSegment(s.From, s.To);
+                            distance = ConstructHelper.DistanceToLineSegment(point, lineSegmentF.from, lineSegmentF.to);
+                            break;
+                        case Circle c:
+                            var circleF = calculator.CalcCircle(c);
+                            distance = ConstructHelper.DistanceToCircle(point, circleF.center, circleF.radius);
+                            break;
+                        case CircleSegment c:
+                            var circleSegmentF = calculator.CalcCircleSegment(c).circle;
+                            distance = ConstructHelper.DistanceToCircle(point, circleSegmentF.center, circleSegmentF.radius);
+                            break;
+                    };
+                    return distance < PointHitTestDistance;
+                })
+                .ToArray();
+            var intersections = closeEntities
+                .SelectMany((x, i) => closeEntities.Skip(i + 1).Select(y => (x.Entity, y.Entity)))
+                .SelectMany(x => {
+                    static Either<Line, Circle> ToLineOrCircle(Entity e) => e switch {
+                        Line l => l.AsLeft(),
+                        LineSegment l => l.Line.AsLeft(),
+                        Circle c => c.AsRight(),
+                        CircleSegment c => c.Circle.AsRight(),
+                    };
+                    var p = (ToLineOrCircle(x.Item1), ToLineOrCircle(x.Item2)) switch {
+                        ((Line l1, null), (Line l2, null)) => Constructor.Intersect(l1, l2).Yield(),
+                        ((Line l, null), (null, Circle c)) => Constructor.Intersect(l, c).Trasform(x => (x.Point1, x.Point2)).Yield(),
+                        ((null, Circle c), (Line l, null)) => Constructor.Intersect(l, c).Trasform(x => (x.Point1, x.Point2)).Yield(),
+                        ((null, Circle c1), (null, Circle c2)) => Constructor.Intersect(c1, c2).Trasform(x => (x.Point1, x.Point2)).Yield(),
+                    };
+                    return p;
+                })
+                .Select(x => (point: x, calculator.CalcPoint(x)))
+                .OrderBy(x => Vector2.DistanceSquared(x.Item2, point))
+                ;
+            return intersections.FirstOrDefault().point;
         }
 
         public Calculator CreateCalculator() {
@@ -118,7 +172,7 @@ namespace MetaConstruct {
             return segments;
         }
 
-        static CircleSegmentF CalcCircleSegment(this Calculator calculator, CircleSegment segment) {
+        public static CircleSegmentF CalcCircleSegment(this Calculator calculator, CircleSegment segment) {
             var circle = calculator.CalcCircle(segment.Circle);
             var from = calculator.CalcPoint(segment.From);
             var to = calculator.CalcPoint(segment.To);
@@ -129,7 +183,7 @@ namespace MetaConstruct {
             return new CircleSegmentF(circle, angleFrom, angleTo);
         }
 
-        static LineF CalcLineSegment(this Calculator calculator, Point p1, Point p2) {
+        public static LineF CalcLineSegment(this Calculator calculator, Point p1, Point p2) {
             var from = calculator.CalcPoint(p1);
             var to = calculator.CalcPoint(p2);
             return new LineF(from, to);

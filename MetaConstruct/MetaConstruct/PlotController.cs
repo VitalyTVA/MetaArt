@@ -17,43 +17,68 @@ namespace MetaConstruct {
                 GetPressState = startPoint => {
                     if(tool == Tool.Point) {
                         var point = Surface.HitTest(startPoint).OfType<FreePoint>().FirstOrDefault();
-                        var startPointLocation = point != null ? Surface.GetPointLocation(point) : startPoint;
-                        var transaction = point == null ? undoManager.Execute(
-                                (point: Surface.Constructor.Point(), location: startPoint),
-                                redo: state => {
-                                    Surface.Add(state.point.AsView(), DisplayStyle.Visible);
-                                    Surface.SetPointLocation(state.point, state.location);
-                                    return (state.point, true);
-                                },
-                                undo: statePoint => {
-                                    var location = Surface.GetPointLocation(statePoint);
-                                    Surface.Remove(statePoint);
-                                    return (statePoint, location);
-                                },
-                                update: (FreePoint statePoint, Vector2 offset) => {
-                                    Surface.SetPointLocation(statePoint, startPointLocation + offset);
-                                    return (statePoint, true);
-                                }
-                            )
-                            : undoManager.Execute(
-                                (point: point!, location: Surface.GetPointLocation(point!)),
-                                redo: state => {
-                                    var location = Surface.GetPointLocation(state.point);
-                                    bool move = !MathF.VectorsEqual(state.location, location);
-                                    if(move)
+
+                        IUpdatableAction<Vector2> transaction = null!;
+
+                        if(point == null) {
+                            var intersectionPoint = Surface.HitTestIntersection(startPoint);
+                            if(intersectionPoint != null && !Surface.Contains(intersectionPoint.AsView())) {
+                                transaction = undoManager.Execute(
+                                       intersectionPoint,
+                                       redo: statePoint => {
+                                           Surface.Add(statePoint.AsView(), DisplayStyle.Visible);
+                                           return (statePoint, true);
+                                       },
+                                       undo: statePoint => {
+                                           Surface.Remove(statePoint);
+                                           return statePoint;
+                                       },
+                                       update: (Point statePoint, Vector2 offset) => {
+                                           return (statePoint, true);
+                                       }
+                                   );
+                            }
+
+                        }
+                        if(transaction == null) {
+                            var startPointLocation = point != null ? Surface.GetPointLocation(point) : startPoint;
+                            transaction = point == null ? undoManager.Execute(
+                                    (point: Surface.Constructor.Point(), location: startPoint),
+                                    redo: state => {
+                                        Surface.Add(state.point.AsView(), DisplayStyle.Visible);
                                         Surface.SetPointLocation(state.point, state.location);
-                                    return ((state.point, location), move);
-                                },
-                                undo: state => {
-                                    var location = Surface.GetPointLocation(state.point);
-                                    Surface.SetPointLocation(state.point, state.location);
-                                    return (state.point, location);
-                                },
-                                update: ((FreePoint point, Vector2 location) state, Vector2 offset) => {
-                                    Surface.SetPointLocation(state.point, startPointLocation + offset);
-                                    return (state, true);
-                                }
-                            );
+                                        return (state.point, true);
+                                    },
+                                    undo: statePoint => {
+                                        var location = Surface.GetPointLocation(statePoint);
+                                        Surface.Remove(statePoint);
+                                        return (statePoint, location);
+                                    },
+                                    update: (FreePoint statePoint, Vector2 offset) => {
+                                        Surface.SetPointLocation(statePoint, startPointLocation + offset);
+                                        return (statePoint, true);
+                                    }
+                                )
+                                : undoManager.Execute(
+                                    (point: point!, location: Surface.GetPointLocation(point!)),
+                                    redo: state => {
+                                        var location = Surface.GetPointLocation(state.point);
+                                        bool move = !MathF.VectorsEqual(state.location, location);
+                                        if(move)
+                                            Surface.SetPointLocation(state.point, state.location);
+                                        return ((state.point, location), move);
+                                    },
+                                    undo: state => {
+                                        var location = Surface.GetPointLocation(state.point);
+                                        Surface.SetPointLocation(state.point, state.location);
+                                        return (state.point, location);
+                                    },
+                                    update: ((FreePoint point, Vector2 location) state, Vector2 offset) => {
+                                        Surface.SetPointLocation(state.point, startPointLocation + offset);
+                                        return (state, true);
+                                    }
+                                );
+                        }
                         return DragInputState.GetDragState(
                             startPoint,
                             onDrag: offset => {

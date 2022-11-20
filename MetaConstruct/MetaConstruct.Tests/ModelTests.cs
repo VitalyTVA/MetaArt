@@ -126,6 +126,20 @@ namespace MetaContruct.Tests {
         }
 
         [Test]
+        public void CircleSegmentTest4() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var c1 = Circle(p1, p3);
+            var c2 = Circle(p2, p3);
+
+            var segment = CircleSegment(c1, p3, Intersect(c1, c2).Point2);
+            Assert.AreEqual(c1, segment.Circle);
+            Assert.AreEqual(p3, segment.From);
+            Assert.AreEqual(Intersect(c1, c2).Point2, segment.To);
+        }
+
+        [Test]
         public void CircleSegmentFromCirclesIntersection() {
             var c1 = Circle(Point(), Point());
             var c2 = Circle(Point(), Point());

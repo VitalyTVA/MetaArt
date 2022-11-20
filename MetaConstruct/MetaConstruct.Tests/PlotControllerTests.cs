@@ -154,6 +154,50 @@ namespace MetaContruct.Tests {
             Assert.True(controller.undoManager.CanUndo);
             Assert.False(controller.undoManager.CanRedo);
         }
+
+        [Test]
+        public void PointTool_ClickAndCreateNewLinesIntersectionPoint() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var p4 = Point();
+            var (controller, surface) = CreateTestController(Tool.Point);
+            surface.SetPointLocation(p1, new Vector2(1, 2));
+            surface.SetPointLocation(p2, new Vector2(7, 4));
+            surface.SetPointLocation(p3, new Vector2(5, 0));
+            surface.SetPointLocation(p4, new Vector2(3, 6));
+            var l1 = Line(p1, p2).Add(surface);
+            var l2 = Line(p3, p4).Add(surface);
+
+            Assert.AreEqual(2, surface.GetEntities().Count());
+
+            controller.scene.Press(new Vector2(3.8f, 3.1f));
+            Assert.True(controller.undoManager.CanUndo);
+            var p = (LineLinePoint)((PointView)surface.GetEntities().Skip(2).Single().Entity).point;
+            Assert.AreSame(l1, p.Line1);
+            Assert.AreSame(l2, p.Line2);
+
+            controller.scene.Release(new Vector2(4.1f, 2.9f));
+            Assert.AreSame(p, (LineLinePoint)((PointView)surface.GetEntities().Skip(2).Single().Entity).point);
+            Assert.AreSame(l1, p.Line1);
+            Assert.AreSame(l2, p.Line2);
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+            controller.undoManager.Undo();
+            Assert.AreEqual(2, surface.GetEntities().Count());
+
+            Assert.False(controller.undoManager.CanUndo);
+            Assert.True(controller.undoManager.CanRedo);
+            controller.undoManager.Redo();
+            p = (LineLinePoint)((PointView)surface.GetEntities().Skip(2).Single().Entity).point;
+            Assert.AreSame(l1, p.Line1);
+            Assert.AreSame(l2, p.Line2);
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+        }
+
         #endregion
 
         #region line

@@ -72,6 +72,7 @@
         public FreePoint(string id) {
             Id = id;
         }
+        public override string ToString() => "FreePoint: " + Id;
     }
     public class Constructor {
         int idCount = 0;
