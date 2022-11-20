@@ -37,9 +37,9 @@ namespace MetaConstruct {
         public void Remove(Entity entity) {
             entities.Remove(entities.Single(x => x.Entity == entity));
         }
-        public void Remove(Point point) {
+        public void Remove(Point point, bool keepLocation = false) {
             entities.Remove(entities.Single(x => (x.Entity as PointView)?.point == point));
-            if(point is FreePoint freePoint)
+            if(!keepLocation && point is FreePoint freePoint)
                 points.Remove(freePoint);
         }
 

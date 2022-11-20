@@ -30,7 +30,7 @@ namespace MetaConstruct {
                                            return (statePoint, true);
                                        },
                                        undo: statePoint => {
-                                           Surface.Remove(statePoint);
+                                           Surface.Remove(statePoint, keepLocation: true);
                                            return statePoint;
                                        },
                                        update: (Point statePoint, Vector2 offset) => {

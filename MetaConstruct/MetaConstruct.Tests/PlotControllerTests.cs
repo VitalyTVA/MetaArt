@@ -198,6 +198,48 @@ namespace MetaContruct.Tests {
             Assert.False(controller.undoManager.CanRedo);
         }
 
+        [Test]
+        public void PointTool_ClickAndCreateExistingLinesIntersectionPoint() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var (controller, surface) = CreateTestController(Tool.Point);
+            surface.SetPointLocation(p1, new Vector2(10, 0));
+            surface.SetPointLocation(p2, new Vector2(0, 10));
+            surface.SetPointLocation(p3, new Vector2(0, 0));
+            var l1 = Line(p1, p3).Add(surface);
+            var l2 = Line(p2, p3).Add(surface);
+
+            Assert.AreEqual(2, surface.GetEntities().Count());
+
+            controller.scene.Press(new Vector2(0, 0));
+            Assert.True(controller.undoManager.CanUndo);
+            var p = (FreePoint)((PointView)surface.GetEntities().Skip(2).Single().Entity).point;
+            Assert.AreSame(p3, p);
+            Assert.AreEqual(new Vector2(0, 0), surface.GetPointLocation(p3));
+
+            controller.scene.Release(new Vector2(4.1f, 2.9f));
+            Assert.AreSame(p, (FreePoint)((PointView)surface.GetEntities().Skip(2).Single().Entity).point);
+            Assert.AreSame(p3, p);
+            Assert.AreEqual(new Vector2(0, 0), surface.GetPointLocation(p3));
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+            controller.undoManager.Undo();
+            Assert.AreEqual(2, surface.GetEntities().Count());
+            Assert.AreEqual(new Vector2(0, 0), surface.GetPointLocation(p3));
+
+            Assert.False(controller.undoManager.CanUndo);
+            Assert.True(controller.undoManager.CanRedo);
+            controller.undoManager.Redo();
+            p = (FreePoint)((PointView)surface.GetEntities().Skip(2).Single().Entity).point;
+            Assert.AreSame(p3, p);
+            Assert.AreEqual(new Vector2(0, 0), surface.GetPointLocation(p3));
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+        }
+
         #endregion
 
         #region line
@@ -622,10 +664,12 @@ namespace MetaContruct.Tests {
             var (controller, surface) = CreateTestController(Tool.Line);
             surface.Add(p1.AsView(), DisplayStyle.Visible);
             surface.Add(p2.AsView(), DisplayStyle.Visible);
+            var c = Circle(p1, p2).Add(surface);
             surface.SetPointLocation(p1, new Vector2(50, 50));
             surface.SetPointLocation(p2, new Vector2(100, 100));
             Assert.AreEqual(p1.AsView(), surface.GetEntities().First().Entity);
-            Assert.AreEqual(p2.AsView(), surface.GetEntities().Skip(1).Single().Entity);
+            Assert.AreEqual(p2.AsView(), surface.GetEntities().ElementAt(1).Entity);
+            Assert.AreEqual(c, surface.GetEntities().Skip(2).Single().Entity);
 
             controller.scene.Press(new Vector2(48, 48));
             Assert.False(controller.undoManager.CanUndo);
@@ -636,16 +680,18 @@ namespace MetaContruct.Tests {
             Assert.True(controller.undoManager.CanUndo);
             Assert.AreEqual(p1.AsView(), surface.GetEntities().First().Entity);
             Assert.AreEqual(p2.AsView(), surface.GetEntities().ElementAt(1).Entity);
+            Assert.AreEqual(c, surface.GetEntities().ElementAt(2).Entity);
             Assert.AreEqual(new Vector2(50, 50), surface.GetPointLocation(p1));
             Assert.AreEqual(new Vector2(100, 100), surface.GetPointLocation(p2));
-            var (l, style) = surface.GetEntities().Skip(2).Single();
+            var (l, style) = surface.GetEntities().Skip(3).Single();
             Assert.AreEqual(l, Line(p1, p2));
             Assert.AreEqual(DisplayStyle.Background, style);
 
             controller.scene.Release(new Vector2(99, 99));
             Assert.AreEqual(p1.AsView(), surface.GetEntities().First().Entity);
             Assert.AreEqual(p2.AsView(), surface.GetEntities().ElementAt(1).Entity);
-            Assert.AreEqual(l, surface.GetEntities().Skip(2).Single().Entity);
+            Assert.AreEqual(c, surface.GetEntities().ElementAt(2).Entity);
+            Assert.AreEqual(l, surface.GetEntities().Skip(3).Single().Entity);
             Assert.AreEqual(new Vector2(50, 50), surface.GetPointLocation(p1));
             Assert.AreEqual(new Vector2(100, 100), surface.GetPointLocation(p2));
 
@@ -655,14 +701,16 @@ namespace MetaContruct.Tests {
             surface.SetPointLocation(p1, new Vector2(50, 50));
             surface.SetPointLocation(p2, new Vector2(100, 100));
             Assert.AreEqual(p1.AsView(), surface.GetEntities().First().Entity);
-            Assert.AreEqual(p2.AsView(), surface.GetEntities().Skip(1).Single().Entity);
+            Assert.AreEqual(p2.AsView(), surface.GetEntities().ElementAt(1).Entity);
+            Assert.AreEqual(c, surface.GetEntities().Skip(2).Single().Entity);
 
             Assert.False(controller.undoManager.CanUndo);
             Assert.True(controller.undoManager.CanRedo);
             controller.undoManager.Redo();
             Assert.AreEqual(p1.AsView(), surface.GetEntities().First().Entity);
             Assert.AreEqual(p2.AsView(), surface.GetEntities().ElementAt(1).Entity);
-            Assert.AreEqual(l, surface.GetEntities().Skip(2).Single().Entity);
+            Assert.AreEqual(c, surface.GetEntities().ElementAt(2).Entity);
+            Assert.AreEqual(l, surface.GetEntities().Skip(3).Single().Entity);
             Assert.AreEqual(new Vector2(50, 50), surface.GetPointLocation(p1));
             Assert.AreEqual(new Vector2(100, 100), surface.GetPointLocation(p2));
 

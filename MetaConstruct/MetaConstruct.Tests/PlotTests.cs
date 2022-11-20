@@ -417,6 +417,18 @@ LinesPoint (2.3333 2.6667)
             Assert.Throws<KeyNotFoundException>(() => surface.GetPointLocation(p));
         }
         [Test]
+        public void RemoveFreePoint_KeepLocation() {
+            var surface = CreateTestSurface();
+            var p = Point();
+            surface.SetPoints(new[] {
+                (p, new Vector2(1, 2)),
+            });
+            surface.Add(p.AsView(), DisplayStyle.Background);
+            surface.Remove(p, keepLocation: true);
+            Assert.False(surface.Contains(p.AsView()));
+            Assert.AreEqual(new Vector2(1, 2), surface.GetPointLocation(p));
+        }
+        [Test]
         public void RemovePoint() {
             var surface = CreateTestSurface();
             var p = Intersect(Line(Point(), Point()), Line(Point(), Point()));
