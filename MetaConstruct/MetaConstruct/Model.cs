@@ -83,6 +83,14 @@
                     return CircleSegment(from.Circle2, false, p1, p2);
                 case (CircleCirclePoint from, CircleCirclePoint to) when from.Circle2 == to.Circle2:
                     return CircleSegment(from.Circle2, false, p1, p2);
+                //case (CircleCirclePoint from, CircleCirclePoint to) when from.Circle1 == to.Circle1:
+                //    return CircleSegment(from.Circle1, false, p1, p2);
+                //case (CircleCirclePoint from, CircleCirclePoint to) when from.Circle2 == to.Circle1:
+                //    return CircleSegment(from.Circle2, false, p1, p2);
+                //case (CircleCirclePoint from, CircleCirclePoint to) when from.Circle1 == to.Circle2:
+                //    return CircleSegment(from.Circle1, false, p1, p2);
+                //case (CircleCirclePoint from, CircleCirclePoint to):
+                //    return CircleSegment(from.Circle1, false, p1, p2);
                 default:
                     return null;
             }
