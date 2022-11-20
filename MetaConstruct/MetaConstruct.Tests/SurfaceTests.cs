@@ -202,5 +202,49 @@ namespace MetaContruct.Tests {
             Assert.AreSame(Intersect(c1, c2).Point2, surface.HitTestIntersection(new Vector2(0, -4)));
             Assert.Null(surface.HitTestIntersection(new Vector2(100, 100)));
         }
+
+        [Test]
+        public void HitTestLinesIntersectionTest_LineAndLineSegment() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var p4 = Point();
+            var l1 = Line(p1, p2);
+            var l2 = Line(p3, p4);
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(10, 0)),
+                (p2, new Vector2(-10, 0)),
+                (p3, new Vector2(0, 10)),
+                (p4, new Vector2(0, -10)),
+            });
+            surface.Add(l1, DisplayStyle.Background);
+            surface.Add(l2, DisplayStyle.Background);
+            l1.AsLineSegment().Add(surface);
+
+            Assert.AreSame(Intersect(l1, l2), surface.HitTestIntersection(new Vector2(1, -1)));
+            Assert.Null(surface.HitTestIntersection(new Vector2(100, 100)));
+        }
+
+        [Test]
+        public void HitTestCirclesIntersectionTest_CirleAndCircleSegment() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var surface = CreateTestSurface();
+            var c1 = Circle(p1, p3).Add(surface);
+            var c2 = Circle(p2, p3).Add(surface);
+            c.CircleSegment(c1, c2).Add(surface);
+            surface.SetPoints(new[] {
+                (p1, new Vector2(-3, 0)),
+                (p2, new Vector2(3, 0)),
+                (p3, new Vector2(0, 4)),
+            });
+
+            Assert.AreSame(p3, surface.HitTestIntersection(new Vector2(0, 4)));
+            Assert.AreSame(Intersect(c1, c2).Point2, surface.HitTestIntersection(new Vector2(0, -4)));
+            Assert.Null(surface.HitTestIntersection(new Vector2(100, 100)));
+        }
+
     }
 }

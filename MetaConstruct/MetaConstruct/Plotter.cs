@@ -89,9 +89,15 @@ namespace MetaConstruct {
                     };
                     return distance < PointHitTestDistance;
                 })
+                .Select(x => x.Entity switch { 
+                    LineSegment s => s.Line,
+                    CircleSegment s => s.Circle,
+                    Entity e => e
+                })
+                .Distinct()
                 .ToArray();
             var intersections = closeEntities
-                .SelectMany((x, i) => closeEntities.Skip(i + 1).Select(y => (x.Entity, y.Entity)))
+                .SelectMany((x, i) => closeEntities.Skip(i + 1).Select(y => (x, y)))
                 .SelectMany(x => {
                     static Either<Line, Circle> ToLineOrCircle(Entity e) => e switch {
                         Line l => l.AsLeft(),
