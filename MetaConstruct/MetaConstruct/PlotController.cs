@@ -204,7 +204,7 @@ namespace MetaConstruct {
                         }
                         if(toInfo == null) {
                             var entity = createEntity(Surface.Constructor, fromPoint, point);
-                            if(entity != null) {
+                            if(entity != null && !Surface.Contains(entity)) {
                                 Surface.Add(entity!, enitityStyle);
                                 toInfo = (point.AsLeft(), entity);
                             }
