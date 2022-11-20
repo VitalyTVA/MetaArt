@@ -18,12 +18,12 @@ namespace MetaConstruct {
                     if(tool == Tool.Point) {
                         var point = Surface.HitTest(startPoint).OfType<FreePoint>().FirstOrDefault();
 
-                        IUpdatableAction<Vector2> transaction = null!;
+                        IUpdatableAction<Vector2> action = null!;
 
                         if(point == null) {
                             var intersectionPoint = Surface.HitTestIntersection(startPoint);
                             if(intersectionPoint != null && !Surface.Contains(intersectionPoint.AsView())) {
-                                transaction = undoManager.Execute(
+                                action = undoManager.Execute(
                                        intersectionPoint,
                                        redo: statePoint => {
                                            Surface.Add(statePoint.AsView(), DisplayStyle.Visible);
@@ -38,11 +38,10 @@ namespace MetaConstruct {
                                        }
                                    );
                             }
-
                         }
-                        if(transaction == null) {
-                            var startPointLocation = point != null ? Surface.GetPointLocation(point) : startPoint;
-                            transaction = point == null ? undoManager.Execute(
+                        if(action == null) {
+                            if(point == null) {
+                                action = undoManager.Execute(
                                     (point: Surface.Constructor.Point(), location: startPoint),
                                     redo: state => {
                                         Surface.Add(state.point.AsView(), DisplayStyle.Visible);
@@ -55,11 +54,13 @@ namespace MetaConstruct {
                                         return (statePoint, location);
                                     },
                                     update: (FreePoint statePoint, Vector2 offset) => {
-                                        Surface.SetPointLocation(statePoint, startPointLocation + offset);
+                                        Surface.SetPointLocation(statePoint, startPoint + offset);
                                         return (statePoint, true);
                                     }
-                                )
-                                : undoManager.Execute(
+                                );
+                            } else {
+                                var startPointLocation = Surface.GetPointLocation(point);
+                                action = undoManager.Execute(
                                     (point: point!, location: Surface.GetPointLocation(point!)),
                                     redo: state => {
                                         var location = Surface.GetPointLocation(state.point);
@@ -78,12 +79,13 @@ namespace MetaConstruct {
                                         return (state, true);
                                     }
                                 );
+                            };
                         }
                         return DragInputState.GetDragState(
                             startPoint,
                             onDrag: offset => {
                                 if(offset.LengthSquared() > 0)
-                                    transaction.Update(offset);
+                                    action.Update(offset);
                                 return true;
                             }
                         );
