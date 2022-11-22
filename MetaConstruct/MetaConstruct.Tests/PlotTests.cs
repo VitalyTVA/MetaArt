@@ -477,6 +477,18 @@ LinesPoint (2.3333 2.6667)
             AssertPlot(expected, surface);
         }
         static void AssertPlot(string expected, Surface surface) {
+            var plot = surface.PlotToString();
+            Assert.AreEqual(expected, plot);
+        }
+    }
+    static class TestExtensions {
+        public static string LineFToString(this LineF l) => $"{l.from.VectorToString()} {l.to.VectorToString()}";
+        public static string CircleFToString(this CircleF c) => $"{c.center.VectorToString()} {c.radius.FloatToString()}";
+
+        public static string VectorToString(this Vector2 v) => $"({v.X:n4} {v.Y:n4})";
+        public static string FloatToString(this float v) => v.ToString("n4");
+        public static float RadToDeg(this float v) => v * 180 / MathF.PI;
+        public static string PlotToString(this Surface surface) {
             var sb = new StringBuilder();
             StringBuilder AppendCircleSegment(CircleSegmentF s, DisplayStyle style)
                 => sb.AppendLine($"circleSegment{GetStyleString(style)} {s.circle.center.VectorToString()} {s.circle.radius.FloatToString()} {s.from.RadToDeg().FloatToString()} {s.to.RadToDeg().FloatToString()}");
@@ -499,15 +511,7 @@ LinesPoint (2.3333 2.6667)
                     DrawPoint: (p, kind, style) => sb.AppendLine($"{kind}Point{GetStyleString(style)} {p.VectorToString()}")
                 )
             );
-            Assert.AreEqual(expected, sb.ToString());
+            return sb.ToString();
         }
-    }
-    static class TestExtensions {
-        public static string LineFToString(this LineF l) => $"{l.from.VectorToString()} {l.to.VectorToString()}";
-        public static string CircleFToString(this CircleF c) => $"{c.center.VectorToString()} {c.radius.FloatToString()}";
-
-        public static string VectorToString(this Vector2 v) => $"({v.X:n4} {v.Y:n4})";
-        public static string FloatToString(this float v) => v.ToString("n4");
-        public static float RadToDeg(this float v) => v * 180 / MathF.PI;
     }
 }
