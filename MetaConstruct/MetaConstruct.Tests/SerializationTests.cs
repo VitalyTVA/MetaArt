@@ -23,20 +23,24 @@ namespace MetaContruct.Tests {
             p2.AsView().Add(surface, DisplayStyle.Visible);
 
             AssertSerialization(surface);
+        }
+        [Test]
+        public void SaveLine() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var p4 = Point();
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(1, 2)),
+                (p2, new Vector2(3, 4)),
+                (p3, new Vector2(10, 20)),
+                (p4, new Vector2(30, 40)),
+            });
+            Line(p1, p2).Add(surface, DisplayStyle.Background);
+            Line(p3, p4).Add(surface, DisplayStyle.Visible);
 
-            //var x = new SurfaceInfo(surface) { 
-            //    //Date = DateTime.Today,
-            //    //TemperatureCelsius = 117,
-            //    //Summary = "test"
-            //};
-
-            //x.List.Add(new Foo { Name = "bar1" });
-
-            //x.List.Add(new Bar { Name = "bar1", NameBar = "namebar1" });
-            //x.List.Add(new Baz { Name = "foo", NameBaz = "namebaz1" });
-
-            //var options = new JsonSerializerOptions { WriteIndented = true };
-
+            AssertSerialization(surface);
         }
         static void AssertSerialization(Surface surface0) {
             var plot0 = surface0.PlotToString();
