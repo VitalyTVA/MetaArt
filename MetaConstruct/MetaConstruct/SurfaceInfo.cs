@@ -54,6 +54,8 @@ namespace MetaConstruct.Serialization {
             return jsonString;
         }
         static void CollectPrimitives(Primitive primitive, Dictionary<Point, int> points, Dictionary<Primitive, int> primitives) {
+            if(primitives.ContainsKey(primitive))
+                return;
             switch(primitive) {
                 case Line line:
                     CollectPoints(line.From, points, primitives);
@@ -65,6 +67,9 @@ namespace MetaConstruct.Serialization {
             }
         }
         static void CollectPoints(Point point, Dictionary<Point, int> points, Dictionary<Primitive, int> primitives) {
+            if(points.ContainsKey(point))
+                return;
+
             switch(point) {
                 case FreePoint:
                     break;

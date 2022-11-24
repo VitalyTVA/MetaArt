@@ -44,19 +44,41 @@ namespace MetaContruct.Tests {
         }
 
         [Test]
+        public void SaveLine_CommonPoint() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(1, 2)),
+                (p2, new Vector2(3, 4)),
+                (p3, new Vector2(10, 20)),
+            });
+            Line(p1, p2).Add(surface, DisplayStyle.Background);
+            Line(p1, p3).Add(surface, DisplayStyle.Visible);
+
+            AssertSerialization(surface);
+        }
+
+        [Test]
         public void SaveIntersectionPoint() {
             var p1 = Point();
             var p2 = Point();
             var p3 = Point();
             var p4 = Point();
+            var p5 = Point();
+            var p6 = Point();
             var surface = CreateTestSurface();
             surface.SetPoints(new[] {
                 (p1, new Vector2(1, 2)),
                 (p2, new Vector2(3, 4)),
                 (p3, new Vector2(-10, -20)),
                 (p4, new Vector2(30, 40)),
+                (p5, new Vector2(10, 20)),
+                (p6, new Vector2(-30, -40)),
             });
             Intersect(Line(p1, p2), Line(p3, p4)).AsView().Add(surface, DisplayStyle.Background);
+            Intersect(Line(p1, p2), Line(p5, p6)).AsView().Add(surface, DisplayStyle.Visible);
 
             AssertSerialization(surface);
         }
