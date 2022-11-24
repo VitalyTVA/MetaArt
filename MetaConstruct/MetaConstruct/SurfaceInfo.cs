@@ -33,12 +33,22 @@ namespace MetaConstruct.Serialization {
                 }
             }
             foreach(var pair in primitives) {
-                var line = (Line)pair.Key;
-                surfaceInfo.Lines.Add(new LineInfo {
-                    Index = pair.Value,
-                    From = points[line.From],
-                    To = points[line.To],
-                });
+                if(pair.Key is Line line) {
+                    surfaceInfo.Lines.Add(new LineInfo {
+                        Index = pair.Value,
+                        From = points[line.From],
+                        To = points[line.To],
+                    });
+                } else if(pair.Key is Circle circle) {
+                    surfaceInfo.Circles.Add(new CircleInfo {
+                        Index = pair.Value,
+                        Center = points[circle.Center],
+                        Radius1 = points[circle.Radius1],
+                        Radius2 = points[circle.Radius2],
+                    });
+                } else { 
+                    throw new InvalidOperationException();
+                }
             }
             foreach(var (entity, style) in surface.GetEntities()) {
                 var index = entity switch {
@@ -61,6 +71,12 @@ namespace MetaConstruct.Serialization {
                     CollectPoints(line.From, points, primitives);
                     CollectPoints(line.To, points, primitives);
                     primitives.Add(line, points.Count + primitives.Count);
+                    break;
+                case Circle circle:
+                    CollectPoints(circle.Center, points, primitives);
+                    CollectPoints(circle.Radius1, points, primitives);
+                    CollectPoints(circle.Radius2, points, primitives);
+                    primitives.Add(circle, points.Count + primitives.Count);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -87,6 +103,7 @@ namespace MetaConstruct.Serialization {
             var freePoints = info.FreePoints.ToDictionary(x => x.Index);
             var lineLinePoints = info.LineLinePoints.ToDictionary(x => x.Index);
             var lines = info.Lines.ToDictionary(x => x.Index);
+            var circles = info.Circles.ToDictionary(x => x.Index);
             var createdPoints = new Dictionary<int, Point>();
             var createdPrimitives = new Dictionary<int, Primitive>();
             Point GetPoint(int index) { 
@@ -116,12 +133,25 @@ namespace MetaConstruct.Serialization {
                 createdPrimitives[index] = line;
                 return line;
             }
+            Circle GetCircle(int index) {
+                if(createdPrimitives.TryGetValue(index, out Primitive primitive))
+                    return (Circle)primitive;
+                var lineCircleInfo= circles[index];
+                var center = GetPoint(lineCircleInfo.Center);
+                var radius1 = GetPoint(lineCircleInfo.Radius1);
+                var radius2 = GetPoint(lineCircleInfo.Radius2);
+                var circle = surface.Constructor.Circle(center, radius1, radius2);
+                createdPrimitives[index] = circle;
+                return circle;
+            }
             foreach(var item in info.Views) {
                 if(freePoints.ContainsKey(item.Index) || lineLinePoints.ContainsKey(item.Index)) {
                     var point = GetPoint(item.Index);
                     surface.Add(point.AsView(), item.DisplayStyle);
                 } else if(lines.ContainsKey(item.Index)) {
                     surface.Add(GetLine(item.Index), item.DisplayStyle);
+                } else if(circles.ContainsKey(item.Index)) {
+                    surface.Add(GetCircle(item.Index), item.DisplayStyle);
                 } else {
                     throw new InvalidOperationException();
                 }
@@ -130,6 +160,7 @@ namespace MetaConstruct.Serialization {
         public List<FreePointInfo> FreePoints { get; set; } = new();
         public List<LineLinePointInfo> LineLinePoints { get; set; } = new();
         public List<LineInfo> Lines { get; set; } = new();
+        public List<CircleInfo> Circles { get; set; } = new();
         public List<ViewInfo> Views { get; set; } = new();
     }
     public class Vector2JsonConverter : JsonConverter<Vector2> {
@@ -155,6 +186,12 @@ namespace MetaConstruct.Serialization {
     public class LineInfo {
         public int From { get; set; }
         public int To { get; set; }
+        public int Index { get; set; }
+    }
+    public class CircleInfo {
+        public int Center { get; set; }
+        public int Radius1 { get; set; }
+        public int Radius2 { get; set; }
         public int Index { get; set; }
     }
     public class ViewInfo {
