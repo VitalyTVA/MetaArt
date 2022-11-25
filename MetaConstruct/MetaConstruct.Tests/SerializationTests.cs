@@ -100,25 +100,81 @@ namespace MetaContruct.Tests {
             AssertSerialization(surface);
         }
 
-        //[Test]
-        //public void SaveLineCircleIntersectionPoint() {
-        //    var p1 = Point();
-        //    var p2 = Point();
-        //    var p3 = Point();
-        //    var p4 = Point();
-        //    var surface = CreateTestSurface();
-        //    surface.SetPoints(new[] {
-        //        (p1, new Vector2(1, 2)),
-        //        (p2, new Vector2(3, 4)),
-        //        (p3, new Vector2(-10, -20)),
-        //        (p4, new Vector2(30, 40)),
-        //    });
-        //    var (i1, i2) = 
-        //    Intersect(Line(p1, p2), Line(p3, p4)).AsView().Add(surface, DisplayStyle.Background);
-        //    Intersect(Line(p1, p2), Line(p5, p6)).AsView().Add(surface, DisplayStyle.Visible);
+        [Test]
+        public void SaveLineCircleIntersectionPoint() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var p4 = Point();
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(0, 0)),
+                (p2, new Vector2(0, 10)),
+                (p3, new Vector2(10, 0)),
+                (p4, new Vector2(-10, 0)),
+            });
+            var (i1, i2) = Intersect(Line(p3, p4), Circle(p1, p2));
+            i1.AsView().Add(surface, DisplayStyle.Background);
+            i2.AsView().Add(surface, DisplayStyle.Visible);
 
-        //    AssertSerialization(surface);
-        //}
+            AssertSerialization(surface);
+        }
+
+        [Test]
+        public void SaveLineCircleIntersectionPoint_CommonPoint() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(0, 0)),
+                (p2, new Vector2(0, 10)),
+                (p3, new Vector2(10, 0)),
+            });
+            var (i1, i2) = Intersect(Line(p3, p2), Circle(p1, p2));
+            i1.AsView().Add(surface, DisplayStyle.Background);
+            i2.AsView().Add(surface, DisplayStyle.Visible);
+
+            AssertSerialization(surface);
+        }
+
+        [Test]
+        public void SaveCirclesIntersectionPoint() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var p4 = Point();
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(0, 0)),
+                (p2, new Vector2(0, 10)),
+                (p3, new Vector2(10, 0)),
+                (p4, new Vector2(-10, 0)),
+            });
+            var (i1, i2) = Intersect(Circle(p3, p4), Circle(p1, p2));
+            i1.AsView().Add(surface, DisplayStyle.Background);
+            i2.AsView().Add(surface, DisplayStyle.Visible);
+
+            AssertSerialization(surface);
+        }
+
+        [Test]
+        public void SaveCirclesIntersectionPoint_CommonPoint() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(0, 0)),
+                (p2, new Vector2(0, 10)),
+                (p3, new Vector2(10, 0)),
+            });
+            var (i1, i2) = Intersect(Circle(p1, p3), Circle(p2, p3));
+            i1.AsView().Add(surface, DisplayStyle.Background);
+            i2.AsView().Add(surface, DisplayStyle.Visible);
+
+            AssertSerialization(surface);
+        }
 
 
         static void AssertSerialization(Surface surface0) {

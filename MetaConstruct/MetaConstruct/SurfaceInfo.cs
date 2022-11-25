@@ -28,8 +28,22 @@ namespace MetaConstruct.Serialization {
                         Line1 = primitives[lineLinePoint.Line1],
                         Line2 = primitives[lineLinePoint.Line2],
                     });
-
+                } else if(pair.Key is LineCirclePoint lineCirclePoint) {
+                    surfaceInfo.LineCirclePoints.Add(new LineCirclePointInfo {
+                        Index = pair.Value,
+                        Line = primitives[lineCirclePoint.Line],
+                        Circle = primitives[lineCirclePoint.Circle],
+                        Intersection = lineCirclePoint.Intersection
+                    });
+                } else if(pair.Key is CircleCirclePoint circleCirclePoint) {
+                    surfaceInfo.CircleCirclePoints.Add(new CircleCirclePointInfo {
+                        Index = pair.Value,
+                        Circle1 = primitives[circleCirclePoint.Circle1],
+                        Circle2 = primitives[circleCirclePoint.Circle2],
+                        Intersection = circleCirclePoint.Intersection
+                    });
                 } else { 
+                    throw new InvalidOperationException();
                 }
             }
             foreach(var pair in primitives) {
@@ -93,6 +107,14 @@ namespace MetaConstruct.Serialization {
                     CollectPrimitives(p.Line1, points, primitives);
                     CollectPrimitives(p.Line2, points, primitives);
                     break;
+                case LineCirclePoint p:
+                    CollectPrimitives(p.Line, points, primitives);
+                    CollectPrimitives(p.Circle, points, primitives);
+                    break;
+                case CircleCirclePoint p:
+                    CollectPrimitives(p.Circle1, points, primitives);
+                    CollectPrimitives(p.Circle2, points, primitives);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -102,6 +124,8 @@ namespace MetaConstruct.Serialization {
             var info = JsonSerializer.Deserialize(jsonString, SourceGenerationContext.Default.SurfaceInfo)!;
             var freePoints = info.FreePoints.ToDictionary(x => x.Index);
             var lineLinePoints = info.LineLinePoints.ToDictionary(x => x.Index);
+            var lineCirclePoints = info.LineCirclePoints.ToDictionary(x => x.Index);
+            var circleCirclePoints = info.CircleCirclePoints.ToDictionary(x => x.Index);
             var lines = info.Lines.ToDictionary(x => x.Index);
             var circles = info.Circles.ToDictionary(x => x.Index);
             var createdPoints = new Dictionary<int, Point>();
@@ -119,6 +143,24 @@ namespace MetaConstruct.Serialization {
                     var line2 = GetLine(info.Line2);
                     var newPoint = surface.Constructor.Intersect(line1, line2);
                     return createdPoints[index] = newPoint;
+                } else if(lineCirclePoints.ContainsKey(index)) {
+                    var info = lineCirclePoints[index];
+                    var line = GetLine(info.Line);
+                    var circle = GetCircle(info.Circle);
+                    var intersection = surface.Constructor.Intersect(line, circle);
+                    return createdPoints[index] = info.Intersection switch { 
+                        CircleIntersectionKind.First => intersection.Point1,
+                        CircleIntersectionKind.Second or CircleIntersectionKind.Secondary => intersection.Point2,
+                    };
+                } else if(circleCirclePoints.ContainsKey(index)) {
+                    var info = circleCirclePoints[index];
+                    var circle1 = GetCircle(info.Circle1);
+                    var circle2 = GetCircle(info.Circle2);
+                    var intersection = surface.Constructor.Intersect(circle1, circle2);
+                    return createdPoints[index] = info.Intersection switch {
+                        CircleIntersectionKind.First => intersection.Point1,
+                        CircleIntersectionKind.Second or CircleIntersectionKind.Secondary => intersection.Point2,
+                    };
                 } else {
                     throw new InvalidOperationException();
                 }
@@ -145,7 +187,11 @@ namespace MetaConstruct.Serialization {
                 return circle;
             }
             foreach(var item in info.Views) {
-                if(freePoints.ContainsKey(item.Index) || lineLinePoints.ContainsKey(item.Index)) {
+                if(freePoints.ContainsKey(item.Index) || 
+                    lineLinePoints.ContainsKey(item.Index) || 
+                    lineCirclePoints.ContainsKey(item.Index) ||
+                    circleCirclePoints.ContainsKey(item.Index)
+                ) {
                     var point = GetPoint(item.Index);
                     surface.Add(point.AsView(), item.DisplayStyle);
                 } else if(lines.ContainsKey(item.Index)) {
@@ -159,6 +205,8 @@ namespace MetaConstruct.Serialization {
         }
         public List<FreePointInfo> FreePoints { get; set; } = new();
         public List<LineLinePointInfo> LineLinePoints { get; set; } = new();
+        public List<LineCirclePointInfo> LineCirclePoints { get; set; } = new();
+        public List<CircleCirclePointInfo> CircleCirclePoints { get; set; } = new();
         public List<LineInfo> Lines { get; set; } = new();
         public List<CircleInfo> Circles { get; set; } = new();
         public List<ViewInfo> Views { get; set; } = new();
@@ -182,6 +230,18 @@ namespace MetaConstruct.Serialization {
         public int Index { get; set; }
         public int Line1 { get; set; }
         public int Line2 { get; set; }
+    }
+    public class LineCirclePointInfo {
+        public int Index { get; set; }
+        public int Line { get; set; }
+        public int Circle { get; set; }
+        public CircleIntersectionKind Intersection { get; set; }
+    }
+    public class CircleCirclePointInfo {
+        public int Index { get; set; }
+        public int Circle1 { get; set; }
+        public int Circle2 { get; set; }
+        public CircleIntersectionKind Intersection { get; set; }
     }
     public class LineInfo {
         public int From { get; set; }
