@@ -31,6 +31,7 @@ namespace MetaConstruct {
         }
 
         public IEnumerable<EntityViewInfo> GetEntities() => entities;
+        //public IEnumerable<(FreePoint point, Vector2 location)> GetFreePointLocations() => points.Select(x => (x.Key, x.Value));
         Dictionary<FreePoint, Vector2> points = new();
 
         public void SetPoints((FreePoint, Vector2)[] points) {

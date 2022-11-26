@@ -1,15 +1,10 @@
-﻿using System.Globalization; 
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
-namespace MetaConstruct.Serialization {
-    public class SurfaceInfo {
-        public static string Serialize(Surface surface) {
-            var surfaceInfo = new SurfaceInfo();
+﻿namespace MetaConstruct.Serialization {
+    public class ConstructionInfo {
+        public static (IEnumerable<FreePoint> freePoints, Func<Point, int> getPointId, Func<Primitive, int> getPrimitiveId)
+            CollectConstruction(IEnumerable<Entity> entities, ConstructionInfo constructionInfo) {
             var points = new Dictionary<Point, int>();
             var primitives = new Dictionary<Primitive, int>();
-            var segments = new Dictionary<Segment, int>();
-            int GetCount() => points.Count + primitives.Count + segments.Count;
+            int GetCount() => points.Count + primitives.Count;
             void CollectPrimitives(Primitive primitive) {
                 if(primitives.ContainsKey(primitive))
                     return;
@@ -53,14 +48,12 @@ namespace MetaConstruct.Serialization {
                 }
                 points.Add(point, GetCount());
             }
-
-            foreach(var (entity, style) in surface.GetEntities()) {
+            foreach(var entity in entities) {
                 if(entity is PointView pointView)
                     CollectPoints(pointView.point);
                 else if(entity is Primitive primitive)
                     CollectPrimitives(primitive);
                 else if(entity is Segment segment) {
-                    segments.Add(segment, GetCount());
                     if(segment is LineSegment lineSegment) {
                         CollectPrimitives(lineSegment.Line);
                         CollectPoints(lineSegment.From);
@@ -71,111 +64,81 @@ namespace MetaConstruct.Serialization {
             }
             foreach(var pair in points) {
                 if(pair.Key is FreePoint point) {
-                    surfaceInfo.FreePoints.Add(new FreePointInfo {
+                    constructionInfo.FreePoints.Add(new FreePointInfo {
                         Index = pair.Value,
-                    });
-                    surfaceInfo.PointLocations.Add(new FreePointLocationInfo {
-                        Index = pair.Value,
-                        Location = surface.GetPointLocation(point)
                     });
                 } else if(pair.Key is LineLinePoint lineLinePoint) {
-                    surfaceInfo.LineLinePoints.Add(new LineLinePointInfo {
+                    constructionInfo.LineLinePoints.Add(new LineLinePointInfo {
                         Index = pair.Value,
                         Line1 = primitives[lineLinePoint.Line1],
                         Line2 = primitives[lineLinePoint.Line2],
                     });
                 } else if(pair.Key is LineCirclePoint lineCirclePoint) {
-                    surfaceInfo.LineCirclePoints.Add(new LineCirclePointInfo {
+                    constructionInfo.LineCirclePoints.Add(new LineCirclePointInfo {
                         Index = pair.Value,
                         Line = primitives[lineCirclePoint.Line],
                         Circle = primitives[lineCirclePoint.Circle],
                         Intersection = lineCirclePoint.Intersection
                     });
                 } else if(pair.Key is CircleCirclePoint circleCirclePoint) {
-                    surfaceInfo.CircleCirclePoints.Add(new CircleCirclePointInfo {
+                    constructionInfo.CircleCirclePoints.Add(new CircleCirclePointInfo {
                         Index = pair.Value,
                         Circle1 = primitives[circleCirclePoint.Circle1],
                         Circle2 = primitives[circleCirclePoint.Circle2],
                         Intersection = circleCirclePoint.Intersection
                     });
-                } else { 
+                } else {
                     throw new InvalidOperationException();
                 }
             }
             foreach(var pair in primitives) {
                 if(pair.Key is Line line) {
-                    surfaceInfo.Lines.Add(new LineInfo {
+                    constructionInfo.Lines.Add(new LineInfo {
                         Index = pair.Value,
                         From = points[line.From],
                         To = points[line.To],
                     });
                 } else if(pair.Key is Circle circle) {
-                    surfaceInfo.Circles.Add(new CircleInfo {
+                    constructionInfo.Circles.Add(new CircleInfo {
                         Index = pair.Value,
                         Center = points[circle.Center],
                         Radius1 = points[circle.Radius1],
                         Radius2 = points[circle.Radius2],
                     });
-                } else { 
-                    throw new InvalidOperationException();
-                }
-            }
-            foreach(var pair in segments) {
-                if(pair.Key is LineSegment lineSegment) {
-                    surfaceInfo.LineSegments.Add(new LineSegmentInfo {
-                        Index = pair.Value,
-                        Line = primitives[lineSegment.Line],
-                        From = points[lineSegment.From],
-                        To = points[lineSegment.To],
-                    });
                 } else {
                     throw new InvalidOperationException();
                 }
             }
-            foreach(var (entity, style) in surface.GetEntities()) {
-                var index = entity switch {
-                    PointView p => points[p.point],
-                    Primitive p => primitives[p],
-                    Segment s => segments[s],
-                };
-                surfaceInfo.Views.Add(new ViewInfo {
-                    Index = index,
-                    DisplayStyle = style
-                });
-            }
-            var jsonString = JsonSerializer.Serialize(surfaceInfo, SourceGenerationContext.Default.SurfaceInfo);
-            return jsonString;
+            return (points.Keys.OfType<FreePoint>(), p => points[p], p => primitives[p]);
         }
-
-        public static void Deserialize(Surface surface, string jsonString) {
-            var info = JsonSerializer.Deserialize(jsonString, SourceGenerationContext.Default.SurfaceInfo)!;
-            var freePoints = info.FreePoints.ToDictionary(x => x.Index);
-            var lineLinePoints = info.LineLinePoints.ToDictionary(x => x.Index);
-            var lineCirclePoints = info.LineCirclePoints.ToDictionary(x => x.Index);
-            var circleCirclePoints = info.CircleCirclePoints.ToDictionary(x => x.Index);
-            var lines = info.Lines.ToDictionary(x => x.Index);
-            var circles = info.Circles.ToDictionary(x => x.Index);
-            var lineSegments = info.LineSegments.ToDictionary(x => x.Index);
+        public static (Func<int, Point> getPoint, Func<int, Line> getLine, Func<int, Circle> getCircle)
+            Deserialize(Constructor constructor, ConstructionInfo construction) {
+            var freePoints = construction.FreePoints.ToDictionary(x => x.Index);
+            var lineLinePoints = construction.LineLinePoints.ToDictionary(x => x.Index);
+            var lineCirclePoints = construction.LineCirclePoints.ToDictionary(x => x.Index);
+            var circleCirclePoints = construction.CircleCirclePoints.ToDictionary(x => x.Index);
+            var lines = construction.Lines.ToDictionary(x => x.Index);
+            var circles = construction.Circles.ToDictionary(x => x.Index);
             var createdPoints = new Dictionary<int, Point>();
             var createdPrimitives = new Dictionary<int, Primitive>();
-            Point GetPoint(int index) { 
+            Point GetPoint(int index) {
                 if(createdPoints.TryGetValue(index, out Point point))
                     return point;
                 if(freePoints.ContainsKey(index)) {
-                    var newPoint = surface.Constructor.Point();
+                    var newPoint = constructor.Point();
                     return createdPoints[index] = newPoint;
                 } else if(lineLinePoints.ContainsKey(index)) {
                     var info = lineLinePoints[index];
                     var line1 = GetLine(info.Line1);
                     var line2 = GetLine(info.Line2);
-                    var newPoint = surface.Constructor.Intersect(line1, line2);
+                    var newPoint = constructor.Intersect(line1, line2);
                     return createdPoints[index] = newPoint;
                 } else if(lineCirclePoints.ContainsKey(index)) {
                     var info = lineCirclePoints[index];
                     var line = GetLine(info.Line);
                     var circle = GetCircle(info.Circle);
-                    var intersection = surface.Constructor.Intersect(line, circle);
-                    return createdPoints[index] = info.Intersection switch { 
+                    var intersection = constructor.Intersect(line, circle);
+                    return createdPoints[index] = info.Intersection switch {
                         CircleIntersectionKind.First => intersection.Point1,
                         CircleIntersectionKind.Second or CircleIntersectionKind.Secondary => intersection.Point2,
                     };
@@ -183,7 +146,7 @@ namespace MetaConstruct.Serialization {
                     var info = circleCirclePoints[index];
                     var circle1 = GetCircle(info.Circle1);
                     var circle2 = GetCircle(info.Circle2);
-                    var intersection = surface.Constructor.Intersect(circle1, circle2);
+                    var intersection = constructor.Intersect(circle1, circle2);
                     return createdPoints[index] = info.Intersection switch {
                         CircleIntersectionKind.First => intersection.Point1,
                         CircleIntersectionKind.Second or CircleIntersectionKind.Secondary => intersection.Point2,
@@ -198,66 +161,29 @@ namespace MetaConstruct.Serialization {
                 var lineInfo = lines[index];
                 var from = GetPoint(lineInfo.From);
                 var to = GetPoint(lineInfo.To);
-                var line = surface.Constructor.Line(from, to);
+                var line = constructor.Line(from, to);
                 createdPrimitives[index] = line;
                 return line;
             }
             Circle GetCircle(int index) {
                 if(createdPrimitives.TryGetValue(index, out Primitive primitive))
                     return (Circle)primitive;
-                var lineCircleInfo= circles[index];
+                var lineCircleInfo = circles[index];
                 var center = GetPoint(lineCircleInfo.Center);
                 var radius1 = GetPoint(lineCircleInfo.Radius1);
                 var radius2 = GetPoint(lineCircleInfo.Radius2);
-                var circle = surface.Constructor.Circle(center, radius1, radius2);
+                var circle = constructor.Circle(center, radius1, radius2);
                 createdPrimitives[index] = circle;
                 return circle;
             }
-            foreach(var item in info.Views) {
-                if(freePoints.ContainsKey(item.Index) || 
-                    lineLinePoints.ContainsKey(item.Index) || 
-                    lineCirclePoints.ContainsKey(item.Index) ||
-                    circleCirclePoints.ContainsKey(item.Index)
-                ) {
-                    var point = GetPoint(item.Index);
-                    surface.Add(point.AsView(), item.DisplayStyle);
-                } else if(lines.ContainsKey(item.Index)) {
-                    surface.Add(GetLine(item.Index), item.DisplayStyle);
-                } else if(circles.ContainsKey(item.Index)) {
-                    surface.Add(GetCircle(item.Index), item.DisplayStyle);
-                } else if(lineSegments.TryGetValue(item.Index, out LineSegmentInfo lineSegmentInfo)) {
-                    var line = GetLine(lineSegmentInfo.Line);
-                    var from = GetPoint(lineSegmentInfo.From);
-                    var to = GetPoint(lineSegmentInfo.To);
-                    surface.Add(ConstructorHelper.LineSegment(line, from, to), item.DisplayStyle);
-                } else {
-                    throw new InvalidOperationException();
-                }
-            }
-            foreach(var item in info.PointLocations) {
-                var point = (FreePoint)GetPoint(item.Index);
-                surface.SetPointLocation(point, item.Location);
-            }
+            return (GetPoint, GetLine, GetCircle);
         }
-        public List<FreePointLocationInfo> PointLocations { get; set; } = new();
         public List<FreePointInfo> FreePoints { get; set; } = new();
         public List<LineLinePointInfo> LineLinePoints { get; set; } = new();
         public List<LineCirclePointInfo> LineCirclePoints { get; set; } = new();
         public List<CircleCirclePointInfo> CircleCirclePoints { get; set; } = new();
         public List<LineInfo> Lines { get; set; } = new();
-        public List<LineSegmentInfo> LineSegments { get; set; } = new();
         public List<CircleInfo> Circles { get; set; } = new();
-        public List<ViewInfo> Views { get; set; } = new();
-    }
-    public class Vector2JsonConverter : JsonConverter<Vector2> {
-        public override Vector2 Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
-            var str = reader.GetString()!.Split(',');
-            return new Vector2(float.Parse(str[0], CultureInfo.InvariantCulture), float.Parse(str[1], CultureInfo.InvariantCulture));
-        }
-
-        public override void Write(Utf8JsonWriter writer, Vector2 vector, JsonSerializerOptions options) {
-            writer.WriteStringValue(vector.X.ToString("e", CultureInfo.InvariantCulture) + "," + vector.Y.ToString("e", CultureInfo.InvariantCulture));
-        }
     }
     public class FreePointInfo {
         public int Index { get; set; }
@@ -279,18 +205,7 @@ namespace MetaConstruct.Serialization {
         public int Circle2 { get; set; }
         public CircleIntersectionKind Intersection { get; set; }
     }
-    public class FreePointLocationInfo {
-        public int Index { get; set; }
-        [JsonConverter(typeof(Vector2JsonConverter))]
-        public Vector2 Location { get; set; }
-    }
     public class LineInfo {
-        public int From { get; set; }
-        public int To { get; set; }
-        public int Index { get; set; }
-    }
-    public class LineSegmentInfo {
-        public int Line { get; set; }
         public int From { get; set; }
         public int To { get; set; }
         public int Index { get; set; }
@@ -300,13 +215,5 @@ namespace MetaConstruct.Serialization {
         public int Radius1 { get; set; }
         public int Radius2 { get; set; }
         public int Index { get; set; }
-    }
-    public class ViewInfo {
-        public int Index { get; set; }
-        public DisplayStyle DisplayStyle { get; set; }
-    }
-    [JsonSourceGenerationOptions(WriteIndented = true)]
-    [JsonSerializable(typeof(SurfaceInfo))]
-    internal partial class SourceGenerationContext : JsonSerializerContext {
     }
 }
