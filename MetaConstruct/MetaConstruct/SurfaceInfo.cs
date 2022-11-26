@@ -73,6 +73,9 @@ namespace MetaConstruct.Serialization {
                 if(pair.Key is FreePoint point) {
                     surfaceInfo.FreePoints.Add(new FreePointInfo {
                         Index = pair.Value,
+                    });
+                    surfaceInfo.PointLocations.Add(new FreePointLocationInfo {
+                        Index = pair.Value,
                         Location = surface.GetPointLocation(point)
                     });
                 } else if(pair.Key is LineLinePoint lineLinePoint) {
@@ -160,7 +163,6 @@ namespace MetaConstruct.Serialization {
                     return point;
                 if(freePoints.ContainsKey(index)) {
                     var newPoint = surface.Constructor.Point();
-                    surface.SetPointLocation(newPoint, freePoints[index].Location);
                     return createdPoints[index] = newPoint;
                 } else if(lineLinePoints.ContainsKey(index)) {
                     var info = lineLinePoints[index];
@@ -232,7 +234,12 @@ namespace MetaConstruct.Serialization {
                     throw new InvalidOperationException();
                 }
             }
+            foreach(var item in info.PointLocations) {
+                var point = (FreePoint)GetPoint(item.Index);
+                surface.SetPointLocation(point, item.Location);
+            }
         }
+        public List<FreePointLocationInfo> PointLocations { get; set; } = new();
         public List<FreePointInfo> FreePoints { get; set; } = new();
         public List<LineLinePointInfo> LineLinePoints { get; set; } = new();
         public List<LineCirclePointInfo> LineCirclePoints { get; set; } = new();
@@ -254,8 +261,6 @@ namespace MetaConstruct.Serialization {
     }
     public class FreePointInfo {
         public int Index { get; set; }
-        [JsonConverter(typeof(Vector2JsonConverter))]
-        public Vector2 Location { get; set; }
     }
     public class LineLinePointInfo {
         public int Index { get; set; }
@@ -273,6 +278,11 @@ namespace MetaConstruct.Serialization {
         public int Circle1 { get; set; }
         public int Circle2 { get; set; }
         public CircleIntersectionKind Intersection { get; set; }
+    }
+    public class FreePointLocationInfo {
+        public int Index { get; set; }
+        [JsonConverter(typeof(Vector2JsonConverter))]
+        public Vector2 Location { get; set; }
     }
     public class LineInfo {
         public int From { get; set; }
