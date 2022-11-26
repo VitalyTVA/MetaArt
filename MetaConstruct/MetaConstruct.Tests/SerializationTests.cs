@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace MetaContruct.Tests {
     [TestFixture]
-    public class SerializationTests : ConstructorTestsBase {
+    public class SerializationTests : ModelTestsBase {
         [Test]
         public void SavePoints() {
             var p1 = Point();
@@ -214,6 +214,23 @@ namespace MetaContruct.Tests {
             AssertSerialization(surface);
         }
 
+        [Test]
+        public void SaveCircleSegment() {
+            var p1 = Point();
+            var p2 = Point();
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(1, 2)),
+                (p2, new Vector2(3, 4)),
+            });
+            var c1 = Circle(p1, p2);
+            var c2 = Circle(p2, p1);
+            var (i1, i2) = Intersect(c1, c2);
+            CircleSegment(c1, i1, i2).Add(surface, DisplayStyle.Background);
+            CircleSegment(c2, i1, i2).Add(surface, DisplayStyle.Visible);
+
+            AssertSerialization(surface);
+        }
 
         static void AssertSerialization(Surface surface0) {
             var plot0 = surface0.PlotToString();

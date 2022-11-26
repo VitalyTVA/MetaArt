@@ -61,6 +61,11 @@ namespace MetaConstruct.Serialization {
                         CollectPoints(lineSegment.From);
                         CollectPoints(lineSegment.To);
                     }
+                    if(segment is CircleSegment circleSegment) {
+                        CollectPrimitives(circleSegment.Circle);
+                        CollectPoints(circleSegment.From);
+                        CollectPoints(circleSegment.To);
+                    }
                 } else
                     throw new InvalidOperationException();
             }
@@ -111,7 +116,11 @@ namespace MetaConstruct.Serialization {
                     throw new InvalidOperationException();
                 }
             }
-            return (points.Keys.OfType<FreePoint>(), p => points[p], p => primitives[p]);
+            return (
+                points.Keys.OfType<FreePoint>(), 
+                p => points[p], 
+                p => primitives[p]
+            );
         }
         public static (Func<int, Point> getPoint, Func<int, Line> getLine, Func<int, Circle> getCircle)
             Construct(Constructor constructor, ConstructionInfo construction) {
