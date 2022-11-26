@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿using System.Globalization; 
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -8,12 +8,65 @@ namespace MetaConstruct.Serialization {
             var surfaceInfo = new SurfaceInfo();
             var points = new Dictionary<Point, int>();
             var primitives = new Dictionary<Primitive, int>();
+            var segments = new Dictionary<Segment, int>();
+            int GetCount() => points.Count + primitives.Count + segments.Count;
+            void CollectPrimitives(Primitive primitive) {
+                if(primitives.ContainsKey(primitive))
+                    return;
+                switch(primitive) {
+                    case Line line:
+                        CollectPoints(line.From);
+                        CollectPoints(line.To);
+                        primitives.Add(line, GetCount());
+                        break;
+                    case Circle circle:
+                        CollectPoints(circle.Center);
+                        CollectPoints(circle.Radius1);
+                        CollectPoints(circle.Radius2);
+                        primitives.Add(circle, GetCount());
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
+            void CollectPoints(Point point) {
+                if(points.ContainsKey(point))
+                    return;
+
+                switch(point) {
+                    case FreePoint:
+                        break;
+                    case LineLinePoint p:
+                        CollectPrimitives(p.Line1);
+                        CollectPrimitives(p.Line2);
+                        break;
+                    case LineCirclePoint p:
+                        CollectPrimitives(p.Line);
+                        CollectPrimitives(p.Circle);
+                        break;
+                    case CircleCirclePoint p:
+                        CollectPrimitives(p.Circle1);
+                        CollectPrimitives(p.Circle2);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                points.Add(point, GetCount());
+            }
+
             foreach(var (entity, style) in surface.GetEntities()) {
                 if(entity is PointView pointView)
-                    CollectPoints(pointView.point, points, primitives);
+                    CollectPoints(pointView.point);
                 else if(entity is Primitive primitive)
-                    CollectPrimitives(primitive, points, primitives);
-                else
+                    CollectPrimitives(primitive);
+                else if(entity is Segment segment) {
+                    segments.Add(segment, GetCount());
+                    if(segment is LineSegment lineSegment) {
+                        CollectPrimitives(lineSegment.Line);
+                        CollectPoints(lineSegment.From);
+                        CollectPoints(lineSegment.To);
+                    }
+                } else
                     throw new InvalidOperationException();
             }
             foreach(var pair in points) {
@@ -64,10 +117,23 @@ namespace MetaConstruct.Serialization {
                     throw new InvalidOperationException();
                 }
             }
+            foreach(var pair in segments) {
+                if(pair.Key is LineSegment lineSegment) {
+                    surfaceInfo.LineSegments.Add(new LineSegmentInfo {
+                        Index = pair.Value,
+                        Line = primitives[lineSegment.Line],
+                        From = points[lineSegment.From],
+                        To = points[lineSegment.To],
+                    });
+                } else {
+                    throw new InvalidOperationException();
+                }
+            }
             foreach(var (entity, style) in surface.GetEntities()) {
                 var index = entity switch {
                     PointView p => points[p.point],
                     Primitive p => primitives[p],
+                    Segment s => segments[s],
                 };
                 surfaceInfo.Views.Add(new ViewInfo {
                     Index = index,
@@ -77,49 +143,7 @@ namespace MetaConstruct.Serialization {
             var jsonString = JsonSerializer.Serialize(surfaceInfo, SourceGenerationContext.Default.SurfaceInfo);
             return jsonString;
         }
-        static void CollectPrimitives(Primitive primitive, Dictionary<Point, int> points, Dictionary<Primitive, int> primitives) {
-            if(primitives.ContainsKey(primitive))
-                return;
-            switch(primitive) {
-                case Line line:
-                    CollectPoints(line.From, points, primitives);
-                    CollectPoints(line.To, points, primitives);
-                    primitives.Add(line, points.Count + primitives.Count);
-                    break;
-                case Circle circle:
-                    CollectPoints(circle.Center, points, primitives);
-                    CollectPoints(circle.Radius1, points, primitives);
-                    CollectPoints(circle.Radius2, points, primitives);
-                    primitives.Add(circle, points.Count + primitives.Count);
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-        static void CollectPoints(Point point, Dictionary<Point, int> points, Dictionary<Primitive, int> primitives) {
-            if(points.ContainsKey(point))
-                return;
 
-            switch(point) {
-                case FreePoint:
-                    break;
-                case LineLinePoint p:
-                    CollectPrimitives(p.Line1, points, primitives);
-                    CollectPrimitives(p.Line2, points, primitives);
-                    break;
-                case LineCirclePoint p:
-                    CollectPrimitives(p.Line, points, primitives);
-                    CollectPrimitives(p.Circle, points, primitives);
-                    break;
-                case CircleCirclePoint p:
-                    CollectPrimitives(p.Circle1, points, primitives);
-                    CollectPrimitives(p.Circle2, points, primitives);
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-            points.Add(point, points.Count + primitives.Count);
-        }
         public static void Deserialize(Surface surface, string jsonString) {
             var info = JsonSerializer.Deserialize(jsonString, SourceGenerationContext.Default.SurfaceInfo)!;
             var freePoints = info.FreePoints.ToDictionary(x => x.Index);
@@ -128,6 +152,7 @@ namespace MetaConstruct.Serialization {
             var circleCirclePoints = info.CircleCirclePoints.ToDictionary(x => x.Index);
             var lines = info.Lines.ToDictionary(x => x.Index);
             var circles = info.Circles.ToDictionary(x => x.Index);
+            var lineSegments = info.LineSegments.ToDictionary(x => x.Index);
             var createdPoints = new Dictionary<int, Point>();
             var createdPrimitives = new Dictionary<int, Primitive>();
             Point GetPoint(int index) { 
@@ -198,6 +223,11 @@ namespace MetaConstruct.Serialization {
                     surface.Add(GetLine(item.Index), item.DisplayStyle);
                 } else if(circles.ContainsKey(item.Index)) {
                     surface.Add(GetCircle(item.Index), item.DisplayStyle);
+                } else if(lineSegments.TryGetValue(item.Index, out LineSegmentInfo lineSegmentInfo)) {
+                    var line = GetLine(lineSegmentInfo.Line);
+                    var from = GetPoint(lineSegmentInfo.From);
+                    var to = GetPoint(lineSegmentInfo.To);
+                    surface.Add(ConstructorHelper.LineSegment(line, from, to), item.DisplayStyle);
                 } else {
                     throw new InvalidOperationException();
                 }
@@ -208,6 +238,7 @@ namespace MetaConstruct.Serialization {
         public List<LineCirclePointInfo> LineCirclePoints { get; set; } = new();
         public List<CircleCirclePointInfo> CircleCirclePoints { get; set; } = new();
         public List<LineInfo> Lines { get; set; } = new();
+        public List<LineSegmentInfo> LineSegments { get; set; } = new();
         public List<CircleInfo> Circles { get; set; } = new();
         public List<ViewInfo> Views { get; set; } = new();
     }
@@ -244,6 +275,12 @@ namespace MetaConstruct.Serialization {
         public CircleIntersectionKind Intersection { get; set; }
     }
     public class LineInfo {
+        public int From { get; set; }
+        public int To { get; set; }
+        public int Index { get; set; }
+    }
+    public class LineSegmentInfo {
+        public int Line { get; set; }
         public int From { get; set; }
         public int To { get; set; }
         public int Index { get; set; }

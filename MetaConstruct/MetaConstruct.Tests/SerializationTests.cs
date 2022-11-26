@@ -24,6 +24,7 @@ namespace MetaContruct.Tests {
 
             AssertSerialization(surface);
         }
+
         [Test]
         public void SaveLine() {
             var p1 = Point();
@@ -39,6 +40,43 @@ namespace MetaContruct.Tests {
             });
             Line(p1, p2).Add(surface, DisplayStyle.Background);
             Line(p3, p4).Add(surface, DisplayStyle.Visible);
+
+            AssertSerialization(surface);
+        }
+
+        [Test]
+        public void SaveLineSegment() {
+            var p1 = Point();
+            var p2 = Point();
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(1, 2)),
+                (p2, new Vector2(3, 4)),
+            });
+            c.LineSegment(p1, p2).Add(surface, DisplayStyle.Background);
+
+            AssertSerialization(surface);
+        }
+
+        [Test]
+        public void SaveLineSegment_FromIntersectionPoints() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var p4 = Point();
+            var p5 = Point();
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (p1, new Vector2(0, 10)),
+                (p2, new Vector2(10, -10)),
+                (p3, new Vector2(-10, -10)),
+                (p4, new Vector2(10, 0)),
+                (p5, new Vector2(-10, 0)),
+            });
+            var line = Line(p4, p5);
+
+            ConstructorHelper.LineSegment(line, Intersect(line, Line(p1, p2)), Intersect(line, Line(p1, p3)))
+                .Add(surface, DisplayStyle.Visible);
 
             AssertSerialization(surface);
         }
