@@ -1,10 +1,13 @@
-﻿namespace MetaConstruct.Serialization {
+﻿using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace MetaConstruct.Serialization {
     public class ConstructionInfo {
         public static (IEnumerable<FreePoint> freePoints, Func<Point, int> getPointId, Func<Primitive, int> getPrimitiveId)
             CollectConstruction(IEnumerable<Entity> entities, ConstructionInfo constructionInfo) {
             var points = new Dictionary<Point, int>();
             var primitives = new Dictionary<Primitive, int>();
-            int GetCount() => points.Count + primitives.Count;
             void CollectPrimitives(Primitive primitive) {
                 if(primitives.ContainsKey(primitive))
                     return;
@@ -12,17 +15,16 @@
                     case Line line:
                         CollectPoints(line.From);
                         CollectPoints(line.To);
-                        primitives.Add(line, GetCount());
                         break;
                     case Circle circle:
                         CollectPoints(circle.Center);
                         CollectPoints(circle.Radius1);
                         CollectPoints(circle.Radius2);
-                        primitives.Add(circle, GetCount());
                         break;
                     default:
                         throw new NotImplementedException();
                 }
+                primitives.Add(primitive, primitives.Count);
             }
             void CollectPoints(Point point) {
                 if(points.ContainsKey(point))
@@ -46,7 +48,7 @@
                     default:
                         throw new NotImplementedException();
                 }
-                points.Add(point, GetCount());
+                points.Add(point, points.Count);
             }
             foreach(var entity in entities) {
                 if(entity is PointView pointView)
@@ -112,7 +114,7 @@
             return (points.Keys.OfType<FreePoint>(), p => points[p], p => primitives[p]);
         }
         public static (Func<int, Point> getPoint, Func<int, Line> getLine, Func<int, Circle> getCircle)
-            Deserialize(Constructor constructor, ConstructionInfo construction) {
+            Construct(Constructor constructor, ConstructionInfo construction) {
             var freePoints = construction.FreePoints.ToDictionary(x => x.Id);
             var lineLinePoints = construction.LineLinePoints.ToDictionary(x => x.Id);
             var lineCirclePoints = construction.LineCirclePoints.ToDictionary(x => x.Id);
@@ -197,12 +199,14 @@
             public int Id { get; set; }
             public int Line { get; set; }
             public int Circle { get; set; }
+            [JsonConverter(typeof(JsonStringEnumConverter))]
             public CircleIntersectionKind Intersection { get; set; }
         }
         public class CircleCirclePointInfo {
             public int Id { get; set; }
             public int Circle1 { get; set; }
             public int Circle2 { get; set; }
+            [JsonConverter(typeof(JsonStringEnumConverter))]
             public CircleIntersectionKind Intersection { get; set; }
         }
         public class LineInfo {
@@ -217,5 +221,4 @@
             public int Radius2 { get; set; }
         }
     }
-
 }

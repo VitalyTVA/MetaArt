@@ -61,7 +61,7 @@ namespace MetaConstruct.Serialization {
         public static void Deserialize(Surface surface, string jsonString) {
             var info = JsonSerializer.Deserialize(jsonString, SourceGenerationContext.Default.SurfaceInfo)!;
             var lineSegments = info.LineSegments.ToDictionary(x => x.Id);
-            var (getPoint, getLine, getCircle) = ConstructionInfo.Deserialize(surface.Constructor, info.Construction);
+            var (getPoint, getLine, getCircle) = ConstructionInfo.Construct(surface.Constructor, info.Construction);
             foreach(var item in info.Views) {
                 if(item.ViewKind == ViewKind.Point) {
                     var point = getPoint(item.Id);
@@ -106,6 +106,7 @@ namespace MetaConstruct.Serialization {
         public enum ViewKind { Point, Line, Circle, LineSegment }
         public class ViewInfo {
             public int Id { get; set; }
+            [JsonConverter(typeof(JsonStringEnumConverter))]
             public ViewKind ViewKind { get; set; }
             public DisplayStyle DisplayStyle { get; set; }
         }
