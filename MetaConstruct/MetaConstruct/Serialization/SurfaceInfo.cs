@@ -18,14 +18,14 @@ namespace MetaConstruct.Serialization {
             }
             foreach(var freePoint in freePoints) {
                 surfaceInfo.PointLocations.Add(new FreePointLocationInfo {
-                    Index = getPointId(freePoint),
+                    Point = getPointId(freePoint),
                     Location = surface.GetPointLocation(freePoint)
                 });
             }
             foreach(var pair in segments) {
                 if(pair.Key is LineSegment lineSegment) {
                     surfaceInfo.LineSegments.Add(new LineSegmentInfo {
-                        Index = pair.Value,
+                        Id = pair.Value,
                         Line = getPrimitiveId(lineSegment.Line),
                         From = getPointId(lineSegment.From),
                         To = getPointId(lineSegment.To),
@@ -47,8 +47,8 @@ namespace MetaConstruct.Serialization {
                     LineSegment => ViewKind.LineSegment,
                 };
                 surfaceInfo.Views.Add(new ViewInfo {
-                    Index = index,
-                    Kind = kind,
+                    Id = index,
+                    ViewKind = kind,
                     DisplayStyle = style
                 });
             }
@@ -60,18 +60,18 @@ namespace MetaConstruct.Serialization {
 
         public static void Deserialize(Surface surface, string jsonString) {
             var info = JsonSerializer.Deserialize(jsonString, SourceGenerationContext.Default.SurfaceInfo)!;
-            var lineSegments = info.LineSegments.ToDictionary(x => x.Index);
+            var lineSegments = info.LineSegments.ToDictionary(x => x.Id);
             var (getPoint, getLine, getCircle) = ConstructionInfo.Deserialize(surface.Constructor, info.Construction);
             foreach(var item in info.Views) {
-                if(item.Kind == ViewKind.Point) {
-                    var point = getPoint(item.Index);
+                if(item.ViewKind == ViewKind.Point) {
+                    var point = getPoint(item.Id);
                     surface.Add(point.AsView(), item.DisplayStyle);
-                } else if(item.Kind == ViewKind.Line) {
-                    surface.Add(getLine(item.Index), item.DisplayStyle);
-                } else if(item.Kind == ViewKind.Circle) {
-                    surface.Add(getCircle(item.Index), item.DisplayStyle);
-                } else if(item.Kind == ViewKind.LineSegment) {
-                    var lineSegmentInfo = lineSegments[item.Index];
+                } else if(item.ViewKind == ViewKind.Line) {
+                    surface.Add(getLine(item.Id), item.DisplayStyle);
+                } else if(item.ViewKind == ViewKind.Circle) {
+                    surface.Add(getCircle(item.Id), item.DisplayStyle);
+                } else if(item.ViewKind == ViewKind.LineSegment) {
+                    var lineSegmentInfo = lineSegments[item.Id];
                     var line = getLine(lineSegmentInfo.Line);
                     var from = getPoint(lineSegmentInfo.From);
                     var to = getPoint(lineSegmentInfo.To);
@@ -81,7 +81,7 @@ namespace MetaConstruct.Serialization {
                 }
             }
             foreach(var item in info.PointLocations) {
-                var point = (FreePoint)getPoint(item.Index);
+                var point = (FreePoint)getPoint(item.Point);
                 surface.SetPointLocation(point, item.Location);
             }
         }
@@ -90,6 +90,25 @@ namespace MetaConstruct.Serialization {
         public List<LineSegmentInfo> LineSegments { get; set; } = new();
         public List<ViewInfo> Views { get; set; } = new();
         public ConstructionInfo Construction { get; set; } = new ();
+
+        public class FreePointLocationInfo {
+            public int Point { get; set; }
+            [JsonConverter(typeof(Vector2JsonConverter))]
+            public Vector2 Location { get; set; }
+        }
+
+        public class LineSegmentInfo {
+            public int Id { get; set; }
+            public int Line { get; set; }
+            public int From { get; set; }
+            public int To { get; set; }
+        }
+        public enum ViewKind { Point, Line, Circle, LineSegment }
+        public class ViewInfo {
+            public int Id { get; set; }
+            public ViewKind ViewKind { get; set; }
+            public DisplayStyle DisplayStyle { get; set; }
+        }
     }
     public class Vector2JsonConverter : JsonConverter<Vector2> {
         public override Vector2 Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
@@ -102,25 +121,7 @@ namespace MetaConstruct.Serialization {
         }
     }
 
-    public class FreePointLocationInfo {
-        public int Index { get; set; }
-        [JsonConverter(typeof(Vector2JsonConverter))]
-        public Vector2 Location { get; set; }
-    }
 
-    public class LineSegmentInfo {
-        public int Line { get; set; }
-        public int From { get; set; }
-        public int To { get; set; }
-        public int Index { get; set; }
-    }
-
-    public enum ViewKind { Point, Line, Circle, LineSegment }
-    public class ViewInfo {
-        public int Index { get; set; }
-        public ViewKind Kind { get; set; }
-        public DisplayStyle DisplayStyle { get; set; }
-    }
     [JsonSourceGenerationOptions(WriteIndented = true)]
     [JsonSerializable(typeof(SurfaceInfo))]
     internal partial class SourceGenerationContext : JsonSerializerContext {

@@ -65,24 +65,24 @@
             foreach(var pair in points) {
                 if(pair.Key is FreePoint point) {
                     constructionInfo.FreePoints.Add(new FreePointInfo {
-                        Index = pair.Value,
+                        Id = pair.Value,
                     });
                 } else if(pair.Key is LineLinePoint lineLinePoint) {
                     constructionInfo.LineLinePoints.Add(new LineLinePointInfo {
-                        Index = pair.Value,
+                        Id = pair.Value,
                         Line1 = primitives[lineLinePoint.Line1],
                         Line2 = primitives[lineLinePoint.Line2],
                     });
                 } else if(pair.Key is LineCirclePoint lineCirclePoint) {
                     constructionInfo.LineCirclePoints.Add(new LineCirclePointInfo {
-                        Index = pair.Value,
+                        Id = pair.Value,
                         Line = primitives[lineCirclePoint.Line],
                         Circle = primitives[lineCirclePoint.Circle],
                         Intersection = lineCirclePoint.Intersection
                     });
                 } else if(pair.Key is CircleCirclePoint circleCirclePoint) {
                     constructionInfo.CircleCirclePoints.Add(new CircleCirclePointInfo {
-                        Index = pair.Value,
+                        Id = pair.Value,
                         Circle1 = primitives[circleCirclePoint.Circle1],
                         Circle2 = primitives[circleCirclePoint.Circle2],
                         Intersection = circleCirclePoint.Intersection
@@ -94,13 +94,13 @@
             foreach(var pair in primitives) {
                 if(pair.Key is Line line) {
                     constructionInfo.Lines.Add(new LineInfo {
-                        Index = pair.Value,
+                        Id = pair.Value,
                         From = points[line.From],
                         To = points[line.To],
                     });
                 } else if(pair.Key is Circle circle) {
                     constructionInfo.Circles.Add(new CircleInfo {
-                        Index = pair.Value,
+                        Id = pair.Value,
                         Center = points[circle.Center],
                         Radius1 = points[circle.Radius1],
                         Radius2 = points[circle.Radius2],
@@ -113,12 +113,12 @@
         }
         public static (Func<int, Point> getPoint, Func<int, Line> getLine, Func<int, Circle> getCircle)
             Deserialize(Constructor constructor, ConstructionInfo construction) {
-            var freePoints = construction.FreePoints.ToDictionary(x => x.Index);
-            var lineLinePoints = construction.LineLinePoints.ToDictionary(x => x.Index);
-            var lineCirclePoints = construction.LineCirclePoints.ToDictionary(x => x.Index);
-            var circleCirclePoints = construction.CircleCirclePoints.ToDictionary(x => x.Index);
-            var lines = construction.Lines.ToDictionary(x => x.Index);
-            var circles = construction.Circles.ToDictionary(x => x.Index);
+            var freePoints = construction.FreePoints.ToDictionary(x => x.Id);
+            var lineLinePoints = construction.LineLinePoints.ToDictionary(x => x.Id);
+            var lineCirclePoints = construction.LineCirclePoints.ToDictionary(x => x.Id);
+            var circleCirclePoints = construction.CircleCirclePoints.ToDictionary(x => x.Id);
+            var lines = construction.Lines.ToDictionary(x => x.Id);
+            var circles = construction.Circles.ToDictionary(x => x.Id);
             var createdPoints = new Dictionary<int, Point>();
             var createdPrimitives = new Dictionary<int, Primitive>();
             Point GetPoint(int index) {
@@ -184,36 +184,38 @@
         public List<CircleCirclePointInfo> CircleCirclePoints { get; set; } = new();
         public List<LineInfo> Lines { get; set; } = new();
         public List<CircleInfo> Circles { get; set; } = new();
+
+        public class FreePointInfo {
+            public int Id { get; set; }
+        }
+        public class LineLinePointInfo {
+            public int Id { get; set; }
+            public int Line1 { get; set; }
+            public int Line2 { get; set; }
+        }
+        public class LineCirclePointInfo {
+            public int Id { get; set; }
+            public int Line { get; set; }
+            public int Circle { get; set; }
+            public CircleIntersectionKind Intersection { get; set; }
+        }
+        public class CircleCirclePointInfo {
+            public int Id { get; set; }
+            public int Circle1 { get; set; }
+            public int Circle2 { get; set; }
+            public CircleIntersectionKind Intersection { get; set; }
+        }
+        public class LineInfo {
+            public int Id { get; set; }
+            public int From { get; set; }
+            public int To { get; set; }
+        }
+        public class CircleInfo {
+            public int Id { get; set; }
+            public int Center { get; set; }
+            public int Radius1 { get; set; }
+            public int Radius2 { get; set; }
+        }
     }
-    public class FreePointInfo {
-        public int Index { get; set; }
-    }
-    public class LineLinePointInfo {
-        public int Index { get; set; }
-        public int Line1 { get; set; }
-        public int Line2 { get; set; }
-    }
-    public class LineCirclePointInfo {
-        public int Index { get; set; }
-        public int Line { get; set; }
-        public int Circle { get; set; }
-        public CircleIntersectionKind Intersection { get; set; }
-    }
-    public class CircleCirclePointInfo {
-        public int Index { get; set; }
-        public int Circle1 { get; set; }
-        public int Circle2 { get; set; }
-        public CircleIntersectionKind Intersection { get; set; }
-    }
-    public class LineInfo {
-        public int From { get; set; }
-        public int To { get; set; }
-        public int Index { get; set; }
-    }
-    public class CircleInfo {
-        public int Center { get; set; }
-        public int Radius1 { get; set; }
-        public int Radius2 { get; set; }
-        public int Index { get; set; }
-    }
+
 }
