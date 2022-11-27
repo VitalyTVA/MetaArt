@@ -50,21 +50,30 @@ namespace MetaConstruct.Serialization {
                 }
                 points.Add(point, points.Count);
             }
+            bool CollectSimpleSegment(Segment segment) {
+                if(segment is LineSegment lineSegment) {
+                    CollectPrimitives(lineSegment.Line);
+                    CollectPoints(lineSegment.From);
+                    CollectPoints(lineSegment.To);
+                    return true;
+                } else if(segment is CircleSegment circleSegment) {
+                    CollectPrimitives(circleSegment.Circle);
+                    CollectPoints(circleSegment.From);
+                    CollectPoints(circleSegment.To);
+                    return true;
+                }
+                return false;
+            }
             foreach(var entity in entities) {
                 if(entity is PointView pointView)
                     CollectPoints(pointView.point);
                 else if(entity is Primitive primitive)
                     CollectPrimitives(primitive);
                 else if(entity is Segment segment) {
-                    if(segment is LineSegment lineSegment) {
-                        CollectPrimitives(lineSegment.Line);
-                        CollectPoints(lineSegment.From);
-                        CollectPoints(lineSegment.To);
-                    }
-                    if(segment is CircleSegment circleSegment) {
-                        CollectPrimitives(circleSegment.Circle);
-                        CollectPoints(circleSegment.From);
-                        CollectPoints(circleSegment.To);
+                    if(!CollectSimpleSegment(segment) && segment is Contour contour) {
+                        foreach(var subSegment in contour.Segments) {
+                            CollectSimpleSegment(subSegment);
+                        }
                     }
                 } else
                     throw new InvalidOperationException();

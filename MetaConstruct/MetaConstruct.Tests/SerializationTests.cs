@@ -232,6 +232,40 @@ namespace MetaContruct.Tests {
             AssertSerialization(surface);
         }
 
+        [Test]
+        public void SaveContour() {
+            var center = Point();
+            var top = Point();
+            var centerCircle = Circle(center, top);
+            var c1 = Circle(top, center);
+            var c2 = Circle(Intersect(centerCircle, c1).Point1, center);
+            var s1 = CircleSegment(
+                c1,
+                Intersect(c1, centerCircle).Point2,
+                Intersect(c1, c2).Point2
+            );
+            var s2 = CircleSegment(
+                c2,
+                Intersect(c2, c1).Point2,
+                Intersect(c2, centerCircle).Point1
+            );
+            var s3 = CircleSegment(
+                centerCircle,
+                Intersect(centerCircle, c1).Point1,
+                Intersect(centerCircle, c2).Point2
+            );
+            var surface = CreateTestSurface();
+            surface.SetPoints(new[] {
+                (center, new Vector2(0, 0)),
+                (top, new Vector2(0, 1)),
+            });
+            new Contour(new Segment[] {
+                s1, s2, s3
+            }).Add(surface, DisplayStyle.Background);
+
+            AssertSerialization(surface);
+        }
+
         static void AssertSerialization(Surface surface0) {
             var plot0 = surface0.PlotToString();
 
