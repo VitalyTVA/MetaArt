@@ -307,7 +307,7 @@ LinesPoint (2.3333 2.6667)
         }
 
         [Test]
-        public void ContourTest() {
+        public void ContourTest_CircleSegments() {
             var center = Point();
             var top = Point();
             var centerCircle = Circle(center, top);
@@ -356,6 +356,33 @@ LinesPoint (2.3333 2.6667)
                     (top, new Vector2(0, 1)),
                 },
                 (contour, DisplayStyle.Background)
+            );
+        }
+
+        [Test]
+        public void ContourTest_LineSegments() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var contour = new Contour(new Segment[] {
+                LineSegment(p1, p2),
+                LineSegment(p2, p3),
+                LineSegment(p3, p1),
+
+            });
+            AssertPlot(
+@"contour {
+    lineSegment (0.0000 0.0000) (0.0000 1.0000)
+    lineSegment (0.0000 1.0000) (1.0000 0.0000)
+    lineSegment (1.0000 0.0000) (0.0000 0.0000)
+}
+",
+                 points: new[] {
+                    (p1, new Vector2(0, 0)),
+                    (p2, new Vector2(0, 1)),
+                    (p3, new Vector2(1, 0)),
+                },
+                contour
             );
         }
 
@@ -492,19 +519,24 @@ LinesPoint (2.3333 2.6667)
             var sb = new StringBuilder();
             StringBuilder AppendCircleSegment(CircleSegmentF s, DisplayStyle style)
                 => sb.AppendLine($"circleSegment{GetStyleString(style)} {s.circle.center.VectorToString()} {s.circle.radius.FloatToString()} {s.from.RadToDeg().FloatToString()} {s.to.RadToDeg().FloatToString()}");
+            StringBuilder AppendLineSegment(LineF l, DisplayStyle style)
+                => sb.AppendLine($"lineSegment{GetStyleString(style)} {l.LineFToString()}");
             static string GetStyleString(DisplayStyle style) => style == DisplayStyle.Visible ? string.Empty : ":" + style.ToString();
             Plotter.Draw(
                 surface,
                 new Painter(
                     DrawLine: (l, style) => sb.AppendLine($"line{GetStyleString(style)} {l.LineFToString()}"),
-                    DrawLineSegment: (s, style) => sb.AppendLine($"lineSegment{GetStyleString(style)} {s.LineFToString()}"),
+                    DrawLineSegment: (s, style) => AppendLineSegment(s, style),
                     DrawCircle: (c, style) => sb.AppendLine($"circle{GetStyleString(style)} {c.CircleFToString()}"),
                     DrawCircleSegment: (s, style) => AppendCircleSegment(s, style),
                     FillContour: (contour, style) => {
                         sb.AppendLine("contour {");
                         foreach(var item in contour) {
                             sb.Append("    ");
-                            AppendCircleSegment(item, style);
+                            item.Match(
+                                circleSegment => AppendCircleSegment(circleSegment, style),
+                                line => AppendLineSegment(line, style)
+                            );
                         }
                         sb.AppendLine("}");
                     },

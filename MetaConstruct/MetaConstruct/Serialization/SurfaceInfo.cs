@@ -15,17 +15,19 @@ namespace MetaConstruct.Serialization {
                 var id = segments.Count;
                 segments.Add(segment, id);
                 if(segment is LineSegment lineSegment) {
-                    surfaceInfo.LineSegments.Add(new LineSegmentInfo {
+                    surfaceInfo.Segments.Add(new SegmentInfo {
                         Id = id,
-                        Line = getPrimitiveId(lineSegment.Line),
+                        SegmentKind = SimpleSegmentKind.Line,
+                        Primitive = getPrimitiveId(lineSegment.Line),
                         From = getPointId(lineSegment.From),
                         To = getPointId(lineSegment.To),
                     });
                     return id;
                 } else if(segment is CircleSegment circleSegment) {
-                    surfaceInfo.CircleSegments.Add(new CircleSegmentInfo {
+                    surfaceInfo.Segments.Add(new SegmentInfo {
                         Id = id,
-                        Circle = getPrimitiveId(circleSegment.Circle),
+                        SegmentKind = SimpleSegmentKind.Circle,
+                        Primitive = getPrimitiveId(circleSegment.Circle),
                         From = getPointId(circleSegment.From),
                         To = getPointId(circleSegment.To),
                     });
@@ -83,16 +85,17 @@ namespace MetaConstruct.Serialization {
 
         public static void Deserialize(Surface surface, string jsonString) {
             var info = JsonSerializer.Deserialize(jsonString, SourceGenerationContext.Default.SurfaceInfo)!;
-            var lineSegments = info.LineSegments.ToDictionary(x => x.Id);
-            var circleSegments = info.CircleSegments.ToDictionary(x => x.Id);
+            var segments = info.Segments.ToDictionary(x => x.Id);
             var contours = info.Contours.ToDictionary(x => x.Id);
             var (getPoint, getLine, getCircle) = ConstructionInfo.Construct(surface.Constructor, info.Construction);
-            Segment CreateCircleSegment(int id) {
-                var segmentInfo = circleSegments[id];
-                var circle = getCircle(segmentInfo.Circle);
+            Segment CreateSegment(int id) {
+                var segmentInfo = segments[id];
                 var from = getPoint(segmentInfo.From);
                 var to = getPoint(segmentInfo.To);
-                return ConstructorHelper.CircleSegment(circle, from, to);
+                return segmentInfo.SegmentKind switch { 
+                    SimpleSegmentKind.Circle => ConstructorHelper.CircleSegment(getCircle(segmentInfo.Primitive), from, to),
+                    SimpleSegmentKind.Line => ConstructorHelper.LineSegment(getLine(segmentInfo.Primitive), from, to),
+                };
             }
             foreach(var item in info.Views) {
                 if(item.ViewKind == ViewKind.Point) {
@@ -102,20 +105,14 @@ namespace MetaConstruct.Serialization {
                     surface.Add(getLine(item.Id), item.DisplayStyle);
                 } else if(item.ViewKind == ViewKind.Circle) {
                     surface.Add(getCircle(item.Id), item.DisplayStyle);
-                } else if(item.ViewKind == ViewKind.LineSegment) {
-                    var segmentInfo = lineSegments[item.Id];
-                    var line = getLine(segmentInfo.Line);
-                    var from = getPoint(segmentInfo.From);
-                    var to = getPoint(segmentInfo.To);
-                    surface.Add(ConstructorHelper.LineSegment(line, from, to), item.DisplayStyle);
-                } else if(item.ViewKind == ViewKind.CircleSegment) {
-                    surface.Add(CreateCircleSegment(item.Id), item.DisplayStyle);
+                } else if(item.ViewKind is ViewKind.CircleSegment or ViewKind.LineSegment) {
+                    surface.Add(CreateSegment(item.Id), item.DisplayStyle);
                 } else if(item.ViewKind == ViewKind.Contour) {
                     var segmentInfo = contours[item.Id];
-                    var segments = segmentInfo.Segments
-                        .Select(segmentId => CreateCircleSegment(segmentId))
+                    var subSegments = segmentInfo.Segments
+                        .Select(segmentId => CreateSegment(segmentId))
                         .ToArray();
-                    surface.Add(new Contour(segments), item.DisplayStyle);
+                    surface.Add(new Contour(subSegments), item.DisplayStyle);
                 } else {
                     throw new InvalidOperationException();
                 }
@@ -127,8 +124,7 @@ namespace MetaConstruct.Serialization {
         }
 
         public List<FreePointLocationInfo> PointLocations { get; set; } = new();
-        public List<LineSegmentInfo> LineSegments { get; set; } = new();
-        public List<CircleSegmentInfo> CircleSegments { get; set; } = new();
+        public List<SegmentInfo> Segments { get; set; } = new();
         public List<ContourInfo> Contours { get; set; } = new();
         public List<ViewInfo> Views { get; set; } = new();
         public ConstructionInfo Construction { get; set; } = new ();
@@ -138,16 +134,12 @@ namespace MetaConstruct.Serialization {
             [JsonConverter(typeof(Vector2JsonConverter))]
             public Vector2 Location { get; set; }
         }
-
-        public class LineSegmentInfo {
+        public enum SimpleSegmentKind { Line, Circle }
+        public class SegmentInfo {
             public int Id { get; set; }
-            public int Line { get; set; }
-            public int From { get; set; }
-            public int To { get; set; }
-        }
-        public class CircleSegmentInfo {
-            public int Id { get; set; }
-            public int Circle { get; set; }
+            [JsonConverter(typeof(JsonStringEnumConverter))]
+            public SimpleSegmentKind SegmentKind { get; set; }
+            public int Primitive { get; set; }
             public int From { get; set; }
             public int To { get; set; }
         }

@@ -233,7 +233,7 @@ namespace MetaContruct.Tests {
         }
 
         [Test]
-        public void SaveContour() {
+        public void SaveContour_CircleSegments() {
             var center = Point();
             var top = Point();
             var centerCircle = Circle(center, top);
@@ -263,6 +263,26 @@ namespace MetaContruct.Tests {
                 s1, s2, s3
             }).Add(surface, DisplayStyle.Background);
 
+            AssertSerialization(surface);
+        }
+
+        [Test]
+        public void SaveContour_LineSegments() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var surface = CreateTestSurface();
+            new Contour(new Segment[] {
+                LineSegment(p1, p2),
+                LineSegment(p2, p3),
+                LineSegment(p3, p1),
+
+            }).Add(surface, DisplayStyle.Visible);
+            surface.SetPoints(new[] {
+                    (p1, new Vector2(0, 0)),
+                    (p2, new Vector2(0, 1)),
+                    (p3, new Vector2(1, 0)),
+            });
             AssertSerialization(surface);
         }
 

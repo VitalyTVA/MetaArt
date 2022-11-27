@@ -8,7 +8,7 @@ namespace MetaConstruct {
         Action<CircleSegmentF, DisplayStyle> DrawCircleSegment,
         Action<LineF, DisplayStyle> DrawLine,
         Action<LineF, DisplayStyle> DrawLineSegment,
-        Action<CircleSegmentF[], DisplayStyle> FillContour,
+        Action<Either<CircleSegmentF, LineF>[], DisplayStyle> FillContour,
         Action<Vector2, PointKind, DisplayStyle> DrawPoint
     );
     public enum PointKind { Free, Circles, Lines, LineCircle }
@@ -57,10 +57,14 @@ namespace MetaConstruct {
             }
         }
 
-        static CircleSegmentF[] CalcContour(this Calculator calculator, Contour contour) {
+        static Either<CircleSegmentF, LineF>[] CalcContour(this Calculator calculator, Contour contour) {
             var segments = contour.Segments
-                .Cast<CircleSegment>()
-                .Select(s => calculator.CalcCircleSegment(s))
+                .Select<Segment, Either<CircleSegmentF, LineF>>(s => {
+                    return s switch {
+                        CircleSegment c => calculator.CalcCircleSegment(c).AsLeft(),
+                        LineSegment l => calculator.CalcLine(l.Line).AsRight(),
+                    };
+                })
                 .ToArray();
             return segments;
         }

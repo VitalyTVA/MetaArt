@@ -54,7 +54,7 @@ class Plot {
                 noStroke();
                 fill(White);
                 beginShape();
-                foreach(var segment in segments) {
+                foreach(var segment in segments.Select(x => x.ToLeft())) {
                     arcVertex(segment.circle.center.X, segment.circle.center.Y, segment.circle.radius * 2, segment.circle.radius * 2, segment.from, segment.to);
                 }
                 endShape(CLOSE);
