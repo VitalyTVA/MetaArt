@@ -60,13 +60,15 @@ namespace MetaConstruct.Serialization {
             foreach(var (entity, style) in surface.GetEntities()) {
                 var index = entity switch {
                     PointView p => getPointId(p.point),
-                    Primitive p => getPrimitiveId(p),
+                    PrimitiveView p => getPrimitiveId(p.primitive),
                     Segment s => segments[s],
                 };
                 var kind = entity switch {
                     PointView => ViewKind.Point,
-                    Circle => ViewKind.Circle,
-                    Line => ViewKind.Line,
+                    PrimitiveView p => p.primitive switch {
+                        Circle => ViewKind.Circle,
+                        Line => ViewKind.Line,
+                    },
                     LineSegment => ViewKind.LineSegment,
                     CircleSegment => ViewKind.CircleSegment,
                     Contour => ViewKind.Contour,
@@ -100,7 +102,7 @@ namespace MetaConstruct.Serialization {
             foreach(var item in info.Views) {
                 if(item.ViewKind == ViewKind.Point) {
                     var point = getPoint(item.Id);
-                    surface.Add(point.AsView(), item.DisplayStyle);
+                    surface.Add(point, item.DisplayStyle);
                 } else if(item.ViewKind == ViewKind.Line) {
                     surface.Add(getLine(item.Id), item.DisplayStyle);
                 } else if(item.ViewKind == ViewKind.Circle) {

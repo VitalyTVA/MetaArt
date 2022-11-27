@@ -20,17 +20,19 @@ namespace MetaConstruct {
             var calculator = surface.CreateCalculator();
             foreach(var (primitive, style) in surface.GetEntities()) {
                 switch(primitive) {
-                    case Line l:
-                        var lineF = calculator.CalcLine(l);
-                        painter.DrawLine(lineF, style);
+                    case PrimitiveView p:
+                        if(p.primitive is Line l) {
+                            var lineF = calculator.CalcLine(l);
+                            painter.DrawLine(lineF, style);
+                        } else if(p.primitive is Circle c) {
+                            var circleF = calculator.CalcCircle(c);
+                            painter.DrawCircle(circleF, style);
+                        } else
+                            throw new InvalidOperationException();
                         break;
-                    case LineSegment l:
-                        var lineSegmentF = calculator.CalcLineSegment(l.From, l.To);
+                    case LineSegment s:
+                        var lineSegmentF = calculator.CalcLineSegment(s.From, s.To);
                         painter.DrawLineSegment(lineSegmentF, style);
-                        break;
-                    case Circle c:
-                        var circleF = calculator.CalcCircle(c);
-                        painter.DrawCircle(circleF, style);
                         break;
                     case CircleSegment segment:
                         var circleSegmentF = calculator.CalcCircleSegment(segment);
@@ -88,14 +90,24 @@ namespace MetaConstruct {
     }
 
     public static class SurfaceExtensions {
-        public static T Add<T>(this T entity, Surface surface, DisplayStyle? style = null) where T : Entity {
-            style = style ?? entity switch {
-                Primitive => DisplayStyle.Background,
-                Segment or PointView => DisplayStyle.Visible,
-                _ => throw new InvalidOperationException()
-            };
-            surface.Add(entity, style.Value);
+        public static T Add<T>(this T entity, Surface surface, DisplayStyle style = DisplayStyle.Visible) where T : Entity {
+            AddCore(entity, surface, style);
             return entity;
+        }
+        public static Point Add(this Point point, Surface surface, DisplayStyle style = DisplayStyle.Background) {
+            AddCore(point, surface, style);
+            return point;
+        }
+        public static Circle Add(this Circle primitive, Surface surface, DisplayStyle style = DisplayStyle.Background) {
+            AddCore(primitive, surface, style);
+            return primitive;
+        }
+        public static Line Add(this Line primitive, Surface surface, DisplayStyle style = DisplayStyle.Background) {
+            AddCore(primitive, surface, style);
+            return primitive;
+        }
+        static void AddCore(this Entity entity, Surface surface, DisplayStyle style) {
+            surface.Add(entity, style);
         }
     }
 }

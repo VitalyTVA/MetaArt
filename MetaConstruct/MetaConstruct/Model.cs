@@ -1,5 +1,14 @@
 ﻿namespace MetaConstruct {
 
+    public abstract record Entity {
+        public static implicit operator Entity(Primitive primitive) => new PrimitiveView(primitive);
+        public static implicit operator Entity(Point point) => new PointView(point);
+        protected Entity() => Validate();
+        protected virtual void Validate() { }
+    }
+
+    public record PrimitiveView(Primitive primitive) : Entity;
+
     public record PointView(Point point) : Entity;
 
     public abstract record Segment : Entity;
@@ -59,8 +68,6 @@
     public enum DisplayStyle { Background, Visible }
 
     public static class ConstructorHelper {
-        public static PointView AsView(this Point p) => new PointView(p);
-
         public static CircleSegment CircleSegment(this Constructor constructor, Circle circle, Circle other, bool invert = false) {
             var (p1, p2) = constructor.Intersect(circle, other);
             return CircleSegment(circle, invert, p1, p2);

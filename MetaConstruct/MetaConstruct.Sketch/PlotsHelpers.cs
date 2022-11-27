@@ -59,8 +59,8 @@ namespace MetaConstruct {
                 s1, s2, s3
             }).Add(s);
 
-            c.Intersect(centerCircle, c1).Point1.AsView().Add(s);
-            c.Intersect(centerCircle, c1).Point2.AsView().Add(s);
+            c.Intersect(centerCircle, c1).Point1.Add(s);
+            c.Intersect(centerCircle, c1).Point2.Add(s);
 
             l1.AsLineSegment().Add(s);
             l2.AsLineSegment().Add(s);
@@ -170,7 +170,7 @@ namespace MetaConstruct {
             c.LineSegment(points.First(), points.Last()).Add(s);
 
             foreach(var item in new[] { p1, p2, p4 }.Concat(points)) {
-                item.AsView().Add(s);
+                item.Add(s);
             }
 
             return new PlotInfo(

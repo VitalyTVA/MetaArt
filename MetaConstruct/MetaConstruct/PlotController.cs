@@ -22,11 +22,11 @@ namespace MetaConstruct {
 
                         if(point == null) {
                             var intersectionPoint = Surface.HitTestIntersection(startPoint);
-                            if(intersectionPoint != null && !Surface.Contains(intersectionPoint.AsView())) {
+                            if(intersectionPoint != null && !Surface.Contains(intersectionPoint)) {
                                 action = undoManager.Execute(
                                        intersectionPoint,
                                        redo: statePoint => {
-                                           Surface.Add(statePoint.AsView(), DisplayStyle.Visible);
+                                           Surface.Add(statePoint, DisplayStyle.Visible);
                                            return (statePoint, true);
                                        },
                                        undo: statePoint => {
@@ -44,7 +44,7 @@ namespace MetaConstruct {
                                 action = undoManager.Execute(
                                     (point: Surface.Constructor.Point(), location: startPoint),
                                     redo: state => {
-                                        Surface.Add(state.point.AsView(), DisplayStyle.Visible);
+                                        Surface.Add(state.point, DisplayStyle.Visible);
                                         Surface.SetPointLocation(state.point, state.location);
                                         return (state.point, true);
                                     },
@@ -126,7 +126,7 @@ namespace MetaConstruct {
                         case (Point existingPoint, null):
                             break;
                         case (null, (FreePoint newPoint, Vector2 location)):
-                            Surface.Add(newPoint.AsView(), DisplayStyle.Visible);
+                            Surface.Add(newPoint, DisplayStyle.Visible);
                             Surface.SetPointLocation(newPoint, location);
                             break;
                     }
@@ -134,7 +134,7 @@ namespace MetaConstruct {
                     var toInfo = state.to;
                     if(toInfo != null) {
                         if(toInfo.Value.pointInfo.IsRight()) {
-                            Surface.Add(toInfo.Value.pointInfo.ToRight().point.AsView(), DisplayStyle.Visible);
+                            Surface.Add(toInfo.Value.pointInfo.ToRight().point, DisplayStyle.Visible);
                             Surface.SetPointLocation(toInfo.Value.pointInfo.ToRight().point, toInfo.Value.pointInfo.ToRight().location);
                         }
                         if(toInfo.Value.entity != null)
@@ -218,7 +218,7 @@ namespace MetaConstruct {
                             var pointTo = Surface.Constructor.Point();
                             var entity = createEntity(Surface.Constructor, fromPoint, pointTo);
                             if(entity != null) {
-                                Surface.Add(pointTo.AsView(), DisplayStyle.Visible);
+                                Surface.Add(pointTo, DisplayStyle.Visible);
                                 Surface.Add(entity!, enitityStyle);
                                 toInfo = (pointTo.AsRight(), entity);
                             }

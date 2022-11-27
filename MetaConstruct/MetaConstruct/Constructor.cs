@@ -32,11 +32,7 @@
 
     public record class CircleIntersection(Point Point1, Point Point2);
 
-    public abstract record Entity {
-        protected Entity() => Validate();
-        protected virtual void Validate() { }
-    }
-    public abstract record Primitive : Entity;
+    public abstract record Primitive;
     public sealed record Line : Primitive {
         public Line(Point from, Point to) {
             From = from;

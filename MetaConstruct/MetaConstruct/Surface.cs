@@ -54,21 +54,23 @@ namespace MetaConstruct {
 
         public Point? HitTestIntersection(Vector2 point) {
             var calculator = CreateCalculator();
-            var closeEntities = entities
+            var closePrimitives = entities
                 .Where(x => {
                     var distance = float.MaxValue;
                     switch(x.Entity) {
-                        case Line l:
-                            var lineF = calculator.CalcLine(l);
-                            distance = ConstructHelper.DistanceToLine(point, lineF.from, lineF.to);
+                        case PrimitiveView p:
+                            if(p.primitive is Line l) {
+                                var lineF = calculator.CalcLine(l);
+                                distance = ConstructHelper.DistanceToLine(point, lineF.from, lineF.to);
+                            } else if(p.primitive is Circle c) {
+                                var circleF = calculator.CalcCircle(c);
+                                distance = ConstructHelper.DistanceToCircle(point, circleF.center, circleF.radius);
+                            } else
+                                throw new InvalidOperationException();
                             break;
                         case LineSegment s:
                             var lineSegmentF = calculator.CalcLineSegment(s.From, s.To);
                             distance = ConstructHelper.DistanceToLineSegment(point, lineSegmentF.from, lineSegmentF.to);
-                            break;
-                        case Circle c:
-                            var circleF = calculator.CalcCircle(c);
-                            distance = ConstructHelper.DistanceToCircle(point, circleF.center, circleF.radius);
                             break;
                         case CircleSegment c:
                             var circleSegmentF = calculator.CalcCircleSegment(c).circle;
@@ -80,18 +82,16 @@ namespace MetaConstruct {
                 .Select(x => x.Entity switch {
                     LineSegment s => s.Line,
                     CircleSegment s => s.Circle,
-                    Entity e => e
+                    PrimitiveView p => p.primitive
                 })
                 .Distinct()
                 .ToArray();
-            var intersections = closeEntities
-                .SelectMany((x, i) => closeEntities.Skip(i + 1).Select(y => (x, y)))
+            var intersections = closePrimitives
+                .SelectMany((x, i) => closePrimitives.Skip(i + 1).Select(y => (x, y)))
                 .SelectMany(x => {
-                    static Either<Line, Circle> ToLineOrCircle(Entity e) => e switch {
+                    static Either<Line, Circle> ToLineOrCircle(Primitive p) => p switch {
                         Line l => l.AsLeft(),
-                        LineSegment l => l.Line.AsLeft(),
                         Circle c => c.AsRight(),
-                        CircleSegment c => c.Circle.AsRight(),
                     };
                     var p = (ToLineOrCircle(x.Item1), ToLineOrCircle(x.Item2)) switch {
                         ((Line l1, null), (Line l2, null)) => Constructor.Intersect(l1, l2).Yield(),

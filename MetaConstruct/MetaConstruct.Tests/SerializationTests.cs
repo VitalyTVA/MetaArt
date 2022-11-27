@@ -19,8 +19,8 @@ namespace MetaContruct.Tests {
                 (p1, new Vector2(1, 2)),
                 (p2, new Vector2(3, 4)),
             });
-            p1.AsView().Add(surface, DisplayStyle.Background);
-            p2.AsView().Add(surface, DisplayStyle.Visible);
+            p1.Add(surface, DisplayStyle.Background);
+            p2.Add(surface, DisplayStyle.Visible);
 
             AssertSerialization(surface);
         }
@@ -132,8 +132,8 @@ namespace MetaContruct.Tests {
                 (p5, new Vector2(10, 20)),
                 (p6, new Vector2(-30, -40)),
             });
-            Intersect(Line(p1, p2), Line(p3, p4)).AsView().Add(surface, DisplayStyle.Background);
-            Intersect(Line(p1, p2), Line(p5, p6)).AsView().Add(surface, DisplayStyle.Visible);
+            Intersect(Line(p1, p2), Line(p3, p4)).Add(surface, DisplayStyle.Background);
+            Intersect(Line(p1, p2), Line(p5, p6)).Add(surface, DisplayStyle.Visible);
 
             AssertSerialization(surface);
         }
@@ -152,8 +152,8 @@ namespace MetaContruct.Tests {
                 (p4, new Vector2(-10, 0)),
             });
             var (i1, i2) = Intersect(Line(p3, p4), Circle(p1, p2));
-            i1.AsView().Add(surface, DisplayStyle.Background);
-            i2.AsView().Add(surface, DisplayStyle.Visible);
+            i1.Add(surface, DisplayStyle.Background);
+            i2.Add(surface, DisplayStyle.Visible);
 
             AssertSerialization(surface);
         }
@@ -170,8 +170,8 @@ namespace MetaContruct.Tests {
                 (p3, new Vector2(10, 0)),
             });
             var (i1, i2) = Intersect(Line(p3, p2), Circle(p1, p2));
-            i1.AsView().Add(surface, DisplayStyle.Background);
-            i2.AsView().Add(surface, DisplayStyle.Visible);
+            i1.Add(surface, DisplayStyle.Background);
+            i2.Add(surface, DisplayStyle.Visible);
 
             AssertSerialization(surface);
         }
@@ -190,8 +190,8 @@ namespace MetaContruct.Tests {
                 (p4, new Vector2(-10, 0)),
             });
             var (i1, i2) = Intersect(Circle(p3, p4), Circle(p1, p2));
-            i1.AsView().Add(surface, DisplayStyle.Background);
-            i2.AsView().Add(surface, DisplayStyle.Visible);
+            i1.Add(surface, DisplayStyle.Background);
+            i2.Add(surface, DisplayStyle.Visible);
 
             AssertSerialization(surface);
         }
@@ -208,8 +208,8 @@ namespace MetaContruct.Tests {
                 (p3, new Vector2(10, 0)),
             });
             var (i1, i2) = Intersect(Circle(p1, p3), Circle(p2, p3));
-            i1.AsView().Add(surface, DisplayStyle.Background);
-            i2.AsView().Add(surface, DisplayStyle.Visible);
+            i1.Add(surface, DisplayStyle.Background);
+            i2.Add(surface, DisplayStyle.Visible);
 
             AssertSerialization(surface);
         }

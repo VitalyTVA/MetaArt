@@ -67,8 +67,8 @@ namespace MetaConstruct.Serialization {
             foreach(var entity in entities) {
                 if(entity is PointView pointView)
                     CollectPoints(pointView.point);
-                else if(entity is Primitive primitive)
-                    CollectPrimitives(primitive);
+                else if(entity is PrimitiveView primitiveView)
+                    CollectPrimitives(primitiveView.primitive);
                 else if(entity is Segment segment) {
                     if(!CollectSimpleSegment(segment) && segment is Contour contour) {
                         foreach(var subSegment in contour.Segments) {

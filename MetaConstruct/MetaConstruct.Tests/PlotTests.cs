@@ -28,8 +28,8 @@ FreePoint:Background (5.0000 6.0000)
                 },
                 (Line(p1, p2), DisplayStyle.Visible),
                 (Line(p1, p3), DisplayStyle.Background),
-                (p1.AsView(), DisplayStyle.Visible),
-                (p2.AsView(), DisplayStyle.Background)
+                (p1, DisplayStyle.Visible),
+                (p2, DisplayStyle.Background)
             );
         }
 
@@ -93,7 +93,7 @@ LineCirclePoint (6.7720 -1.7720)
                 },
                 s,
                 CircleSegment(c, l),
-                s.From.AsView()
+                s.From
             );
         }
 
@@ -121,7 +121,7 @@ CirclesPoint (4.5434 6.3333)
                 },
                 s,
                 CircleSegment(c2, c1),
-                s.From.AsView()
+                s.From
             );
         }
 
@@ -302,7 +302,7 @@ LinesPoint (2.3333 2.6667)
                     (p4, new Vector2(4, 1)),
                 },
                 Line(i1, i2),
-                i1.AsView()
+                i1
             );
         }
 
@@ -432,13 +432,13 @@ LinesPoint (2.3333 2.6667)
             surface.SetPoints(new[] {
                 (p, new Vector2(1, 2)),
             });
-            Assert.False(surface.Contains(p.AsView()));
-            surface.Add(p.AsView(), DisplayStyle.Background);
-            Assert.True(surface.Contains(p.AsView()));
+            Assert.False(surface.Contains(p));
+            surface.Add(p, DisplayStyle.Background);
+            Assert.True(surface.Contains(p));
             Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             Assert.AreEqual(new Vector2(1, 2), surface.GetPointLocation(p));
             surface.Remove(p);
-            Assert.False(surface.Contains(p.AsView()));
+            Assert.False(surface.Contains(p));
             CollectionAssert.IsEmpty(surface.GetEntities());
             Assert.Throws<InvalidOperationException>(() => surface.Remove(p));
             Assert.Throws<KeyNotFoundException>(() => surface.GetPointLocation(p));
@@ -450,16 +450,16 @@ LinesPoint (2.3333 2.6667)
             surface.SetPoints(new[] {
                 (p, new Vector2(1, 2)),
             });
-            surface.Add(p.AsView(), DisplayStyle.Background);
+            surface.Add(p, DisplayStyle.Background);
             surface.Remove(p, keepLocation: true);
-            Assert.False(surface.Contains(p.AsView()));
+            Assert.False(surface.Contains(p));
             Assert.AreEqual(new Vector2(1, 2), surface.GetPointLocation(p));
         }
         [Test]
         public void RemovePoint() {
             var surface = CreateTestSurface();
             var p = Intersect(Line(Point(), Point()), Line(Point(), Point()));
-            surface.Add(p.AsView(), DisplayStyle.Background);
+            surface.Add(p, DisplayStyle.Background);
             Assert.AreEqual(p.AsView(), surface.GetEntities().Single().Entity);
             surface.Remove(p);
             CollectionAssert.IsEmpty(surface.GetEntities());
@@ -472,7 +472,7 @@ LinesPoint (2.3333 2.6667)
             var p2 = Point();
             var l = Line(p1, p2);
             surface.Add(l, DisplayStyle.Background);
-            Assert.AreEqual(l, surface.GetEntities().Single().Entity);
+            Assert.AreEqual(l, surface.GetEntities().Single().Entity.ToLine());
             surface.Remove(l);
             CollectionAssert.IsEmpty(surface.GetEntities());
             Assert.Throws<InvalidOperationException>(() => surface.Remove(l));
@@ -485,7 +485,7 @@ LinesPoint (2.3333 2.6667)
             var p2 = Point();
             var c = Circle(p1, p2);
             surface.Add(c, DisplayStyle.Background);
-            Assert.AreEqual(c, surface.GetEntities().Single().Entity);
+            Assert.AreEqual(c, surface.GetEntities().Single().Entity.ToCircle());
             surface.Remove(c);
             CollectionAssert.IsEmpty(surface.GetEntities());
             Assert.Throws<InvalidOperationException>(() => surface.Remove(c));
@@ -545,5 +545,8 @@ LinesPoint (2.3333 2.6667)
             );
             return sb.ToString();
         }
+        public static Line ToLine(this Entity e) => (Line)((PrimitiveView)e).primitive;
+        public static Circle ToCircle(this Entity e) => (Circle)((PrimitiveView)e).primitive;
+        public static PointView AsView(this Point p) => new PointView(p);
     }
 }
