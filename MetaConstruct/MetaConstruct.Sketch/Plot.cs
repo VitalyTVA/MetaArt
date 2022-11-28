@@ -119,6 +119,8 @@ class Plot {
             caption: "Redo",
             shortCut: ('y', ModifierKeys.Ctrl)
         );
+        //var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        //var subFolderPath = Path.Combine(path, "sub folder");
     }
 
     void draw() {
@@ -146,4 +148,3 @@ class Plot {
         controller.scene.Release(new System.Numerics.Vector2(mouseX / displayDensity(), mouseY / displayDensity()));
     }
 }
-record struct PlotInfo((FreePoint, Vector2)[] Points);

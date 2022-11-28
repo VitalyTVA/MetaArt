@@ -3,7 +3,9 @@ using System.Runtime.CompilerServices;
 using static MetaConstruct.ConstructorHelper;
 
 namespace MetaConstruct {
-    static class PlotsHelpers {
+    public record struct PlotInfo((FreePoint, Vector2)[] Points);
+
+    public static class PlotsCollection {
         public static readonly (Func<Constructor, Surface, PlotInfo> action, string name)[] Plots = new[] {
             RegisterPlot(Test1),
             RegisterPlot(Test2),

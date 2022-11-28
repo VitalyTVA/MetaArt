@@ -1,5 +1,5 @@
 ﻿namespace MetaConstruct {
-    static class PlotPrimitives {
+    public static class PlotPrimitives {
         public static (Line bisection, Point middle, (Circle c1, Circle c2) primitives) Bisection(this Constructor c, Point p1, Point p2) {
             var c1 = c.Circle(p1, p2);
             var c2 = c.Circle(p2, p1);

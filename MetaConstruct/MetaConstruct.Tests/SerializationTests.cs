@@ -286,6 +286,66 @@ namespace MetaContruct.Tests {
             AssertSerialization(surface);
         }
 
+        [Test]
+        public void SaveSegmentAndContour1() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var surface = CreateTestSurface();
+            var s = LineSegment(p1, p2);
+            new Contour(new Segment[] {
+                s,
+                LineSegment(p2, p3),
+                LineSegment(p3, p1),
+
+            }).Add(surface, DisplayStyle.Visible);
+            s.Add(surface);
+            surface.SetPoints(new[] {
+                    (p1, new Vector2(0, 0)),
+                    (p2, new Vector2(0, 1)),
+                    (p3, new Vector2(1, 0)),
+            });
+            AssertSerialization(surface);
+        }
+
+        [Test]
+        public void SaveSegmentAndContour2() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var surface = CreateTestSurface();
+            var s = LineSegment(p1, p2);
+            s.Add(surface);
+            new Contour(new Segment[] {
+                s,
+                LineSegment(p2, p3),
+                LineSegment(p3, p1),
+
+            }).Add(surface, DisplayStyle.Visible);
+            surface.SetPoints(new[] {
+                    (p1, new Vector2(0, 0)),
+                    (p2, new Vector2(0, 1)),
+                    (p3, new Vector2(1, 0)),
+            });
+            AssertSerialization(surface);
+        }
+
+        [Test, Explicit]
+        public void TestExactPlot() {
+            PlotCollection(PlotSource[0]);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(PlotSource))]
+        public void PlotCollection((Func<Constructor, Surface, PlotInfo> action, string name) plot) {
+            var (action, name) = plot;
+            var surface = CreateTestSurface();
+            var info = action(surface.Constructor, surface);
+            surface.SetPoints(info.Points);
+            AssertSerialization(surface);
+        }
+        static (Func<Constructor, Surface, PlotInfo> action, string name)[] PlotSource = PlotsCollection.Plots;
+
         static void AssertSerialization(Surface surface0) {
             var plot0 = surface0.PlotToString();
 

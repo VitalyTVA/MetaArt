@@ -11,8 +11,11 @@ namespace MetaConstruct.Serialization {
             var (freePoints, getPointId, getPrimitiveId) = ConstructionInfo.CollectConstruction(surface.GetEntities().Select(x => x.Entity), surfaceInfo.Construction);
 
 
-            int? StoreSimpleSegment(Segment segment) {
-                var id = segments.Count;
+            int StoreSegment(Segment segment) {
+                if(segments.TryGetValue(segment, out var id))
+                    return id;
+                   
+                id = segments.Count;
                 segments.Add(segment, id);
                 if(segment is LineSegment lineSegment) {
                     surfaceInfo.Segments.Add(new SegmentInfo {
@@ -22,7 +25,6 @@ namespace MetaConstruct.Serialization {
                         From = getPointId(lineSegment.From),
                         To = getPointId(lineSegment.To),
                     });
-                    return id;
                 } else if(segment is CircleSegment circleSegment) {
                     surfaceInfo.Segments.Add(new SegmentInfo {
                         Id = id,
@@ -31,24 +33,21 @@ namespace MetaConstruct.Serialization {
                         From = getPointId(circleSegment.From),
                         To = getPointId(circleSegment.To),
                     });
-                    return id;
-                }
-                return null;
+                } else if(segment is Contour contour) {
+                    surfaceInfo.Contours.Add(new ContourInfo {
+                        Segments = contour.Segments
+                            .Select(subSegment => StoreSegment(subSegment))
+                            .ToArray(),
+                        Id = id,
+                    });
+                } else
+                    throw new InvalidOperationException();
+                return id;
             }
 
             foreach(var (entity, style) in surface.GetEntities()) {
                 if(entity is Segment segment) {
-                    if(StoreSimpleSegment(segment) != null)
-                        continue;
-                    if(segment is Contour contour) {
-                        surfaceInfo.Contours.Add(new ContourInfo {
-                            Segments = contour.Segments
-                                .Select(subSegment => StoreSimpleSegment(subSegment)!.Value)
-                                .ToArray(),
-                        });
-                    } else {
-                        throw new InvalidOperationException();
-                    }
+                    StoreSegment(segment);
                 }
             }
             foreach(var freePoint in freePoints) {
