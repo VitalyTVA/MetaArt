@@ -548,5 +548,17 @@ LinesPoint (2.3333 2.6667)
         public static Line ToLine(this Entity e) => (Line)((PrimitiveView)e).primitive;
         public static Circle ToCircle(this Entity e) => (Circle)((PrimitiveView)e).primitive;
         public static PointView AsView(this Point p) => new PointView(p);
+
+        public static string StreamToString(Stream stream) {
+            stream.Position = 0;
+            using(StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
+                return reader.ReadToEnd();
+            }
+        }
+
+        public static Stream StringToStream(string src) {
+            byte[] byteArray = Encoding.UTF8.GetBytes(src);
+            return new MemoryStream(byteArray);
+        }
     }
 }

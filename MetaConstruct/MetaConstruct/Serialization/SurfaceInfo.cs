@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace MetaConstruct.Serialization {
     public class SurfaceInfo {
-        public static string Serialize(Surface surface) {
+        public static void Serialize(Surface surface, Stream stream) {
             var surfaceInfo = new SurfaceInfo();
             var segments = new Dictionary<Segment, int>();
 
@@ -78,14 +78,11 @@ namespace MetaConstruct.Serialization {
                     DisplayStyle = style
                 });
             }
-            var jsonString = JsonSerializer.Serialize(surfaceInfo, SourceGenerationContext.Default.SurfaceInfo);
-            return jsonString;
+            JsonSerializer.Serialize(stream, surfaceInfo, SourceGenerationContext.Default.SurfaceInfo);
         }
 
-
-
-        public static void Deserialize(Surface surface, string jsonString) {
-            var info = JsonSerializer.Deserialize(jsonString, SourceGenerationContext.Default.SurfaceInfo)!;
+        public static void Deserialize(Surface surface, Stream stream) {
+            var info = JsonSerializer.Deserialize(stream, SourceGenerationContext.Default.SurfaceInfo)!;
             var segments = info.Segments.ToDictionary(x => x.Id);
             var contours = info.Contours.ToDictionary(x => x.Id);
             var (getPoint, getLine, getCircle) = ConstructionInfo.Construct(surface.Constructor, info.Construction);

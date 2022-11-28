@@ -1,4 +1,5 @@
-﻿using MetaConstruct;
+﻿using MetaArt.Core;
+using MetaConstruct;
 using MetaConstruct.Serialization;
 using NUnit.Framework;
 using System;
@@ -349,19 +350,26 @@ namespace MetaContruct.Tests {
         static void AssertSerialization(Surface surface0) {
             var plot0 = surface0.PlotToString();
 
-            var jsonString1 = SurfaceInfo.Serialize(surface0);
+            var jsonString1 = GetJsonString1(surface0);
             var surface1 = new Surface(new Constructor(), surface0.PointHitTestDistance);
-            SurfaceInfo.Deserialize(surface1, jsonString1);
+            SurfaceInfo.Deserialize(surface1, TestExtensions.StringToStream(jsonString1));
             var plot1 = surface1.PlotToString();
             Assert.AreEqual(plot0, plot1);
 
-            var jsonString2 = SurfaceInfo.Serialize(surface0);
+            var jsonString2 = GetJsonString1(surface1);
             Assert.AreEqual(jsonString1, jsonString2);
 
             var surface2 = new Surface(new Constructor(), surface0.PointHitTestDistance);
-            SurfaceInfo.Deserialize(surface2, jsonString1);
+            SurfaceInfo.Deserialize(surface2, TestExtensions.StringToStream(jsonString2));
             var plot2 = surface1.PlotToString();
             Assert.AreEqual(plot0, plot2);
+        }
+
+        static string GetJsonString1(Surface surface0) {
+            return new MemoryStream().Trasform(stream => {
+                SurfaceInfo.Serialize(surface0, stream);
+                return TestExtensions.StreamToString(stream);
+            });
         }
     }
 }

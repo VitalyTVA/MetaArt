@@ -60,7 +60,6 @@ namespace MetaArt.Wpf {
                     return SketchDisplayInfo.LoadSketches(Assembly.LoadFile(System.IO.Path.Combine(path, x.dll)))
                                 .ToList();
                 }).ToArray();
-            //AppDomain.CurrentDomain.AssemblyResolve -= handler;
 
             btn.Focus();
             Closed += async (o, e) => {

@@ -59,7 +59,8 @@ namespace MetaArt.Skia {
             DeviceType deviceType,
             Func<Stream, SoundFile> createSoundFile,
             Func<string, string?> getValue,
-            Action<string, string?> setValue
+            Action<string, string?> setValue,
+            Func<string, string, (string fileName, string directory)?> saveDialog
         ) : base(
             sketch, 
             new SkiaGraphics(), 
@@ -69,8 +70,9 @@ namespace MetaArt.Skia {
             deviceType, 
             createSoundFile,
             getValue,
-            setValue) {
-        }
+            setValue,
+            saveDialog
+        ) { }
 
         void ClearSurface() {
             sKSurface = null;

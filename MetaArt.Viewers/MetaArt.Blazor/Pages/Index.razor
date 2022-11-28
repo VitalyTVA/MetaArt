@@ -93,7 +93,8 @@ div.scrollable {
             deviceType: DeviceType.Desktop,
             createSoundFile: _ => new BlazorSoundFile(),
             getValue: name => values.TryGetValue(name, out var value) ? value : null,
-            setValue: (name, value) => values[name] = value
+            setValue: (name, value) => values[name] = value,
+            saveDialog: (_, __) => null
         );
         painter.Setup();
         viewStyle = $"height:{painter!.Height}px; width:{painter!.Width}px;";

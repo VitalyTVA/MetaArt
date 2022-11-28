@@ -119,6 +119,21 @@ class Plot {
             caption: "Redo",
             shortCut: ('y', ModifierKeys.Ctrl)
         );
+
+        string? fileName = null;
+        string? path = null;
+        command(
+            exectute: () => {
+                var saveInfo = saveDialog("Plot", "plot");
+                if(saveInfo == null)
+                    return;
+                (fileName, path) = saveInfo.Value;
+                using var stream = File.Open(Path.Combine(path, fileName), FileMode.Create, FileAccess.Write);
+                Serialization.SurfaceInfo.Serialize(surface, stream);
+            },
+            caption: "Save",
+            shortCut: ('s', ModifierKeys.Ctrl)
+        );
         //var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         //var subFolderPath = Path.Combine(path, "sub folder");
     }
