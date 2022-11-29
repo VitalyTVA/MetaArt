@@ -51,33 +51,21 @@ namespace MetaArt.Wpf {
                     Settings.Default.Save();
                 },
                 saveDialog: (name, extension) => {
-                    //// Configure open file dialog box
-                    //var dialog = new Microsoft.Win32.OpenFileDialog();
-                    //dialog.FileName = name; // Default file name
-                    //dialog.DefaultExt = "." + extension; // Default file extension
-                    //dialog.Filter = $"(.{extension})|*.{extension}"; // Filter files by extension
-
-                    //// Show open file dialog box
-                    //bool? result = dialog.ShowDialog(surfaceInfo);
-
-                    //// Process open file dialog box results
-                    //if(result == true) {
-                    //    // Open document
-                    //    return (Path.GetFileName(dialog.FileName)!, Path.GetDirectoryName(dialog.FileName)!);
-                    //}
-                    //return null;
-
-
-                    SaveFileDialog dialog = new SaveFileDialog();
+                    var dialog = new SaveFileDialog();
                     dialog.Filter = $"(.{extension})|*.{extension}";
                     dialog.FileName = name;
                     dialog.Title = "Save";
                     dialog.ShowDialog(this);
-                    if(dialog.FileName != "") {
-                        return (Path.GetFileName(dialog.FileName)!, Path.GetDirectoryName(dialog.FileName)!);
-                    }
-                    return null;
+                    return string.IsNullOrEmpty(dialog.FileName) ? null : dialog.FileName;
+                },
+                openDialog: extension => {
+                    var dialog = new OpenFileDialog();
+                    dialog.Filter = $"(.{extension})|*.{extension}";
+                    dialog.Title = "Open";
+                    dialog.ShowDialog(this);
+                    return string.IsNullOrEmpty(dialog.FileName) ? null : dialog.FileName;
                 }
+
             );
             painter.Setup();
             skglControl1.Dock = DockStyle.None;

@@ -8,11 +8,14 @@ namespace MetaConstruct;
 
 class Plot {
     Painter painter = null!;
-    readonly Func<Constructor, Surface, PlotInfo> getPlot;
+    readonly Func<Constructor, Surface, PlotInfo>? getPlot;
 
     PlotController controller = null!;
 
-    public Plot(Func<Constructor, Surface, PlotInfo> getPlot) {
+    public Plot() : this(null) {
+    }
+
+    public Plot(Func<Constructor, Surface, PlotInfo>? getPlot) {
         this.getPlot = getPlot;
     }
 
@@ -71,16 +74,24 @@ class Plot {
 
         controller = new PlotController((int)(width / displayDensity()), (int)(height / displayDensity()));
 
-        var constructor = new Constructor();
-        var surface = new Surface(constructor, 10);
-        var info = getPlot(surface.Constructor, surface);
-        surface.SetPoints(info.Points);
+        var fileNameCaption = caption("File");
+        string? fileName = null;
+        var surface = CreateSurface();
+        if(getPlot != null) {
+            var info = getPlot(surface.Constructor, surface);
+            surface.SetPoints(info.Points);
+        } else {
+            fileName = readValue("fileName");
+            LoadFile();
+            fileNameCaption.Text = Path.GetFileName(fileName);
+        }
         controller.Load(surface);
-        
+
+
 
         var toolCaption = caption("Tool");
 
-        void SetTool(Tool tool) { 
+        void SetTool(Tool tool) {
             controller.SetTool(tool);
             toolCaption.Text = tool.ToString();
         }
@@ -120,22 +131,44 @@ class Plot {
             shortCut: ('y', ModifierKeys.Ctrl)
         );
 
-        string? fileName = null;
-        string? path = null;
+        void SaveFileName() {
+            if(getPlot == null)
+                writeValue("fileName", fileName);
+            fileNameCaption.Text = Path.GetFileName(fileName);
+        }
+        void LoadFile() {
+            surface = CreateSurface();
+            using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read);
+            Serialization.SurfaceInfo.Deserialize(surface, stream);
+            controller.Load(surface);
+            SaveFileName();
+        }
         command(
             exectute: () => {
-                var saveInfo = saveDialog("Plot", "plot");
-                if(saveInfo == null)
+                fileName = saveDialog("Plot", "plot");
+                if(fileName == null)
                     return;
-                (fileName, path) = saveInfo.Value;
-                using var stream = File.Open(Path.Combine(path, fileName), FileMode.Create, FileAccess.Write);
+                using var stream = File.Open(fileName, FileMode.Create, FileAccess.Write);
                 Serialization.SurfaceInfo.Serialize(surface, stream);
+                SaveFileName();
             },
             caption: "Save",
             shortCut: ('s', ModifierKeys.Ctrl)
         );
-        //var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        //var subFolderPath = Path.Combine(path, "sub folder");
+        command(
+            exectute: () => {
+                fileName = openDialog("plot");
+                if(fileName == null)
+                    return;
+                LoadFile();
+            },
+            caption: "Open",
+            shortCut: ('o', ModifierKeys.Ctrl)
+        );
+    }
+
+    private static Surface CreateSurface() {
+        return new Surface(new Constructor(), 10);
     }
 
     void draw() {

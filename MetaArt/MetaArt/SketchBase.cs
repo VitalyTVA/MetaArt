@@ -242,8 +242,8 @@ namespace MetaArt {
         public static string? readValue(string name) => Painter.getValue(Painter.sketch.GetType().Name + "_" + name);
         public static void writeValue(string name, string? value) => Painter.setValue(Painter.sketch.GetType().Name + "_" + name, value);
 
-        public static (string fileName, string directory)? saveDialog(string defaultFileName, string extenstion)
-            => Painter.saveDialog(defaultFileName, extenstion);
+        public static string? saveDialog(string defaultFileName, string extenstion) => Painter.saveDialog(defaultFileName, extenstion);
+        public static string? openDialog(string extenstion) => Painter.openDialog(extenstion);
 
         public static void command(Action exectute, string caption, (char key, ModifierKeys modifier)? shortCut = null) => Painter.uiCommand(exectute, caption, shortCut);
         public static UICaption caption(string caption) => Painter.uiCaption(caption);

@@ -94,7 +94,8 @@ div.scrollable {
             createSoundFile: _ => new BlazorSoundFile(),
             getValue: name => values.TryGetValue(name, out var value) ? value : null,
             setValue: (name, value) => values[name] = value,
-            saveDialog: (_, __) => null
+            saveDialog: (_, __) => null,
+            openDialog: _ => null
         );
         painter.Setup();
         viewStyle = $"height:{painter!.Height}px; width:{painter!.Width}px;";

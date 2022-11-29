@@ -55,7 +55,8 @@ namespace MetaArt {
         internal readonly Func<Stream, SoundFile> createSoundFile;
         internal readonly Func<string, string?> getValue;
         internal readonly Action<string, string?> setValue;
-        internal readonly Func<string, string, (string fileName, string directory)?> saveDialog;
+        internal readonly Func<string, string, string?> saveDialog;
+        internal readonly Func<string, string?> openDialog;
 
         protected PainterBase(
             object sketch,
@@ -67,7 +68,8 @@ namespace MetaArt {
             Func<Stream, SoundFile> createSoundFile,
             Func<string, string?> getValue,
             Action<string, string?> setValue,
-            Func<string, string, (string fileName, string directory)?> saveDialog
+            Func<string, string, string?> saveDialog,
+            Func<string, string?> openDialog
         ) {
             this.invalidate = invalidate;
             this.feedback = feedback;
@@ -92,6 +94,7 @@ namespace MetaArt {
             this.getValue = getValue;
             this.setValue = setValue;
             this.saveDialog = saveDialog;
+            this.openDialog = openDialog;
         }
 
         internal static MethodInfo GetSkecthMethod(Type type, string name)
