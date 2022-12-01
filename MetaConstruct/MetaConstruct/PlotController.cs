@@ -111,9 +111,10 @@ namespace MetaConstruct {
 
         private InputState CreateTwoPointsTool(Vector2 startPoint, Func<Constructor, Point, Point, Entity?> createEntity, DisplayStyle enitityStyle) {
             var point = Surface.HitTest(startPoint).FirstOrDefault();
+            var intersectionPoint = Surface.HitTestIntersection(startPoint);
 
-            Either<Point, (FreePoint point, Vector2 location)> from = point != null
-                ? point.AsLeft()
+            Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> from = point != null || intersectionPoint != null
+                ? ((point ?? intersectionPoint)!, intersectionPoint != null).AsLeft()
                 : (Surface.Constructor.Point(), startPoint).AsRight();
 
             var transaction = undoManager.Execute(
@@ -123,7 +124,9 @@ namespace MetaConstruct {
                 ),
                 redo: state => {
                     switch(state.from) {
-                        case (Point existingPoint, null):
+                        case ((Point point, bool isNew), null):
+                            if(isNew)
+                                Surface.Add(point, DisplayStyle.Visible);
                             break;
                         case (null, (FreePoint newPoint, Vector2 location)):
                             Surface.Add(newPoint, DisplayStyle.Visible);
@@ -142,24 +145,27 @@ namespace MetaConstruct {
                     }
 
                     var from = state.from.Match(
-                        left: x => Either<Point, FreePoint>.Left(x),
-                        right: x => Either<Point, FreePoint>.Right(x.point));
+                        left: x => Either<(Point point, bool isNew), FreePoint>.Left(x),
+                        right: x => Either<(Point point, bool isNew), FreePoint>.Right(x.point));
                     var to = toInfo == null ? default(Either<Point, FreePoint>?) : toInfo.Value.pointInfo.Match(
                         left: x => Either<Point, FreePoint>.Left(x),
                         right: x => Either<Point, FreePoint>.Right(x.point));
                     return ((
                         from: from,
                         to: toInfo != null ? (to!.Value, toInfo.Value.entity) : null
-                    ), toInfo != null || from.IsRight());
+                    ), toInfo != null || from.IsRight() || from.ToLeft().isNew);
                 },
                 undo: state => {
-                    Either<Point, (FreePoint point, Vector2 location)> from;
+                    Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> from;
                     if(state.from.IsRight()) {
                         var point = state.from.ToRight();
                         from = (point, Surface.GetPointLocation(point)).AsRight();
                         Surface.Remove(point);
                     } else {
-                        from = state.from.ToLeft().AsLeft();
+                        var (point, isNew) = state.from.ToLeft();
+                        if(isNew)
+                            Surface.Remove(point, keepLocation: true);
+                        from = (point, isNew).AsLeft();
                     }
 
                     if(state.to == null) {
@@ -181,12 +187,12 @@ namespace MetaConstruct {
                         (pointInfo, state.to!.Value.entity)
                     );
                 },
-                update: ((Either<Point, FreePoint> from, (Either<Point, FreePoint> to, Entity entity)? to) state, Vector2 offset) => {
+                update: ((Either<(Point point, bool isNew), FreePoint> from, (Either<Point, FreePoint> to, Entity entity)? to) state, Vector2 offset) => {
                     var toInfo = state.to;
                     if(/*toInfo == null && */offset.LengthSquared() < Surface.PointHitTestDistance * Surface.PointHitTestDistance)
                         return (state, true);
 
-                    var fromPoint = state.from.Match(x => x, x => x);
+                    var fromPoint = state.from.Match(x => x.point, x => x);
                     var newToPoint = toInfo != null ? toInfo.Value.to.Match(x => null, x => (FreePoint?)x) : null;
                     var point = Surface
                         .HitTest(startPoint + offset)
