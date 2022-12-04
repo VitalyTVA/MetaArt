@@ -941,11 +941,13 @@ namespace MetaContruct.Tests {
             line = surface.GetEntities().Skip(4).Single().Entity.ToLine();
             Assert.AreSame(i1, line.From);
             Assert.AreSame(i2, line.To);
+            Assert.AreEqual(new Vector2(0, 50), surface.GetPointLocation(p3));
 
             Assert.True(controller.undoManager.CanUndo);
             Assert.False(controller.undoManager.CanRedo);
             controller.undoManager.Undo();
             Assert.AreEqual(3, surface.GetEntities().Count());
+            Assert.AreEqual(new Vector2(0, 50), surface.GetPointLocation(p3));
 
             Assert.False(controller.undoManager.CanUndo);
             Assert.True(controller.undoManager.CanRedo);
@@ -956,6 +958,7 @@ namespace MetaContruct.Tests {
             line = surface.GetEntities().Skip(4).Single().Entity.ToLine();
             Assert.AreSame(i1, line.From);
             Assert.AreSame(i2, line.To);
+            Assert.AreEqual(new Vector2(0, 50), surface.GetPointLocation(p3));
 
             Assert.True(controller.undoManager.CanUndo);
             Assert.False(controller.undoManager.CanRedo);
@@ -1010,6 +1013,7 @@ namespace MetaContruct.Tests {
             Assert.False(controller.undoManager.CanRedo);
             controller.undoManager.Undo();
             Assert.AreEqual(3, surface.GetEntities().Count());
+            Assert.AreEqual(new Vector2(0, -50), surface.GetPointLocation((FreePoint)point.ToPoint()));
 
             Assert.False(controller.undoManager.CanUndo);
             Assert.True(controller.undoManager.CanRedo);
@@ -1174,6 +1178,8 @@ namespace MetaContruct.Tests {
             Assert.False(controller.undoManager.CanRedo);
             controller.undoManager.Undo();
             CollectionAssert.IsEmpty(surface.GetEntities());
+            Assert.AreEqual(new Vector2(48, 48), surface.GetPointLocation(p1));
+            Assert.AreEqual(new Vector2(60, 70), surface.GetPointLocation(p2));
 
             Assert.False(controller.undoManager.CanUndo);
             Assert.True(controller.undoManager.CanRedo);

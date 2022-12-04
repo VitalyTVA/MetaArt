@@ -125,13 +125,17 @@ namespace MetaConstruct {
                 ClearToState((Either<(Point point, bool isNew), FreePoint> to, Entity entity) to) {
                 if(to.entity != null)
                     Surface.Remove(to.entity);
+                return ClearPoint(to.to);
+            }
+            Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> 
+                ClearPoint(Either<(Point point, bool isNew), FreePoint> pointInfo_) {
                 Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> pointInfo;
-                if(to.to.IsRight()) {
-                    var toLocation = Surface.GetPointLocation(to.to.ToRight());
-                    Surface.Remove(to.to.ToRight());
-                    pointInfo = (to.to.ToRight(), toLocation).AsRight();
+                if(pointInfo_.IsRight()) {
+                    var toLocation = Surface.GetPointLocation(pointInfo_.ToRight());
+                    Surface.Remove(pointInfo_.ToRight(), keepLocation: true);
+                    pointInfo = (pointInfo_.ToRight(), toLocation).AsRight();
                 } else {
-                    var (point, isNew) = to.to.ToLeft();
+                    var (point, isNew) = pointInfo_.ToLeft();
                     if(isNew)
                         Surface.Remove(point, keepLocation: true);
                     pointInfo = (point, isNew).AsLeft();
@@ -159,17 +163,7 @@ namespace MetaConstruct {
                     to: default((Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> pointInfo, Entity? entity)?)
                 ),
                 redo: state => {
-                    switch(state.from) {
-                        case ((Point point, bool isNew), null):
-                            if(isNew)
-                                Surface.Add(point, DisplayStyle.Visible);
-                            break;
-                        case (null, (FreePoint newPoint, Vector2 location)):
-                            Surface.Add(newPoint, DisplayStyle.Visible);
-                            Surface.SetPointLocation(newPoint, location);
-                            break;
-                    }
-
+                    ApplyToState(state.from);
                     var toInfo = state.to;
                     Either<(Point point, bool isNew), FreePoint>? to = default; 
                     if(toInfo != null) {
@@ -187,17 +181,7 @@ namespace MetaConstruct {
                     ), toInfo != null || from.IsRight() || from.ToLeft().isNew);
                 },
                 undo: state => {
-                    Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> from;
-                    if(state.from.IsRight()) {
-                        var point = state.from.ToRight();
-                        from = (point, Surface.GetPointLocation(point)).AsRight();
-                        Surface.Remove(point);
-                    } else {
-                        var (point, isNew) = state.from.ToLeft();
-                        if(isNew)
-                            Surface.Remove(point, keepLocation: true);
-                        from = (point, isNew).AsLeft();
-                    }
+                    var from = ClearPoint(state.from);
 
                     if(state.to == null) {
                         return (from, null);
