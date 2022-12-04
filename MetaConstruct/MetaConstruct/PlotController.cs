@@ -117,10 +117,42 @@ namespace MetaConstruct {
                 ? ((point ?? intersectionPoint)!, intersectionPoint != null).AsLeft()
                 : (Surface.Constructor.Point(), startPoint).AsRight();
 
+            Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> 
+                ClearToState((Either<(Point point, bool isNew), FreePoint> to, Entity entity) to) {
+                if(to.entity != null)
+                    Surface.Remove(to.entity);
+                Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> pointInfo;
+                if(to.to.IsRight()) {
+                    var toLocation = Surface.GetPointLocation(to.to.ToRight());
+                    Surface.Remove(to.to.ToRight());
+                    pointInfo = (to.to.ToRight(), toLocation).AsRight();
+                } else {
+                    var (point, isNew) = to.to.ToLeft();
+                    if(isNew)
+                        Surface.Remove(point, keepLocation: true);
+                    pointInfo = (point, isNew).AsLeft();
+                }
+                return pointInfo;
+            }
+            Either<(Point point, bool isNew), FreePoint> 
+                ApplyToState(Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> pointInfo) {
+                if(pointInfo.IsRight()) {
+                    Surface.Add(pointInfo.ToRight().point, DisplayStyle.Visible);
+                    Surface.SetPointLocation(pointInfo.ToRight().point, pointInfo.ToRight().location);
+                } else {
+                    var (point, isNew) = pointInfo.ToLeft();
+                    if(isNew)
+                        Surface.Add(point, DisplayStyle.Visible);
+                }
+                return pointInfo.Match(
+                    left: x => Either<(Point point, bool isNew), FreePoint>.Left(x),
+                    right: x => Either<(Point point, bool isNew), FreePoint>.Right(x.point));
+            }
+
             var transaction = undoManager.Execute(
                 (
                     from: from,
-                    to: default((Either<Point, (FreePoint point, Vector2 location)> pointInfo, Entity? entity)?)
+                    to: default((Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> pointInfo, Entity? entity)?)
                 ),
                 redo: state => {
                     switch(state.from) {
@@ -135,21 +167,16 @@ namespace MetaConstruct {
                     }
 
                     var toInfo = state.to;
+                    Either<(Point point, bool isNew), FreePoint>? to = default; 
                     if(toInfo != null) {
-                        if(toInfo.Value.pointInfo.IsRight()) {
-                            Surface.Add(toInfo.Value.pointInfo.ToRight().point, DisplayStyle.Visible);
-                            Surface.SetPointLocation(toInfo.Value.pointInfo.ToRight().point, toInfo.Value.pointInfo.ToRight().location);
-                        }
-                        if(toInfo.Value.entity != null)
-                            Surface.Add(toInfo.Value.entity, enitityStyle);
+                        to = ApplyToState(toInfo.Value.pointInfo);
                     }
+                    if(toInfo!= null && toInfo.Value.entity != null)
+                        Surface.Add(toInfo.Value.entity, enitityStyle);
 
                     var from = state.from.Match(
                         left: x => Either<(Point point, bool isNew), FreePoint>.Left(x),
                         right: x => Either<(Point point, bool isNew), FreePoint>.Right(x.point));
-                    var to = toInfo == null ? default(Either<Point, FreePoint>?) : toInfo.Value.pointInfo.Match(
-                        left: x => Either<Point, FreePoint>.Left(x),
-                        right: x => Either<Point, FreePoint>.Right(x.point));
                     return ((
                         from: from,
                         to: toInfo != null ? (to!.Value, toInfo.Value.entity) : null
@@ -172,47 +199,47 @@ namespace MetaConstruct {
                         return (from, null);
                     }
 
-                    if(state.to!.Value.entity != null)
-                        Surface.Remove(state.to!.Value.entity);
-                    Either<Point, (FreePoint point, Vector2 location)> pointInfo;
-                    if(state.to!.Value.to.IsRight()) {
-                        var toLocation = Surface.GetPointLocation(state.to!.Value.to.ToRight());
-                        Surface.Remove(state.to!.Value.to.ToRight());
-                        pointInfo = (state.to!.Value.to.ToRight(), toLocation).AsRight();
-                    } else {
-                        pointInfo = state.to!.Value.to.ToLeft().AsLeft();
-                    }
+                    var pointInfo = ClearToState(state.to!.Value);
                     return (
                         from,
                         (pointInfo, state.to!.Value.entity)
                     );
                 },
-                update: ((Either<(Point point, bool isNew), FreePoint> from, (Either<Point, FreePoint> to, Entity entity)? to) state, Vector2 offset) => {
+                update: ((Either<(Point point, bool isNew), FreePoint> from, (Either<(Point point, bool isNew), FreePoint> to, Entity entity)? to) state, Vector2 offset) => {
                     var toInfo = state.to;
                     if(/*toInfo == null && */offset.LengthSquared() < Surface.PointHitTestDistance * Surface.PointHitTestDistance)
                         return (state, true);
 
                     var fromPoint = state.from.Match(x => x.point, x => x);
-                    var newToPoint = toInfo != null ? toInfo.Value.to.Match(x => null, x => (FreePoint?)x) : null;
+                    var newToPoint = toInfo != null ? toInfo.Value.to.Match(x => /*x.isNew ? x.point : */null, x => (FreePoint?)x) : null;
                     var point = Surface
                         .HitTest(startPoint + offset)
                         .Where(x => x != newToPoint && x != fromPoint)
                         .FirstOrDefault();
-                    if(point != null) {
-                        if(newToPoint != null && toInfo != null && toInfo.Value.to.IsRight()) {
+                    var intersectionPoint = point == null ? Surface.HitTestIntersection(startPoint + offset) : null; //TODO check condition tested
+                    if(intersectionPoint == fromPoint)
+                        intersectionPoint = null;
+                    bool isNew = intersectionPoint != null;
+
+                    if(point != null || intersectionPoint != null) {
+                        if(newToPoint != null && /*!isNew && */toInfo != null && toInfo.Value.to.IsRight()) {
                             Surface.Remove(newToPoint!);
                             Surface.Remove(toInfo.Value.entity);
                             toInfo = null;
                         }
-                        if(toInfo != null && toInfo.Value.to.IsLeft() && toInfo.Value.to.ToLeft() != point) {
+                        if(toInfo != null && toInfo.Value.to.IsLeft() && toInfo.Value.to.ToLeft().point != point) {
                             Surface.Remove(toInfo.Value.entity);
                             toInfo = null;
                         }
                         if(toInfo == null) {
-                            var entity = createEntity(Surface.Constructor, fromPoint, point);
+                            var actualPoint = (point ?? intersectionPoint)!;
+                            var entity = createEntity(Surface.Constructor, fromPoint, actualPoint);
                             if(entity != null && !Surface.Contains(entity)) {
+                                //bool isNew = intersectionPoint != null;
+                                if(isNew) //TODO check if should be inside outer if
+                                    Surface.Add(intersectionPoint!, DisplayStyle.Visible);
                                 Surface.Add(entity!, enitityStyle);
-                                toInfo = (point.AsLeft(), entity);
+                                toInfo = ((actualPoint, isNew).AsLeft(), entity);
                             }
                         }
                     } else {

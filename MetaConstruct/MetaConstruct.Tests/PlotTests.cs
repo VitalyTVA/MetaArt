@@ -545,6 +545,7 @@ LinesPoint (2.3333 2.6667)
             );
             return sb.ToString();
         }
+        public static Point ToPoint(this Entity e) => ((PointView)e).point;
         public static Line ToLine(this Entity e) => (Line)((PrimitiveView)e).primitive;
         public static Circle ToCircle(this Entity e) => (Circle)((PrimitiveView)e).primitive;
         public static PointView AsView(this Point p) => new PointView(p);
