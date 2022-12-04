@@ -793,6 +793,7 @@ namespace MetaContruct.Tests {
             Assert.True(controller.undoManager.CanUndo);
             Assert.False(controller.undoManager.CanRedo);
         }
+
         [Test]
         public void LineTool_NewIntersectionFreeFromPoint_NewFreeToPoint() {
             var p1 = Point();
@@ -844,6 +845,60 @@ namespace MetaContruct.Tests {
             Assert.True(controller.undoManager.CanUndo);
             Assert.False(controller.undoManager.CanRedo);
         }
+
+        [Test]
+        public void LineTool_ExistingFreePoint_ExistingCircleIntersectionPoint() {
+            var (controller, surface) = CreateTestController(Tool.Line);
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var c1 = Circle(p1, p3);
+            var c2 = Circle(p2, p3);
+            var (i1, i2) = Intersect(c1, c2);
+            surface.SetPoints(new[] {
+                (p1, new Vector2(-100, 0)),
+                (p2, new Vector2(100, 0)),
+                (p3, new Vector2(0, 50)),
+            });
+            Assert.AreSame(p3, i1);
+            c1.Add(surface);
+            c2.Add(surface);
+            foreach(var item in new[] { p3, i2 }) {
+                surface.Add(item, DisplayStyle.Background);
+            }
+
+            Assert.AreEqual(4, surface.GetEntities().Count());
+
+            controller.scene.Press(new Vector2(0, 49));
+            Assert.AreEqual(4, surface.GetEntities().Count());
+            Assert.False(controller.undoManager.CanUndo);
+
+            controller.scene.Drag(new Vector2(-1, -49));
+            var line = surface.GetEntities().Skip(4).Single().Entity.ToLine();
+            Assert.AreSame(i1, line.From);
+            Assert.AreSame(i2, line.To);
+
+            controller.scene.Release(new Vector2(-1, -49));
+            Assert.AreSame(line, surface.GetEntities().Skip(4).Single().Entity.ToLine());
+            Assert.AreSame(i1, line.From);
+            Assert.AreSame(i2, line.To);
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+            controller.undoManager.Undo();
+            Assert.AreEqual(4, surface.GetEntities().Count());
+
+            Assert.False(controller.undoManager.CanUndo);
+            Assert.True(controller.undoManager.CanRedo);
+            controller.undoManager.Redo();
+            Assert.AreSame(line, surface.GetEntities().Skip(4).Single().Entity.ToLine());
+            Assert.AreSame(i1, line.From);
+            Assert.AreSame(i2, line.To);
+
+            Assert.True(controller.undoManager.CanUndo);
+            Assert.False(controller.undoManager.CanRedo);
+        }
+
         #endregion
 
         #region circle

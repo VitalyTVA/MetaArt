@@ -111,7 +111,7 @@ namespace MetaConstruct {
 
         private InputState CreateTwoPointsTool(Vector2 startPoint, Func<Constructor, Point, Point, Entity?> createEntity, DisplayStyle enitityStyle) {
             var point = Surface.HitTest(startPoint).FirstOrDefault();
-            var intersectionPoint = Surface.HitTestIntersection(startPoint);
+            var intersectionPoint = point == null ? Surface.HitTestIntersection(startPoint) : null;
 
             Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> from = point != null || intersectionPoint != null
                 ? ((point ?? intersectionPoint)!, intersectionPoint != null).AsLeft()
