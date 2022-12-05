@@ -52,10 +52,13 @@ namespace MetaConstruct {
                 .Select(x => x.point);
         }
 
-        public Point? HitTestIntersection(Vector2 point) {
+        public Point? HitTestIntersection(Vector2 point, IEnumerable<Entity>? except = null) {
             var calculator = CreateCalculator();
+            var set = except != null ? new HashSet<Entity>(except) : null;
             var closePrimitives = entities
                 .Where(x => {
+                    if(set != null && set.Contains(x.Entity))
+                        return false;
                     var distance = float.MaxValue;
                     switch(x.Entity) {
                         case PrimitiveView p:

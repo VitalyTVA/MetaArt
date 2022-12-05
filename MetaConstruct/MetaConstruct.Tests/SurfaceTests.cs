@@ -1,4 +1,5 @@
-﻿using MetaConstruct;
+﻿using MetaArt.Core;
+using MetaConstruct;
 using NUnit.Framework;
 using System;
 using System.Linq;
@@ -133,6 +134,7 @@ namespace MetaContruct.Tests {
             Assert.Null(surface.HitTestIntersection(new Vector2(10, -1)));
             Assert.Null(surface.HitTestIntersection(new Vector2(20, 0)));
             Assert.Null(surface.HitTestIntersection(new Vector2(100, 100)));
+            Assert.Null(surface.HitTestIntersection(new Vector2(1, -1), except: surface.GetEntities().First().Entity.Yield()));
         }
 
         [Test]

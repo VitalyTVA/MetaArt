@@ -156,6 +156,10 @@ namespace MetaConstruct {
                     left: x => Either<(Point point, bool isNew), FreePoint>.Left(x),
                     right: x => Either<(Point point, bool isNew), FreePoint>.Right(x.point));
             }
+            bool CanUndo<T>(
+                Either<(Point point, bool isNew), FreePoint> from,
+                T? to
+            ) => to != null || from.IsRight() || from.ToLeft().isNew;
 
             var transaction = undoManager.Execute(
                 (
@@ -178,7 +182,7 @@ namespace MetaConstruct {
                     return ((
                         from: from,
                         to: toInfo != null ? (to!.Value, toInfo.Value.entity) : null
-                    ), toInfo != null || from.IsRight() || from.ToLeft().isNew);
+                    ), CanUndo(from, toInfo));
                 },
                 undo: state => {
                     var from = ClearPoint(state.from);
@@ -195,43 +199,47 @@ namespace MetaConstruct {
                 },
                 update: ((Either<(Point point, bool isNew), FreePoint> from, (Either<(Point point, bool isNew), FreePoint> to, Entity entity)? to) state, Vector2 offset) => {
                     var toInfo = state.to;
-                    if(/*toInfo == null && */offset.LengthSquared() < Surface.PointHitTestDistance * Surface.PointHitTestDistance)
-                        return (state, true);
-
-                    var fromPoint = state.from.Match(x => x.point, x => x);
-                    var newToPoint = toInfo != null ? toInfo.Value.to.Match(x => x.isNew ? x.point : null, x => (FreePoint?)x) : null;
-                    var point = Surface
-                        .HitTest(startPoint + offset)
-                        .Where(x => x != newToPoint && x != fromPoint)
-                        .FirstOrDefault();
-                    var intersectionPoint = point == null ? Surface.HitTestIntersection(startPoint + offset) : null; //TODO check condition tested
-                    if(intersectionPoint == fromPoint)
-                        intersectionPoint = null;
-
-                    Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> toPointInfo = point != null || intersectionPoint != null
-                        ? ((point ?? intersectionPoint)!, intersectionPoint != null).AsLeft()
-                        : (Surface.Constructor.Point(), startPoint + offset).AsRight();
-
-                    var toPoint1 = toPointInfo.Match(left => left.point, right => right.point);
-                    var toPoint2 = toInfo != null ? toInfo.Value.to.Match(x => x.point, x => x) : null;
-
-                    if(state.to == null || 
-                        (state.to.Value.to != null && (GetStateKind(state.to.Value.to) != GetStateKind(toPointInfo)) || (GetStateKind(toPointInfo) == StateKind.ExistingPoint && toPoint1 != toPoint2))) {
-                        if(state.to != null) {
-                            ClearToState(state.to.Value);
+                    if(offset.LengthSquared() < Surface.PointHitTestDistance * Surface.PointHitTestDistance) {
+                        if(toInfo != null) {
+                            ClearToState(toInfo.Value);
                             toInfo = null;
                         }
-                        var entity = createEntity(Surface.Constructor, fromPoint, toPoint1);
-                        if(entity != null && !Surface.Contains(entity)) {
-                            var toState = ApplyToState(toPointInfo);
-                            Surface.Add(entity, enitityStyle);
-                            toInfo = (toState, entity!);
-                        }
                     } else {
-                        if(toInfo != null && toInfo.Value.to.IsRight())
-                            Surface.SetPointLocation(toInfo.Value.to.ToRight(), startPoint + offset);
+                        var fromPoint = state.from.Match(x => x.point, x => x);
+                        var newToPoint = toInfo != null ? toInfo.Value.to.Match(x => x.isNew ? x.point : null, x => (FreePoint?)x) : null;
+                        var point = Surface
+                            .HitTest(startPoint + offset)
+                            .Where(x => x != newToPoint && x != fromPoint)
+                            .FirstOrDefault();
+                        var intersectionPoint = point == null ? Surface.HitTestIntersection(startPoint + offset, except: state.to?.entity.YieldIfNotNull()) : null; //TODO check condition tested
+                        if(intersectionPoint == fromPoint)
+                            intersectionPoint = null;
+
+                        Either<(Point point, bool isNew), (FreePoint point, Vector2 location)> toPointInfo = point != null || intersectionPoint != null
+                            ? ((point ?? intersectionPoint)!, intersectionPoint != null).AsLeft()
+                            : (Surface.Constructor.Point(), startPoint + offset).AsRight();
+
+                        var toPoint1 = toPointInfo.Match(left => left.point, right => right.point);
+                        var toPoint2 = toInfo != null ? toInfo.Value.to.Match(x => x.point, x => x) : null;
+
+                        if(state.to == null ||
+                            (state.to.Value.to != null && (GetStateKind(state.to.Value.to) != GetStateKind(toPointInfo)) || (GetStateKind(toPointInfo) == StateKind.ExistingPoint && toPoint1 != toPoint2))) {
+                            if(state.to != null) {
+                                ClearToState(state.to.Value);
+                                toInfo = null;
+                            }
+                            var entity = createEntity(Surface.Constructor, fromPoint, toPoint1);
+                            if(entity != null && !Surface.Contains(entity)) {
+                                var toState = ApplyToState(toPointInfo);
+                                Surface.Add(entity, enitityStyle);
+                                toInfo = (toState, entity!);
+                            }
+                        } else {
+                            if(toInfo != null && toInfo.Value.to.IsRight())
+                                Surface.SetPointLocation(toInfo.Value.to.ToRight(), startPoint + offset);
+                        }
                     }
-                    return ((state.from, toInfo), toInfo != null);
+                    return ((state.from, toInfo), CanUndo(state.from, toInfo));
                 }
             );
             return DragInputState.GetDragState(
