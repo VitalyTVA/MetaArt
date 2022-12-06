@@ -199,7 +199,7 @@ namespace MetaConstruct {
                 },
                 update: ((Either<(Point point, bool isNew), FreePoint> from, (Either<(Point point, bool isNew), FreePoint> to, Entity entity)? to) state, Vector2 offset) => {
                     var toInfo = state.to;
-                    if(offset.LengthSquared() < Surface.PointHitTestDistance * Surface.PointHitTestDistance) {
+                    if(Surface.IsWithinHitTestDistance(offset)) {
                         if(toInfo != null) {
                             ClearToState(toInfo.Value);
                             toInfo = null;

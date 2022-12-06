@@ -1255,6 +1255,38 @@ namespace MetaContruct.Tests {
             Assert.False(controller.undoManager.CanRedo);
 
         }
+
+        [Test]
+        public void LineTool_NewFreeFromPoint_ExistingIntersectionPointInsideAngle() {
+            var p1 = Point();
+            var p2 = Point();
+            var p3 = Point();
+            var (controller, surface) = CreateTestController(Tool.Line);
+            var l1 = Line(p1, p3).Add(surface);
+            var l2 = Line(p2, p3).Add(surface);
+            var i = Intersect(l1, l2).Add(surface);
+            surface.SetPoints(new[] {
+                (p1, new Vector2(-20, 100)),
+                (p2, new Vector2(20, 100)),
+                (p3, new Vector2(0, 0)),
+            });
+            Assert.AreSame(p3, i);
+
+            Assert.AreEqual(3, surface.GetEntities().Count());
+
+            controller.scene.Press(new Vector2(0, 100));
+            Assert.True(controller.undoManager.CanUndo);
+            var pFrom = (FreePoint)((PointView)surface.GetEntities().Skip(3).Single().Entity).point;
+            Assert.AreEqual(new Vector2(0, 100), surface.GetPointLocation(pFrom));
+
+            controller.scene.Drag(new Vector2(0, 10));
+            Assert.AreSame(pFrom, (FreePoint)((PointView)surface.GetEntities().Skip(3).First().Entity).point);
+            Assert.AreEqual(new Vector2(0, 100), surface.GetPointLocation(pFrom));
+            var pTo = (FreePoint)((PointView)surface.GetEntities().Skip(4).First().Entity).point;
+            Assert.AreEqual(new Vector2(0, 10), surface.GetPointLocation(pTo));
+            var (l, style) = surface.GetEntities().Skip(5).Single();
+            Assert.AreEqual(l.ToLine(), Line(pFrom, pTo));
+        }
         #endregion
 
         #region circle

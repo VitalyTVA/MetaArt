@@ -44,12 +44,10 @@ namespace MetaConstruct {
 
         public IEnumerable<Point> HitTest(Vector2 point) {
             var calculator = CreateCalculator();
-            return entities
+            var points = entities
                 .Where(x => x.Entity is PointView)
-                .Select(x => (((PointView)x.Entity).point, location: calculator.CalcPoint(((PointView)x.Entity).point)))
-                .OrderBy(x => Vector2.DistanceSquared(x.location, point))
-                .Where(x => Vector2.DistanceSquared(x.location, point) < PointHitTestDistance * PointHitTestDistance)
-                .Select(x => x.point);
+                .Select(x => (((PointView)x.Entity).point, location: calculator.CalcPoint(((PointView)x.Entity).point)));
+            return GetClosestPointsWithinHitTestDistance(point, points).Select(x => x.point);
         }
 
         public Point? HitTestIntersection(Vector2 point, IEnumerable<Entity>? except = null) {
@@ -104,11 +102,17 @@ namespace MetaConstruct {
                     };
                     return p;
                 })
-                .Select(x => (point: x, calculator.CalcPoint(x)))
-                .OrderBy(x => Vector2.DistanceSquared(x.Item2, point))
-                ;
-            return intersections.FirstOrDefault().point;
+                .Select(x => (point: x, calculator.CalcPoint(x)));
+            return GetClosestPointsWithinHitTestDistance(point, intersections).FirstOrDefault().point;
         }
+
+        IEnumerable<(Point point, Vector2)> GetClosestPointsWithinHitTestDistance(Vector2 hitTestPoint, IEnumerable<(Point point, Vector2)> points)
+            => points
+                .OrderBy(x => Vector2.DistanceSquared(x.Item2, hitTestPoint))
+                .Where(x => IsWithinHitTestDistance(x.Item2 - hitTestPoint));
+
+        internal bool IsWithinHitTestDistance(Vector2 length) 
+            => length.LengthSquared() < PointHitTestDistance * PointHitTestDistance;
 
         public Calculator CreateCalculator() {
             return new Calculator(GetPointLocation);
