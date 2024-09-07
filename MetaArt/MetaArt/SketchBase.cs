@@ -151,6 +151,7 @@ namespace MetaArt {
 
         public static int floor(float d) => (int)Math.Floor(d);
         public static int ceil(float d) => (int)Math.Ceiling(d);
+        public static int round(float d) => (int)Math.Round(d);
         public static float exp(float d) => (float)Math.Exp(d);
         public static float sqrt(float d) => (float)Math.Sqrt(d);
         public static float log(float d) => (float)Math.Log(d);
