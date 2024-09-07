@@ -76,7 +76,9 @@ namespace MetaArt.XamarinForms {
                 deviceType: DeviceType.Mobile,
                 createSoundFile: CreateSoundFile,
                 getValue: name => Preferences.Get("Sketch_" + name, default(string)),
-                setValue: (name, value) => Preferences.Set("Sketch_" + name, value)
+                setValue: (name, value) => Preferences.Set("Sketch_" + name, value),
+                saveDialog: (_, __) => throw new NotImplementedException(),
+                openDialog: (_) => throw new NotImplementedException()
             );
             painter.SetSize((int)view.CanvasSize.Width, (int)view.CanvasSize.Height);
             painter.Setup();

@@ -116,11 +116,11 @@ namespace MetaArt.Skia {
 
         public override void OnKeyPress(char key, ModifierKeys modifier) {
             var command = UIElements.OfType<UICommandInfo>().FirstOrDefault(x => x.ShortCut == (key, modifier));
-            command?.Exectute();
+            command?.Execute();
             base.OnKeyPress(key, modifier);
         }
     }
     public abstract record UIElementInfo;
-    public record UICommandInfo(Action Exectute, string Caption, (char key, ModifierKeys modifier)? ShortCut) : UIElementInfo;
+    public record UICommandInfo(Action Execute, string Caption, (char key, ModifierKeys modifier)? ShortCut) : UIElementInfo;
     public record UICaptionInfo(string Caption, UICaption uiCaption) : UIElementInfo;
 }

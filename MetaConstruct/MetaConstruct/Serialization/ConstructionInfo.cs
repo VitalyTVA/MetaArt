@@ -217,14 +217,14 @@ namespace MetaConstruct.Serialization {
             public int Id { get; set; }
             public int Line { get; set; }
             public int Circle { get; set; }
-            [JsonConverter(typeof(JsonStringEnumConverter))]
+            [JsonConverter(typeof(JsonStringEnumConverter<CircleIntersectionKind>))]
             public CircleIntersectionKind Intersection { get; set; }
         }
         public class CircleCirclePointInfo {
             public int Id { get; set; }
             public int Circle1 { get; set; }
             public int Circle2 { get; set; }
-            [JsonConverter(typeof(JsonStringEnumConverter))]
+            [JsonConverter(typeof(JsonStringEnumConverter<CircleIntersectionKind>))]
             public CircleIntersectionKind Intersection { get; set; }
         }
         public class LineInfo {

@@ -62,7 +62,7 @@ namespace MetaArt.Wpf {
         public ICommand Command { get; }
         public string Name { get; }
         public CommandViewModel(UICommandInfo command) {
-            Command = new RelayCommand(command.Exectute);
+            Command = new RelayCommand(command.Execute);
             Name = command.Caption;
         }
     }

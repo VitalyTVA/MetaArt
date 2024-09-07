@@ -135,7 +135,7 @@ namespace MetaConstruct.Serialization {
         public enum SimpleSegmentKind { Line, Circle }
         public class SegmentInfo {
             public int Id { get; set; }
-            [JsonConverter(typeof(JsonStringEnumConverter))]
+            [JsonConverter(typeof(JsonStringEnumConverter<SimpleSegmentKind>))]
             public SimpleSegmentKind SegmentKind { get; set; }
             public int Primitive { get; set; }
             public int From { get; set; }
@@ -148,7 +148,7 @@ namespace MetaConstruct.Serialization {
         public enum ViewKind { Point, Line, Circle, LineSegment, CircleSegment, Contour }
         public class ViewInfo {
             public int Id { get; set; }
-            [JsonConverter(typeof(JsonStringEnumConverter))]
+            [JsonConverter(typeof(JsonStringEnumConverter<ViewKind>))]
             public ViewKind ViewKind { get; set; }
             public DisplayStyle DisplayStyle { get; set; }
         }
