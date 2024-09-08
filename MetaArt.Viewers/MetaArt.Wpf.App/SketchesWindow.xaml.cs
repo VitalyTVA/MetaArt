@@ -38,11 +38,11 @@ namespace MetaArt.Wpf {
             InitializeComponent();
 
             var sketchPaths = new (string dll, string path)[] {
+                ("MetaArt.Sketches.dll", SketchesPath),
+                ("MetaArt.Sketches.Skia.dll", SketchesSkiaPath),
                 ("MetaConstruct.Sketch.dll", MetaConstructPath),
                 ("MetaButton.Sketch.dll", MetaButtonPath),
                 ("Meta3D.Sketch.dll", Meta3DPath),
-                ("MetaArt.Sketches.dll", SketchesPath),
-                ("MetaArt.Sketches.Skia.dll", SketchesSkiaPath),
             };
 
             ResolveEventHandler handler = (o, e) => {
