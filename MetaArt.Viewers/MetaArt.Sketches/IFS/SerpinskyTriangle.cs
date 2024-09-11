@@ -10,7 +10,7 @@ class SerpinskyTriangle {
         stroke(255);
         strokeWeight(1);
         var r = 0.5f;
-        ifs = new(
+        var ifs = new IFS(
             Transforms: new[] {
                    new Vector2(0, 0),
                    new Vector2(width, 0),
@@ -19,34 +19,24 @@ class SerpinskyTriangle {
                 .Select(v => IFS.CreateLerpTransform(v, r))
                 .ToArray(),
             Probabilities: [1 / 3f, 2 / 3f ]
-
         );
+        pointsEnumerator = ifs.GetPointsIterator(new Vector2(0, 0), () => random(1)).GetEnumerator();
     }
 
-    IFS ifs = default!;
     Color[] colors = [Colors.Red, Colors.Green, Colors.Blue];
+    IEnumerator<(Vector2 point, int index)> pointsEnumerator = default!;
 
-    float x = 0;
-    float y = 0;
+
     void draw() {
         translate(0, height);
         scale(1, -1);
 
-        int maximum_iterations = 30;
-        float t = 0;
-        while(t < maximum_iterations) {
-            float xn = 0;
-            float yn = 0;
-            float r = random(1);
-            var (v, i) = ifs.Transform(new Vector2(x, y), r);
-            xn = v.X;
-            yn = v.Y;
-
+        var t = 0;
+        while(t++ < 30) {
+            pointsEnumerator.MoveNext();
+            var (v, i) = pointsEnumerator.Current;
             stroke(colors[i]);
-            point(round(xn), round(yn));
-            x = xn;
-            y = yn;
-            t++;
+            point(round(v.X), round(v.Y));
         }
     }
 }
@@ -63,4 +53,11 @@ record IFS(Matrix3x2[] Transforms, float[] Probabilities) {
         }
         return (Vector2.Transform(point, Transforms[i]), i);
     }
+    public IEnumerable<(Vector2 point, int index)> GetPointsIterator(Vector2 point, Func<float> getRandomValue) {
+        while(true) {
+            var next = Transform(point, getRandomValue());
+            point = next.point;
+            yield return next;
+        }
+    } 
 }
