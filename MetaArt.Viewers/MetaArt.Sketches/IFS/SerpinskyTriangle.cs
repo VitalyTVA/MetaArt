@@ -9,26 +9,47 @@ class SerpinskyTriangle {
         size(800, 800);
         stroke(255);
         strokeWeight(1);
-        var r = 0.5f;
+
+        var n = 4;
+        var r = GetOptimalRatio(n);
+        var vertices = Enumerable.Range(0, n)
+            .Select(i => new Vector2(cos(i * TWO_PI / n), sin(i * TWO_PI / n)))
+            .ToArray();
+
         var ifs = new IFS(
-            Transforms: new[] {
-                   new Vector2(0, 0),
-                   new Vector2(width, 0),
-                   new Vector2(width / 2, height),
-                }
-                .Select(v => IFS.CreateLerpTransform(v, r))
+            Transforms: vertices
+                .Select(v => IFS.CreateLerpTransform(v, 1 - r))
                 .ToArray(),
-            Probabilities: [1 / 3f, 2 / 3f ]
+            Probabilities: Enumerable.Range(0, n - 1).Select(i => (i + 1) / (float)n).ToArray()
         );
-        pointsEnumerator = ifs.GetPointsIterator(new Vector2(0, 0), () => random(1)).GetEnumerator();
+        pointsEnumerator = ifs.GetPointsIterator(vertices[0], () => random(1)).GetEnumerator();
     }
 
-    Color[] colors = [Colors.Red, Colors.Green, Colors.Blue];
+    static float GetOptimalRatio(int n) {
+        //https://en.wikipedia.org/wiki/Chaos_game#Optimal_value_of_r_for_every_regular_polygon
+        return (n % 4) switch {
+            0 => 1 / (1 + tan(PI / n)),
+            1 or 3 => 1 / (1 + 2 * sin(PI / (2 * n))),
+            2 => 1 / (1 + sin(PI / n))
+        };    
+    }
+   
+
+    Color[] colors = [
+        Colors.Red, 
+        Colors.Green, 
+        Colors.Blue, 
+        Colors.Pink, 
+        Colors.Green,
+        Colors.Orange,
+        Colors.Yellow,
+        Colors.White,
+    ];
     IEnumerator<(Vector2 point, int index)> pointsEnumerator = default!;
 
 
     void draw() {
-        translate(0, height);
+        translate(width / 2, height / 2);
         scale(1, -1);
 
         var t = 0;
@@ -36,7 +57,7 @@ class SerpinskyTriangle {
             pointsEnumerator.MoveNext();
             var (v, i) = pointsEnumerator.Current;
             stroke(colors[i]);
-            point(round(v.X), round(v.Y));
+            point(round(v.X * width / 2), round(v.Y * height / 2));
         }
     }
 }

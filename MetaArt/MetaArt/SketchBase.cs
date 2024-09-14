@@ -158,6 +158,7 @@ namespace MetaArt {
         public static float pow(float n, float e) => (float)Math.Pow(n, e);
         public static float sin(float angle) => (float)Math.Sin(angle);
         public static float cos(float angle) => (float)Math.Cos(angle);
+        public static float tan(float angle) => (float)Math.Tan(angle);
         public static float atan2(float y, float x) => (float)Math.Atan2(y, x);
         public static float dist(float x1, float y1, float x2, float y2) {
             var x = x1 - x2;
