@@ -23,6 +23,8 @@ class SerpinskyTriangle {
             Probabilities: Enumerable.Range(0, n - 1).Select(i => (i + 1) / (float)n).ToArray()
         );
         pointsEnumerator = ifs.GetPointsIterator(vertices[0], () => random(1)).GetEnumerator();
+
+        choice([("Triangle", 3), ("Pentagon", 5), ("Hexagon", 6)], x => { });
     }
 
     static float GetOptimalRatio(int n) {

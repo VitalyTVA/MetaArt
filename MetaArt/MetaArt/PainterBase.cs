@@ -394,6 +394,7 @@ namespace MetaArt {
 
         protected internal abstract void uiCommand(Action exectute, string caption, (char key, ModifierKeys modifier)? shortCut);
         protected internal abstract UICaption uiCaption(string caption);
+        protected internal abstract void uiChoice<T>((string caption, T value)[] source, Action<(string caption, T value)> changed);
     }
     public class UICaption {
         public UICaption(Action onChanged) {

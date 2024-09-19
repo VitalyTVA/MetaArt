@@ -30,6 +30,7 @@ namespace MetaArt.Wpf {
                     return x switch {
                         UICommandInfo c => new CommandViewModel(c),
                         UICaptionInfo c => new CaptionViewModel(c),
+                        UIChoiceInfo c => new ChoiceViewModel(c),
                         _ => throw new NotImplementedException(), 
                     };
                 })
@@ -40,6 +41,8 @@ namespace MetaArt.Wpf {
             uiElements.ItemsSource = itemsSource;
         }
     }
+
+
     public abstract class UIElementViewModel : ObservableObject {
         public virtual void OnChanged() { }
     }
@@ -66,13 +69,21 @@ namespace MetaArt.Wpf {
             Name = command.Caption;
         }
     }
+    public class ChoiceViewModel : UIElementViewModel {
+        public ChoiceViewModel(UIChoiceInfo choice) {
+            Source = choice.Source;
+        }
+        public (string caption, object value)[] Source { get; }
+    }
     public class UIElementTemplateSelector : DataTemplateSelector {
         public DataTemplate? Caption { get; set; }
         public DataTemplate? Command { get; set; }
+        public DataTemplate? Choice { get; set; }
         public override DataTemplate SelectTemplate(object item, DependencyObject container) {
             return (item switch {
                 CaptionViewModel => Caption,
                 CommandViewModel => Command,
+                ChoiceViewModel => Choice,
                 _ => throw new NotImplementedException(),
             })!;
         }

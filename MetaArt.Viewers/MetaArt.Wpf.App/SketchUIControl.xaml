@@ -32,6 +32,13 @@
                             </StackPanel>
                         </DataTemplate>
                     </local:UIElementTemplateSelector.Caption>
+                    <local:UIElementTemplateSelector.Choice>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding Source}" SelectedIndex="0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </local:UIElementTemplateSelector.Choice>
                 </local:UIElementTemplateSelector>
             </ItemsControl.ItemTemplateSelector>
         </ItemsControl>

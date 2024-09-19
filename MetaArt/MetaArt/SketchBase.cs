@@ -249,6 +249,7 @@ namespace MetaArt {
 
         public static void command(Action exectute, string caption, (char key, ModifierKeys modifier)? shortCut = null) => Painter.uiCommand(exectute, caption, shortCut);
         public static UICaption caption(string caption) => Painter.uiCaption(caption);
+        public static void choice<T>((string caption, T value)[] source, Action<(string caption, T value)> changed) => Painter.uiChoice(source, changed);
     }
     [Flags]
     public enum ModifierKeys { 
