@@ -10,7 +10,7 @@ class SerpinskyTriangle {
         stroke(255);
         strokeWeight(1);
 
-        var n = 4;
+        var n = 3;
         var r = GetOptimalRatio(n);
         var vertices = Enumerable.Range(0, n)
             .Select(i => new Vector2(cos(i * TWO_PI / n), sin(i * TWO_PI / n)))
