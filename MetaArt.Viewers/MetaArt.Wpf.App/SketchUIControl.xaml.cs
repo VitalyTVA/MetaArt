@@ -30,7 +30,7 @@ namespace MetaArt.Wpf {
                     return x switch {
                         UICommandInfo c => new CommandViewModel(c),
                         UICaptionInfo c => new CaptionViewModel(c),
-                        UIChoiceInfo c => new ChoiceViewModel(c),
+                        UIChoiceInfo c => new ChoiceViewModel(c, x => painter.OnChoiceChanged(() => c.Changed(x))),
                         _ => throw new NotImplementedException(), 
                     };
                 })
@@ -70,11 +70,23 @@ namespace MetaArt.Wpf {
         }
     }
     public class ChoiceViewModel : UIElementViewModel {
-        public ChoiceViewModel(UIChoiceInfo choice) {
+
+        public ChoiceViewModel(UIChoiceInfo choice, Action<ChoiceElement<object>> changed) {
             Source = choice.Source;
+            selected = Source.First();
+            this.changed = changed;
         }
         public ChoiceElement<object>[] Source { get; }
+        ChoiceElement<object> selected;
+        private readonly Action<ChoiceElement<object>> changed;
 
+        public ChoiceElement<object> Selected {
+            get => selected;
+            set {
+                if(SetProperty(ref selected, value))
+                    changed(value);
+            }
+        }
     }
     public class UIElementTemplateSelector : DataTemplateSelector {
         public DataTemplate? Caption { get; set; }

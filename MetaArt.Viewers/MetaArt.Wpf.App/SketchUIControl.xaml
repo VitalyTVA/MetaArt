@@ -35,7 +35,7 @@
                     <local:UIElementTemplateSelector.Choice>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <ComboBox ItemsSource="{Binding Source}" SelectedIndex="0"/>
+                                <ComboBox ItemsSource="{Binding Source}" SelectedItem="{Binding Selected, Mode=TwoWay}"/>
                             </StackPanel>
                         </DataTemplate>
                     </local:UIElementTemplateSelector.Choice>

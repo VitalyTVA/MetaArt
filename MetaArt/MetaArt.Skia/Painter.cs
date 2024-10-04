@@ -114,6 +114,10 @@ namespace MetaArt.Skia {
         protected override void uiChoice<T>(ChoiceElement<T>[] source, Action<ChoiceElement<T>> changed) {
             UIElements.Add(new UIChoiceInfo(source.Select(x => new ChoiceElement<object>(x.Caption, x.Value!)).ToArray(), x => changed(new ChoiceElement<T>(x.Caption, (T)x.Value))));
         }
+        public void OnChoiceChanged(Action changed) {
+            preRenderQueue.Enqueue(changed);
+            invalidate();
+        }
 
 
         public event EventHandler? UIElementChanged;

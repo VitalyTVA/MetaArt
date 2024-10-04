@@ -10,7 +10,20 @@ class SerpinskyTriangle {
         stroke(255);
         strokeWeight(1);
 
-        var n = 5;
+
+        ChoiceElement<int>[] source = [
+            new ChoiceElement<int>("Triangle", 3),
+            new ChoiceElement<int>("Pentagon", 5),
+            new ChoiceElement<int>("Hexagon", 6)
+        ];
+        Init(source[0].Value);
+        choice(source, x => {
+            background(0);
+            Init(x.Value);
+        });
+    }
+
+    void Init(int n) {
         var r = GetOptimalRatio(n);
         var vertices = Enumerable.Range(0, n)
             .Select(i => new Vector2(cos(i * TWO_PI / n), sin(i * TWO_PI / n)))
@@ -23,12 +36,6 @@ class SerpinskyTriangle {
             Probabilities: Enumerable.Range(0, n - 1).Select(i => (i + 1) / (float)n).ToArray()
         );
         pointsEnumerator = ifs.GetPointsIterator(vertices[0], () => random(1)).GetEnumerator();
-
-        choice([
-            new ChoiceElement<int>("Triangle", 3),
-            new ChoiceElement<int>("Pentagon", 5),
-            new ChoiceElement<int>("Hexagon", 6)
-        ], x => { });
     }
 
     static float GetOptimalRatio(int n) {
