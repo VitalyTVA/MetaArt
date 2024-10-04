@@ -73,7 +73,7 @@ namespace MetaArt.Wpf {
         public ChoiceViewModel(UIChoiceInfo choice) {
             Source = choice.Source;
         }
-        public (string caption, object value)[] Source { get; }
+        public ChoiseElement<object>[] Source { get; }
     }
     public class UIElementTemplateSelector : DataTemplateSelector {
         public DataTemplate? Caption { get; set; }

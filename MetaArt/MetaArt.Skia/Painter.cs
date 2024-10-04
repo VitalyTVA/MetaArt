@@ -111,8 +111,8 @@ namespace MetaArt.Skia {
             UIElements.Add(new UICaptionInfo(caption, uiCaption));
             return uiCaption;
         }
-        protected override void uiChoice<T>((string caption, T value)[] source, Action<(string caption, T value)> changed) {
-            UIElements.Add(new UIChoiceInfo(source.Select(x => (x.caption, (object)x.value!)).ToArray(), x => changed((x.caption, (T)x.value))));
+        protected override void uiChoice<T>(ChoiseElement<T>[] source, Action<ChoiseElement<T>> changed) {
+            UIElements.Add(new UIChoiceInfo(source.Select(x => new ChoiseElement<object>(x.Caption, x.Value!)).ToArray(), x => changed(new ChoiseElement<T>(x.Caption, (T)x.Value))));
         }
 
 
@@ -127,5 +127,5 @@ namespace MetaArt.Skia {
     public abstract record UIElementInfo;
     public record UICommandInfo(Action Execute, string Caption, (char key, ModifierKeys modifier)? ShortCut) : UIElementInfo;
     public record UICaptionInfo(string Caption, UICaption uiCaption) : UIElementInfo;
-    public record UIChoiceInfo((string caption, object value)[] Source, Action<(string caption, object value)> Changed) : UIElementInfo;
+    public record UIChoiceInfo(ChoiseElement<object>[] Source, Action<ChoiseElement<object>> Changed) : UIElementInfo;
 }
