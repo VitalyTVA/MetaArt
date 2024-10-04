@@ -25,9 +25,9 @@ class SerpinskyTriangle {
         pointsEnumerator = ifs.GetPointsIterator(vertices[0], () => random(1)).GetEnumerator();
 
         choice([
-            new ChoiseElement<int>("Triangle", 3),
-            new ChoiseElement<int>("Pentagon", 5),
-            new ChoiseElement<int>("Hexagon", 6)
+            new ChoiceElement<int>("Triangle", 3),
+            new ChoiceElement<int>("Pentagon", 5),
+            new ChoiceElement<int>("Hexagon", 6)
         ], x => { });
     }
 

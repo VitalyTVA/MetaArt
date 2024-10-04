@@ -249,9 +249,9 @@ namespace MetaArt {
 
         public static void command(Action exectute, string caption, (char key, ModifierKeys modifier)? shortCut = null) => Painter.uiCommand(exectute, caption, shortCut);
         public static UICaption caption(string caption) => Painter.uiCaption(caption);
-        public static void choice<T>(ChoiseElement<T>[] source, Action<ChoiseElement<T>> changed) => Painter.uiChoice(source, changed);
+        public static void choice<T>(ChoiceElement<T>[] source, Action<ChoiceElement<T>> changed) => Painter.uiChoice(source, changed);
     }
-    public record ChoiseElement<T>(string Caption, T Value);
+    public record ChoiceElement<T>(string Caption, T Value);
     [Flags]
     public enum ModifierKeys { 
         None = 0,
