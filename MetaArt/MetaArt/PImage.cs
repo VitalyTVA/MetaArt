@@ -11,4 +11,5 @@ namespace MetaArt {
     public abstract class SoundFile {
         public abstract void play();
     }
+
 }
