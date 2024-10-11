@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace MetaArt.ProcessingCompatibility {
+
     public class ArrayList<T> : List<T> {
         //TODO make extension methods?
         public void add(T item) => Add(item);
