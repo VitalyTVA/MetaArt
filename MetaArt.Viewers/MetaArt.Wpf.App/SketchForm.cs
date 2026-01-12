@@ -78,7 +78,7 @@ namespace MetaArt.Wpf {
             skglControl1.MouseWheel += SkglControl1_MouseWheel;
             MouseWheel += SkglControl1_MouseWheel;
             //skglControl1.Visible = false;
-            Width = Screen.PrimaryScreen.WorkingArea.Width;
+            Width = Screen.PrimaryScreen!.WorkingArea.Width;
             Height = Screen.PrimaryScreen.WorkingArea.Height;
 
             ctrlHost = new ElementHost();

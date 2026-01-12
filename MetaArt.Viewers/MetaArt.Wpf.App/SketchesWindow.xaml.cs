@@ -32,12 +32,14 @@ namespace MetaArt.Wpf {
         const string SketchesSkiaPath = @"..\..\..\..\MetaArt.Sketches.Skia\bin\Debug\netstandard2.0\";
         const string Meta3DPath = @"..\..\..\..\..\Meta3D\Meta3D.Sketch\bin\Debug\netstandard2.0\";
         const string MetaConstructPath = @"..\..\..\..\..\MetaConstruct\MetaConstruct.Sketch\bin\Debug\netstandard2.0\";
+        const string MetaChessPath = @"..\..\..\..\..\..\MetaChess\MetaChess\MetaChess.Sketch\bin\Debug\net9.0\";
 
 
         public SketchesWindow() {
             InitializeComponent();
 
             var sketchPaths = new (string dll, string path)[] {
+                ("MetaChess.Sketch.dll", MetaChessPath),
                 ("MetaArt.Sketches.dll", SketchesPath),
                 ("MetaArt.Sketches.Skia.dll", SketchesSkiaPath),
                 ("MetaConstruct.Sketch.dll", MetaConstructPath),
